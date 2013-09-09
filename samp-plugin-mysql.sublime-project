@@ -1,0 +1,29 @@
+{
+	"build_systems":
+	[
+		{
+			"cmd": ["make"],
+            "working_dir": "$project_path",
+			"name": "Compile dynamic"
+		},
+        {
+			"cmd": ["make", "-f", "makefile_staticlib"],
+            "working_dir": "$project_path",
+			"name": "Compile static"
+		}
+	],
+	"folders":
+	[
+		{
+			"folder_exclude_patterns":
+			[
+				"boost",
+				"boost_lib",
+				"mysql_include",
+				"mysql_lib"
+			],
+			"follow_symlinks": true,
+			"path": "src"
+		}
+	]
+}

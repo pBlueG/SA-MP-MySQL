@@ -1,0 +1,11 @@
+/bin/
+*.o
+*.so
+*~
+/archive/
+/Release/
+/Debug/
+*.html
+*.sdf
+*.opensdf
+*.suo

@@ -1,0 +1,138 @@
+R33
+- added ORM system
+- improved Windows XP compatibility (proven to work now)
+- added parameter values to debug native log messages
+- improved y_inline compatiblity code
+- "orm_select" and "orm_insert" support y_inline (use "orm_select_inline" and "orm_insert_inline")
+- added Cache-tags to cache_set_active, cache_save and cache_delete
+- added natives "cache_get_row_count" and "cache_get_field_count"
+- added more safety checks
+- speed improvements
+- fixed bug where mysql_free_result wasn't called internally if callback processing was skipped
+- improved thread safety
+- improved HTML-logging, reduced file size
+- code cleanup
+- rewrote the whole (multi-)threading system, multi-threading works now only per-connection (every connection has their own thread)
+- added native "mysql_query" for unthreaded queries
+- native "mysql_reconnect" no longer returns true if connection was successful and false if not, use "mysql_errno" instead
+- improved makefile, use "make" to create a dynamic and static version, "make dynamic" and "make static" are self-explaining
+
+R31
+- added empty string checks to datatype conversion
+- changed some details in the log system
+- limited threads to 6
+
+R30
+- changed datatype conversion again (method in R29 was slow and still bugging)
+- fixed some log messages
+- fixed crash when unloading the plugin
+- code improvements
+
+R29
+- fixed wrong function name logging in mysql_escape_string
+- changed datatype conversion, it is now independent of the field data type
+- fixed bug where automatic reconnect is always disabled
+
+R28
+- code improvements
+- added more string checks
+- added '%%' specifier to native 'mysql_format'
+- fixed thread logic mistake
+- fixed bug where saving and deleting the active result in the same callback would crash the server
+- fixed bug where HTML log variables weren't initialized properly
+- fixed bug where sending a query after a reconnect the old MySQL handle was used
+- improved thread safety
+- edited threading design: plugin uses one thread fewer; connections to the MySQL server are now established/closed in real-time
+- mysql_reconnect returns true if connection is established, else false
+- added optional parameter "autoreconnect" to mysql_connect to control whether the plugin should reconnect automatically if connection is lost
+- added optional parameter "wait" to mysql_close to control whether the plugin should wait till all pending queries are executed or not
+- code improvements
+- re-added our old and beloved native mysql_errno
+- fixed buffer overflow in logging system
+
+R27
+- added support for y_inline
+- fixed some memory leaks
+- improved Windows XP compatibility
+- fixed bug where OnQueryError parameters had empty values
+- renamed mysql_real_escape_string to mysql_escape_string
+- rewrote native mysql_format
+- reduced usage of memory allocation (malloc)
+- added enum datatype support to int-conversion natives
+- replaced mysql_function_query native wrapper with pawn define
+- changed MySQL connector again (sorry for that, Windows users will have to update the libmysql.dll again)
+- improved HTML log file design
+
+R26
+- removed native mysql_mt
+- multi-threading activates automatically depending on number of CPU cores
+- increased overall performance (2x faster on Linux!)
+- updated MySQL connector
+- added a new log system: visual .html log file, which is also much much faster than old system (90 times faster on my machine!)
+- added new parameter to mysql_log: logtype (LOG_TYPE_TEXT (default) or LOG_TYPE_HTML)
+- plugin should now be compatible on all machines running Windows XP
+
+R25
+- fixed unreferenced symbol error on Linux
+- fixed bug when calling mysql_mt(false) the multithreading system gets initialized anyway (but not used)
+- fixed crash on Linux
+
+R24:
+- fixed bug where the mysql_function_query wrapper crashed
+- fixed bug where multithreading was still initiated even when not activated with 'mysql_mt'
+- fixed makefile's
+- increased performance of all _int and _float functions
+
+R23:
+- added natives cache_affected_rows, cache_insert_id and cache_warning_count
+- re-added mysql_function_query (cache parameter is ignored by the plugin, cache always enabled)
+- fixed crash in mysql_real_escape_string
+- improved performance of all _int and _float functions
+
+R21:
+- code overhaul, this plugin is now cache-only
+- increased performance
+- removed all mysql_fetch natives and replaced them with cache-wrappers
+- fixed bug where active cache gets deleted even if it is stored when calling 'cache_set_active'
+- improved mutex performance on Windows
+- mutex now again enabled by default (on Windows AND Linux)
+- if calling 'cache_set_active(0)', active cache will be cleared (, so there is no active cache anymore, but the cache won't be deleted if it was stored before)
+- removed natives 'mysql_debug', 'mysql_errno', 'mysql_warning_count', 'mysql_ping'
+- renamed native 'mysql_function_query' to 'mysql_tquery' and removed cache parameter
+- added multithreading, disabled by default, enable by calling 'mysql_mt(true)'
+  WARNING: Multithreading can be slower than normal threading on computers with bad CPU's, make sure you have at least 2 cores!
+- when calling mysql_close, the connection will only be closed when all pending queries are executed
+- when sending queries in OnGameModeExit and shutting down the server, the plugin (and therefore the server) will only close when all pending queries are executed
+
+
+R20:
+- fixed bug with mysql_fetch_field freeing wrong memory
+- fixed evil bug with mysql_data_seek getting a wrong connection handle which led to a dead lock
+- fixed many possible mutex errors/deadlocks (especially when providing a invalid connection handle)
+- fixed bug where using 'LOG_NONE' in mysql_log would be ignored
+- renamed 'cache_store' to 'cache_save' due to confusion
+- renamed 'cache_free' to 'cache_delete' due to confusion
+- fixed several bugs with mysql_format (string precision, %s and %e specifiers were ignored if value was empty, wrong memory allocation when used decimal precision)
+- added parameter 'len' to mysql_format after parameter 'output' to avoid memory overwriting (mysql_format(SQL, dest, sizeof(dest), "SELECT...); instead of mysql_format(SQL, dest, "SELECT...);)
+
+
+R18:
+- renamed 'cache_get_field_int' to 'cache_get_field_content_int'
+- renamed 'cache_get_field_float' to 'cache_get_field_content_float'
+- fixed bug where converting a value with an other datatype than 'int' in the function 'cache_get_field_content_int' resulted in a crash (same thing with float-function)
+- fixed bug where converting a value with an other datatype than 'int' in the function 'cache_get_row_int' resulted in a crash (same thing with float-function)
+- fixed bug with invalid file pointer
+- fixed bug when opening 2 connections and closing the first one, the second one will be invalid and will become the first one.
+- connections will now only be detected as duplicate if the connection data is exactly the same as the duplicate's one (wasn't the case before)
+- fixed crash when providing an invalid index to 'cache_get_row'
+- the mutex method is now enabled by default on Windows only (you can still disable it with 'enable_mutex(false)')
+- added functions 'cache_store', 'cache_free' and 'cache_set_active':
+  - use 'cache_store()' to store the active cache. 'cache_store' returns an id which can be used in 'cache_free' and 'cache_set_active'.
+  - use 'cache_free(id)' to release the memory of the stored cache. The stored memory gets released anyway when closing the mysql connection.
+  - use 'cache_set_active(id)' to set the stored cache to the active one. When the cache is in the active-state, all normal cache functions can be used. The cache will stay as active until a cache-enabled query will be sent and the public called. Then the active cache is the normal cache.
+- added function 'mysql_log':
+  this function replaces 'mysql_debug' (alltough it's still available for backwards compability). Now you can control which things get logged, i.e. you can call 'mysql_log(LOG_ERROR | LOG_DEBUG)' to log only errors and debug informations. The default log setting is 'LOG_ERROR | LOG_WARNING', thus will log only errors and warnings. Available log types are 'LOG_ERROR', 'LOG_WARNING', 'LOG_DEBUG' and 'LOG_NONE'.
+- added prefixes to log lines which indicate if that log is an error, warning or debug information (i.e. '[14:32:29] [ERROR] CMySQLHandler...' instead of '[14:32:29] CMySQLHandler...')
+- fixed bug with mutex deadlock on Linux
+- fixed bug: not calling mysql_store and _free will cause the a 'commands out of sync' error when mysql_ping gets called in the internal mysql-thread. (alltough have no clue how I fixed that and how that bug happened)
+- when a query-error occured in the internal mysql-thread, the error will now be printed in the mysql-log AND forwarded to the error-callback (the error was only forwarded to the callback before)

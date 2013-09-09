@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{53A7F0FD-6581-4F8A-A8D6-F4C2F50E72DF}</ProjectGuid>
+    <RootNamespace>samppluginmysql</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110_xp</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>bin\</OutDir>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>mysql</TargetName>
+    <IncludePath>src;$(IncludePath)</IncludePath>
+    <LibraryPath>src\boost_lib;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>mysql</TargetName>
+    <IncludePath>src;$(IncludePath)</IncludePath>
+    <LibraryPath>src\boost_lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BOOST_ALL_NO_LIB;BOOST_THREAD_DONT_USE_CHRONO;WINVER=0x0501;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>plugin.def</ModuleDefinitionFile>
+      <AdditionalDependencies>src/mysql_lib/libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE,5.01 /OSVERSION:5.1 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>COPY "$(TargetPath)" "D:\MySQL R8 Testing\plugins\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BOOST_ALL_NO_LIB;BOOST_THREAD_DONT_USE_CHRONO;WINVER=0x0501;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>src/mysql_lib/libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>plugin.def</ModuleDefinitionFile>
+      <Profile>true</Profile>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE,5.01 /OSVERSION:5.1 %(AdditionalOptions)</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>COPY "$(TargetPath)" "D:\MySQL R8 Testing\plugins\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\boost_lib\date_time\greg_names.hpp" />
+    <ClInclude Include="src\boost_lib\system\local_free_on_destruction.hpp" />
+    <ClInclude Include="src\CCallback.h" />
+    <ClInclude Include="src\CLog.h" />
+    <ClInclude Include="src\CMySQLHandle.h" />
+    <ClInclude Include="src\CMySQLQuery.h" />
+    <ClInclude Include="src\CMySQLResult.h" />
+    <ClInclude Include="src\COrm.h" />
+    <ClInclude Include="src\CScripting.h" />
+    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\misc.h" />
+    <ClInclude Include="src\SDK\amx\amx.h" />
+    <ClInclude Include="src\SDK\amx\getch.h" />
+    <ClInclude Include="src\SDK\amx\sclinux.h" />
+    <ClInclude Include="src\SDK\plugin.h" />
+    <ClInclude Include="src\SDK\plugincommon.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\boost_lib\date_time\date_generators.cpp" />
+    <ClCompile Include="src\boost_lib\date_time\gregorian_types.cpp" />
+    <ClCompile Include="src\boost_lib\date_time\greg_month.cpp" />
+    <ClCompile Include="src\boost_lib\date_time\greg_weekday.cpp" />
+    <ClCompile Include="src\boost_lib\system\error_code.cpp" />
+    <ClCompile Include="src\boost_lib\thread\future.cpp" />
+    <ClCompile Include="src\boost_lib\thread\tss_null.cpp" />
+    <ClCompile Include="src\boost_lib\thread\win32\thread.cpp" />
+    <ClCompile Include="src\boost_lib\thread\win32\tss_dll.cpp" />
+    <ClCompile Include="src\boost_lib\thread\win32\tss_pe.cpp" />
+    <ClCompile Include="src\CCallback.cpp" />
+    <ClCompile Include="src\CLog.cpp" />
+    <ClCompile Include="src\CMySQLHandle.cpp" />
+    <ClCompile Include="src\CMySQLQuery.cpp" />
+    <ClCompile Include="src\CMySQLResult.cpp" />
+    <ClCompile Include="src\COrm.cpp" />
+    <ClCompile Include="src\CScripting.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\misc.cpp" />
+    <ClCompile Include="src\SDK\amxplugin.cpp" />
+    <ClCompile Include="src\SDK\amx\getch.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
