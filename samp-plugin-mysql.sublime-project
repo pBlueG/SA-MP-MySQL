@@ -2,14 +2,19 @@
 	"build_systems":
 	[
 		{
-			"cmd": ["make"],
+			"cmd": ["make", "dynamic"],
             "working_dir": "$project_path",
 			"name": "Compile dynamic"
 		},
         {
-			"cmd": ["make", "-f", "makefile_staticlib"],
+			"cmd": ["make", "static"],
             "working_dir": "$project_path",
 			"name": "Compile static"
+		},
+        {
+			"cmd": "make",
+            "working_dir": "$project_path",
+			"name": "Compile dynamic+static"
 		}
 	],
 	"folders":
