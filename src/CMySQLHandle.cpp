@@ -93,6 +93,7 @@ void CMySQLHandle::Destroy() {
 
 
 void CMySQLHandle::ProcessQueries() {
+	mysql_thread_init();
 	while(m_QueryThreadRunning) {
 		CMySQLQuery *query = NULL;
 		while(m_QueryQueue.pop(query))
@@ -100,6 +101,7 @@ void CMySQLHandle::ProcessQueries() {
 		
 		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}
+	mysql_thread_end();
 }
 
 

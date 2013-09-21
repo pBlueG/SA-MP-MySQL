@@ -8,6 +8,7 @@ using std::string;
 
 
 class CMySQLHandle;
+class CMySQLConnection;
 class CMySQLResult;
 class CCallback;
 class COrm;
@@ -15,15 +16,17 @@ class COrm;
 
 class CMySQLQuery {
 public:
-	static CMySQLQuery *Create(const char *query, CMySQLHandle *connhandle, const char *cbname, const char *cbformat, COrm *ormobject = NULL, unsigned short orm_querytype = 0);
+	static CMySQLQuery *Create(const char *query, CMySQLHandle *connhandle, const char *cbname, const char *cbformat, bool threaded = true, COrm *ormobject = NULL, unsigned short orm_querytype = 0);
 	void Destroy();
 
-	void Execute(bool threaded=true);
+	void Execute();
 
 
 	string Query;
+	bool Threaded;
 
 	CMySQLHandle *ConnHandle;
+	CMySQLConnection *Connection;
 	CMySQLResult *Result;
 	CCallback *Callback;
 
