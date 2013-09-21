@@ -278,7 +278,7 @@ void COrm::GenerateDeleteQuery(string &dest) {
 	dest = StrBuf;
 }
 
-void COrm::GenerateSaveQuery(string &dest) {
+unsigned short COrm::GenerateSaveQuery(string &dest) {
 	bool HasValidKeyValue = false;
 	if(m_KeyVar->Datatype == DATATYPE_STRING) {
 		char *StrVal = (char *)alloca(sizeof(char) * m_KeyVar->MaxLen+1);
