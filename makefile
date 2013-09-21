@@ -11,6 +11,7 @@ dynamic: compile dynamic_link clean
 static: compile static_link clean
 
 compile:
+	@mkdir -p bin
 	@echo Compiling plugin..
 	@ $(GPP) $(COMPILE_FLAGS) src/*.cpp
 	@echo Compiling plugin SDK..
