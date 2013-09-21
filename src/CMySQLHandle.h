@@ -157,7 +157,7 @@ private:
 
 	CMySQLConnection
 		*m_MainConnection, //only used in main thread
-		*m_QueryConnection; //used for unthreaded queries
+		*m_QueryConnection; //used for threaded queries
 };
 
 enum E_DATATYPES 

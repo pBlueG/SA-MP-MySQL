@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable: 4996)
 
 #include <cstdio>
 #include <sstream>
@@ -185,7 +186,6 @@ void COrm::GenerateUpdateQuery(string &dest) {
 
 		switch( Var->Datatype) {
 		case DATATYPE_INT:
-			if(FirstIt == true)
 			sprintf(StrBuf, "%s`%s`='%d'", FirstIt == true ? "" : ",", Var->Name.c_str(), static_cast<int>( *(Var->Address) ));
 			break;
 		case DATATYPE_FLOAT:
@@ -336,9 +336,8 @@ void COrm::ClearVariableValues() {
 		}
 	}
 	//also clear key variable
-	if(m_KeyVar->Datatype == DATATYPE_STRING) {
+	if(m_KeyVar->Datatype == DATATYPE_STRING)
 		amx_SetString(m_KeyVar->Address, "", 0, 0, m_KeyVar->MaxLen);
-	}
 	else //DATATYPE_INT
 		(*(m_KeyVar->Address)) = 0;
 }
