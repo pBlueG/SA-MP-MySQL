@@ -278,6 +278,27 @@ void COrm::GenerateDeleteQuery(string &dest) {
 	dest = StrBuf;
 }
 
+void COrm::GenerateSaveQuery(string &dest) {
+	bool HasValidKeyValue = false;
+	if(m_KeyVar->Datatype == DATATYPE_STRING) {
+		char *StrVal = (char *)alloca(sizeof(char) * m_KeyVar->MaxLen+1);
+		amx_GetString(StrVal, m_KeyVar->Address, 0, m_KeyVar->MaxLen);
+		HasValidKeyValue = (strlen(StrVal) > 0);
+	}
+	else //DATATYPE_INT
+		HasValidKeyValue = (static_cast<int>( *(m_KeyVar->Address) ) > 0);
+
+	
+	if(HasValidKeyValue == true) { //there is a valid key value -> update
+		GenerateUpdateQuery(dest);
+		return ORM_QUERYTYPE_UPDATE;
+	}
+	else { //no valid key value -> insert
+		GenerateInsertQuery(dest);
+		return ORM_QUERYTYPE_INSERT;
+	}
+}
+
 
 
 void COrm::AddVariable(char *varname, cell *address, unsigned short datatype, size_t len) {

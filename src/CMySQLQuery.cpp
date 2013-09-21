@@ -69,6 +69,8 @@ CMySQLQuery *CMySQLQuery::Create(
 		case ORM_QUERYTYPE_DELETE:
 			ormobject->GenerateDeleteQuery(Query->Query);
 			break;
+		case ORM_QUERYTYPE_SAVE:
+			orm_querytype = ormobject->GenerateSaveQuery(Query->Query);
 		}
 
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLQuery::Create", "query successful generated");

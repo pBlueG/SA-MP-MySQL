@@ -18,6 +18,8 @@ namespace Native {
 	cell AMX_NATIVE_CALL orm_insert(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL orm_delete(AMX* amx, cell* params);
 
+	cell AMX_NATIVE_CALL orm_save(AMX* amx, cell* params);
+
 	cell AMX_NATIVE_CALL orm_apply_cache(AMX* amx, cell* params);
 
 	cell AMX_NATIVE_CALL orm_addvar(AMX* amx, cell* params);

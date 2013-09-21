@@ -46,6 +46,7 @@ public:
 	void GenerateInsertQuery(string &dest);
 	void ApplyInsertResult(CMySQLResult *result);
 	void GenerateDeleteQuery(string &dest);
+	unsigned short GenerateSaveQuery(string &dest);
 
 	void ClearVariableValues();
 
@@ -107,7 +108,9 @@ enum ORM_QUERYTYPE {
 	ORM_QUERYTYPE_SELECT=1,
 	ORM_QUERYTYPE_UPDATE,
 	ORM_QUERYTYPE_INSERT,
-	ORM_QUERYTYPE_DELETE
+	ORM_QUERYTYPE_DELETE,
+
+	ORM_QUERYTYPE_SAVE
 };
 
 
