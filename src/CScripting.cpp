@@ -90,12 +90,18 @@ cell AMX_NATIVE_CALL Native::orm_select(AMX* amx, cell* params) {
 
 
 	COrm *OrmObject = COrm::GetOrm(OrmID);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), CBName, ParamFormat, OrmObject, ORM_QUERYTYPE_SELECT);
+	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), CBName, ParamFormat, true, OrmObject, ORM_QUERYTYPE_SELECT);
 	if(Query != NULL) {
 		if(Query->Callback->Name.length() > 0)
 			Query->Callback->FillCallbackParams(amx, params, ConstParamCount);
 
-		CLog::Get()->LogFunction(LOG_DEBUG, "orm_select", "scheduling query..");
+		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) {
+			string ShortenQuery(Query->Query);
+			if(ShortenQuery.length() > 512)
+				ShortenQuery.resize(512);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_select", "scheduling query \"%s\"..", ShortenQuery.c_str());
+		}
+
 		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
 	}
 	return 1;
@@ -112,9 +118,15 @@ cell AMX_NATIVE_CALL Native::orm_update(AMX* amx, cell* params) {
 	
 
 	COrm *OrmObject = COrm::GetOrm(OrmID);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), NULL, NULL, OrmObject, ORM_QUERYTYPE_UPDATE);
+	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), NULL, NULL, true, OrmObject, ORM_QUERYTYPE_UPDATE);
 	if(Query != NULL) {
-		CLog::Get()->LogFunction(LOG_DEBUG, "orm_update", "scheduling query..");
+		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) {
+			string ShortenQuery(Query->Query);
+			if(ShortenQuery.length() > 512)
+				ShortenQuery.resize(512);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_update", "scheduling query \"%s\"..", ShortenQuery.c_str());
+		}
+
 		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
 	}
 	return 1;
@@ -140,12 +152,18 @@ cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params) {
 
 
 	COrm *OrmObject = COrm::GetOrm(OrmID);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), CBName, ParamFormat, OrmObject, ORM_QUERYTYPE_INSERT);
+	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), CBName, ParamFormat, true, OrmObject, ORM_QUERYTYPE_INSERT);
 	if(Query != NULL) {
 		if(Query->Callback->Name.length() > 0)
 			Query->Callback->FillCallbackParams(amx, params, ConstParamCount);
 
-		CLog::Get()->LogFunction(LOG_DEBUG, "orm_insert", "scheduling query..");
+		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) {
+			string ShortenQuery(Query->Query);
+			if(ShortenQuery.length() > 512)
+				ShortenQuery.resize(512);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_insert", "scheduling query \"%s\"..", ShortenQuery.c_str());
+		}
+
 		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
 	}
 	return 1;
@@ -163,10 +181,16 @@ cell AMX_NATIVE_CALL Native::orm_delete(AMX* amx, cell* params) {
 
 	COrm *OrmObject = COrm::GetOrm(OrmID);
 
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), NULL, NULL, OrmObject, ORM_QUERYTYPE_DELETE);
+	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), NULL, NULL, true, OrmObject, ORM_QUERYTYPE_DELETE);
 	if(Query != NULL) {
 
-		CLog::Get()->LogFunction(LOG_DEBUG, "orm_delete", "scheduling query..");
+		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) {
+			string ShortenQuery(Query->Query);
+			if(ShortenQuery.length() > 512)
+				ShortenQuery.resize(512);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_delete", "scheduling query \"%s\"..", ShortenQuery.c_str());
+		}
+
 		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
 
 		if(!!(params[2]) == true)
@@ -759,9 +783,9 @@ cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params) {
 
 	int StoredResultID = 0;
 	CMySQLHandle *ConnHandle = CMySQLHandle::GetHandle(cID);
-	CMySQLQuery *Query = CMySQLQuery::Create(tmpQuery, ConnHandle, NULL, NULL);
+	CMySQLQuery *Query = CMySQLQuery::Create(tmpQuery, ConnHandle, NULL, NULL, false);
 	if(Query != NULL) {
-		Query->Execute(false);
+		Query->Execute();
 
 		//first we set this result as active
 		ConnHandle->SetActiveResult(Query->Result);

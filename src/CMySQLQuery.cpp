@@ -14,7 +14,10 @@
 
 
 CMySQLQuery::CMySQLQuery()  :
+	Threaded(true),
+
 	ConnHandle(NULL),
+	Connection(NULL),
 	Result(NULL),
 	Callback(NULL),
 
@@ -34,6 +37,7 @@ CMySQLQuery::~CMySQLQuery() {
 CMySQLQuery *CMySQLQuery::Create(
 	const char *query, CMySQLHandle *connhandle, 
 	const char *cbname, const char *cbformat, 
+	bool threaded /* = true */,
 	COrm *ormobject /* = NULL */, unsigned short orm_querytype /* = 0 */)
 {
 	if(connhandle == NULL) {
@@ -80,7 +84,9 @@ CMySQLQuery *CMySQLQuery::Create(
 			Callback->ParamFormat.assign(cbformat);
 	}
 
+	Query->Threaded = threaded;
 	Query->ConnHandle = connhandle; 
+	Query->Connection = threaded == true ? connhandle->GetQueryConnection() : connhandle->GetMainConnection(); 
 	Query->Callback = Callback;
 	Query->OrmObject = ormobject;
 	Query->OrmQueryType = orm_querytype;
@@ -97,7 +103,7 @@ void CMySQLQuery::Destroy() {
 	delete this;
 }
 
-void CMySQLQuery::Execute(bool threaded/* = true*/) {
+void CMySQLQuery::Execute() {
 	char LogFuncBuf[128];
 	sprintf(LogFuncBuf, "CMySQLQuery::Execute[%s(%s)]", Callback->Name.c_str(), Callback->ParamFormat.c_str());
 	
@@ -105,12 +111,6 @@ void CMySQLQuery::Execute(bool threaded/* = true*/) {
 
 	Result = NULL;
 
-	CMySQLConnection *Connection = NULL;
-	if(threaded == true)
-		Connection = ConnHandle->GetQueryConnection();
-	else
-		Connection = ConnHandle->GetMainConnection();
-	
 	MYSQL *ConnPtr = Connection->GetMySQLPointer();
 	
 
@@ -122,7 +122,7 @@ void CMySQLQuery::Execute(bool threaded/* = true*/) {
 			MYSQL_RES *SQLResult = mysql_store_result(ConnPtr); //this has to be here
 
 			//why should we process the result if it won't and can't be used?
-			if(threaded == false || Callback->Name.length() > 0 || (OrmObject != NULL && (OrmQueryType == ORM_QUERYTYPE_SELECT || OrmQueryType == ORM_QUERYTYPE_INSERT))) { 
+			if(Threaded == false || Callback->Name.length() > 0 || (OrmObject != NULL && (OrmQueryType == ORM_QUERYTYPE_SELECT || OrmQueryType == ORM_QUERYTYPE_INSERT))) { 
 				
 
 				if (SQLResult != NULL) {
@@ -197,7 +197,7 @@ void CMySQLQuery::Execute(bool threaded/* = true*/) {
 				Connection->Connect();
 			}
 
-			if(threaded == true) {
+			if(Threaded == true) {
 				//forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 				//recycle these structures, change some data
 				OrmObject = NULL;
@@ -226,7 +226,7 @@ void CMySQLQuery::Execute(bool threaded/* = true*/) {
 		}
 	}
 
-	if(threaded == true) {
+	if(Threaded == true) {
 		//the query gets passed to the callback handler in any case
 		//if query successful, it calls the callback and free's memory
 		//if not it only free's the memory

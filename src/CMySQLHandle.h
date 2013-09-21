@@ -46,6 +46,9 @@ public:
 	inline bool GetAutoReconnect() const {
 		return m_AutoReconnect;
 	}
+	inline bool IsConnected() const {
+		return m_IsConnected;
+	}
 
 	CMySQLConnection(string host, string user, string passw, string db, unsigned int port, bool auto_reconnect)
 		:	m_Host(host),
