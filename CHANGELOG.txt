@@ -1,3 +1,5 @@
+R34
+- fixed bug where orm_update generated wrong queries
 R33
 - added ORM system
 - improved Windows XP compatibility (proven to work now)
