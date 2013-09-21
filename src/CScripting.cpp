@@ -199,6 +199,43 @@ cell AMX_NATIVE_CALL Native::orm_delete(AMX* amx, cell* params) {
 	return 1;
 }
 
+//native orm_save(ORM:id, callback[]="", format[]="", {Float, _}:...);
+cell AMX_NATIVE_CALL Native::orm_save(AMX* amx, cell* params) {
+	const int ConstParamCount = 3;
+	unsigned int OrmID = params[1];
+	char 
+		*ParamFormat = NULL,
+		*CBName = NULL;
+	amx_StrParam(amx, params[3], ParamFormat);
+	amx_StrParam(amx, params[2], CBName);
+
+	CLog::Get()->LogFunction(LOG_DEBUG, "orm_save", "orm_id: %d, callback: \"%s\", format: \"%s\"", OrmID, CBName, ParamFormat);
+
+	if(!COrm::IsValid(OrmID))
+		return ERROR_INVALID_ORM_ID("orm_save", OrmID);
+
+	if(ParamFormat != NULL && strlen(ParamFormat) != ( (params[0]/4) - ConstParamCount ))
+		return CLog::Get()->LogFunction(LOG_ERROR, "orm_save", "callback parameter count does not match format specifier length"), 0;
+
+
+	COrm *OrmObject = COrm::GetOrm(OrmID);
+	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), CBName, ParamFormat, true, OrmObject, ORM_QUERYTYPE_SAVE);
+	if(Query != NULL) {
+		if(Query->Callback->Name.length() > 0)
+			Query->Callback->FillCallbackParams(amx, params, ConstParamCount);
+
+		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) {
+			string ShortenQuery(Query->Query);
+			if(ShortenQuery.length() > 512)
+				ShortenQuery.resize(512);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_save", "scheduling query \"%s\"..", ShortenQuery.c_str());
+		}
+
+		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
+	}
+	return 1;
+}
+
 //native orm_addvar(ORM:id, &{Float, _}:var, VarDatatype:datatype, var_maxlen, varname[]);
 cell AMX_NATIVE_CALL Native::orm_addvar(AMX* amx, cell* params) {
 	char *VarName = NULL;

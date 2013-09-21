@@ -95,6 +95,9 @@ native orm_insert_inline(ORM:id, callback:Callback, format[], {Float,_}:...); //
 */
 native orm_delete(ORM:id, bool:clearvars=true);
 
+native orm_load(ORM:id, callback[]="", format[]="", {Float, _}:...) = orm_select;
+native orm_save(ORM:id, callback[]="", format[]="", {Float, _}:...);
+
 native orm_addvar(ORM:id, &{Float, _}:var, VarDatatype:datatype, var_maxlen, varname[]);
 /*
 native orm_addvar_int(ORM:id, &var, varname[]);
