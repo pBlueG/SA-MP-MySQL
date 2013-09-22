@@ -1,0 +1,632 @@
+Documentation for BlueG's MySQL plugin version R33. Forum topic and download links can be found [http://forum.sa-mp.com/showthread.php?t=56564 here].
+
+'''Lastest release:''' R33 (9/08/2013)
+
+= Plugin functions =
+{{note|Almost every function has a connectionHandle parameter. If you use only one database connection you don't need to mind it. Connection handle is 1 by default.}}
+
+
+== mysql_log ==
+{{Description|Controls what information will be logged.}}
+
+{{Parameters|loglevel, logtype}}
+{{Param|loglevel|Specifies what type of log messages will be logged (LOG_ERROR | LOG_WARNING by default).}}
+{{Param|logtype|Type of the logging (LOG_TYPE_TEXT by default).}}
+
+{{NoReturn}}
+
+<pawn>
+public OnGameModeInit()
+{
+	mysql_log(_, LOG_TYPE_HTML); //logs errors and warnings into a nice HTML file
+	//...
+	mysql_log(LOG_ERROR | LOG_WARNING | LOG_DEBUG); //logs errors, warnings and debug messages into a regular text file
+	return 1;
+}
+</pawn>
+
+
+== mysql_connect ==
+{{Description|Connects to a MySQL server and database.}}
+
+{{Note2|Do not use this function to reconnect to the database. Use [[MySQL#mysql_reconnect|mysql_reconnect()]] instead.}}
+
+{{Parameters|const host[], const user[], const database[], const password[], port, bool:autoreconnect}}
+{{Param|const host[]|IP or hostname of the MySQL server.}}
+{{Param|const user[]|Username of the account you want to connect to.}}
+{{Param|const database[]|Name of the database you want to connect to.}}
+{{Param|const password[]|Password of the account you want to connect to.}}
+{{Param|port|Port of the MySQL server (3306 by default).}}
+{{Param|bool:autoreconnect|true to enable, false to disable automatic reconnection (true by default).}}
+
+{{Returns|Connection handle.}}
+
+<pawn>
+new MySQL;
+// ...
+public OnGameModeInit()
+{
+	MySQL = mysql_connect("127.0.0.1", "root", "mydatabase", "mypass");
+	// ...
+	return 1;
+}
+</pawn>
+
+
+== mysql_close ==
+{{Description|Closes the MySQL connection.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|1 on success, 0 on fail.}}
+
+<pawn>
+public OnGameModeExit()
+{
+	mysql_close();
+	return 1;
+}
+</pawn>
+
+
+== mysql_reconnect ==
+{{Description|Reconnects to the selected connection handle.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>
+//connection was lost for some reason
+mysql_reconnect();
+</pawn>
+
+
+
+== mysql_errno ==
+{{Description|Returns the error code of the error message from the previous MySQL operation.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|Error code, 0 if no error occurred.}}
+
+<pawn>
+new sql_stats[128];
+mysql_stat(sql_stats);
+if(mysql_errno() != 0) 
+	print("An error occurred while calling \"mysql_stat\"!");
+</pawn>
+
+
+== mysql_escape_string ==
+{{Description|Escapes special characters in a string for the use in a SQL statement. It prepends backslashes to the following characters: \x00, \n, \r, \, ', " and \x1a.}}
+
+{{Note2|Always use this function (if you don't use [[MySQL#mysql_format|mysql_format()]]) before inserting user inputs in a query. You can be victim of a [http://en.wikipedia.org/wiki/SQL_injection SQL injection] if you do not do so.}}
+
+{{Parameters|const source[], destination[], connectionHandle, max_len}}
+{{Param|const source[]|The string you want to be escaped.}}
+{{Param|destination[]|The string to store escaped data in.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+{{Param|max_len|The size of the destination.}}
+
+{{Note|A database connection is required before using this function.}}
+{{Note|It does not escape % and _. These are wildcards in MySQL if combined with LIKE, GRANT, or REVOKE.}}
+{{Note2|You have to provide the length (max_len) by yourself if you use an enum-array as destination.}}
+
+{{Returns|Number of escaped characters.}}
+
+<pawn>
+enum E_PLAYER {
+	// ...
+	LastMsg[128],
+	// ...
+};
+new PlayerInfo[MAX_PLAYERS][E_PLAYER];
+// ...
+public OnPlayerText(playerid, text[])
+{
+	new escape[140];
+	mysql_escape_string(text, escape); //string is now safe to be put in a query
+	// ...
+	mysql_escape_string(text, PlayerInfo[playerid][LastMsg], MySQL, 128); //correctly saves the escaped string into an enum-array
+	return 1;
+}
+</pawn>
+
+
+== mysql_format ==
+{{Description| Allows you to format a string which you can safely use in a query.}}
+
+{{Parameters|connectionHandle, output[], len, format[], {Float,_}:...}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+{{Param|output[]|The string to save the result to.}}
+{{Param|len|The size of the output.}}
+{{Param|format[]|The format string.}}
+{{Param|{Float,_}:...|Indefinite number of arguments.}}
+
+{{Returns|Length of the formatted string.}}
+
+==== Format strings ====
+{|
+! Placeholder ||  Meaning
+|-
+| %e || Escapes data directly without the need to call mysql_escape_string() before.
+|-
+| %s || Inserts a string.
+|-
+| %d/%i || Inserts an integer number.
+|-
+| %f || Inserts a floating point number.
+|-
+| %X || Inserts a hexadecimal number in uppercase.
+|-
+| %x || Inserts a hexadecimal number in lowercase.
+|-
+| %b || Inserts a binary number.
+|}
+The values for the placeholders follow in the exact same order as parameters in the call.
+
+<pawn>
+new query[128];
+mysql_format(MySQL, query, sizeof(query), "SELECT * FROM `%s` WHERE `bar` = '%e' AND `foobar` = '%f' LIMIT %d", "foobar", "escape'me\"please", 1.2345, 1337);
+// the variable 'query' contains now the formatted query (including the escaped string)
+mysql_tquery(MySQL, query, "OnStuffSelected", "");
+</pawn>
+
+
+== mysql_tquery ==
+{{Description|Very similar to the function [[MySQL#mysql_query|mysql_query()]], but here you can specify a custom callback for your threaded query.}}
+
+{{Parameters|connectionHandle, query[], callback[], format[], {Float,_}:...}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+{{Param|query[]|The query you want to process.}}
+{{Param|callback[]|The query you want to process.}}
+{{Param|format[]|The format specifier string.}}
+{{Param|{Float,_}:...|Indefinite number of arguments.}}
+
+{{Note|The callback must be [[Public functions|public]] function. That means it has to be [[Public functions#Forwarding|forwarded]].}}
+{{Note|The length of the format specifier must be the same as the number of arguments passed, or otherwise the query won't be executed!}}
+
+{{Returns|1 on success, 0 on fail.}}
+
+==== Format specifiers ====
+{|
+! Specifier ||  Meaning
+|-
+| d/i || Number or integer.
+|-
+|  || Inserts a string.
+|-
+| %d/%i || Inserts an integer number.
+|-
+| %f || Inserts a floating point number.
+|-
+| %X || Inserts a hexadecimal number in uppercase.
+|-
+| %x || Inserts a hexadecimal number in lowercase.
+|-
+| %b || Inserts a binary number.
+|}
+
+<pawn>
+forward OnPlayerDataLoaded(playerid);
+
+public OnPlayerConnect(playerid)
+{
+	new query[128], pname[MAX_PLAYER_NAME];
+	GetPlayerName(playerid, pname, sizeof(pname));
+	mysql_format(MySQL, query, sizeof(query), "SELECT * FROM `players` WHERE `Name` = '%e'", pname);
+	mysql_tquery(MySQL, query, "OnPlayerDataLoaded", "d", playerid);
+	return 1;
+}
+
+public OnPlayerDataLoaded(playerid)
+{
+	//Query processed, you can execute your code now.
+	return 1;
+}
+</pawn>
+
+
+== mysql_query ==
+{{Description|This is basically the main function of this plugin. You can send unique query (multiple queries are not supported) to the currently active database on the server. You can learn how to write a proper query [http://www.w3schools.com/sql/default.asp here].}}
+
+{{Note2|It's highly recommended to thread all your queries (even INSERT & UPDATE). You can find a simple usage explained [http://bit.ly/a4lfWa here] and fresh example [http://wiki.sa-mp.com/wiki/MySQL#OnQueryFinish here].}}
+
+{{Parameters|query[], resultid, extraid, connectionHandle}}
+{{Param|query[]|The query you want to process.}}
+{{Param|resultid|Optional (if you specify this query will be processed in a separate thread).}}
+{{Param|extraid|Optional (extra variable that would be processed to the callback.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Note|Use [[MySQL#mysql_num_rows|mysql_num_rows()]] to find out how many rows were returned for a SELECT statement or [[MySQL#mysql_affected_rows|mysql_affected_rows()]] to find out how many rows were affected by a DELETE, INSERT, REPLACE, or UPDATE statement.}}
+
+{{Returns|1 on success, 0 on fail.}}
+
+<pawn>//If you do not plan on using threads, simply do not mind optional parameters
+mysql_query("SELECT * FROM `mytable` WHERE condition=true");
+
+//But if you do plan on using threads, check this example
+#define THREAD_MYSELECT  (1)
+mysql_query("SELECT * FROM `mytable` WHERE condition=true",THREAD_MYSELECT,playerid);
+//This query would be processed in a separate thread.
+//After processing is done, OnQueryFinish would be called with these parameters:
+//OnQueryFinish("SELECT * FROM `mytable` WHERE condition=true", 1, 0, 1);</pawn>
+
+
+== mysql_stat ==
+{{Description|Use this function to get current statistics of the MySQL server.}}
+
+{{Parameters|const destination[], connectionHandle}}
+{{Param|const destination[]|The string to store extracted data in.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>
+new stats[150]; mysql_stat(stats); print(stats);
+
+//Output would be something like:
+Uptime: 380  Threads: 1  Questions: 3  Slow queries: 0  Opens: 12  Flush tables: 1  
+Open tables: 6  Queries per second avg: 0.008
+</pawn>
+
+
+== mysql_set_charset ==
+{{Description|Use this function to change character set that connection will use. Very useful for servers which often process data with foreign characters.}}
+
+{{Parameters|charset[],connectionHandle}}
+{{Param|charset[]|Code of the character set you want to use.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>mysql_set_charset("utf8_unicode_ci");</pawn>
+
+
+== mysql_get_charset ==
+{{Description|Use this function to get the current character in use.}}
+
+{{Parameters|destination[], connectionHandle}}
+{{Param|destination[]|The string to store extracted data in.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>new charset[20]; mysql_get_charset(charset);</pawn>
+
+
+== mysql_reload ==
+{{Description| Asks the MySQL server to reload the grant tables. The connected user must have the RELOAD privilege.}}
+
+{{Note2|This function was fixed in version R5 and will not work in earlier versions!}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>mysql_reload();
+
+//this query has the same functionality as mysql_reload function
+mysql_query("FLUSH PRIVILEGES");</pawn>
+
+
+
+== mysql_store_result ==
+{{Description|Use this function to store result after using SELECT, SHOW, DESCRIBE, EXPLAIN or CHECK TABLE query.}}
+
+{{Note|You have to use this function before fetching the result. Also don't forget to free result when you don't need it anymore with [[MySQL#mysql_free_result|mysql_free_result()]] or you will get "commands out of sync" errors.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|1 on success, 0 on fail.}}
+
+<pawn>mysql_query("SELECT * FROM `players` WHERE name='iamcool'");
+mysql_store_result();
+//do what you have to do
+mysql_free_result();</pawn>
+
+
+== mysql_free_result ==
+{{Description|Use this function to free result after using [[MySQL#mysql_store_result|mysql_store_result()]].}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>mysql_query("SELECT * FROM `players` WHERE name='iamcool'");
+mysql_store_result();
+//do what you have to do
+mysql_free_result();</pawn>
+
+
+== mysql_warning_count ==
+{{Description|Use this function to get number of warnings from the previous query.}}
+
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|Number of warnings, 0 if none.}}
+
+<pawn>mysql_query("UPDATE `notable` SET something=2 WHERE nofield=0");
+if(mysql_warning_count()) print("Warnings occurred!");</pawn>
+
+
+== mysql_affected_rows ==
+{{Description|Use this function get the number of affected rows by the last INSERT, UPDATE, REPLACE or DELETE query.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Note|If the last query was a DELETE query with no WHERE clause, all of the records will have been deleted from the table but this function will return zero.}}
+
+{{Returns|Number of affected rows.}}
+
+<pawn>mysql_query("DELETE FROM mylogs WHERE log_id > 10");
+printf("%d logs deleted!",mysql_affected_rows());</pawn>
+
+
+== mysql_num_rows ==
+{{Description|Retrieves the number of rows from a result set. This command is only valid for statements like SELECT or SHOW that return an actual result set. To retrieve the number of rows affected by a INSERT, UPDATE, REPLACE or DELETE query, use [[MySQL#mysql_affected_rows|mysql_affected_rows()]].}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|Number of rows.}}
+
+<pawn>mysql_query("SELECT NULL FROM table1");
+mysql_store_result(); 
+new rows = mysql_num_rows(); 
+mysql_free_result();
+
+printf("There are %d rows in table1",rows);</pawn>
+
+== mysql_num_fields ==
+{{Description|Returns the number of columns in a result set.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|Number of fields.}}
+
+<pawn>mysql_query("SELECT field1,field2,field3 FROM table2");
+mysql_store_result();
+
+printf("%d fields were selected.",mysql_num_fields());
+
+mysql_free_result();</pawn>
+
+
+== mysql_insert_id ==
+{{Description|Retrieves the ID generated for an AUTO_INCREMENT column by the previous query (usually INSERT).}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|ID generated for an AUTO_INCREMENT column.}}
+
+<pawn>mysql_query("INSERT INTO `players` (name,password) VALUES ('Ownage',MD5('mypass')");
+printf("New player registered with ID %d",mysql_insert_id());</pawn>
+
+
+== mysql_field_count ==
+{{Description|Use this function to get the number of columns for the most recent query on the connection.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|Number of columns.}}
+
+<pawn>mysql_query("SELECT * FROM mytable");
+mysql_store_result();
+
+printf("There are %d columns in the result set.",mysql_field_count());
+
+mysql_free_Result();</pawn>
+
+
+== mysql_fetch_int ==
+{{Description|Use this function to retrieve single integer value from the result set.}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|Integer from the result set.}}
+
+<pawn>mysql_query("SELECT myid FROM players LIMIT 1");
+mysql_store_result();
+
+new myid = mysql_fetch_int();
+
+mysql_free_result();</pawn>
+
+
+== mysql_fetch_float ==
+{{Description|Use this function to retrieve single float value from the result set.}}
+
+{{Parameters|&Float:result, connectionHandle}}
+{{Param|&Float:result|A float to store the result, passed by reference.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>mysql_query("SELECT health FROM players LIMIT 1");
+mysql_store_result();
+
+new Float:health;
+mysql_fetch_float(health);
+
+mysql_free_result();</pawn>
+
+
+== mysql_fetch_row_format ==
+{{Description|Use this function to fetch whole row from the result set.}}
+
+{{Note|This function also moves the internal row pointer to the next row.}}
+{{Note|This function has a macro: mysql_fetch_row(string[]); default delimeter is used for macro.}}
+
+{{Parameters|string[], const delimiter[], connectionHandle}}
+{{Param|string[]|The string to store extracted data in.}}
+{{Param|const delimiter[]|Optional (custom delimeter character, defaults to I (vertical bar, pipe)).}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|1 if fetched, 0 if there are no more rows to be fetched.}}
+
+<pawn>mysql_query("SELECT * FROM players WHERE name='Myname'");
+mysql_store_result(); new resultline[200];
+
+if(mysql_fetch_row_format(resultline))
+{
+	//you can now use sscanf, explode, split or strtok to split result
+	sscanf(resultline,"p<|>dds",PlayerInfo[playerid][pLevel],PlayerInfo[playerid][pAdmin],PlayerInfo[playerid][pRandomString]);
+}
+else SendClientMessage(playerid,0xFFFFFF,"Not in database!");
+
+mysql_free_result();</pawn>
+
+== mysql_retrieve_row ==
+{{Description|Use this function to move internal row pointer to the next row. We could basically call this function mysql_next_row(). This function is very useful when we plan on using [[MySQL#mysql_fetch_field|mysql_fetch_field()]] or [[MySQL#mysql_fetch_field_row|mysql_fetch_field_row()]] later on, so we don't need to extract whole result in pawn.}}
+
+{{Note|This function also moves the internal row pointer to the next row.}}
+{{Note|This function has a macro: mysql_next_row().}}
+
+{{Parameters|connectionHandle}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Returns|1 row changed, 0 if there are no more rows.}}
+
+<pawn>mysql_query("SELECT * FROM houses");
+mysql_ store_result();
+
+while(mysql_retrieve_row()) //this will be running until all rows are processed
+{
+	//you can use mysql_fetch_field and mysql_fetch_field_row here
+}
+
+mysql_free_result();</pawn>
+
+
+== mysql_fetch_field ==
+{{Description|Use this function to get name of specific field.}}
+
+{{Parameters|number, dest[], connectionHandle}}
+{{Param|number|Index of the field.}}
+{{Param|dest[]|The string where fetched data will be stored in.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{Note2|If invalid field number is used plugin will crash.}}
+{{Note|First field has number (index) zero (0).}}
+
+{{NoReturn}}
+
+<pawn>if(mysql_retrieve_row())
+{
+	new field[20];
+	for(new i, num = mysql_num_fields(); i < num; i++)
+	{
+		mysql_fetch_field(i,field); //get name of all fields
+	}
+}</pawn>
+
+
+== mysql_fetch_field_row ==
+{{Description|Use this function to fetch data in field addressed by its name.}}
+
+{{Note|This function has a macro: mysql_get_field(const fieldname[], string[]).}}
+
+{{Parameters|string[], const fieldname[], connectionHandle}}
+{{Param|string[]|The string where fetched data will be stored in.}}
+{{Param|const fieldname[]|Name of the field to be fetched.}}
+{{Param|connectionHandle|The connection handle this will be processed on.}}
+
+{{NoReturn}}
+
+<pawn>if(mysql_retrieve_row())
+{
+	new result[50];
+	mysql_fetch_field_row(result,"username");
+	//or if you use macro
+	mysql_get_field("username",result);
+}</pawn>
+
+
+
+= Plugin callbacks =
+{{Note|This is only for advanced users aka those who use threaded queries.}}
+
+
+== OnQueryFinish ==
+{{Description|This callback is called if integer different than (-1) is inserted in 'resultid' parameter of the [[MySQL#mysql_query|mysql_query()]].}}
+
+{{Parameters|query[], resultid, extraid, connectionHandle}}
+{{Param|query[]|Query which was processed.}}
+{{Param|resultid|Thread ID you specified.}}
+{{Param|extraid|Extra variable passed from mysql_query function.}}
+{{Param|connectionHandle|The connection handle this was processed on.}}
+
+{{NoReturnCallback}}
+
+<pawn>#define THREAD_LOADPLAYER (5)
+
+public OnPlayerConnect(playerid)
+{
+	mysql_query("SELECT * FROM players WHERE name='Myname'",THREAD_LOADPLAYER,playerid);
+	return 1;
+}
+
+public OnQueryFinish(query[], resultid, extraid, connectionHandle)
+{
+	switch(resultid)
+	{
+		case THREAD_LOADPLAYER:
+		{
+			mysql_store_result();
+			if(IsPlayerConnected(extraid))
+			{
+				//Execute your code
+			}
+			mysql_free_result();
+		}
+	}
+	return 1;
+}</pawn>
+
+== OnQueryError ==
+{{Description|This callback is called when error occurs when processing a query.}}
+
+{{Note2|This callback was added in version R5 and will not work in earlier versions!}}
+{{Note|Common error codes for [http://dev.mysql.com/doc/refman/5.0/en/error-messages-client.html client] and [http://dev.mysql.com/doc/refman/5.0/en/error-messages-server.html server].}}
+
+{{Parameters|errorid, error[], resultid, extraid, callback[], query[], connectionHandle}}
+{{Param|errorid|ID of the error.}}
+{{Param|error[]|Name of the error.}}
+{{Param|resultid|Thread ID you specified.}}
+{{Param|extraid|Extra variable passed from mysql_query function.}}
+{{Param|callback[]|Name of the callback from mysql_query_callback function. It equals to "NULL" if it's not used.}}
+{{Param|query[]|Query which was processed.}}
+{{Param|connectionHandle|The connection handle this was processed on.}}
+
+{{NoReturnCallback}}
+
+<pawn>public OnQueryError(errorid, error[], resultid, extraid, callback[], query[], connectionHandle)
+{
+	switch(errorid)
+	{
+		case CR_COMMAND_OUT_OF_SYNC:
+		{
+			printf("Commands out of sync for thread ID: %d",resultid);
+		}
+		case ER_SYNTAX_ERROR:
+		{
+			printf("Something is wrong in your syntax, query: %s",query);
+		}
+	}
+	return 1;
+}</pawn>
