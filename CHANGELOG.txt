@@ -1,6 +1,8 @@
 R34
 - fixed bug where orm_update generated wrong queries
 - fixed bug where queries sometimes lost connection to a remote database
+- added natives "orm_load" and "orm_save" for even easier data management
+- added additional (optional) parameter "use_cache" to determine if the cache will be used or not
 
 R33
 - added ORM system

@@ -800,17 +800,17 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params) {
 }
 
 
-//native Cache:mysql_query(conhandle, query[]);
+//native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
 cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params) {
 	unsigned int cID = params[1];
-
 	char *tmpQuery = NULL;
 	amx_StrParam(amx, params[2], tmpQuery);
+	bool UseCache = !!params[3];
 
 	if(CLog::Get()->IsLogLevel(LOG_DEBUG)) {
 		string ShortenQuery(tmpQuery == NULL ? "" : tmpQuery);
 		ShortenQuery.resize(64);
-		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_query", "connection: %d, query: \"%s\"", cID, ShortenQuery.c_str());
+		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_query", "connection: %d, query: \"%s\", use_cache: %s", cID, ShortenQuery.c_str(), UseCache == true ? "true" : "false");
 	}
 
 	if(!CMySQLHandle::IsValid(cID)) {
@@ -824,12 +824,14 @@ cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params) {
 	if(Query != NULL) {
 		Query->Execute();
 
-		//first we set this result as active
-		ConnHandle->SetActiveResult(Query->Result);
-		//now we can save the result
-		StoredResultID = ConnHandle->SaveActiveResult();
-		
-		Query->Result = NULL;
+		if(UseCache == true) {
+			//first we set this result as active
+			ConnHandle->SetActiveResult(Query->Result);
+			//now we can save the result if we want
+			StoredResultID = ConnHandle->SaveActiveResult();
+			Query->Result = NULL;
+		}
+
 		Query->Destroy();
 	}
 	return StoredResultID;
