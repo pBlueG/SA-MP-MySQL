@@ -124,7 +124,7 @@ native mysql_tquery(connectionHandle, query[], callback[], format[], {Float,_}:.
 /*
 native mysql_tquery_inline(connHandle, query[], callback:Callback, format[], {Float,_}:...); //y_inline
 */
-native Cache:mysql_query(conhandle, query[]);
+native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
 
 native mysql_stat(destination[], connectionHandle = 1, max_len=sizeof(destination));
 native mysql_get_charset(destination[], connectionHandle = 1, max_len=sizeof(destination));
