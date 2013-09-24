@@ -17,6 +17,17 @@
 logprintf_t logprintf;
 
 
+//native unserialize_array(src[], dest_array[], max_size=sizeof(dest_array));
+//native serialize_array(dest[], datatype, array[], max_size=sizeof(array));
+cell AMX_NATIVE_CALL Native::serialize_array(AMX *amx, cell *params) {
+	unsigned short Datatype = params[2];
+	unsigned int ArraySize = params[4];
+
+	
+
+	return 1;
+}
+
 //native ORM:orm_create(table[], connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::orm_create(AMX* amx, cell* params) {
 	int ConnID = params[2];
