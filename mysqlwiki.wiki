@@ -178,7 +178,7 @@ mysql_tquery(MySQL, query, "OnStuffSelected", "");
 
 
 == mysql_tquery ==
-{{Description|Very similar to the function [[MySQL#mysql_query|mysql_query()]], but here you can specify a custom callback for your threaded query.}}
+{{Description|Sends a query which will be executed in another thread and calls the callback (if there is one) when the execution is finished.}}
 
 {{Parameters|connectionHandle, query[], callback[], format[], {Float,_}:...}}
 {{Param|connectionHandle|The connection handle this will be processed on.}}
@@ -187,7 +187,7 @@ mysql_tquery(MySQL, query, "OnStuffSelected", "");
 {{Param|format[]|The format specifier string.}}
 {{Param|{Float,_}:...|Indefinite number of arguments.}}
 
-{{Note|The callback must be [[Public functions|public]] function. That means it has to be [[Public functions#Forwarding|forwarded]].}}
+{{Note|The callback must be a [[Public functions|public]] function. That means it has to be [[Public functions#Forwarding|forwarded]].}}
 {{Note|The length of the format specifier must be the same as the number of arguments passed, or otherwise the query won't be executed!}}
 
 {{Returns|1 on success, 0 on fail.}}
@@ -196,19 +196,11 @@ mysql_tquery(MySQL, query, "OnStuffSelected", "");
 {|
 ! Specifier ||  Meaning
 |-
-| d/i || Number or integer.
+| d/i || integer number
 |-
-|  || Inserts a string.
+| s|| string
 |-
-| %d/%i || Inserts an integer number.
-|-
-| %f || Inserts a floating point number.
-|-
-| %X || Inserts a hexadecimal number in uppercase.
-|-
-| %x || Inserts a hexadecimal number in lowercase.
-|-
-| %b || Inserts a binary number.
+| f || floating point number
 |}
 
 <pawn>
@@ -232,7 +224,7 @@ public OnPlayerDataLoaded(playerid)
 
 
 == mysql_query ==
-{{Description|This is basically the main function of this plugin. You can send unique query (multiple queries are not supported) to the currently active database on the server. You can learn how to write a proper query [http://www.w3schools.com/sql/default.asp here].}}
+{{Description|Sends a query which will be executed immediately (in the PAWN thread).}}
 
 {{Note2|It's highly recommended to thread all your queries (even INSERT & UPDATE). You can find a simple usage explained [http://bit.ly/a4lfWa here] and fresh example [http://wiki.sa-mp.com/wiki/MySQL#OnQueryFinish here].}}
 
