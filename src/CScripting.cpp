@@ -13,17 +13,142 @@
 #include "malloc.h"
 #include <cmath>
 
+#include <boost/spirit/include/karma.hpp>
+#include <boost/spirit/include/qi.hpp>
+using namespace boost::spirit;
+
 
 logprintf_t logprintf;
 
 
-//native unserialize_array(src[], dest_array[], max_size=sizeof(dest_array));
-//native serialize_array(dest[], datatype, array[], max_size=sizeof(array));
+//native serialize_array(dest[], {Float, _}:array[], VarDatatype:datatype, max_arrsize=sizeof(array), element_size=1, max_destsize=sizeof(dest));
 cell AMX_NATIVE_CALL Native::serialize_array(AMX *amx, cell *params) {
-	unsigned short Datatype = params[2];
-	unsigned int ArraySize = params[4];
+	cell *SrcArray = NULL;
+	amx_GetAddr(amx, params[2], &SrcArray);
+	unsigned short Datatype = params[3];
+	cell 
+		ArraySize = params[4],
+		ElemSize = params[5],
+		DestSize = params[6];
 
+	if(ArraySize <= 1 || DestSize <= 1 || ElemSize <= 0)
+		return 0;
+
+	char DatatypeChar;
+	switch(Datatype)
+	{
+		case DATATYPE_INT:
+			DatatypeChar = 'd';
+			break;
+		case DATATYPE_FLOAT:
+			DatatypeChar = 'f';
+			break;
+		case DATATYPE_STRING:
+			DatatypeChar = 's';
+			break;
+		default:
+			return 0;
+	}
+
+	vector<string> StrData;
+	for(cell i=0; i < ArraySize; ++i) {
+		switch(Datatype) {
+			case DATATYPE_INT: {
+				char IntBuf[12];
+				ConvertIntToStr(SrcArray[i], IntBuf);
+				StrData.push_back(string(IntBuf));
+			} break;
+			case DATATYPE_FLOAT: {
+				char FloatBuf[84];
+				ConvertFloatToStr(amx_ctof(SrcArray[i]), FloatBuf);
+				StrData.push_back(string(FloatBuf));
+			} break;
+			case DATATYPE_STRING: { //two-dimensional arrays <333
+				char *TmpStr = (char *)alloca(ElemSize * sizeof(char));
+				memset(TmpStr, 0, ElemSize * sizeof(char));
+				cell Offset = (*(SrcArray + i))/sizeof(cell);
+				cell *StrPtr = (SrcArray + i + Offset);
+				amx_GetString(TmpStr, StrPtr, 0, ElemSize);
+				StrData.push_back(string(TmpStr));
+			} break;
+		}
+	}
+
+	string SerializedStr;
+	std::back_insert_iterator<std::string> sink(SerializedStr);
+	karma::generate(sink, 
+			karma::lit(DatatypeChar) << karma::lit('{') << karma::string % ';' << karma::lit('}'), 
+			StrData
+		);
+
+	amx_SetCString(amx, params[1], SerializedStr.c_str(), DestSize);
+	return 1;
+}
+
+//native unserialize_array(src[], dest_array[], max_elementsize = 1, max_destsize=sizeof(dest_array));
+cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
+	char *Source = NULL;
+	amx_StrParam(amx, params[1], Source);
+	cell *DestArray = NULL;
+	amx_GetAddr(amx, params[2], &DestArray);
+	cell 
+		DestElementSize = params[3],
+		DestArraySize = params[4];
+
+	if(Source == NULL)
+		return 0;
+
+	const char DatatypeChar = Source[0];
+	const char 
+		*FirstIt(Source+1),
+		*LastIt(FirstIt+strlen(Source));
 	
+	qi::rule<const char*, vector<boost::variant<int, float, string>>()> ParseType;
+	qi::rule<const char*, string()> TextParser;
+	vector< boost::variant<int, float, string> > ValArray;
+
+	switch(DatatypeChar)
+	{
+	case 'd':
+		ParseType = qi::int_ % ';';	
+		break;
+	case 'f':
+		ParseType = qi::float_ % ';';
+		break;
+	case 's':
+		TextParser = +(~qi::ascii::char_('}') - ';');
+		ParseType = TextParser % ';';//TextParser >> *(';' >> TextParser);
+		break;
+	default:
+		return 0;
+	}
+
+	if(qi::parse(FirstIt, LastIt, ('{' >> ParseType >> '}'), ValArray) == false)
+		return 0;
+
+	if(ValArray.empty() || static_cast<cell>(ValArray.size()) > DestArraySize)
+		return 0;
+	
+
+	switch(DatatypeChar)
+	{
+	case 'd':
+		for(int i=0, size=ValArray.size(); i < size; ++i)
+			DestArray[i] = static_cast<cell>(boost::get<int>(ValArray.at(i)));
+
+		break;
+	case 'f':
+		for(int i=0, size=ValArray.size(); i < size; ++i) 
+			DestArray[i] = amx_ftoc(static_cast<float>(boost::get<float>(ValArray.at(i))));
+
+		break;
+	case 's':
+		for(int i=0, size=ValArray.size(); i < size; ++i) {
+			cell *StrDest = DestArray + 4 + (i*DestElementSize);
+			amx_SetString(StrDest, boost::get<string>(ValArray.at(i)).c_str(), 0, 0, DestElementSize);
+		}
+		break;
+	}
 
 	return 1;
 }
@@ -39,7 +164,7 @@ cell AMX_NATIVE_CALL Native::orm_create(AMX* amx, cell* params) {
 	if(!CMySQLHandle::IsValid(ConnID))
 		return ERROR_INVALID_CONNECTION_HANDLE("orm_create", ConnID);
 	
-	return (cell)COrm::Create(TableName, CMySQLHandle::GetHandle(ConnID));
+	return static_cast<cell>(COrm::Create(TableName, CMySQLHandle::GetHandle(ConnID)));
 }
 
 //native orm_destroy(ORM:id);
@@ -64,7 +189,7 @@ cell AMX_NATIVE_CALL Native::orm_errno(AMX* amx, cell* params) {
 	if(!COrm::IsValid(OrmID))
 		return ERROR_INVALID_ORM_ID("orm_errno", OrmID);
 
-	return COrm::GetOrm(OrmID)->GetErrorID();
+	return static_cast<cell>(COrm::GetOrm(OrmID)->GetErrorID());
 }
 
 // native orm_apply_cache(ORM:id, row);
@@ -310,7 +435,7 @@ cell AMX_NATIVE_CALL Native::cache_affected_rows(AMX* amx, cell* params) {
 		return 0;
 	}
 	
-	return (cell)Result->AffectedRows();
+	return static_cast<cell>(Result->AffectedRows());
 }
 
 //native cache_warning_count(connectionHandle = 1);
@@ -330,7 +455,7 @@ cell AMX_NATIVE_CALL Native::cache_warning_count(AMX* amx, cell* params) {
 		return 0;
 	}
 	
-	return (cell)Result->WarningCount();
+	return static_cast<cell>(Result->WarningCount());
 }
 
 //native cache_insert_id(connectionHandle = 1);
@@ -350,7 +475,7 @@ cell AMX_NATIVE_CALL Native::cache_insert_id(AMX* amx, cell* params) {
 		return 0;
 	}
 	
-	return (cell)Result->InsertID();
+	return static_cast<cell>(Result->InsertID());
 }
 
 
@@ -368,7 +493,7 @@ cell AMX_NATIVE_CALL Native::cache_save(AMX* amx, cell* params) {
 	if(CacheID == 0)
 		CLog::Get()->LogFunction(LOG_WARNING, "cache_save", "no active cache");
 
-	return (cell)CacheID;
+	return static_cast<cell>(CacheID);
 }
 
 // native cache_delete(Cache:id, connectionHandle = 1);
@@ -381,7 +506,7 @@ cell AMX_NATIVE_CALL Native::cache_delete(AMX* amx, cell* params) {
 		return 0;
 	}
 
-	return (cell)CMySQLHandle::GetHandle(cID)->DeleteSavedResult(params[1]);
+	return static_cast<cell>(CMySQLHandle::GetHandle(cID)->DeleteSavedResult(params[1]));
 }
 
 // native cache_set_active(Cache:id, connectionHandle = 1);
@@ -394,7 +519,7 @@ cell AMX_NATIVE_CALL Native::cache_set_active(AMX* amx, cell* params) {
 		return 0;
 	}
 
-	return CMySQLHandle::GetHandle(cID)->SetActiveResult((int)params[1]);
+	return static_cast<cell>(CMySQLHandle::GetHandle(cID)->SetActiveResult((int)params[1]) == true ? 1 : 0);
 }
 
 // native cache_get_row_count(connectionHandle = 1);
@@ -413,7 +538,7 @@ cell AMX_NATIVE_CALL Native::cache_get_row_count(AMX* amx, cell* params) {
 		return 0;
 	}
 
-	return (cell)Result->GetRowCount();
+	return static_cast<cell>(Result->GetRowCount());
 }
 
 // native cache_get_field_count(connectionHandle = 1);
@@ -432,7 +557,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_count(AMX* amx, cell* params) {
 		return 0;
 	}
 
-	return (cell)Result->GetFieldCount();
+	return static_cast<cell>(Result->GetFieldCount());
 }
 
 // native cache_get_data(&num_rows, &num_fields, connectionHandle = 1);
@@ -453,9 +578,9 @@ cell AMX_NATIVE_CALL Native::cache_get_data(AMX* amx, cell* params) {
 
 	cell *AddressPtr;
 	amx_GetAddr(amx, params[1], &AddressPtr);
-	(*AddressPtr) = (cell)Result->GetRowCount();
+	(*AddressPtr) = static_cast<cell>(Result->GetRowCount());
 	amx_GetAddr(amx, params[2], &AddressPtr);
-	(*AddressPtr) = (cell)Result->GetFieldCount();
+	(*AddressPtr) = static_cast<cell>(Result->GetFieldCount());
 	return 1;
 }
 
@@ -554,7 +679,7 @@ cell AMX_NATIVE_CALL Native::cache_get_row_int(AMX* amx, cell* params) {
 		}
 	}
 
-	return ReturnVal;
+	return static_cast<cell>(ReturnVal);
 }
 
 // native Float:cache_get_row_float(row, field_idx, connectionHandle = 1);
@@ -656,7 +781,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_content_int(AMX* amx, cell* params)
 			ReturnVal = 0;
 		}
 	}
-	return ReturnVal;
+	return static_cast<cell>(ReturnVal);
 }
 
 // native Float:cache_get_field_content_float(row, const field_name[], connectionHandle = 1);
@@ -717,7 +842,7 @@ cell AMX_NATIVE_CALL Native::mysql_connect(AMX* amx, cell* params) {
 	CMySQLHandle *Handle = CMySQLHandle::Create(host, user, pass != NULL ? pass : "", db, port, AutoReconn);
 	Handle->GetMainConnection()->Connect();
 	Handle->GetQueryConnection()->Connect();
-	return (cell)Handle->GetID();
+	return static_cast<cell>(Handle->GetID());
 }
 
 //native mysql_close(connectionHandle = 1, bool:wait = true);
@@ -858,7 +983,7 @@ cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params) {
 
 		Query->Destroy();
 	}
-	return StoredResultID;
+	return static_cast<cell>(StoredResultID);
 }
 
 
@@ -1084,7 +1209,7 @@ cell AMX_NATIVE_CALL Native::mysql_format(AMX* amx, cell* params) {
 	*Output = '\0';
 	amx_SetCString(amx, params[2], OrgOutput, DestLen);
 	free(OrgOutput);
-	return (cell)(Output-OrgOutput);
+	return static_cast<cell>(Output-OrgOutput);
 }
 
 //native mysql_set_charset(charset[], connectionHandle = 1);
@@ -1156,7 +1281,7 @@ cell AMX_NATIVE_CALL Native::mysql_escape_string(AMX* amx, cell* params) {
 	CMySQLHandle::GetHandle(cID)->GetMainConnection()->EscapeString(Source, EscapedStr);
 
 	amx_SetCString(amx, params[2], EscapedStr.c_str(), params[4]);
-	return EscapedStr.length();
+	return static_cast<cell>(EscapedStr.length());
 }
 
 //native mysql_stat(destination[], connectionHandle = 1, max_len=sizeof(destination));
@@ -1186,7 +1311,7 @@ cell AMX_NATIVE_CALL Native::mysql_errno(AMX* amx, cell* params) {
 		return 0;
 	}
 
-	return (cell)mysql_errno(CMySQLHandle::GetHandle(cID)->GetMainConnection()->GetMySQLPointer());
+	return static_cast<cell>(mysql_errno(CMySQLHandle::GetHandle(cID)->GetMainConnection()->GetMySQLPointer()));
 }
 
 //native mysql_log(loglevel, logtype);
