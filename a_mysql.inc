@@ -116,6 +116,7 @@ native mysql_log(loglevel = LOG_ERROR | LOG_WARNING, logtype = LOG_TYPE_TEXT);
 native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true);
 native mysql_close(connectionHandle = 1, bool:wait = true);
 native mysql_reconnect(connectionHandle = 1);
+native mysql_unprocessed_queries(connectionHandle = 1);
 
 native mysql_errno(connectionHandle = 1);
 native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len=sizeof(destination));

@@ -3,6 +3,7 @@ R34
 - fixed bug where queries sometimes lost connection to a remote database
 - added natives "orm_load" and "orm_save" for even easier data management
 - added additional (optional) parameter "use_cache" to determine if the cache will be used or not
+- added native "mysql_unprocessed_queries" to retrieve the amount of unprocessed queries
 
 R33
 - added ORM system

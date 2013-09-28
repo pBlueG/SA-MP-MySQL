@@ -79,6 +79,7 @@ const AMX_NATIVE_INFO MySQLNatives[] = {
 	{"mysql_connect",					Native::mysql_connect},
 	{"mysql_close",						Native::mysql_close},
 	{"mysql_reconnect",					Native::mysql_reconnect},
+	{"mysql_unprocessed_queries",		Native::mysql_unprocessed_queries},
 	
 	{"mysql_errno",						Native::mysql_errno},
 	{"mysql_escape_string",				Native::mysql_escape_string},

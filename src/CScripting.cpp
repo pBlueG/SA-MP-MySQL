@@ -765,6 +765,19 @@ cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params) {
 	return 1;
 }
 
+//native mysql_unprocessed_queries(connectionHandle = 1);
+cell AMX_NATIVE_CALL Native::mysql_unprocessed_queries(AMX* amx, cell* params) {
+	unsigned int cID = params[1];
+	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_unprocessed_queries", "connection: %d", cID);
+
+	if(!CMySQLHandle::IsValid(cID)) {
+		ERROR_INVALID_CONNECTION_HANDLE("mysql_unprocessed_queries", cID);
+		return 0;
+	}
+
+	return static_cast<cell>(CMySQLHandle::GetHandle(cID)->GetUnprocessedQueryCount());
+}
+
 //native mysql_tquery(conhandle, query[], callback[], format[], {Float,_}:...);
 cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params) {
 	static const int ConstParamCount = 4;

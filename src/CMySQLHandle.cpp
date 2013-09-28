@@ -12,6 +12,7 @@ unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
 
 CMySQLHandle::CMySQLHandle(int id) : 
 	m_QueryThreadRunning(true),
+	m_QueryCounter(0),
 	m_QueryThread(NULL),
 
 	m_MyID(id),
@@ -96,9 +97,10 @@ void CMySQLHandle::ProcessQueries() {
 	mysql_thread_init();
 	while(m_QueryThreadRunning) {
 		CMySQLQuery *query = NULL;
-		while(m_QueryQueue.pop(query))
+		while(m_QueryQueue.pop(query)) {
 			query->Execute();
-		
+			m_QueryCounter--;
+		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}
 	mysql_thread_end();
