@@ -57,6 +57,10 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() {
 extern "C"
 #endif
 const AMX_NATIVE_INFO MySQLNatives[] = {
+	{"serialize_array",					Native::serialize_array},
+	{"unserialize_array",				Native::unserialize_array},
+
+
 	{"orm_create",						Native::orm_create},
 	{"orm_destroy",						Native::orm_destroy},
 

@@ -77,6 +77,27 @@ enum VarDatatype {
 #define ismysqlnull(%1) (strcmp(%1,"NULL",false)==0)
 
 
+//utility natives
+native serialize_array(dest[], {Float, _}:array[], VarDatatype:datatype, max_arrsize=sizeof(array), element_size=1, max_destsize=sizeof(dest));
+#define serialize_array_int(%0,%1) serialize_array(%0,%1,DATATYPE_INT)
+#define serialize_array_float(%0,%1) serialize_array(%0,%1,DATATYPE_FLOAT)
+/*
+native serialize_array_int(dest[], array[]);
+native serialize_array_float(dest[], Float:array[]);
+*/
+native serialize_array_string(dest[], array[][], VarDatatype:datatype = DATATYPE_STRING, max_arrsize=sizeof(array), element_size=sizeof(array[]), max_destsize=sizeof(dest)) = serialize_array;
+
+
+native unserialize_array(src[], {Float, _}:dest_array[], max_elementsize = 1, max_destsize=sizeof(dest_array));
+#define unserialize_array_int unserialize_array
+#define unserialize_array_float unserialize_array
+/*
+native unserialize_array_int(src[], dest_array[]);
+native unserialize_array_float(src[], Float:dest_array[]);
+*/
+native unserialize_array_string(src[], dest_array[][], max_elementsize = sizeof(dest_array[]), max_destsize=sizeof(dest_array)) = unserialize_array;
+
+
 // ORM natives
 native ORM:orm_create(table[], connectionHandle = 1);
 native orm_destroy(ORM:id);
