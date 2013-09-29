@@ -51,19 +51,23 @@ cell AMX_NATIVE_CALL Native::serialize_array(AMX *amx, cell *params) {
 	}
 
 	vector<string> StrData;
-	for(cell i=0; i < ArraySize; ++i) {
-		switch(Datatype) {
-			case DATATYPE_INT: {
+	switch(Datatype) {
+		case DATATYPE_INT: {
+			for(cell i=0; i < ArraySize; ++i) {
 				char IntBuf[12];
 				ConvertIntToStr(SrcArray[i], IntBuf);
 				StrData.push_back(string(IntBuf));
-			} break;
-			case DATATYPE_FLOAT: {
+			}
+		} break;
+		case DATATYPE_FLOAT: {
+			for(cell i=0; i < ArraySize; ++i) {
 				char FloatBuf[84];
 				ConvertFloatToStr(amx_ctof(SrcArray[i]), FloatBuf);
 				StrData.push_back(string(FloatBuf));
-			} break;
-			case DATATYPE_STRING: { 
+			}
+		} break;
+		case DATATYPE_STRING: { 
+			for(cell i=0; i < ArraySize; ++i) {
 				char *TmpStr = (char *)alloca(ElemSize * sizeof(char));
 				memset(TmpStr, 0, ElemSize * sizeof(char));
 
@@ -73,20 +77,20 @@ cell AMX_NATIVE_CALL Native::serialize_array(AMX *amx, cell *params) {
 				amx_GetString(TmpStr, StrPtr, 0, ElemSize);
 
 				//escape ';'
-				string TmpStr2(TmpStr);
-				size_t EscPos = 0;
-				while((EscPos = TmpStr2.find(';', EscPos)) != -1)
-					TmpStr2.replace(EscPos, 1, "\\;");
-
-				StrData.push_back(TmpStr2);
-			} break;
-		}
+				for(unsigned int i=0, len=strlen(TmpStr); i < len; ++i)
+					if(TmpStr[i] == ';')
+						TmpStr[i] = '\x01';
+				
+				StrData.push_back(string(TmpStr));
+			}
+		} break;
 	}
+	
 
 	string SerializedStr;
 	std::back_insert_iterator<std::string> sink(SerializedStr);
 	karma::generate(sink, 
-			karma::lit(DatatypeChar) << karma::lit('{') << karma::string % ';' << karma::lit('}'), 
+			karma::lit(DatatypeChar) << karma::string % ';', 
 			StrData
 		);
 
@@ -125,14 +129,14 @@ cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
 		ParseType = qi::float_ % ';';
 		break;
 	case 's':
-		TextParser = +(~qi::ascii::char_('}') - ';');
+		TextParser = +(qi::ascii::char_ - ';');
 		ParseType = TextParser % ';';
 		break;
 	default:
 		return 0;
 	}
 
-	if(qi::parse(FirstIt, LastIt, ('{' >> ParseType >> '}'), ValArray) == false)
+	if(qi::parse(FirstIt, LastIt, ParseType, ValArray) == false)
 		return 0;
 
 	if(ValArray.empty() || static_cast<cell>(ValArray.size()) > DestArraySize)
@@ -157,11 +161,12 @@ cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
 		for(int i=0, size=ValArray.size(); i < size; ++i) {
 			cell *StrDest = DestArray + 4 + (i*DestElementSize);
 
+			//unescape ';'
 			string &ValStr = boost::get<string>(ValArray.at(i));
-			size_t FoundPos = 0;
-			while( (FoundPos = ValStr.find("\\;", FoundPos)) != -1)
-				ValStr.replace(FoundPos, 2, ";");
-			 
+			for(string::iterator c = ValStr.begin(), end = ValStr.end(); c != end; ++c)
+				if( (*c) == '\x01')
+					(*c) = ';';
+
 			amx_SetString(StrDest, ValStr.c_str(), 0, 0, DestElementSize);
 		}
 		break;
