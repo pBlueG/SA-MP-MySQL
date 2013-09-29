@@ -117,7 +117,6 @@ cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
 		*LastIt(FirstIt+strlen(Source));
 	
 	qi::rule<const char*, vector<boost::variant<int, float, string> >()> ParseType;
-	qi::rule<const char*, string()> TextParser;
 	vector< boost::variant<int, float, string> > ValArray;
 
 	switch(DatatypeChar)
@@ -128,10 +127,10 @@ cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
 	case 'f':
 		ParseType = qi::float_ % ';';
 		break;
-	case 's':
-		TextParser = +(qi::ascii::char_ - ';');
+	case 's': {
+		qi::rule<const char*, string()> TextParser = +(qi::ascii::char_ - ';');
 		ParseType = TextParser % ';';
-		break;
+	} break;
 	default:
 		return 0;
 	}
