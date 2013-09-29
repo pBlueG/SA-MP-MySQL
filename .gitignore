@@ -12,3 +12,5 @@
 *.rar
 *.zip
 *.sublime-workspace
+*.psess
+*.vsp
