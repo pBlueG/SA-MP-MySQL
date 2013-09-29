@@ -63,13 +63,22 @@ cell AMX_NATIVE_CALL Native::serialize_array(AMX *amx, cell *params) {
 				ConvertFloatToStr(amx_ctof(SrcArray[i]), FloatBuf);
 				StrData.push_back(string(FloatBuf));
 			} break;
-			case DATATYPE_STRING: { //two-dimensional arrays <333
+			case DATATYPE_STRING: { 
 				char *TmpStr = (char *)alloca(ElemSize * sizeof(char));
 				memset(TmpStr, 0, ElemSize * sizeof(char));
+
+				//two-dimensional arrays <333
 				cell Offset = (*(SrcArray + i))/sizeof(cell);
 				cell *StrPtr = (SrcArray + i + Offset);
 				amx_GetString(TmpStr, StrPtr, 0, ElemSize);
-				StrData.push_back(string(TmpStr));
+
+				//escape ';'
+				string TmpStr2(TmpStr);
+				size_t EscPos = 0;
+				while((EscPos = TmpStr2.find(';', EscPos)) != -1)
+					TmpStr2.replace(EscPos, 1, "\\;");
+
+				StrData.push_back(TmpStr2);
 			} break;
 		}
 	}
@@ -103,7 +112,7 @@ cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
 		*FirstIt(Source+1),
 		*LastIt(FirstIt+strlen(Source));
 	
-	qi::rule<const char*, vector<boost::variant<int, float, string>>()> ParseType;
+	qi::rule<const char*, vector<boost::variant<int, float, string> >()> ParseType;
 	qi::rule<const char*, string()> TextParser;
 	vector< boost::variant<int, float, string> > ValArray;
 
@@ -117,7 +126,7 @@ cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
 		break;
 	case 's':
 		TextParser = +(~qi::ascii::char_('}') - ';');
-		ParseType = TextParser % ';';//TextParser >> *(';' >> TextParser);
+		ParseType = TextParser % ';';
 		break;
 	default:
 		return 0;
@@ -138,14 +147,22 @@ cell AMX_NATIVE_CALL Native::unserialize_array(AMX *amx, cell *params) {
 
 		break;
 	case 'f':
-		for(int i=0, size=ValArray.size(); i < size; ++i) 
-			DestArray[i] = amx_ftoc(static_cast<float>(boost::get<float>(ValArray.at(i))));
+		for(int i=0, size=ValArray.size(); i < size; ++i) {
+			float FloatVal = boost::get<float>(ValArray.at(i));
+			DestArray[i] = amx_ftoc(FloatVal);
+		}
 
 		break;
 	case 's':
 		for(int i=0, size=ValArray.size(); i < size; ++i) {
 			cell *StrDest = DestArray + 4 + (i*DestElementSize);
-			amx_SetString(StrDest, boost::get<string>(ValArray.at(i)).c_str(), 0, 0, DestElementSize);
+
+			string &ValStr = boost::get<string>(ValArray.at(i));
+			size_t FoundPos = 0;
+			while( (FoundPos = ValStr.find("\\;", FoundPos)) != -1)
+				ValStr.replace(FoundPos, 2, ";");
+			 
+			amx_SetString(StrDest, ValStr.c_str(), 0, 0, DestElementSize);
 		}
 		break;
 	}
