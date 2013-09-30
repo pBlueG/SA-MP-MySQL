@@ -1,6 +1,6 @@
-GPP=g++
-GCC=gcc
-ARCH = $(shell getconf LONG_BIT)
+GPP=g++ -m32
+GCC=gcc -m32
+
 
 COMPILE_FLAGS=-c -O3 -w -fPIC -DLINUX -Wall -Isrc/SDK/amx/ -Isrc/ -DBOOST_THREAD_DONT_USE_CHRONO
 BOOST_LIB_DIR=./src/boost_lib
@@ -29,7 +29,7 @@ dynamic_link:
 
 static_link:
 	@echo Linking \(static\)..
-	@ $(GPP) -O2 -fshort-wchar -shared -o "bin/mysql_static.so" *.o ./src/mysql_lib/libmysqlclient_r-$(ARCH).a -pthread -lrt
+	@ $(GPP) -O2 -fshort-wchar -shared -o "bin/mysql_static.so" *.o ./src/mysql_lib/libmysqlclient_r.a -pthread -lrt
 
 clean:
 	@ rm -f *.o
