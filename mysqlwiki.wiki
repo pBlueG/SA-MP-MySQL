@@ -2,6 +2,62 @@ Documentation for BlueG's MySQL plugin version R33 and later. Forum topic and do
 
 '''Lastest release:''' R34 (xx/10/2013)
 
+= ORM functions =
+{{Note|A good tutorial for this system can be found [http://forum.sa-mp.com/showthread.php?p=2722349 here].}}
+
+
+== orm_create ==
+{{Description|Creates an ORM instance and returns its id.}}
+
+{{Parameters|const table[], connectionHandle &#61; 1}}
+{{Param|const table[]|The name of the table you wish to cont.}}
+{{Param|connectionHandle|The connection handle this will be processed on (optional).}}
+
+{{Returns|ORM id on success, 0 on fail.}}
+
+<pawn>
+public OnPlayerConnect(playerid)
+{
+	new ORM:orm_id = Player[playerid][ORM_ID] = orm_create("players");
+	return 1;
+}
+</pawn>
+
+
+== orm_destroy ==
+{{Description|Destroys an ORM instance.}}
+
+{{Parameters|ORM:id}}
+{{Param|ORM:id|The id of an ORM instance.}}
+
+{{Returns|1 on success, 0 on fail.}}
+
+<pawn>
+public OnPlayerDisconnect(playerid, reason)
+{
+	orm_destroy(Player[playerid][ORM_ID]);
+	return 1;
+}
+</pawn>
+
+
+== orm_errno ==
+{{Description|Returns the .}}
+
+{{Parameters|ORM:id}}
+{{Param|ORM:id|The id of an ORM instance.}}
+
+{{Returns|1 on success, 0 on fail.}}
+
+<pawn>
+public OnPlayerDisconnect(playerid, reason)
+{
+	orm_destroy(Player[playerid][ORM_ID]);
+	return 1;
+}
+</pawn>
+
+
 
 = MySQL functions =
 {{note|Almost every function has a connectionHandle parameter. If you use only one database connection you don't need to mind it. Connection handle is 1 by default.}}
@@ -12,7 +68,7 @@ Documentation for BlueG's MySQL plugin version R33 and later. Forum topic and do
 
 {{note|Logging is always enabled by default, even if you don't call mysql_log.}}
 
-{{Parameters|loglevel = LOG_ERROR | LOG_WARNING, logtype = LOG_TYPE_TEXT}}
+{{Parameters|loglevel &#61; LOG_ERROR | LOG_WARNING, logtype &#61; LOG_TYPE_TEXT}}
 {{Param|loglevel|Specifies what type of log messages will be logged (optional).}}
 {{Param|logtype|Type of the logging (optional).}}
 
@@ -32,9 +88,9 @@ public OnGameModeInit()
 == mysql_connect ==
 {{Description|Connects to a MySQL server and database.}}
 
-{{Note2|Do not use this function to reconnect to the database. Use [[MySQL#mysql_reconnect|mysql_reconnect()]] instead.}}
+{{Note2|Do not use this function to reconnect to the database. Use [[MySQL/R33#mysql_reconnect|mysql_reconnect()]] instead.}}
 
-{{Parameters|const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true}}
+{{Parameters|const host[], const user[], const database[], const password[], port &#61; 3306, bool:autoreconnect &#61; true}}
 {{Param|const host[]|IP or hostname of the MySQL server.}}
 {{Param|const user[]|Username of the account you want to connect to.}}
 {{Param|const database[]|Name of the database you want to connect to.}}
@@ -59,7 +115,7 @@ public OnGameModeInit()
 == mysql_close ==
 {{Description|Closes the MySQL connection.}}
 
-{{Parameters|connectionHandle = 1, bool:wait = true}}
+{{Parameters|connectionHandle &#61; 1, bool:wait &#61; true}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 {{Param|bool:wait|True if to wait until all queued queries are executed (optional).}}
 
@@ -70,7 +126,7 @@ public OnGameModeExit()
 {
 	mysql_tquery(MySQL, "UPDATE `players` SET `is_online` = '0'", "", "");
 	
-	mysql_close(); //mysql_close will now halt the server until the query we just sent is executed.
+	mysql_close(MySQL); //mysql_close will now halt the server until the query we just sent is executed.
 	return 1;
 }
 </pawn>
@@ -79,7 +135,7 @@ public OnGameModeExit()
 == mysql_reconnect ==
 {{Description|Reconnects to the selected connection handle.}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{NoReturn}}
@@ -94,7 +150,7 @@ mysql_reconnect();
 == mysql_errno ==
 {{Description|Returns the error code of the error message from the previous MySQL operation.}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Returns|Error code, 0 if no error occurred.}}
@@ -109,19 +165,20 @@ if(mysql_errno() != 0)
 == mysql_escape_string ==
 {{Description|Escapes special characters in a string for the use in a SQL statement. It prepends backslashes to the following characters: \x00, \n, \r, \, ', " and \x1a.}}
 
-{{Note2|Always use this function (if you don't use [[MySQL#mysql_format|mysql_format()]] with the '%e' specifier) before inserting user inputs in a query. You can be victim of a [http://en.wikipedia.org/wiki/SQL_injection SQL injection] if you do not do so.}}
+{{Note2|Always use this function (if you don't use [[MySQL/R33#mysql_format|mysql_format()]] with the '%e' specifier) before inserting user inputs in a query. You can be victim of a [http://en.wikipedia.org/wiki/SQL_injection SQL injection] if you do not do so.}}
 
-{{Parameters|const source[], destination[], connectionHandle = 1, max_len = sizeof(destination)}}
+{{Parameters|const source[], destination[], connectionHandle &#61; 1, max_len &#61; sizeof(destination)}}
 {{Param|const source[]|The string you want to be escaped.}}
 {{Param|destination[]|The string to store escaped data in.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 {{Param|max_len|The size of the destination (optional).}}
 
-{{Note|A database connection is required before using this function.}}
-{{Note|It does not escape % and _. These are wildcards in MySQL if combined with LIKE, GRANT, or REVOKE.}}
-{{Note2|You have to provide the size (max_len) by yourself if you use an enum-array as destination.}}
-
 {{Returns|Length of escaped string.}}
+
+{{Note|A database connection is required before using this function.}}
+
+{{Note|It does not escape % and _. These are wildcards in MySQL if combined with LIKE, GRANT, or REVOKE.}}
+{{Note2|You have to provide the size (''max_len'') by yourself if you use an enum-array as destination.}}
 
 <pawn>
 enum E_PLAYER {
@@ -162,7 +219,7 @@ public OnPlayerText(playerid, text[])
 |-
 | %s || Inserts a string.
 |-
-| %d/%i || Inserts an integer number.
+| %d / %i || Inserts an integer number.
 |-
 | %f || Inserts a floating point number.
 |-
@@ -192,10 +249,12 @@ mysql_tquery(MySQL, query, "OnStuffSelected", "");
 {{Param|format[]|The format specifier string.}}
 {{Param|{Float,_}:...|Indefinite number of arguments.}}
 
+{{Returns|1 on success, 0 on fail.}}
+
 {{Note|The callback must be a [[Public functions|public]] function. That means it has to be [[Public functions#Forwarding|forwarded]].}}
+
 {{Note|The length of the format specifier must be the same as the number of arguments passed, or otherwise the query won't be executed!}}
 
-{{Returns|1 on success, 0 on fail.}}
 
 ==== Format specifiers ====
 {|
@@ -234,16 +293,16 @@ public OnPlayerDataLoaded(playerid)
 {{Description|Sends a query which will be executed immediately (in the main (PAWN) thread).}}
 
 {{Note2|It's highly recommended to thread all your queries (even INSERT & UPDATE).}}
-{{Note2|Use [[MySQL#cache_delete||cache_delete()]] if you don't need the query's result anymore.}}
+{{Note2|Use [[MySQL/R33#cache_delete|cache_delete()]] if you don't need the query's result anymore.}}
 
-{{Parameters|conhandle, query[], bool:use_cache = true}}
+{{Parameters|conhandle, query[], bool:use_cache &#61; true}}
 {{Param|conhandle|The connection handle this will be processed on.}}
 {{Param|query[]|The query you want to execute.}}
 {{Param|bool:use_cache|Set to true if you intend to use the cache/result mysql_query returns (optional).}}
 
-{{Note2|If use_cache is set to false, there won't be any valid cache to use, so all cache-related natives wont work. You also don't need to call [[MySQL#cache_delete||cache_delete()]] in this case.}}
-
 {{Returns|A valid cache-id if use_cache is set to true.}}
+
+{{Note2|If ''use_cache'' is set to false, there won't be any valid cache to use, so all cache-related natives wont work. You also don't need to call [[MySQL/R33#cache_delete|cache_delete()]] in this case.}}
 
 <pawn>
 new Cache:cache = mysql_query(MySQL, "SELECT `id` FROM `players`");
@@ -256,7 +315,7 @@ cache_delete(cache);
 == mysql_stat ==
 {{Description|Use this function to get some statistics of the MySQL server.}}
 
-{{Parameters|destination[], connectionHandle = 1, max_len = sizeof(destination)}}
+{{Parameters|destination[], connectionHandle &#61; 1, max_len &#61; sizeof(destination)}}
 {{Param|const destination[]|The string to store extracted data in.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 {{Param|max_len|The size of the destination string (optional).}}
@@ -277,7 +336,7 @@ print(stats);
 == mysql_get_charset ==
 {{Description|Use this function to get the current character set in use.}}
 
-{{Parameters|destination[], connectionHandle = 1, max_len=sizeof(destination)}}
+{{Parameters|destination[], connectionHandle &#61; 1, max_len=sizeof(destination)}}
 {{Param|destination[]|The string to store extracted data in.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
@@ -289,7 +348,7 @@ print(stats);
 == mysql_set_charset ==
 {{Description|Use this function to change the character set the connection uses. Very useful for servers which often process data with foreign characters.}}
 
-{{Parameters|charset[], connectionHandle = 1}}
+{{Parameters|charset[], connectionHandle &#61; 1}}
 {{Param|charset[]|Code of the character set you want to use.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
@@ -309,7 +368,7 @@ mysql_set_charset("utf8_unicode_ci");
 == cache_get_data ==
 {{Description|Assigns the number of rows and fields to two variables.}}
 
-{{Parameters|&num_rows, &num_fields, connectionHandle = 1}}
+{{Parameters|&num_rows, &num_fields, connectionHandle &#61; 1}}
 {{Param|&num_rows|The variable the number of rows will be assigned to.}}
 {{Param|&num_fields|The variable the number of fields will be assigned to.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
@@ -326,7 +385,7 @@ printf("There are %d rows and %d fields in the current result set (aka cache).",
 == cache_get_row_count ==
 {{Description|Returns the number of rows.}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Returns|Number of rows.}}
@@ -339,7 +398,7 @@ printf("There are %d rows in the current result set.", cache_get_row_count());
 == cache_get_field_count ==
 {{Description|Returns the number of fields.}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Returns|Number of fields.}}
@@ -352,7 +411,7 @@ printf("There are %d fields in the current result set.", cache_get_field_count()
 == cache_get_field_name ==
 {{Description|Retrieves a field's name specified by an index.}}
 
-{{Parameters|field_index, destination[], connectionHandle = 1, max_len = sizeof(destination)}}
+{{Parameters|field_index, destination[], connectionHandle &#61; 1, max_len &#61; sizeof(destination)}}
 {{Param|field_index|The index of the field whose name to retrieve.}}
 {{Param|destination[]|The string to store the name into.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
@@ -371,7 +430,7 @@ printf("The first field name in the current result set is '%s'.", field_name);
 == cache_get_row ==
 {{Description|Retrieves a value from the result set as a string.}}
 
-{{Parameters|row, field_idx, destination[], connectionHandle = 1, max_len = sizeof(destination)}}
+{{Parameters|row, field_idx, destination[], connectionHandle &#61; 1, max_len &#61; sizeof(destination)}}
 {{Param|row|The row's index (starts at '0').}}
 {{Param|field_idx|The index of the field (starts at '0').}}
 {{Param|destination[]|The string to store the data into.}}
@@ -379,6 +438,8 @@ printf("The first field name in the current result set is '%s'.", field_name);
 {{Param|max_len|The size of the destination string (optional).}}
 
 {{NoReturn}}
+
+{{Note2|You have to provide the size (''max_len'') by yourself if you use an enum-array as destination.}}
 
 <pawn>
 new dest[128];
@@ -390,7 +451,7 @@ printf("The very first value in the current result set is '%s'.", dest);
 == cache_get_row_int ==
 {{Description|Retrieves a value from the result set as a integer (normal number).}}
 
-{{Parameters|row, field_idx, connectionHandle = 1}}
+{{Parameters|row, field_idx, connectionHandle &#61; 1}}
 {{Param|row|The row's index (starts at '0').}}
 {{Param|field_idx|The index of the field (starts at '0').}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
@@ -406,7 +467,7 @@ printf("The number stored in the fourth row and first field is '%d'.", int_dest)
 == cache_get_row_float ==
 {{Description|Retrieves a value from the result set as a floating point number.}}
 
-{{Parameters|row, field_idx, connectionHandle = 1}}
+{{Parameters|row, field_idx, connectionHandle &#61; 1}}
 {{Param|row|The row's index (starts at '0').}}
 {{Param|field_idx|The index of the field (starts at '0').}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
@@ -423,7 +484,7 @@ printf("The floating point number stored in the fourth row and fifth field is '%
 == cache_get_field_content ==
 {{Description|Retrieves a value from the result set as a string.}}
 
-{{Parameters|row, const field_name[], destination[], connectionHandle = 1, max_len = sizeof(destination)}}
+{{Parameters|row, const field_name[], destination[], connectionHandle &#61; 1, max_len &#61; sizeof(destination)}}
 {{Param|row|The row's index (starts at '0').}}
 {{Param|const field_name[]|The field's name.}}
 {{Param|destination[]|The string to store the data into.}}
@@ -431,6 +492,8 @@ printf("The floating point number stored in the fourth row and fifth field is '%
 {{Param|max_len|The size of the destination string (optional).}}
 
 {{NoReturn}}
+
+{{Note2|You have to provide the size (''max_len'') by yourself if you use an enum-array as destination.}}
 
 <pawn>
 new dest[128];
@@ -442,7 +505,7 @@ printf("The value in the field 'name' is '%s'.", dest);
 == cache_get_field_content_int ==
 {{Description|Retrieves a value from the result set as an integer (normal number).}}
 
-{{Parameters|row, const field_name[], connectionHandle = 1}}
+{{Parameters|row, const field_name[], connectionHandle &#61; 1}}
 {{Param|row|The row's index (starts at '0').}}
 {{Param|const field_name[]|The field's name.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
@@ -458,7 +521,7 @@ printf("The value in the third row and in the field 'money' is '%d'.", int_dest)
 == cache_get_field_content_float ==
 {{Description|Retrieves a value from the result set as an floating point number.}}
 
-{{Parameters|row, const field_name[], connectionHandle = 1}}
+{{Parameters|row, const field_name[], connectionHandle &#61; 1}}
 {{Param|row|The row's index (starts at '0').}}
 {{Param|const field_name[]|The field's name.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
@@ -475,7 +538,7 @@ printf("The value in the fourth row and in the field 'pos_x' is '%f'.", float_de
 == cache_save ==
 {{Description|Saves the active cache in the memory and returns an cache-id to access it for later use.}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Returns|Valid cache-id on success or 0 on failure.}}
@@ -522,7 +585,7 @@ public OnPlayerDataLoaded(playerid)
 == cache_delete ==
 {{Description|Deletes the specified cache from the memory.}}
 
-{{Parameters|Cache:cache_id, connectionHandle = 1}}
+{{Parameters|Cache:cache_id, connectionHandle &#61; 1}}
 {{Param|Cache:cache_id|The cache-id which should be deleted.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
@@ -552,7 +615,7 @@ public OnPlayerDisconnect(playerid, reason)
 
 {{Note|If you specify '0' as cache-id, the active cache will be unset, thus there won't be any cache active.}}
 
-{{Parameters|Cache:cache_id, connectionHandle = 1}}
+{{Parameters|Cache:cache_id, connectionHandle &#61; 1}}
 {{Param|Cache:cache_id|The cache-id which should be set as active.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
@@ -598,7 +661,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 == cache_affected_rows ==
 {{Description|Returns the number of affected rows if the query was an INSERT, UPDATE, REPLACE or DELETE query.}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Note|If the last query was a DELETE query with no WHERE clause, all of the records will have been deleted from the table but this function will return zero.}}
@@ -619,7 +682,7 @@ public OnLogsDeleted()
 == cache_insert_id ==
 {{Description|Retrieves the ID generated for an AUTO_INCREMENT column by the sent query (usually INSERT).}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Returns|ID generated for an AUTO_INCREMENT column.}}
@@ -638,7 +701,7 @@ public OnPlayerRegister(playerid)
 == cache_warning_count ==
 {{Description|Returns the number of warnings the sent query generated.}}
 
-{{Parameters|connectionHandle = 1}}
+{{Parameters|connectionHandle &#61; 1}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Returns|Number of warnings, 0 if none.}}
