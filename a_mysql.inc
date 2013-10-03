@@ -78,24 +78,24 @@ enum VarDatatype {
 
 
 //utility natives
-native serialize_array(dest[], {Float, _}:array[], VarDatatype:datatype, max_arrsize=sizeof(array), element_size=1, max_destsize=sizeof(dest));
+native serialize_array(dest[], {Float, _}:array[], VarDatatype:datatype, max_arrsize = sizeof(array), element_size = 1, max_destsize = sizeof(dest));
 #define serialize_array_int(%0,%1) serialize_array(%0,%1,DATATYPE_INT)
 #define serialize_array_float(%0,%1) serialize_array(%0,%1,DATATYPE_FLOAT)
 /*
 native serialize_array_int(dest[], array[]);
 native serialize_array_float(dest[], Float:array[]);
 */
-native serialize_array_string(dest[], array[][], VarDatatype:datatype = DATATYPE_STRING, max_arrsize=sizeof(array), element_size=sizeof(array[]), max_destsize=sizeof(dest)) = serialize_array;
+native serialize_array_string(dest[], array[][], VarDatatype:datatype = DATATYPE_STRING, max_arrsize = sizeof(array), element_size = sizeof(array[]), max_destsize = sizeof(dest)) = serialize_array;
 
 
-native unserialize_array(src[], {Float, _}:dest_array[], max_elementsize = 1, max_destsize=sizeof(dest_array));
+native unserialize_array(src[], {Float, _}:dest_array[], max_elementsize = 1, max_destsize = sizeof(dest_array));
 #define unserialize_array_int unserialize_array
 #define unserialize_array_float unserialize_array
 /*
 native unserialize_array_int(src[], dest_array[]);
 native unserialize_array_float(src[], Float:dest_array[]);
 */
-native unserialize_array_string(src[], dest_array[][], max_elementsize = sizeof(dest_array[]), max_destsize=sizeof(dest_array)) = unserialize_array;
+native unserialize_array_string(src[], dest_array[][], max_elementsize = sizeof(dest_array[]), max_destsize = sizeof(dest_array)) = unserialize_array;
 
 
 // ORM natives
@@ -105,19 +105,19 @@ native orm_destroy(ORM:id);
 native ORM_Error:orm_errno(ORM:id);
 
 native orm_apply_cache(ORM:id, row);
-native orm_select(ORM:id, callback[]="", format[]="", {Float, _}:...);
+native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 /*
 native orm_select_inline(ORM:id, callback:Callback, format[], {Float,_}:...); //y_inline
 */
 native orm_update(ORM:id);
-native orm_insert(ORM:id, callback[]="", format[]="", {Float, _}:...);
+native orm_insert(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 /*
 native orm_insert_inline(ORM:id, callback:Callback, format[], {Float,_}:...); //y_inline
 */
 native orm_delete(ORM:id, bool:clearvars=true);
 
-native orm_load(ORM:id, callback[]="", format[]="", {Float, _}:...) = orm_select;
-native orm_save(ORM:id, callback[]="", format[]="", {Float, _}:...);
+native orm_load(ORM:id, callback[] = "", format[] = "", {Float, _}:...) = orm_select;
+native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 
 native orm_addvar(ORM:id, &{Float, _}:var, VarDatatype:datatype, var_maxlen, varname[]);
 /*
@@ -140,7 +140,7 @@ native mysql_reconnect(connectionHandle = 1);
 native mysql_unprocessed_queries(connectionHandle = 1);
 
 native mysql_errno(connectionHandle = 1);
-native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len=sizeof(destination));
+native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len = sizeof(destination));
 native mysql_format(connectionHandle, output[], len, format[], {Float,_}:...);
 native mysql_tquery(connectionHandle, query[], callback[], format[], {Float,_}:...);
 /*
@@ -148,8 +148,8 @@ native mysql_tquery_inline(connHandle, query[], callback:Callback, format[], {Fl
 */
 native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
 
-native mysql_stat(destination[], connectionHandle = 1, max_len=sizeof(destination));
-native mysql_get_charset(destination[], connectionHandle = 1, max_len=sizeof(destination));
+native mysql_stat(destination[], connectionHandle = 1, max_len = sizeof(destination));
+native mysql_get_charset(destination[], connectionHandle = 1, max_len = sizeof(destination));
 native mysql_set_charset(charset[], connectionHandle = 1);
 
 
@@ -157,13 +157,13 @@ native mysql_set_charset(charset[], connectionHandle = 1);
 native cache_get_data(&num_rows, &num_fields, connectionHandle = 1);
 native cache_get_row_count(connectionHandle = 1);
 native cache_get_field_count(connectionHandle = 1);
-native cache_get_field_name(field_index, destination[], connectionHandle = 1, max_len=sizeof(destination));
+native cache_get_field_name(field_index, destination[], connectionHandle = 1, max_len = sizeof(destination));
 
-native cache_get_row(row, field_idx, destination[], connectionHandle = 1, max_len=sizeof(destination));
+native cache_get_row(row, field_idx, destination[], connectionHandle = 1, max_len = sizeof(destination));
 native cache_get_row_int(row, field_idx, connectionHandle = 1);
 native Float:cache_get_row_float(row, field_idx, connectionHandle = 1);
 
-native cache_get_field_content(row, const field_name[], destination[], connectionHandle = 1, max_len=sizeof(destination));
+native cache_get_field_content(row, const field_name[], destination[], connectionHandle = 1, max_len = sizeof(destination));
 native cache_get_field_content_int(row, const field_name[], connectionHandle = 1);
 native Float:cache_get_field_content_float(row, const field_name[], connectionHandle = 1);
 
@@ -256,7 +256,15 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 #endif
 
 
-// Wrappers for cache functions
+// General wrappers for backward-compatibility
+stock mysql_debug(enabled) {
+	if(enabled)
+		mysql_log(LOG_WARNING | LOG_ERROR | LOG_DEBUG);
+	else
+		mysql_log();
+	return 1;
+}
+#pragma deprecated mysql_ping
 stock mysql_reload(connectionHandle = 1) {
 	mysql_tquery(connectionHandle, "FLUSH PRIVILEGES", "", "");
 	return 1;
