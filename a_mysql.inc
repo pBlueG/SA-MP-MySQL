@@ -99,7 +99,7 @@ native unserialize_array_string(src[], dest_array[][], max_elementsize = sizeof(
 
 
 // ORM natives
-native ORM:orm_create(table[], connectionHandle = 1);
+native ORM:orm_create(const table[], connectionHandle = 1);
 native orm_destroy(ORM:id);
 
 native ORM_Error:orm_errno(ORM:id);
