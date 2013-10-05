@@ -3,14 +3,14 @@ Documentation for BlueG's MySQL plugin version R33 and later. Forum topic and do
 '''Lastest release:''' R34 (xx/10/2013)
 
 = ORM functions =
-{{Note|A good tutorial for this system can be found [http://forum.sa-mp.com/showthread.php?p=2722349 here].}}
+{{Note|A good tutorial for this system can be found [http://bit.ly/1e0WhIC here].}}
 
 
 == orm_create ==
 {{Description|Creates an ORM instance and returns its id.}}
 
 {{Parameters|const table[], connectionHandle &#61; 1}}
-{{Param|const table[]|The name of the table you wish to cont.}}
+{{Param|const table[]|The name of the table you wish to control.}}
 {{Param|connectionHandle|The connection handle this will be processed on (optional).}}
 
 {{Returns|ORM id on success, 0 on fail.}}
@@ -28,9 +28,9 @@ public OnPlayerConnect(playerid)
 {{Description|Destroys an ORM instance.}}
 
 {{Parameters|ORM:id}}
-{{Param|ORM:id|The id of an ORM instance.}}
+{{Param|ORM:id|The id of the ORM instance.}}
 
-{{Returns|1 on success, 0 on fail.}}
+{{NoReturn}}
 
 <pawn>
 public OnPlayerDisconnect(playerid, reason)
@@ -42,20 +42,256 @@ public OnPlayerDisconnect(playerid, reason)
 
 
 == orm_errno ==
-{{Description|Returns the .}}
+{{Description|Returns the error-id of the last ORM operation.}}
 
 {{Parameters|ORM:id}}
-{{Param|ORM:id|The id of an ORM instance.}}
+{{Param|ORM:id|The id of the ORM instance.}}
 
-{{Returns|1 on success, 0 on fail.}}
+{{Returns|Error id.}}
+
+''Available errors''
+{|
+! Error ||  Meaning
+|-
+| ERROR_OK || No error happened.
+|-
+| ERROR_NO_DATA || No data has been found in the table.
+|}
 
 <pawn>
-public OnPlayerDisconnect(playerid, reason)
+orm_select(Player[playerid][ORM_ID], "OnStuffSelected", "d", playerid);
+
+public OnStuffSelected(playerid)
 {
-	orm_destroy(Player[playerid][ORM_ID]);
+	switch(orm_errno(Player[playerid][ORM_ID])
+	{
+		case ERROR_OK:
+			printf("There is no error.");
+		case ERROR_NO_DATA:
+			printf("No data in the table found.");
+	}
 	return 1;
 }
 </pawn>
+
+
+== orm_apply_cache ==
+{{Description|Applies the data of the active cache to an ORM instance.}}
+
+{{Parameters|ORM:id, row}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|row|The row index to take the cache data from.}}
+
+{{NoReturn}}
+
+<pawn>
+new query[128];
+format(query, sizeof(query), "SELECT * FROM `players` WHERE `id` = '%d'", Player[playerid][ID]);
+mysql_tquery(MySQL, query, "OnStuffSelected", "d", playerid);
+
+public OnStuffSelected(playerid)
+{
+	orm_apply_cache(Player[playerid][ORM_ID], 0);
+	printf("Player %s has %d Money and is on PosX with %f.", Player[playerid][Name], Player[playerid][Money], Player[playerid][PosX]);
+	return 1;
+}
+</pawn>
+
+
+== orm_select ==
+{{Description|Sends a SELECT query and applies the retrieved data to the previously registered variables.}}
+
+{{Parameters|ORM:id, callback[] &#61; "", format[] &#61; "", {Float, _}:...}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|callback[]|The name of the callback to call when the operation is done (optional).}}
+{{Param|format[]|The format specifier for the callback (optional).}}
+{{Param|{Float, _}:...|Indefinite number of parameters to pass to the callback (optional).}}
+
+{{NoReturn}}
+
+<pawn>
+orm_select(Player[playerid][ORM_ID], "OnPlayerDataLoaded", "d", playerid);
+
+public OnPlayerDataLoaded(playerid)
+{
+	printf("Player %s has %d Money and is on PosX with %f.", Player[playerid][Name], Player[playerid][Money], Player[playerid][PosX]);
+	return 1;
+}
+</pawn>
+
+
+== orm_update ==
+{{Description|Sends an UPDATE query with the current values of the registered variables.}}
+
+{{Parameters|ORM:id}}
+{{Param|ORM:id|The id of the ORM instance.}}
+
+{{NoReturn}}
+
+<pawn>
+orm_update(Player[playerid][ORM_ID]);
+//this generates a query like "UPDATE `players` SET ´name´='PlayerName', `money`='23141', `pos_x`='231.432' WHERE `id`='42'" and executes it
+</pawn>
+
+
+== orm_insert ==
+{{Description|Sends an INSERT query with the current values of the registered variables.}}
+
+{{Parameters|ORM:id, callback[] &#61; "", format[] &#61; "", {Float, _}:...}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|callback[]|The name of the callback to call when the operation is done (optional).}}
+{{Param|format[]|The format specifier for the callback (optional).}}
+{{Param|{Float, _}:...|Indefinite number of parameters to pass to the callback (optional).}}
+
+{{NoReturn}}
+
+<pawn>
+orm_insert(Player[playerid][ORM_ID], "OnPlayerRegistered", "d", playerid);
+
+public OnPlayerRegistered(playerid)
+{
+	printf("Player %s has registered with id %d.", Player[playerid][Name], Player[playerid][ID]);
+	return 1;
+}
+</pawn>
+
+
+== orm_delete ==
+{{Description|Sends a DELETE query.}}
+
+{{Parameters|ORM:id, bool:clearvars &#61; true}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|bool:clearvars|True if the values of the registered variables should be set to zero (optional).}}
+
+{{NoReturn}}
+
+<pawn>
+orm_delete(Player[playerid][ORM_ID]);
+//this generates a query like "DELETE FROM `players` WHERE `id`='42'" and executes it
+</pawn>
+
+
+== orm_load ==
+{{Description|Fetches data from a table and applies it to the previously registered variables. This function is technically the same as [[MySQL/R33#orm_select|orm_select()]].}}
+
+{{Parameters|ORM:id, callback[] &#61; "", format[] &#61; "", {Float, _}:...}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|callback[]|The name of the callback to call when the operation is done (optional).}}
+{{Param|format[]|The format specifier for the callback (optional).}}
+{{Param|{Float, _}:...|Indefinite number of parameters to pass to the callback (optional).}}
+
+{{NoReturn}}
+
+<pawn>
+orm_load(Player[playerid][ORM_ID], "OnPlayerDataLoaded", "d", playerid);
+
+public OnPlayerDataLoaded(playerid)
+{
+	printf("Player %s has %d Money and is on PosX with %f.", Player[playerid][Name], Player[playerid][Money], Player[playerid][PosX]);
+	return 1;
+}
+</pawn>
+
+
+== orm_save ==
+{{Description|Saves data to a table. This function is a combination of [[MySQL/R33#orm_insert|orm_insert()]] and [[MySQL/R33#orm_update|orm_update()]]. If the previously specified key variable has a valid value, orm_save calls [[MySQL/R33#orm_update|orm_update]], else [[MySQL/R33#orm_insert|orm_insert]].}}
+
+{{Parameters|ORM:id, callback[] &#61; "", format[] &#61; "", {Float, _}:...}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|callback[]|The name of the callback to call when the operation is done (optional).}}
+{{Param|format[]|The format specifier for the callback (optional).}}
+{{Param|{Float, _}:...|Indefinite number of parameters to pass to the callback (optional).}}
+
+{{NoReturn}}
+
+<pawn>
+Player[playerid][Money] = GetPlayerMoney(playerid);
+orm_save(Player[playerid][ORM_ID]);
+</pawn>
+
+
+== orm_addvar_int ==
+{{Description|Registers an integer variable to an ORM instance and links it to the specified field.}}
+
+{{Parameters|ORM:id, &var, varname[]}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|&var|The variable to register.}}
+{{Param|varname[]|The name of the field in the MySQL table.}}
+
+{{NoReturn}}
+
+<pawn>
+new ORM:ormid = orm_create("players");
+
+orm_addvar_int(ormid, Player[playerid][ID], "id");
+orm_addvar_int(ormid, Player[playerid][Money], "money");
+</pawn>
+
+
+== orm_addvar_float ==
+{{Description|Registers a floating point variable to an ORM instance and links it to the specified field.}}
+
+{{Parameters|ORM:id, &var, varname[]}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|&Float:var|The variable to register.}}
+{{Param|varname[]|The name of the field in the MySQL table.}}
+
+{{NoReturn}}
+
+<pawn>
+new ORM:ormid = orm_create("players");
+
+orm_addvar_float(ormid, Player[playerid][PosX], "pos_x");
+orm_addvar_float(ormid, Player[playerid][PosY], "pos_y");
+</pawn>
+
+
+== orm_addvar_string ==
+{{Description|Registers a string variable to an ORM instance and links it to the specified field.}}
+
+{{Parameters|ORM:id, &var, var_maxlen, varname[]}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|&var|The variable to register.}}
+{{Param|var_maxlen|The size of the registered variable.}}
+{{Param|varname[]|The name of the field in the MySQL table.}}
+
+{{NoReturn}}
+
+<pawn>
+enum E_PLAYER {
+	// ...
+	Name[MAX_PLAYER_NAME],
+	Password[129]
+};
+new Player[MAX_PLAYERS][E_PLAYER];
+
+// ...
+
+new ORM:ormid = orm_create("players");
+
+orm_addvar_string(ormid, Player[playerid][Name], MAX_PLAYER_NAME, "name");
+orm_addvar_int(ormid, Player[playerid][Password], 129, "passwd");
+</pawn>
+
+
+== orm_setkey ==
+{{Description|Sets a previously registered variable as key specified by the field name the variable has been linked to.}}
+
+{{Parameters|ORM:id, varname[]}}
+{{Param|ORM:id|The id of the ORM instance.}}
+{{Param|varname[]|The name of the field in the MySQL table.}}
+
+{{NoReturn}}
+
+<pawn>
+new ORM:ormid = orm_create("players");
+
+orm_addvar_int(ormid, Player[playerid][ID], "id");
+orm_addvar_float(ormid, Player[playerid][PosX], "pos_x");
+// ...
+orm_setkey(ormid, "id");
+</pawn>
+
 
 
 
@@ -77,7 +313,7 @@ public OnPlayerDisconnect(playerid, reason)
 <pawn>
 public OnGameModeInit()
 {
-	mysql_log(_, LOG_TYPE_HTML); //logs errors and warnings into a nice HTML file
+	mysql_log(LOG_ERROR | LOG_WARNING, LOG_TYPE_HTML); //logs errors and warnings into a nice HTML file
 	//...
 	mysql_log(LOG_ERROR | LOG_WARNING | LOG_DEBUG); //logs errors, warnings and debug messages into a regular text file
 	return 1;
@@ -143,6 +379,19 @@ public OnGameModeExit()
 <pawn>
 //connection was lost for some reason, let's reconnect
 mysql_reconnect();
+</pawn>
+
+
+== mysql_unprocessed_queries ==
+{{Description|Returns the number of unprocessed (threaded) queries.}}
+
+{{Parameters|connectionHandle &#61; 1}}
+{{Param|connectionHandle|The connection handle this will be processed on (optional).}}
+
+{{NoReturn}}
+
+<pawn>
+printf("There are %d unprocessed queries.", mysql_unprocessed_queries());
 </pawn>
 
 
