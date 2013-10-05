@@ -195,7 +195,7 @@ void CMySQLHandle::SetActiveResult(CMySQLResult *result)
 }
 
 
-//CMySQLConnection
+
 void CMySQLConnection::Connect() 
 {
 	if(m_Connection == NULL) 
