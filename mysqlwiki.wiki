@@ -1,6 +1,6 @@
 Documentation for BlueG's MySQL plugin version R33 and later. Forum topic and download links can be found [http://forum.sa-mp.com/showthread.php?t=56564 here].
 
-'''Lastest release:''' R34 (xx/10/2013)
+'''Lastest release:''' R34 (06/10/2013)
 
 = ORM functions =
 {{Note|A good tutorial for this system can be found [http://bit.ly/1e0WhIC here].}}
@@ -49,7 +49,8 @@ public OnPlayerDisconnect(playerid, reason)
 
 {{Returns|Error id.}}
 
-''Available errors''
+
+'''Available errors'''
 {|
 ! Error ||  Meaning
 |-
@@ -57,6 +58,7 @@ public OnPlayerDisconnect(playerid, reason)
 |-
 | ERROR_NO_DATA || No data has been found in the table.
 |}
+
 
 <pawn>
 orm_select(Player[playerid][ORM_ID], "OnStuffSelected", "d", playerid);
@@ -539,24 +541,24 @@ public OnPlayerDataLoaded(playerid)
 
 
 == mysql_query ==
-{{Description|Sends a query which will be executed immediately (in the main (PAWN) thread).}}
+{{Description|This native sends a non-threaded query to the MySQL server. The SA:MP server (the main PAWN thread) waits until the query has been executed and then returns the cache handle.}}
 
 {{Note2|It's highly recommended to thread all your queries (even INSERT & UPDATE).}}
-{{Note2|Use [[MySQL/R33#cache_delete|cache_delete()]] if you don't need the query's result anymore.}}
+{{Note2|Use [[MySQL/R33#cache_delete|cache_delete()]] if you don't need the query's result anymore or you will experience memory leaks.}}
 
 {{Parameters|conhandle, query[], bool:use_cache &#61; true}}
 {{Param|conhandle|The connection handle this will be processed on.}}
 {{Param|query[]|The query you want to execute.}}
 {{Param|bool:use_cache|Set to true if you intend to use the cache/result mysql_query returns (optional).}}
 
-{{Returns|A valid cache-id if use_cache is set to true.}}
+{{Returns|A valid cache-id if ''use_cache'' is set to true.}}
 
-{{Note2|If ''use_cache'' is set to false, there won't be any valid cache to use, so all cache-related natives wont work. You also don't need to call [[MySQL/R33#cache_delete|cache_delete()]] in this case.}}
+{{Note|If ''use_cache'' is set to false, there won't be any valid cache to use, so all cache-related natives wont work. You also don't need to call [[MySQL/R33#cache_delete|cache_delete()]] in this case.}}
 
 <pawn>
-new Cache:cache = mysql_query(MySQL, "SELECT `id` FROM `players`");
+new Cache:result = mysql_query(MySQL, "SELECT `id` FROM `players`");
 printf("There are %d players in the database.", cache_num_rows());
-cache_delete(cache);
+cache_delete(result);
 </pawn>
 
 
