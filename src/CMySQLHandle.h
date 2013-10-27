@@ -54,6 +54,7 @@ public:
 		return m_IsConnected;
 	}
 
+private:
 	CMySQLConnection(string host, string user, string passw, string db, unsigned int port, bool auto_reconnect)
 		:	m_Host(host),
 			m_User(user),
@@ -68,7 +69,7 @@ public:
 	{ }
 	~CMySQLConnection()
 	{ }
-private:
+
 
 	//MySQL server login values
 	string
