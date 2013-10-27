@@ -23,24 +23,28 @@
 #define CR_COMMAND_OUT_OF_SYNC 			2014
 #define CR_SERVER_LOST_EXTENDED 		2055
 
-enum { //log levels
+enum //log levels
+{
 	LOG_NONE = 0,
 	LOG_ERROR = 1,
 	LOG_WARNING = 2,
 	LOG_DEBUG = 4
 };
 
-enum { //log types
+enum //log types
+{
 	LOG_TYPE_TEXT = 1,
 	LOG_TYPE_HTML = 2
 };
 
-enum ORM_Error {
+enum ORM_Error 
+{
 	ERROR_OK,
 	ERROR_NO_DATA
 };
 
-enum VarDatatype {
+enum VarDatatype 
+{
 	DATATYPE_INT,
 	DATATYPE_FLOAT,
 	DATATYPE_STRING
@@ -168,9 +172,11 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 	new stock g_MySQL_VarArray[32][YSI_MAX_STRING];
 	new stock g_MySQL_AddressArray[32];
 
-	stock MySQL_Internal_SaveInline(callback:CB) {
+	stock MySQL_Internal_SaveInline(callback:CB) 
+	{
 		static bool:g_MySQL_LazyInit = true;
-		if(g_MySQL_LazyInit == true) {
+		if(g_MySQL_LazyInit == true) 
+		{
 			//set g_MySQL_InlineData empty
 			for(new i=0; i < sizeof(g_MySQL_InlineData); ++i)
 				for(new E_CALLBACK_DATA:e = E_CALLBACK_DATA:0; e < E_CALLBACK_DATA; ++e)
@@ -181,8 +187,10 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 		new InlineData[E_CALLBACK_DATA];
 		if (Callback_Get(CB, InlineData))
 		{
-			for(new i=0; i < sizeof(g_MySQL_InlineData); ++i) {
-				if(g_MySQL_InlineData[i][E_CALLBACK_DATA_POINTER] == 0) {
+			for(new i=0; i < sizeof(g_MySQL_InlineData); ++i) 
+			{
+				if(g_MySQL_InlineData[i][E_CALLBACK_DATA_POINTER] == 0) 
+				{
 					g_MySQL_InlineData[i] = InlineData;
 					return i;
 				}
@@ -202,13 +210,16 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 
 
 	forward FJ37DH3JG_MYSQL_INTERNAL(...);
-	public FJ37DH3JG_MYSQL_INTERNAL(...) {
+	public FJ37DH3JG_MYSQL_INTERNAL(...) 
+	{
 		new InlineDataIndex = getarg(0);
 		if(InlineDataIndex < 0)
 			return 0;
 		
-		for(new i=0; i < numargs()-1; ++i) {
-			for(new l=0; l < YSI_MAX_STRING; ++l) {
+		for(new i=0; i < numargs()-1; ++i) 
+		{
+			for(new l=0; l < YSI_MAX_STRING; ++l) 
+			{
 				new TmpVal = getarg(i+1, l);
 				if(l == 0 || g_MySQL_VarArray[i][l-1] < 256)
 					g_MySQL_VarArray[i][l] = TmpVal;
@@ -225,7 +236,8 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 		for(new E_CALLBACK_DATA:e = E_CALLBACK_DATA:0; e < E_CALLBACK_DATA; ++e)
 			g_MySQL_InlineData[InlineDataIndex][e] = 0;
 		
-		for(new i=0; i < numargs()-1; ++i) {
+		for(new i=0; i < numargs()-1; ++i) 
+		{
 			g_MySQL_AddressArray[i] = 0;
 			for(new l=0, lmax=strlen(g_MySQL_VarArray[i]); l < lmax; ++l)
 				g_MySQL_VarArray[i][l] = 0;
@@ -236,7 +248,8 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 
 
 // General wrappers for backward-compatibility
-stock mysql_debug(enabled) {
+stock mysql_debug(enabled) 
+{
 	if(enabled)
 		mysql_log(LOG_WARNING | LOG_ERROR | LOG_DEBUG);
 	else
@@ -244,28 +257,34 @@ stock mysql_debug(enabled) {
 	return 1;
 }
 #pragma deprecated mysql_ping
-stock mysql_reload(connectionHandle = 1) {
+stock mysql_reload(connectionHandle = 1) 
+{
 	mysql_tquery(connectionHandle, "FLUSH PRIVILEGES", "", "");
 	return 1;
 }
 
 static stock RowIndex[20];
 static stock bool:RetrieveRow[20];
-stock mysql_store_result(connectionHandle = 1) {
+stock mysql_store_result(connectionHandle = 1) 
+{
 	RowIndex[connectionHandle] = 0;
 	RetrieveRow[connectionHandle] = false;
 	
 }
-stock mysql_free_result(connectionHandle = 1) {
+stock mysql_free_result(connectionHandle = 1) 
+{
 	#pragma unused connectionHandle
 }
-stock mysql_num_rows(connectionHandle = 1) {
+stock mysql_num_rows(connectionHandle = 1) 
+{
 	return cache_get_row_count(connectionHandle);
 }
-stock mysql_num_fields(connectionHandle = 1) {
+stock mysql_num_fields(connectionHandle = 1) 
+{
 	return cache_get_field_count(connectionHandle);
 }
-stock mysql_retrieve_row(connectionHandle = 1) {
+stock mysql_retrieve_row(connectionHandle = 1) 
+{
 	if(RetrieveRow[connectionHandle] != false)
 		RowIndex[connectionHandle]++;
 	else
@@ -275,7 +294,8 @@ stock mysql_retrieve_row(connectionHandle = 1) {
 		return 0;
 	return 1;
 }
-stock mysql_data_seek(offset, connectionHandle = 1) {
+stock mysql_data_seek(offset, connectionHandle = 1) 
+{
 	new Rows = cache_get_row_count(connectionHandle);
 	if(offset < 0)
 		offset = 0;
@@ -283,23 +303,27 @@ stock mysql_data_seek(offset, connectionHandle = 1) {
 		offset = Rows-1;
 	RowIndex[connectionHandle] = offset;
 }
-stock mysql_fetch_field(number, destination[], connectionHandle = 1, max_len=sizeof(destination)) {
+stock mysql_fetch_field(number, destination[], connectionHandle = 1, max_len=sizeof(destination)) 
+{
 	strdel(destination, 0, max_len-1);
 	return cache_get_field(number, destination, connectionHandle, max_len);
 }
-stock mysql_fetch_field_row(destination[], const fieldname[], connectionHandle = 1, max_len=sizeof(destination)) {
+stock mysql_fetch_field_row(destination[], const fieldname[], connectionHandle = 1, max_len=sizeof(destination)) 
+{
 	strdel(destination, 0, max_len-1);
 	new RIDX = RowIndex[connectionHandle];
 	cache_get_field_content(RIDX < 0 ? 0 : RIDX, fieldname, destination, connectionHandle, max_len);
 }
-stock mysql_fetch_row_format(destination[], const delimiter[] = "|", connectionHandle = 1, max_len=sizeof(destination)) {
+stock mysql_fetch_row_format(destination[], const delimiter[] = "|", connectionHandle = 1, max_len=sizeof(destination)) 
+{
 	new retrieve = mysql_retrieve_row(connectionHandle);
 	strdel(destination, 0, max_len-1);
 	new Fields = cache_get_field_count(connectionHandle);
-	for(new f=0; f < Fields; f++) {
-		if(f != 0) {
+	for(new f=0; f < Fields; f++) 
+	{
+		if(f != 0) 
+		{
 			strcat(destination, delimiter, max_len);
-			
 		}
 		new row_val_tmp[512];
 		new RIDX = RowIndex[connectionHandle];
