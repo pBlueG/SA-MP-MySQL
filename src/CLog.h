@@ -8,27 +8,32 @@
 #include <boost/thread/thread.hpp>
 
 
-enum e_LogLevel {
+enum e_LogLevel 
+{
 	LOG_NONE = 0,
 	LOG_ERROR = 1,
 	LOG_WARNING = 2,
 	LOG_DEBUG = 4
 };
 
-enum e_LogType {
+enum e_LogType 
+{
 	LOG_TYPE_TEXT = 1,
 	LOG_TYPE_HTML = 2
 };
 
 
-class CLog {
+class CLog 
+{
 public:
-	static inline CLog *Get() {
+	static inline CLog *Get() 
+	{
 		if(m_Instance == NULL)
 			m_Instance = new CLog;
 		return m_Instance;
 	}
-	static inline void Delete() {
+	static inline void Delete() 
+	{
 		delete m_Instance;
 	}
 
@@ -38,10 +43,12 @@ public:
 	void StartCallback(const char *cbname);
 	void EndCallback();
 
-	void SetLogLevel(unsigned int loglevel) {
+	void SetLogLevel(unsigned int loglevel) 
+	{
 		m_LogLevel = loglevel;
 	}
-	bool IsLogLevel(unsigned int loglevel) {
+	bool IsLogLevel(unsigned int loglevel) 
+	{
 		return !!(m_LogLevel & loglevel);
 	}
 	void SetLogType(unsigned int logtype);
@@ -49,7 +56,8 @@ public:
 private:
 	static CLog *m_Instance;
 	
-	struct m_SLogData {
+	struct m_SLogData 
+	{
 		m_SLogData() :
 			Status(LOG_NONE),
 			Name(NULL), Msg(NULL),
@@ -63,7 +71,8 @@ private:
 		bool IsCallback;
 		bool IsThreaded;
 
-		~m_SLogData() {
+		~m_SLogData() 
+		{
 			free(Name);
 			free(Msg);
 		}

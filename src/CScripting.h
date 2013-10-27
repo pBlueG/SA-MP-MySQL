@@ -6,7 +6,8 @@
 #include "main.h"
 
 
-namespace Native {
+namespace Native 
+{
 	//ORM natives
 	cell AMX_NATIVE_CALL orm_create(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL orm_destroy(AMX* amx, cell* params);

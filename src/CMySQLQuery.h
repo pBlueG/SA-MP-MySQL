@@ -14,7 +14,8 @@ class CCallback;
 class COrm;
 
 
-class CMySQLQuery {
+class CMySQLQuery 
+{
 public:
 	static CMySQLQuery *Create(const char *query, CMySQLHandle *connhandle, const char *cbname, const char *cbformat, bool threaded = true, COrm *ormobject = NULL, unsigned short orm_querytype = 0);
 	void Destroy();

@@ -18,7 +18,8 @@ using std::string;
 class CMySQLQuery;
 
 
-class CCallback {
+class CCallback 
+{
 public:
 
 	void FillCallbackParams(AMX* amx, cell* params, const int ConstParamCount);
@@ -37,10 +38,12 @@ public:
 	
 	static void ProcessCallbacks();
 	
-	static inline void AddQueryToQueue(CMySQLQuery *cb) {
+	static inline void AddQueryToQueue(CMySQLQuery *cb) 
+	{
 		m_CallbackQueue.push(cb);
 	}
-	static inline CMySQLQuery *GetNextQuery() {
+	static inline CMySQLQuery *GetNextQuery() 
+	{
 		CMySQLQuery *NextQuery = NULL;
 		m_CallbackQueue.pop(NextQuery);
 		return NextQuery;

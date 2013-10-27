@@ -28,7 +28,8 @@ class CMySQLQuery;
 	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid connection handle (ID = %d)", id), 0
 
 
-class CMySQLConnection {
+class CMySQLConnection 
+{
 public:
 	friend class CMySQLHandle;
 
@@ -39,14 +40,17 @@ public:
 	//escape a string to dest
 	void EscapeString(const char *src, string &dest);
 
-	inline MYSQL *GetMySQLPointer() {
+	inline MYSQL *GetMySQLPointer() 
+	{
 		return m_Connection;
 	}
 
-	inline bool GetAutoReconnect() const {
+	inline bool GetAutoReconnect() const 
+	{
 		return m_AutoReconnect;
 	}
-	inline bool IsConnected() const {
+	inline bool IsConnected() const 
+	{
 		return m_IsConnected;
 	}
 
@@ -84,28 +88,33 @@ private:
 	MYSQL *m_Connection;
 };
 
-class CMySQLHandle {
+class CMySQLHandle 
+{
 public:
 	//freezes the thread until all pending queries are executed
 	void WaitForQueryExec();
 
 	//returns main MySQL connection
-	inline CMySQLConnection *GetMainConnection() const {
+	inline CMySQLConnection *GetMainConnection() const 
+	{
 		return m_MainConnection;
 	}
 
 	//returns MySQL connection for unthreaded queries
-	inline CMySQLConnection *GetQueryConnection() const {
+	inline CMySQLConnection *GetQueryConnection() const 
+	{
 		return m_QueryConnection;
 	}
 	
 	//checks if handle exists by id
-	static inline bool IsValid(int id) {
+	static inline bool IsValid(int id) 
+	{
 		return (SQLHandle.find(id) != SQLHandle.end());
 	}
 
 	//schedules query
-	inline bool ScheduleQuery(CMySQLQuery *query) {
+	inline bool ScheduleQuery(CMySQLQuery *query) 
+	{
 		m_QueryCounter++;
 		return m_QueryQueue.push(query);
 	}
@@ -117,15 +126,18 @@ public:
 	//delete function, call this instead of delete operator!
 	void Destroy();
 	//returns MySQL handle by id
-	static inline CMySQLHandle *GetHandle(int cid) {
+	static inline CMySQLHandle *GetHandle(int cid) 
+	{
 		return SQLHandle.at(cid);
 	}
 	//returns connection id
-	inline int GetID() const {
+	inline int GetID() const 
+	{
 		return m_MyID;
 	}
 	//returns number of unprocessed queries
-	inline unsigned int GetUnprocessedQueryCount() const {
+	inline unsigned int GetUnprocessedQueryCount() const 
+	{
 		return m_QueryCounter;
 	}
 
@@ -135,10 +147,12 @@ public:
 	int SaveActiveResult();
 	bool DeleteSavedResult(int resultid);
 	bool SetActiveResult(int resultid);
-	inline CMySQLResult *GetActiveResult() const {
+	inline CMySQLResult *GetActiveResult() const 
+	{
 		return m_ActiveResult;
 	}
-	inline bool IsActiveResultSaved() const {
+	inline bool IsActiveResultSaved() const 
+	{
 		return m_ActiveResultID > 0 ? true : false;
 	}
 

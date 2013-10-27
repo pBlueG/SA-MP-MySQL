@@ -8,7 +8,8 @@
 
 //#include <vld.h>
 
-namespace boost {
+namespace boost 
+{
 	void tss_cleanup_implemented(void) {}
 };
 
@@ -17,15 +18,18 @@ extern void	*pAMXFunctions;
 extern logprintf_t logprintf;
  
 
-PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
+PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() 
+{
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK; 
 }
 
-PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
+PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) 
+{
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 	
-	if (mysql_library_init(0, NULL, NULL)) {
+	if (mysql_library_init(0, NULL, NULL)) 
+	{
 		logprintf(" >> plugin.mysql: Plugin failed to load due to uninitialized MySQL library (libmysql probably missing).");
 		exit(0);
 		return false;
@@ -37,7 +41,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	return true;
 }
 
-PLUGIN_EXPORT void PLUGIN_CALL Unload() {
+PLUGIN_EXPORT void PLUGIN_CALL Unload() 
+{
 	logprintf("plugin.mysql: Unloading plugin...");
 
 	CCallback::ClearAll();
@@ -48,7 +53,8 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 	logprintf("plugin.mysql: Plugin unloaded."); 
 }
 
-PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() {
+PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() 
+{
 	CCallback::ProcessCallbacks();
 }
 
@@ -56,7 +62,8 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() {
 #if defined __cplusplus
 extern "C"
 #endif
-const AMX_NATIVE_INFO MySQLNatives[] = {
+const AMX_NATIVE_INFO MySQLNatives[] = 
+{
 	{"orm_create",						Native::orm_create},
 	{"orm_destroy",						Native::orm_destroy},
 
@@ -115,12 +122,14 @@ const AMX_NATIVE_INFO MySQLNatives[] = {
 	{NULL, NULL}
 };
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
+PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) 
+{
 	CCallback::AddAmx(amx);
 	return amx_Register(amx, MySQLNatives, -1);
 }
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
+PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) 
+{
 	CCallback::EraseAmx(amx);
 	return AMX_ERR_NONE;
 }

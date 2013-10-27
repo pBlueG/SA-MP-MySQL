@@ -26,15 +26,18 @@ class CMySQLHandle;
 class CMySQLResult;
 
 
-class COrm {
+class COrm 
+{
 public:
 	static int Create(char *table, CMySQLHandle *connhandle);
 	void Destroy();
 
-	static inline bool IsValid(int id) {
+	static inline bool IsValid(int id) 
+	{
 		return OrmHandle.find(id) != OrmHandle.end();
 	}
-	static inline COrm *GetOrm(int id) {
+	static inline COrm *GetOrm(int id) 
+	{
 		return OrmHandle.at(id);
 	}
 
@@ -53,16 +56,19 @@ public:
 	void AddVariable(char *varname, cell *address, unsigned short datatype, size_t len=0);
 	void SetVariableAsKey(char *varname);
 
-	inline CMySQLHandle *GetConnectionHandle() const {
+	inline CMySQLHandle *GetConnectionHandle() const 
+	{
 		return m_ConnHandle;
 	}
 
-	inline int GetErrorID() const {
+	inline int GetErrorID() const 
+	{
 		return m_ErrorID;
 	}
 
 private:
-	struct SVarInfo {
+	struct SVarInfo 
+	{
 		SVarInfo(char *name, cell *addr, unsigned short datatype, size_t len) :
 			Address(addr),
 			MaxLen(len),
@@ -99,12 +105,14 @@ private:
 	int m_ErrorID;
 };
 
-enum ORM_ERROR {
+enum ORM_ERROR 
+{
 	ORM_ERROR_OK,
 	ORM_ERROR_NO_DATA
 };
 
-enum ORM_QUERYTYPE {
+enum ORM_QUERYTYPE 
+{
 	ORM_QUERYTYPE_SELECT=1,
 	ORM_QUERYTYPE_UPDATE,
 	ORM_QUERYTYPE_INSERT,

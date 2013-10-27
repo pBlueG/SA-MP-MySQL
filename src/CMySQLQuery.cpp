@@ -40,12 +40,14 @@ CMySQLQuery *CMySQLQuery::Create(
 	bool threaded /* = true */,
 	COrm *ormobject /* = NULL */, unsigned short orm_querytype /* = 0 */)
 {
-	if(connhandle == NULL) {
+	if(connhandle == NULL) 
+	{
 		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLQuery::Create", "no connection handle specified");
 		return (CMySQLQuery *)(NULL);
 	}
 
-	if(query == NULL && ormobject == NULL) {
+	if(query == NULL && ormobject == NULL) 
+	{
 		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLQuery::Create", "no query and orm object specified");
 		return (CMySQLQuery *)(NULL);
 	}
@@ -54,9 +56,11 @@ CMySQLQuery *CMySQLQuery::Create(
 	CMySQLQuery *Query = new CMySQLQuery;
 	CCallback *Callback = new CCallback;
 
-	if(ormobject != NULL) {
+	if(ormobject != NULL) 
+	{
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLQuery::Create", "starting query generation");
-		switch(orm_querytype) {
+		switch(orm_querytype) 
+		{
 		case ORM_QUERYTYPE_SELECT:
 			ormobject->GenerateSelectQuery(Query->Query);
 			break;
@@ -75,12 +79,14 @@ CMySQLQuery *CMySQLQuery::Create(
 
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLQuery::Create", "query successful generated");
 	}
-	else {
+	else 
+	{
 		if(query != NULL)
 			Query->Query.assign(query);
 	}
 
-	if(cbname != NULL) {
+	if(cbname != NULL) 
+	{
 		Callback->Name.assign(cbname);
 		if(cbformat != NULL)
 			Callback->ParamFormat.assign(cbformat);
@@ -93,7 +99,8 @@ CMySQLQuery *CMySQLQuery::Create(
 	Query->OrmObject = ormobject;
 	Query->OrmQueryType = orm_querytype;
 
-	if(Query->Callback->Name.find("FJ37DH3JG") != -1) {
+	if(Query->Callback->Name.find("FJ37DH3JG") != -1) 
+	{
 		Query->Callback->IsInline = true;
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLQuery::Create", "inline function detected");
 	}
@@ -101,33 +108,34 @@ CMySQLQuery *CMySQLQuery::Create(
 	return Query;
 }
 
-void CMySQLQuery::Destroy() {
+void CMySQLQuery::Destroy() 
+{
 	delete this;
 }
 
-void CMySQLQuery::Execute() {
+void CMySQLQuery::Execute() 
+{
 	char LogFuncBuf[128];
 	sprintf(LogFuncBuf, "CMySQLQuery::Execute[%s(%s)]", Callback->Name.c_str(), Callback->ParamFormat.c_str());
 	
 	CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "starting query execution");
 
 	Result = NULL;
-
 	MYSQL *ConnPtr = Connection->GetMySQLPointer();
-	
 
-	if(ConnPtr != NULL) {
-		if (mysql_real_query(ConnPtr, Query.c_str(), Query.length()) == 0) {
-			
+	if(ConnPtr != NULL) 
+	{
+		if (mysql_real_query(ConnPtr, Query.c_str(), Query.length()) == 0) 
+		{
 			CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "query was successful");
 
 			MYSQL_RES *SQLResult = mysql_store_result(ConnPtr); //this has to be here
 
 			//why should we process the result if it won't and can't be used?
-			if(Threaded == false || Callback->Name.length() > 0 || (OrmObject != NULL && (OrmQueryType == ORM_QUERYTYPE_SELECT || OrmQueryType == ORM_QUERYTYPE_INSERT))) { 
-				
-
-				if (SQLResult != NULL) {
+			if(Threaded == false || Callback->Name.length() > 0 || (OrmObject != NULL && (OrmQueryType == ORM_QUERYTYPE_SELECT || OrmQueryType == ORM_QUERYTYPE_INSERT))) 
+			{ 
+				if (SQLResult != NULL) 
+				{
 					MYSQL_FIELD *SQLField;
 					MYSQL_ROW SQLRow;
 
@@ -146,7 +154,8 @@ void CMySQLQuery::Execute() {
 						Result->m_FieldNames.push_back(SQLField->name);
 					
 				
-					while (SQLRow = mysql_fetch_row(SQLResult)) {
+					while (SQLRow = mysql_fetch_row(SQLResult)) 
+					{
 						std::vector< vector<string> >::iterator It = Result->m_Data.insert(Result->m_Data.end(), vector<string>());
 						It->reserve(Result->m_Fields+1);
 					
@@ -155,14 +164,16 @@ void CMySQLQuery::Execute() {
 					}
 
 				}
-				else if(mysql_field_count(ConnPtr) == 0) { //query is non-SELECT query
+				else if(mysql_field_count(ConnPtr) == 0) //query is non-SELECT query
+				{
 					Result = new CMySQLResult;
 				
 					Result->m_WarningCount = mysql_warning_count(ConnPtr);
 					Result->m_AffectedRows = mysql_affected_rows(ConnPtr);
 					Result->m_InsertID = mysql_insert_id(ConnPtr); 
 				}
-				else { //error
+				else //error
+				{
 					int ErrorID = mysql_errno(ConnPtr);
 					string ErrorString(mysql_error(ConnPtr));
 
@@ -173,22 +184,22 @@ void CMySQLQuery::Execute() {
 					Callback->Name.clear(); 
 				}
 			}
-			else { //no callback was specified
+			else  //no callback was specified
 				CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "no callback specified, skipping result saving");
-			}
 
 			if(SQLResult != NULL)
 				mysql_free_result(SQLResult);
 		}
-		else { //mysql_real_query failed
-
+		else  //mysql_real_query failed
+		{
 			int ErrorID = mysql_errno(ConnPtr);
 			string ErrorString(mysql_error(ConnPtr));
 
 			CLog::Get()->LogFunction(LOG_ERROR, LogFuncBuf, "(error #%d) %s", ErrorID, ErrorString.c_str());
 			
 			
-			if(Connection->GetAutoReconnect() && ErrorID == 2006) { 
+			if(Connection->GetAutoReconnect() && ErrorID == 2006) 
+			{
 				CLog::Get()->LogFunction(LOG_WARNING, LogFuncBuf, "lost connection, reconnecting..");
 
 				MYSQL_RES *SQLRes;
@@ -199,7 +210,8 @@ void CMySQLQuery::Execute() {
 				Connection->Connect();
 			}
 
-			if(Threaded == true) {
+			if(Threaded == true) 
+			{
 				//forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 				//recycle these structures, change some data
 				OrmObject = NULL;
@@ -228,7 +240,8 @@ void CMySQLQuery::Execute() {
 		}
 	}
 
-	if(Threaded == true) {
+	if(Threaded == true) 
+	{
 		//the query gets passed to the callback handler in any case
 		//if query successful, it calls the callback and free's memory
 		//if not it only free's the memory
