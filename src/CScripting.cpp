@@ -1128,21 +1128,18 @@ cell AMX_NATIVE_CALL Native::mysql_escape_string(AMX* amx, cell* params) {
 		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_escape_string", "source: \"%s\", connection: %d, max_len: %d", ShortenSource.c_str(), cID, params[4]);
 	}
 
-	if(Source == NULL)
-		return 0;
-
-	if(!CMySQLHandle::IsValid(cID)) {
-		ERROR_INVALID_CONNECTION_HANDLE("mysql_escape_string", cID);
-		return 0;
-	}
+	if(!CMySQLHandle::IsValid(cID))
+		return ERROR_INVALID_CONNECTION_HANDLE("mysql_escape_string", cID);
 	
-	if(strlen(Source) > DestLen) {
-		CLog::Get()->LogFunction(LOG_ERROR, "mysql_escape_string", "destination size is too small (must be at least as big as source)");
-		return 0;
-	}
 
 	string EscapedStr;
-	CMySQLHandle::GetHandle(cID)->GetMainConnection()->EscapeString(Source, EscapedStr);
+	if(Source != NULL) 
+	{
+		if(strlen(Source) >= DestLen)
+			return CLog::Get()->LogFunction(LOG_ERROR, "mysql_escape_string", "destination size is too small (must be at least as big as source)");
+		
+		CMySQLHandle::GetHandle(cID)->GetMainConnection()->EscapeString(Source, EscapedStr);
+	}
 
 	amx_SetCString(amx, params[2], EscapedStr.c_str(), params[4]);
 	return static_cast<cell>(EscapedStr.length());
