@@ -5,29 +5,9 @@
 #include <stdarg.h>
 
 #include <string>
-#include <boost/thread/thread.hpp>
-
 using std::string;
 
-
-#ifdef WIN32
-	#define WIN32_LEAN_AND_MEAN
-	#include "Windows.h"
-#else
-	#include <unistd.h>
-	#include <sys/syscall.h>
-#endif
-
 #include "CLog.h"
-
-
-inline const unsigned long GetCurrentThreadID() { 
-  #ifdef WIN32 
-      return (unsigned long)GetCurrentThreadId(); 
-  #else
-      return (unsigned long)syscall(SYS_gettid); 
-  #endif 
-}
 
 
 CLog *CLog::m_Instance = NULL;
@@ -90,7 +70,7 @@ void CLog::ProcessLog() {
 void CLog::Initialize(const char *logfile) {
 	strcpy(m_LogFileName, logfile);
 	SetLogType(m_LogType);
-	m_MainThreadID = GetCurrentThreadID();
+	m_MainThreadID = boost::this_thread::get_id();
 }
 
 void CLog::SetLogType(unsigned int logtype)  {
@@ -128,8 +108,8 @@ void CLog::LogFunction(unsigned int status, char *funcname, char *msg, ...) {
 			if (m_LogLevel & status) {
 		
 				m_SLogData *LogData = new m_SLogData;
+					LogData->IsThreaded = (boost::this_thread::get_id() != m_MainThreadID);
 
-				LogData->IsThreaded = (GetCurrentThreadID() != m_MainThreadID);
 				LogData->Status = status;
 
 				LogData->Msg = (char *)malloc(2048 * sizeof(char));

@@ -5,6 +5,7 @@
 
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
+#include <boost/thread/thread.hpp>
 
 
 enum e_LogLevel {
@@ -19,9 +20,6 @@ enum e_LogType {
 	LOG_TYPE_HTML = 2
 };
 
-namespace boost {
-class thread;
-}
 
 class CLog {
 public:
@@ -76,9 +74,7 @@ private:
 		m_LogLevel(LOG_ERROR | LOG_WARNING), 
 		m_LogThread(NULL), 
 		m_LogThreadAlive(true),
-		m_LogType(LOG_TYPE_TEXT),
-
-		m_MainThreadID(0)
+		m_LogType(LOG_TYPE_TEXT)
 	{}
 	~CLog();
 
@@ -93,7 +89,7 @@ private:
 	boost::thread *m_LogThread;
 	boost::atomic<bool> m_LogThreadAlive;
 
-	unsigned long m_MainThreadID;
+	boost::thread::id m_MainThreadID;
 
 	boost::lockfree::queue<
 			m_SLogData*, 
