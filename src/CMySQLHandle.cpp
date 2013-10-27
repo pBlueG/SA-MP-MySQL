@@ -27,7 +27,8 @@ CMySQLHandle::CMySQLHandle(int id) :
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::CMySQLHandle", "constructor called");
 }
 
-CMySQLHandle::~CMySQLHandle() {
+CMySQLHandle::~CMySQLHandle() 
+{
 	m_QueryThreadRunning = false;
 	m_QueryThread->join();
 	delete m_QueryThread;
@@ -47,10 +48,12 @@ void CMySQLHandle::WaitForQueryExec()
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 }
 
-CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string db, size_t port, bool reconnect) {
+CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string db, size_t port, bool reconnect) 
+{
 	CMySQLHandle *Handle = NULL;
-	if (SQLHandle.size() > 0) {
-		// Code used for checking duplicate connections.
+	if (SQLHandle.size() > 0) 
+	{
+		//code used for checking duplicate connections
 		for(unordered_map<int, CMySQLHandle*>::iterator i = SQLHandle.begin(), end = SQLHandle.end(); i != end; ++i) {
 			CMySQLConnection *Connection = i->second->m_MainConnection;
 			if (Connection->m_Host.compare(host) == 0 && Connection->m_User.compare(user) == 0 && Connection->m_Database.compare(db) == 0 && Connection->m_Passw.compare(pass) == 0) 
@@ -61,13 +64,16 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 			}
 		}
 	}
-	if(Handle == NULL) {
+	if(Handle == NULL) 
+	{
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
 
 		int ID = 1;
-		if(SQLHandle.size() > 0) {
+		if(SQLHandle.size() > 0) 
+		{
 			unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
-			do {
+			do 
+			{
 				ID = itHandle->first+1;
 				++itHandle;
 			} while(SQLHandle.find(ID) != SQLHandle.end());
@@ -87,17 +93,21 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 	return Handle;
 }
 
-void CMySQLHandle::Destroy() {
+void CMySQLHandle::Destroy() 
+{
 	SQLHandle.erase(m_MyID);
 	delete this;
 }
 
 
-void CMySQLHandle::ProcessQueries() {
+void CMySQLHandle::ProcessQueries() 
+{
 	mysql_thread_init();
-	while(m_QueryThreadRunning) {
+	while(m_QueryThreadRunning) 
+	{
 		CMySQLQuery *query = NULL;
-		while(m_QueryQueue.pop(query)) {
+		while(m_QueryQueue.pop(query)) 
+		{
 			query->Execute();
 			m_QueryCounter--;
 		}
@@ -107,17 +117,23 @@ void CMySQLHandle::ProcessQueries() {
 }
 
 
-int CMySQLHandle::SaveActiveResult() {
-	if(m_ActiveResult != NULL) {
-		if(m_ActiveResultID != 0) { //if active cache was already saved
+int CMySQLHandle::SaveActiveResult() 
+{
+	if(m_ActiveResult != NULL) 
+	{
+		if(m_ActiveResultID != 0) //if active cache was already saved
+		{
 			CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::SaveActiveResult", "active cache was already saved");
 			return m_ActiveResultID; //return the ID of already saved cache
 		}
-		else {
+		else 
+		{
 			int ID = 1;
-			if(!m_SavedResults.empty()) {
+			if(!m_SavedResults.empty()) 
+			{
 				unordered_map<int, CMySQLResult*>::iterator itHandle = m_SavedResults.begin();
-				do {
+				do 
+				{
 					ID = itHandle->first+1;
 					++itHandle;
 				} while(m_SavedResults.find(ID) != m_SavedResults.end());
@@ -134,11 +150,15 @@ int CMySQLHandle::SaveActiveResult() {
 	return 0;
 }
 
-bool CMySQLHandle::DeleteSavedResult(int resultid) {
-	if(resultid > 0) {
-		if(m_SavedResults.find(resultid) != m_SavedResults.end()) {
+bool CMySQLHandle::DeleteSavedResult(int resultid) 
+{
+	if(resultid > 0) 
+	{
+		if(m_SavedResults.find(resultid) != m_SavedResults.end()) 
+		{
 			CMySQLResult *ResultHandle = m_SavedResults.at(resultid);
-			if(m_ActiveResult == ResultHandle) {
+			if(m_ActiveResult == ResultHandle) 
+			{
 				m_ActiveResult = NULL;
 				m_ActiveResultID = 0;
 			}
@@ -153,11 +173,15 @@ bool CMySQLHandle::DeleteSavedResult(int resultid) {
 	return false;
 }
 
-bool CMySQLHandle::SetActiveResult(int resultid) {
-	if(resultid > 0) {
-		if(m_SavedResults.find(resultid) != m_SavedResults.end()) {
+bool CMySQLHandle::SetActiveResult(int resultid) 
+{
+	if(resultid > 0) 
+	{
+		if(m_SavedResults.find(resultid) != m_SavedResults.end()) 
+		{
 			CMySQLResult *cResult = m_SavedResults.at(resultid);
-			if(cResult != NULL) {
+			if(cResult != NULL) 
+			{
 				if(m_ActiveResult != NULL)
 					if(m_ActiveResultID == 0) //if cache not saved
 						delete m_ActiveResult; //delete unsaved cache
@@ -170,7 +194,8 @@ bool CMySQLHandle::SetActiveResult(int resultid) {
 		else
 			CLog::Get()->LogFunction(LOG_ERROR, "CMySQLHandle::SetActiveResult", "result not found");
 	}
-	else {
+	else 
+	{
 		if(m_ActiveResultID == 0) //if cache not saved
 			delete m_ActiveResult; //delete unsaved cache
 		m_ActiveResult = NULL;
