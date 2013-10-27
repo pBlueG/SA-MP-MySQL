@@ -34,7 +34,7 @@ public:
 
 
 	void Initialize(const char *logfile);
-	void LogFunction(unsigned status, char *funcname, char *msg, ...);
+	int LogFunction(unsigned status, char *funcname, char *msg, ...);
 	void StartCallback(const char *cbname);
 	void EndCallback();
 

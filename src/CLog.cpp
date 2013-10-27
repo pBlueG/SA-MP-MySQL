@@ -100,45 +100,52 @@ void CLog::SetLogType(unsigned int logtype)  {
 }
 
 
-void CLog::LogFunction(unsigned int status, char *funcname, char *msg, ...) {
-	if(m_LogLevel == LOG_NONE)
-		return ;
-	switch(m_LogType) {
-		case LOG_TYPE_HTML: {
-			if (m_LogLevel & status) {
-		
-				m_SLogData *LogData = new m_SLogData;
+int CLog::LogFunction(unsigned int status, char *funcname, char *msg, ...) 
+{
+	if(m_LogLevel != LOG_NONE)
+	{
+		switch(m_LogType) 
+		{
+			case LOG_TYPE_HTML: 
+			{
+				if (m_LogLevel & status) 
+				{
+					m_SLogData *LogData = new m_SLogData;
+
 					LogData->IsThreaded = (boost::this_thread::get_id() != m_MainThreadID);
+					LogData->Status = status;
 
-				LogData->Status = status;
+					LogData->Msg = (char *)malloc(2048 * sizeof(char));
+					va_list args;
+					va_start(args, msg);
+					vsprintf(LogData->Msg, msg, args);
+					va_end (args);
 
-				LogData->Msg = (char *)malloc(2048 * sizeof(char));
+					LogData->Name = (char *)malloc((strlen(funcname)+1) * sizeof(char));
+					strcpy(LogData->Name, funcname);
+
+					m_LogQueue.push(LogData);
+				}
+			} 
+			break;
+			case LOG_TYPE_TEXT: 
+			{
+				char MsgBuf[2048];
+				int RealMsgLen=0;
 				va_list args;
 				va_start(args, msg);
-				vsprintf(LogData->Msg, msg, args);
+				RealMsgLen = vsprintf(MsgBuf, msg, args);
 				va_end (args);
-
-				LogData->Name = (char *)malloc((strlen(funcname)+1) * sizeof(char));
-				strcpy(LogData->Name, funcname);
-
-				m_LogQueue.push(LogData);
-			}
-		} break;
-
-		case LOG_TYPE_TEXT: {
-			char MsgBuf[2048];
-			int RealMsgLen=0;
-			va_list args;
-			va_start(args, msg);
-			RealMsgLen = vsprintf(MsgBuf, msg, args);
-			va_end (args);
 			
-			char *LogText = (char *)malloc((strlen(funcname) + RealMsgLen + 8) * sizeof(char));
-			sprintf(LogText, "%s - %s", funcname, MsgBuf);
-			TextLog(status, LogText);
-			free(LogText);
-		} break;
+				char *LogText = (char *)malloc((strlen(funcname) + RealMsgLen + 8) * sizeof(char));
+				sprintf(LogText, "%s - %s", funcname, MsgBuf);
+				TextLog(status, LogText);
+				free(LogText);
+			} 
+			break;
+		}
 	}
+	return 0;
 }
 
 
