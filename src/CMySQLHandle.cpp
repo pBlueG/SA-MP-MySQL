@@ -50,46 +50,29 @@ void CMySQLHandle::WaitForQueryExec()
 
 CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string db, size_t port, bool reconnect) 
 {
-	CMySQLHandle *Handle = NULL;
-	if (SQLHandle.size() > 0) 
-	{
-		//code used for checking duplicate connections
-		for(unordered_map<int, CMySQLHandle*>::iterator i = SQLHandle.begin(), end = SQLHandle.end(); i != end; ++i) {
-			CMySQLConnection *Connection = i->second->m_MainConnection;
-			if (Connection->m_Host.compare(host) == 0 && Connection->m_User.compare(user) == 0 && Connection->m_Database.compare(db) == 0 && Connection->m_Passw.compare(pass) == 0) 
-			{
-				CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::Create", "connection already exists");
-				Handle = i->second;
-				break;
-			}
-		}
-	}
-	if(Handle == NULL) 
-	{
-		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
+	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
 
-		int ID = 1;
-		if(SQLHandle.size() > 0) 
+	int ID = 1;
+	if(SQLHandle.size() > 0) 
+	{
+		unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
+		do 
 		{
-			unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
-			do 
-			{
-				ID = itHandle->first+1;
-				++itHandle;
-			} while(SQLHandle.find(ID) != SQLHandle.end());
-		}
-
-
-		Handle = new CMySQLHandle(ID);
-
-		//init connections
-		Handle->m_MainConnection = new CMySQLConnection(host, user, pass, db, port, reconnect);
-		Handle->m_QueryConnection = new CMySQLConnection(host, user, pass, db, port, reconnect);
-
-		SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(ID, Handle) );
-		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with ID = %d", ID);
-		
+			ID = itHandle->first+1;
+			++itHandle;
+		} while(SQLHandle.find(ID) != SQLHandle.end());
 	}
+
+
+	CMySQLHandle *Handle = new CMySQLHandle(ID);
+
+	//init connections
+	Handle->m_MainConnection = new CMySQLConnection(host, user, pass, db, port, reconnect);
+	Handle->m_QueryConnection = new CMySQLConnection(host, user, pass, db, port, reconnect);
+
+	SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(ID, Handle) );
+	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with ID = %d", ID);
+		
 	return Handle;
 }
 
