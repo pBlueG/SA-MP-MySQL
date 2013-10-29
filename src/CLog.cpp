@@ -15,6 +15,11 @@ CLog *CLog::m_Instance = NULL;
 
 void CLog::ProcessLog() 
 {
+	bool 
+		IsCallbackActive = false,
+		IsCallbackUsed = false;
+	string CallbackMsg;
+	
 	FILE *LogFile = fopen(m_LogFileName, "w");
 
 	char StartLogTime[32];
@@ -31,11 +36,27 @@ void CLog::ProcessLog()
 		m_SLogData *LogData = NULL;
 		while(m_LogQueue.pop(LogData)) 
 		{
-			
-			if(LogData->IsCallback == true) 
-				fputs(LogData->Msg, LogFile);
+			if(LogData->Info == LOG_INFO_CALLBACK_BEGIN)
+			{
+				IsCallbackActive = true;
+				IsCallbackUsed = false;
+				CallbackMsg = LogData->Msg;
+			}
+			else if(LogData->Info == LOG_INFO_CALLBACK_END)
+			{
+				if(IsCallbackUsed == true)
+					fputs("EndCB();", LogFile);
+				IsCallbackActive = false;
+				IsCallbackUsed = false;
+			}
 			else 
 			{
+				if(IsCallbackActive == true && IsCallbackUsed == false)
+				{
+					fputs(CallbackMsg.c_str(), LogFile);
+					IsCallbackUsed = true;
+				}
+				
 				char timeform[16];
 				time_t rawtime;
 				time(&rawtime);
@@ -55,7 +76,7 @@ void CLog::ProcessLog()
 					
 				}
 
-				fprintf(LogFile, "Log(\"%s\",\"%s\",%d,\"%s\",%d);\n", timeform, LogData->Name, LogData->Status, LogMsg.c_str(), LogData->IsThreaded == false ? 0 : 1);
+				fprintf(LogFile, "Log(\"%s\",\"%s\",%d,\"%s\",%d);\n", timeform, LogData->Name, LogData->Status, LogMsg.c_str(), LogData->Info == LOG_INFO_THREADED ? 1 : 0);//LogData->IsThreaded == false ? 0 : 1);
 			}
 			fputs("</script>", LogFile); //append this tag, or else the JS functions won't work
 			fflush(LogFile);
@@ -120,7 +141,7 @@ int CLog::LogFunction(unsigned int status, char *funcname, char *msg, ...)
 				{
 					m_SLogData *LogData = new m_SLogData;
 
-					LogData->IsThreaded = (boost::this_thread::get_id() != m_MainThreadID);
+					LogData->Info = (boost::this_thread::get_id() != m_MainThreadID) ? LOG_INFO_THREADED : LOG_INFO_NONE;
 					LogData->Status = status;
 
 					LogData->Msg = (char *)malloc(2048 * sizeof(char));
@@ -165,7 +186,7 @@ void CLog::StartCallback(const char *cbname)
 	{
 		m_SLogData *LogData = new m_SLogData;
 
-		LogData->IsCallback = true;
+		LogData->Info = LOG_INFO_CALLBACK_BEGIN;
 		LogData->Msg = (char *)malloc((strlen(cbname)+20) * sizeof(char));
 		sprintf(LogData->Msg, "StartCB(\"%s\");", cbname);
 
@@ -187,11 +208,7 @@ void CLog::EndCallback()
 		return ;
 	
 	m_SLogData *LogData = new m_SLogData;
-
-	LogData->IsCallback = true;
-	LogData->Msg = (char *)malloc(9 * sizeof(char));
-	strcpy(LogData->Msg, "EndCB();");
-
+	LogData->Info = LOG_INFO_CALLBACK_END;
 	m_LogQueue.push(LogData);
 }
 
