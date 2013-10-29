@@ -22,6 +22,14 @@ enum e_LogType
 	LOG_TYPE_HTML = 2
 };
 
+enum e_LogInfo
+{
+	LOG_INFO_NONE,
+	LOG_INFO_CALLBACK_BEGIN,
+	LOG_INFO_CALLBACK_END,
+	LOG_INFO_THREADED
+};
+
 
 class CLog 
 {
@@ -61,15 +69,13 @@ private:
 		m_SLogData() :
 			Status(LOG_NONE),
 			Name(NULL), Msg(NULL),
-			IsCallback(false),
-			IsThreaded(false)
+			Info(LOG_INFO_NONE)
 		{}
 
 		unsigned int Status;
 		char *Name, *Msg;
 		
-		bool IsCallback;
-		bool IsThreaded;
+		unsigned int Info;
 
 		~m_SLogData() 
 		{
