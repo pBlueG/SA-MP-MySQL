@@ -168,9 +168,9 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 		#include <YSI\y_inline>
 	#endif
 	
-	new stock g_MySQL_InlineData[1000][E_CALLBACK_DATA];
-	new stock g_MySQL_VarArray[32][YSI_MAX_STRING];
-	new stock g_MySQL_AddressArray[32];
+	static g_MySQL_InlineData[1000][E_CALLBACK_DATA];
+	static g_MySQL_VarArray[32][YSI_MAX_STRING];
+	static g_MySQL_AddressArray[32];
 
 	stock MySQL_Internal_SaveInline(callback:CB) 
 	{
