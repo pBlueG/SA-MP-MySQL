@@ -58,7 +58,7 @@ private:
 	static boost::lockfree::queue<
 			CMySQLQuery*, 
 			boost::lockfree::fixed_sized<true>,
-			boost::lockfree::capacity<10000>
+			boost::lockfree::capacity<8192>
 		> m_CallbackQueue;
 
 	static list<AMX *> m_AmxList;
