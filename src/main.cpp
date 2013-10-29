@@ -86,6 +86,8 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 	{"mysql_connect",					Native::mysql_connect},
 	{"mysql_close",						Native::mysql_close},
 	{"mysql_reconnect",					Native::mysql_reconnect},
+	
+	{"mysql_current_handle",			Native::mysql_current_handle},
 	{"mysql_unprocessed_queries",		Native::mysql_unprocessed_queries},
 	
 	{"mysql_errno",						Native::mysql_errno},

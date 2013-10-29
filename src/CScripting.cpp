@@ -754,6 +754,9 @@ cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
 	
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(cID);
 	
+	if(Handle == CMySQLHandle::ActiveHandle)
+		CMySQLHandle::ActiveHandle = NULL;
+
 	if(wait == true)
 		Handle->WaitForQueryExec();
 
@@ -783,6 +786,18 @@ cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params)
 	Handle->GetQueryConnection()->Connect();
 
 	return 1;
+}
+
+//native mysql_current_handle();
+cell AMX_NATIVE_CALL Native::mysql_current_handle(AMX* amx, cell* params)
+{
+	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_current_handle", "");
+
+	int HandleID = 0;
+	if(CMySQLHandle::ActiveHandle != NULL)
+		HandleID = CMySQLHandle::ActiveHandle->GetID();
+
+	return static_cast<cell>(HandleID);
 }
 
 //native mysql_unprocessed_queries(connectionHandle = 1);

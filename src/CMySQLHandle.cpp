@@ -8,6 +8,7 @@
 
 
 unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
+CMySQLHandle *CMySQLHandle::ActiveHandle = NULL;
 
 
 CMySQLHandle::CMySQLHandle(int id) : 
