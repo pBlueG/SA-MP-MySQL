@@ -31,7 +31,8 @@ class CMySQLQuery;
 class CMySQLConnection 
 {
 public:
-	friend class CMySQLHandle;
+	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect);
+	void Destroy();
 
 	//(dis)connect to the MySQL server
 	void Connect();
@@ -55,7 +56,7 @@ public:
 	}
 
 private:
-	CMySQLConnection(string host, string user, string passw, string db, unsigned int port, bool auto_reconnect)
+	CMySQLConnection(string &host, string &user, string &passw, string &db, unsigned int port, bool auto_reconnect)
 		:	m_Host(host),
 			m_User(user),
 			m_Passw(passw),
@@ -88,6 +89,7 @@ private:
 	//internal MYSQL pointer
 	MYSQL *m_Connection;
 };
+
 
 class CMySQLHandle 
 {

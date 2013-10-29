@@ -14,7 +14,7 @@
 boost::lockfree::queue<
 		CMySQLQuery*, 
 		boost::lockfree::fixed_sized<true>,
-		boost::lockfree::capacity<10000>
+		boost::lockfree::capacity<8192>
 	> CCallback::m_CallbackQueue;
 
 list<AMX *> CCallback::m_AmxList;
@@ -120,7 +120,7 @@ void CCallback::ProcessCallbacks()
 					CMySQLHandle::ActiveHandle = NULL;
 
 					if(Query->ConnHandle->IsActiveResultSaved() == false)
-						delete Query->ConnHandle->GetActiveResult();
+						Query->ConnHandle->GetActiveResult()->Destroy();
 
 					Query->ConnHandle->SetActiveResult((CMySQLResult *)NULL);
 

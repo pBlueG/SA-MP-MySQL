@@ -35,10 +35,10 @@ CMySQLHandle::~CMySQLHandle()
 	delete m_QueryThread;
 
 	for (unordered_map<int, CMySQLResult*>::iterator it = m_SavedResults.begin(), end = m_SavedResults.end(); it != end; it++)
-		delete it->second;
+		it->second->Destroy();
 
-	delete m_MainConnection;
-	delete m_QueryConnection;
+	m_MainConnection->Destroy();
+	m_QueryConnection->Destroy();
 
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::~CMySQLHandle", "deconstructor called");
 }
@@ -68,8 +68,8 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 	CMySQLHandle *Handle = new CMySQLHandle(ID);
 
 	//init connections
-	Handle->m_MainConnection = new CMySQLConnection(host, user, pass, db, port, reconnect);
-	Handle->m_QueryConnection = new CMySQLConnection(host, user, pass, db, port, reconnect);
+	Handle->m_MainConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+	Handle->m_QueryConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
 
 	SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(ID, Handle) );
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with ID = %d", ID);
@@ -146,7 +146,7 @@ bool CMySQLHandle::DeleteSavedResult(int resultid)
 				m_ActiveResult = NULL;
 				m_ActiveResultID = 0;
 			}
-			delete ResultHandle;
+			ResultHandle->Destroy();
 			m_SavedResults.erase(resultid);
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::DeleteSavedResult", "result deleted");
 			return true;
@@ -168,7 +168,7 @@ bool CMySQLHandle::SetActiveResult(int resultid)
 			{
 				if(m_ActiveResult != NULL)
 					if(m_ActiveResultID == 0) //if cache not saved
-						delete m_ActiveResult; //delete unsaved cache
+						m_ActiveResult->Destroy(); //delete unsaved cache
 				
 				m_ActiveResult = cResult; //set new active cache
 				m_ActiveResultID = resultid; //new active cache was stored previously
@@ -181,7 +181,7 @@ bool CMySQLHandle::SetActiveResult(int resultid)
 	else 
 	{
 		if(m_ActiveResultID == 0) //if cache not saved
-			delete m_ActiveResult; //delete unsaved cache
+			m_ActiveResult->Destroy(); //delete unsaved cache
 		m_ActiveResult = NULL;
 		m_ActiveResultID = 0;
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SetActiveResult", "invalid result ID specified, setting active result to zero");
@@ -204,6 +204,16 @@ void CMySQLHandle::SetActiveResult(CMySQLResult *result)
 }
 
 
+
+CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect)
+{
+	return new CMySQLConnection(host, user, passwd, db, port, auto_reconnect);
+}
+
+void CMySQLConnection::Destroy()
+{
+	delete this;
+}
 
 void CMySQLConnection::Connect() 
 {
