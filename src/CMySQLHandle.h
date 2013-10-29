@@ -159,6 +159,9 @@ public:
 
 	
 	static void ClearAll();
+
+
+	static CMySQLHandle *ActiveHandle;
 private:
 	CMySQLHandle(int id);
 	~CMySQLHandle();

@@ -111,10 +111,13 @@ void CCallback::ProcessCallbacks()
 
 					Query->ConnHandle->SetActiveResult(Query->Result);
 					Query->Result = NULL;
+					CMySQLHandle::ActiveHandle = Query->ConnHandle;
 
 					amx_Exec(amx, &amx_Ret, amx_Index);
 					if (amx_MemoryAddress >= NULL)
 						amx_Release(amx, amx_MemoryAddress);
+
+					CMySQLHandle::ActiveHandle = NULL;
 
 					if(Query->ConnHandle->IsActiveResultSaved() == false)
 						delete Query->ConnHandle->GetActiveResult();
