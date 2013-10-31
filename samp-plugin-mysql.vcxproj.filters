@@ -7,18 +7,6 @@
     <Filter Include="SDK\amx">
       <UniqueIdentifier>{0c8fac1c-7e95-4fcd-9c0c-d9f1cde74e1c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="boost">
-      <UniqueIdentifier>{6c6d3bfb-b186-4a39-8059-e8703248df8b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="boost\thread">
-      <UniqueIdentifier>{4fd854de-7690-4f62-a46b-fa75e00a1945}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="boost\system">
-      <UniqueIdentifier>{039f3940-7cad-446b-8721-ad2ed90a364e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="boost\date_time">
-      <UniqueIdentifier>{6e1d734a-fdbd-4ad9-ab06-9a997feefa4b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\SDK\amx\getch.h">
@@ -44,12 +32,6 @@
     <ClInclude Include="src\CMySQLResult.h" />
     <ClInclude Include="src\CMySQLHandle.h" />
     <ClInclude Include="src\CLog.h" />
-    <ClInclude Include="src\boost_lib\system\local_free_on_destruction.hpp">
-      <Filter>boost\system</Filter>
-    </ClInclude>
-    <ClInclude Include="src\boost_lib\date_time\greg_names.hpp">
-      <Filter>boost\date_time</Filter>
-    </ClInclude>
     <ClInclude Include="src\COrm.h" />
   </ItemGroup>
   <ItemGroup>
@@ -67,36 +49,6 @@
     <ClCompile Include="src\CMySQLResult.cpp" />
     <ClCompile Include="src\CMySQLHandle.cpp" />
     <ClCompile Include="src\CLog.cpp" />
-    <ClCompile Include="src\boost_lib\system\error_code.cpp">
-      <Filter>boost\system</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\thread\future.cpp">
-      <Filter>boost\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\thread\tss_null.cpp">
-      <Filter>boost\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\thread\win32\thread.cpp">
-      <Filter>boost\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\thread\win32\tss_dll.cpp">
-      <Filter>boost\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\thread\win32\tss_pe.cpp">
-      <Filter>boost\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\date_time\date_generators.cpp">
-      <Filter>boost\date_time</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\date_time\greg_month.cpp">
-      <Filter>boost\date_time</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\date_time\greg_weekday.cpp">
-      <Filter>boost\date_time</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boost_lib\date_time\gregorian_types.cpp">
-      <Filter>boost\date_time</Filter>
-    </ClCompile>
     <ClCompile Include="src\COrm.cpp" />
   </ItemGroup>
 </Project>
