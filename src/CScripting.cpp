@@ -13,10 +13,13 @@
 #include "malloc.h"
 #include <cmath>
 
+#include <boost/thread.hpp>
+#include <boost/thread/future.hpp>
+
 
 logprintf_t logprintf;
 
-
+/*
 //native ORM:orm_create(table[], connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::orm_create(AMX* amx, cell* params)
 {
@@ -301,7 +304,7 @@ cell AMX_NATIVE_CALL Native::orm_setkey(AMX* amx, cell* params)
 		CLog::Get()->LogFunction(LOG_ERROR, "orm_setkey", "empty variable name specified");
 	return 1;
 }
-
+*/
 
 //native cache_affected_rows(connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::cache_affected_rows(AMX* amx, cell* params)
@@ -363,7 +366,7 @@ cell AMX_NATIVE_CALL Native::cache_insert_id(AMX* amx, cell* params)
 	return static_cast<cell>(Result->InsertID());
 }
 
-
+/*
 // native Cache:cache_save(connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::cache_save(AMX* amx, cell* params)
 {
@@ -402,7 +405,7 @@ cell AMX_NATIVE_CALL Native::cache_set_active(AMX* amx, cell* params)
 		return ERROR_INVALID_CONNECTION_HANDLE("cache_set_active", cID);
 
 	return static_cast<cell>(CMySQLHandle::GetHandle(cID)->SetActiveResult((int)params[1]) == true ? 1 : 0);
-}
+}*/
 
 // native cache_get_row_count(connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::cache_get_row_count(AMX* amx, cell* params)
@@ -738,7 +741,8 @@ cell AMX_NATIVE_CALL Native::mysql_connect(AMX* amx, cell* params)
 	
 	CMySQLHandle *Handle = CMySQLHandle::Create(host, user, pass != NULL ? pass : "", db, port, AutoReconn);
 	Handle->GetMainConnection()->Connect();
-	Handle->GetQueryConnection()->Connect();
+	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Connect);
+	//Handle->GetQueryConnection()->Connect();
 	return static_cast<cell>(Handle->GetID());
 }
 
@@ -761,7 +765,8 @@ cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
 		Handle->WaitForQueryExec();
 
 	Handle->GetMainConnection()->Disconnect();
-	Handle->GetQueryConnection()->Disconnect();
+	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Disconnect);
+	//Handle->GetQueryConnection()->Disconnect();
 	Handle->Destroy();
 	return 1;
 }
@@ -782,12 +787,14 @@ cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params)
 
 	//wait until all threaded queries are executed, then reconnect query connection
 	Handle->WaitForQueryExec();
-	Handle->GetQueryConnection()->Disconnect();
-	Handle->GetQueryConnection()->Connect();
+	//Handle->GetQueryConnection()->Disconnect();
+	//Handle->GetQueryConnection()->Connect();
+	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Disconnect);
+	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Connect);
 
 	return 1;
 }
-
+/*
 //native mysql_current_handle();
 cell AMX_NATIVE_CALL Native::mysql_current_handle(AMX* amx, cell* params)
 {
@@ -811,6 +818,7 @@ cell AMX_NATIVE_CALL Native::mysql_unprocessed_queries(AMX* amx, cell* params)
 
 	return static_cast<cell>(CMySQLHandle::GetHandle(cID)->GetUnprocessedQueryCount());
 }
+*/
 
 //native mysql_tquery(conhandle, query[], callback[], format[], {Float,_}:...);
 cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
@@ -826,12 +834,12 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 	amx_StrParam(amx, params[3], tmpCBName);
 	amx_StrParam(amx, params[4], tmpParamFormat);
 
-	if(CLog::Get()->IsLogLevel(LOG_DEBUG))
+	/*if(CLog::Get()->IsLogLevel(LOG_DEBUG))
 	{
 		string ShortenQuery(tmpQuery == NULL ? "" : tmpQuery);
 		ShortenQuery.resize(64);
 		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_tquery", "connection: %d, query: \"%s\", callback: \"%s\", format: \"%s\"", cID, ShortenQuery.c_str(), tmpCBName, tmpParamFormat);
-	}
+	}*/
 
 	if(!CMySQLHandle::IsValid(cID))
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_tquery", cID);
@@ -840,26 +848,27 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_tquery", "callback parameter count does not match format specifier length");
 
 	CMySQLHandle *ConnHandle = CMySQLHandle::GetHandle(cID);
-	CMySQLQuery *Query = CMySQLQuery::Create(tmpQuery, ConnHandle, tmpCBName, tmpParamFormat);
-	if(Query != NULL)
-	{
-		if(Query->Callback->Name.length() > 0)
-			Query->Callback->FillCallbackParams(amx, params, ConstParamCount);
 	
-		if(CLog::Get()->IsLogLevel(LOG_DEBUG))
-		{
-			string ShortenQuery(Query->Query);
-			if(ShortenQuery.length() > 512)
-				ShortenQuery.resize(512);
-			CLog::Get()->LogFunction(LOG_DEBUG, "mysql_tquery", "scheduling query \"%s\"..", ShortenQuery.c_str());
-		}
+	string
+		Query(tmpQuery != NULL ? tmpQuery : ""),
+		CB_Name(tmpCBName != NULL ? tmpCBName : ""),
+		CB_Format(tmpParamFormat != NULL ? tmpParamFormat : "");
 
-		ConnHandle->ScheduleQuery(Query);
-	}
+	stack<string> CB_Params;
+
+	CCallback::FillCallbackParams(CB_Params, CB_Format, amx, params, ConstParamCount);
+
+	auto FutureRes = boost::async(boost::bind(
+		&CMySQLQuery::Create,
+			boost::move(Query), ConnHandle->GetFreeQueryConnection(),
+			boost::move(CB_Name), boost::move(CB_Format), boost::move(CB_Params)
+		)
+	);
+	CCallback::m_CallbackQueue.push_back(std::make_tuple(boost::move(FutureRes), ConnHandle));
 	return 1;
 }
 
-
+/*
 //native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
 cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params)
 {
@@ -1245,7 +1254,7 @@ cell AMX_NATIVE_CALL Native::mysql_errno(AMX* amx, cell* params)
 
 	return static_cast<cell>(mysql_errno(CMySQLHandle::GetHandle(cID)->GetMainConnection()->GetMySQLPointer()));
 }
-
+*/
 //native mysql_log(loglevel, logtype);
 cell AMX_NATIVE_CALL Native::mysql_log(AMX* amx, cell* params)
 {
