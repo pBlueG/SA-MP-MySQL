@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2012-09-30 16:25:22 -0700 (Sun, 30 Sep 2012) $
+ * $Date: 2013-09-25 15:52:11 +0200 (Mi, 25. Sep 2013) $
  */
 
 #include <string>
@@ -280,9 +280,6 @@ namespace date_time {
       return parse_date<date_type>(ss.str());
     }
 #endif // BOOST_NO_STD_WSTRING
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-    // This function cannot be compiled with MSVC 6.0 due to internal compiler shorcomings
-#else
     //! function called by wrapper functions: date_period_from_(w)string()
     template<class date_type, class charT>
     period<date_type, typename date_type::duration_type>
@@ -307,8 +304,6 @@ namespace date_time {
       date_type d2 = from_stream_type<date_type>(date_string_start, date_string_end, value_type());
       return period<date_type, typename date_type::duration_type>(d1, d2);
     }
-#endif
-
 } } //namespace date_time
 
 

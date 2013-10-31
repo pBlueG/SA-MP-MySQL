@@ -10,15 +10,14 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: at.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: at.hpp 86249 2013-10-11 23:22:36Z skelly $
+// $Date: 2013-10-12 01:22:36 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86249 $
 
 #include <boost/mpl/at_fwd.hpp>
 #include <boost/mpl/vector/aux_/tag.hpp>
 #include <boost/mpl/long.hpp>
 #include <boost/mpl/void.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
 #include <boost/mpl/aux_/type_wrapper.hpp>
 #include <boost/mpl/aux_/value_wknd.hpp>
 #include <boost/mpl/aux_/config/typeof.hpp>
@@ -56,12 +55,11 @@ struct at_impl< aux::vector_tag >
 
 #else
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    && !defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
+#   if !defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
 
-template< typename Vector, BOOST_MPL_AUX_NTTP_DECL(long, n_) > struct v_at;
+template< typename Vector, long n_ > struct v_at;
 
-template< BOOST_MPL_AUX_NTTP_DECL(long, n_) >
+template< long n_ >
 struct at_impl< aux::vector_tag<n_> >
 {
     template< typename Vector, typename N > struct apply
@@ -85,7 +83,7 @@ struct at_impl< aux::vector_tag<n_> >
 
 namespace aux {
 
-template< BOOST_MPL_AUX_NTTP_DECL(long, n_) > struct v_at_impl
+template< long n_ > struct v_at_impl
 {
     template< typename V > struct result_;
 };
@@ -101,13 +99,13 @@ template<> struct v_at_impl<-1>
 
 } // namespace aux
 
-template< typename T, BOOST_MPL_AUX_NTTP_DECL(long, n_) >
+template< typename T, long n_ >
 struct v_at
     : aux::v_at_impl<n_>::template result_<T>
 {
 };
 
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#   endif // BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC
 
 #endif // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 

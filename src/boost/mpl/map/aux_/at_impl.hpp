@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: at_impl.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: at_impl.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #include <boost/mpl/at_fwd.hpp>
 #include <boost/mpl/long.hpp>
@@ -79,29 +79,12 @@ struct item_by_order
 
 #else // BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template< typename Map, long n > struct m_at
 {
     typedef void_ type;
 };
 
-#   else
-
-template< long n > struct m_at_impl
-{
-    template< typename Map > struct result_
-    {
-        typedef void_ type;
-    };
-};
-
-template< typename Map, long n > struct m_at
-{
-    typedef typename m_at_impl<n>::result_<Map>::type type;
-};
-
-#   endif
 
 
 template<>

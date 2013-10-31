@@ -2,7 +2,7 @@
 #define BOOST_ARCHIVE_DETAIL_ISERIALIZER_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #pragma inline_depth(511)
 #pragma inline_recursion(on)
@@ -62,7 +62,6 @@ namespace std{
 #define DONT_USE_HAS_NEW_OPERATOR (                    \
     defined(__BORLANDC__)                              \
     || BOOST_WORKAROUND(__IBMCPP__, < 1210)            \
-    || defined(BOOST_MSVC) && (BOOST_MSVC <= 1300)     \
     || defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x590)   \
 )
 
@@ -233,27 +232,28 @@ protected:
 //    }
 //}
 
+#if 0
 template<class T>
 struct heap_allocator
 {
     // boost::has_new_operator< T > doesn't work on these compilers
     #if DONT_USE_HAS_NEW_OPERATOR
         // This doesn't handle operator new overload for class T
-        static T * invoke(){
+        static void * invoke(){
             return static_cast<T *>(operator new(sizeof(T)));
         }
     #else
         struct has_new_operator {
-            static T* invoke() {
+            static void * invoke() {
                 return static_cast<T *>((T::operator new)(sizeof(T)));
             }
         };
         struct doesnt_have_new_operator {
-            static T* invoke() {
+            static void * invoke() {
                 return static_cast<T *>(operator new(sizeof(T)));
             }
         };
-        static T * invoke() {
+        static void * invoke() {
             typedef BOOST_DEDUCED_TYPENAME
                 mpl::eval_if<
                     boost::has_new_operator< T >,
@@ -289,47 +289,143 @@ public:
 private:
     T* m_p;
 };
+#endif
+
+// the purpose of this code is to allocate memory for an object
+// without requiring the constructor to be called.  Presumably
+// the allocated object will be subsequently initialized with
+// "placement new". 
+// note: we have the boost type trait has_new_operator but we
+// have no corresponding has_delete_operator.  So we presume
+// that the former being true would imply that the a delete
+// operator is also defined for the class T.
+
+template<class T>
+struct heap_allocation {
+    // boost::has_new_operator< T > doesn't work on these compilers
+    #if DONT_USE_HAS_NEW_OPERATOR
+        // This doesn't handle operator new overload for class T
+        static T * invoke_new(){
+            return static_cast<T *>(operator new(sizeof(T)));
+        }
+        static viod invoke_delete(){
+            (operator delete(sizeof(T)));
+        }
+    #else
+        // note: we presume that a true value for has_new_operator
+        // implies the existence of a class specific delete operator as well
+        // as a class specific new operator.
+        struct has_new_operator {
+            static T * invoke_new() {
+                return static_cast<T *>((T::operator new)(sizeof(T)));
+            }
+            static void invoke_delete(T * t) {
+                // if compilation fails here, the likely cause that the class
+                // T has a class specific new operator but no class specific
+                // delete operator which matches the following signature.  Fix
+                // your program to have this.  Note that adding operator delete
+                // with only one parameter doesn't seem correct to me since 
+                // the standard(3.7.4.2) says "
+                // "If a class T has a member deallocation function named
+                // 'operator delete' with exactly one parameter, then that function 
+                // is a usual (non-placement) deallocation function" which I take
+                // to mean that it will call the destructor of type T which we don't
+                // want to do here.
+                // Note: reliance upon automatic conversion from T * to void * here
+                (T::operator delete)(t, sizeof(T));
+            }
+        };
+        struct doesnt_have_new_operator {
+            static T* invoke_new() {
+                return static_cast<T *>(operator new(sizeof(T)));
+            }
+            static void invoke_delete(T * t) {
+                // Note: I'm reliance upon automatic conversion from T * to void * here
+                (operator delete)(t);
+            }
+        };
+        static T * invoke_new() {
+            typedef BOOST_DEDUCED_TYPENAME
+                mpl::eval_if<
+                    boost::has_new_operator< T >,
+                    mpl::identity<has_new_operator >,
+                    mpl::identity<doesnt_have_new_operator >    
+                >::type typex;
+            return typex::invoke_new();
+        }
+        static void invoke_delete(T *t) {
+            typedef BOOST_DEDUCED_TYPENAME
+                mpl::eval_if<
+                    boost::has_new_operator< T >,
+                    mpl::identity<has_new_operator >,
+                    mpl::identity<doesnt_have_new_operator >    
+                >::type typex;
+            typex::invoke_delete(t);
+        }
+    #endif
+    explicit heap_allocation(){
+        m_p = invoke_new();
+    }
+    ~heap_allocation(){
+        if (0 != m_p)
+            invoke_delete(m_p);
+    }
+    T* get() const {
+        return m_p;
+    }
+
+    T* release() {
+        T* p = m_p;
+        m_p = 0;
+        return p;
+    }
+private:
+    T* m_p;
+};
 
 // note: BOOST_DLLEXPORT is so that code for polymorphic class
 // serialized only through base class won't get optimized out
 template<class Archive, class T>
 BOOST_DLLEXPORT void pointer_iserializer<Archive, T>::load_object_ptr(
     basic_iarchive & ar, 
-    void * & x,
+    void * & t,
     const unsigned int file_version
 ) const
 {
     Archive & ar_impl = 
         boost::serialization::smart_cast_reference<Archive &>(ar);
 
-    auto_ptr_with_deleter< T > ap(heap_allocator< T >::invoke());
-    if(NULL == ap.get())
-        boost::serialization::throw_exception(std::bad_alloc()) ;
-
-    T * t = ap.get();
-    x = t;
+    heap_allocation<T> h;
+    t = NULL;
+    // note that the above will throw std::bad_alloc if the allocation
+    // fails so we don't have to address this contingency here.
 
     // catch exception during load_construct_data so that we don't
     // automatically delete the t which is most likely not fully
     // constructed
     BOOST_TRY {
-        // this addresses an obscure situtation that occurs when 
+        // this addresses an obscure situation that occurs when 
         // load_constructor de-serializes something through a pointer.
-        ar.next_object_pointer(t);
+        ar.next_object_pointer(h.get());
         boost::serialization::load_construct_data_adl<Archive, T>(
             ar_impl,
-            t, 
+            h.get(), 
             file_version
         );
     }
     BOOST_CATCH(...){
-        ap.release();
+        // if we get here the load_construct failed.  The heap_allocation
+        // will be automatically deleted so we don't have to do anything
+        // special here.
         BOOST_RETHROW;
     }
     BOOST_CATCH_END
 
-    ar_impl >> boost::serialization::make_nvp(NULL, * t);
-    ap.release();
+    ar_impl >> boost::serialization::make_nvp(NULL, *h.get());
+    // success !!! - release the heap allocation so it
+    // doesn't delete the object we just loaded.
+    t = h.get();
+    h.release();
 }
 
 template<class Archive, class T>

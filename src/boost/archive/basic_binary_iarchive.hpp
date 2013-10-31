@@ -2,7 +2,7 @@
 #define BOOST_ARCHIVE_BASIC_BINARY_IARCHIVE_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -51,15 +51,7 @@ class basic_binary_iarchive :
     public detail::common_iarchive<Archive>
 {
 protected:
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-public:
-#elif defined(BOOST_MSVC)
-    // for some inexplicable reason insertion of "class" generates compile erro
-    // on msvc 7.1
-    friend detail::interface_iarchive<Archive>;
-#else
     friend class detail::interface_iarchive<Archive>;
-#endif
     // intermediate level to support override of operators
     // fot templates in the absence of partial function 
     // template ordering. If we get here pass to base class

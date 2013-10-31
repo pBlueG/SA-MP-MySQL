@@ -25,6 +25,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <functional>
+
+#include <boost/config/suffix.hpp>
+
 #include "gil_config.hpp"
 #include "channel_algorithm.hpp"
 #include "pixel.hpp"

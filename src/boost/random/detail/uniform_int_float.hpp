@@ -8,7 +8,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_int_float.hpp 72951 2011-07-07 04:57:37Z steven_watanabe $
+ * $Id: uniform_int_float.hpp 72826 2011-06-30 22:27:53Z steven_watanabe $
  *
  */
 

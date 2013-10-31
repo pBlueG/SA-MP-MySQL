@@ -39,7 +39,7 @@ namespace boost { namespace fusion
 
     template<typename Tag, typename Category, typename Seq, int Index>
     struct basic_iterator
-      : iterator_facade<basic_iterator<Tag,Category,Seq,Index>, Category>
+      : iterator_facade<basic_iterator<Tag, Category, Seq, Index>, Category>
     {
         typedef mpl::int_<Index> index;
         typedef Seq seq_type;

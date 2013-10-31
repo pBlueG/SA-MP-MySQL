@@ -25,8 +25,7 @@ boost
             {
             public:
 
-            virtual std::string tag_typeid_name() const = 0;
-            virtual std::string value_as_string() const = 0;
+            virtual std::string name_value_string() const = 0;
 
             protected:
 
@@ -63,8 +62,7 @@ boost
 
         private:
 
-        std::string tag_typeid_name() const;
-        std::string value_as_string() const;
+        std::string name_value_string() const;
 
         value_type value_;
         };

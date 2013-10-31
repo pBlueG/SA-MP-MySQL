@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: integral_c.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: integral_c.hpp 86249 2013-10-11 23:22:36Z skelly $
+// $Date: 2013-10-12 01:22:36 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86249 $
 
 #include <boost/mpl/integral_c_fwd.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
@@ -32,8 +32,7 @@
 #include <boost/mpl/aux_/integral_wrapper.hpp>
 
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
- && !BOOST_WORKAROUND(__BORLANDC__, <= 0x551)
+#if !BOOST_WORKAROUND(__BORLANDC__, <= 0x551)
 BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 // 'bool' constant doesn't have 'next'/'prior' members
 template< bool C >

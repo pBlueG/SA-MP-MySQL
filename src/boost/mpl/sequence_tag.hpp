@@ -10,16 +10,14 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: sequence_tag.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: sequence_tag.hpp 85945 2013-09-26 09:46:46Z skelly $
+// $Date: 2013-09-26 11:46:46 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85945 $
 
 #include <boost/mpl/sequence_tag_fwd.hpp>
 #include <boost/mpl/aux_/has_tag.hpp>
 #include <boost/mpl/aux_/has_begin.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
-#include <boost/mpl/aux_/is_msvc_eti_arg.hpp>
-#include <boost/mpl/aux_/config/eti.hpp>
 #include <boost/mpl/aux_/yes_no.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
 
@@ -27,8 +25,7 @@ namespace boost { namespace mpl {
 
 // agurt, 27/nov/02: have to use a simplistic 'sequence_tag' implementation
 // on MSVC to avoid dreadful "internal structure overflow" error
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) \
-    || defined(BOOST_MPL_CFG_NO_HAS_XXX)
+#if defined(BOOST_MPL_CFG_NO_HAS_XXX)
 
 template<
       typename BOOST_MPL_AUX_NA_PARAM(Sequence)
@@ -36,41 +33,6 @@ template<
 struct sequence_tag
 {
     typedef typename Sequence::tag type;
-};
-
-#elif BOOST_WORKAROUND(BOOST_MSVC, == 1300)
-
-// agurt, 07/feb/03: workaround for what seems to be MSVC 7.0-specific ETI issue
-
-namespace aux {
-
-template< bool >
-struct sequence_tag_impl
-{
-    template< typename Sequence > struct result_
-    {
-        typedef typename Sequence::tag type;
-    };
-};
-
-template<>
-struct sequence_tag_impl<false>
-{
-    template< typename Sequence > struct result_
-    {
-        typedef int type;
-    };
-};
-
-} // namespace aux
-
-template<
-      typename BOOST_MPL_AUX_NA_PARAM(Sequence)
-    >
-struct sequence_tag
-    : aux::sequence_tag_impl< !aux::is_msvc_eti_arg<Sequence>::value >
-        ::template result_<Sequence>
-{
 };
 
 #else

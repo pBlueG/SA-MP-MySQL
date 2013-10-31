@@ -14,16 +14,12 @@
 # undef BOOST_COROUTINES_DECL
 #endif
 
-#if defined(BOOST_HAS_DECLSPEC)
-# if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_COROUTINES_DYN_LINK)
-#  if ! defined(BOOST_DYN_LINK)
-#   define BOOST_DYN_LINK
-#  endif
-#  if defined(BOOST_COROUTINES_SOURCE)
-#   define BOOST_COROUTINES_DECL BOOST_SYMBOL_EXPORT
-#  else 
-#   define BOOST_COROUTINES_DECL BOOST_SYMBOL_IMPORT
-#  endif
+#if (defined(BOOST_ALL_DYN_LINK) || defined(BOOST_COROUTINES_DYN_LINK) ) && ! defined(BOOST_COROUTINES_STATIC_LINK)
+# if defined(BOOST_COROUTINES_SOURCE)
+#  define BOOST_COROUTINES_DECL BOOST_SYMBOL_EXPORT
+#  define BOOST_COROUTINES_BUILD_DLL
+# else
+#  define BOOST_COROUTINES_DECL BOOST_SYMBOL_IMPORT
 # endif
 #endif
 
@@ -32,11 +28,18 @@
 #endif
 
 #if ! defined(BOOST_COROUTINES_SOURCE) && ! defined(BOOST_ALL_NO_LIB) && ! defined(BOOST_COROUTINES_NO_LIB)
-# define BOOST_LIB_NAME boost_context
+# define BOOST_LIB_NAME boost_coroutine
 # if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_COROUTINES_DYN_LINK)
 #  define BOOST_DYN_LINK
 # endif
 # include <boost/config/auto_link.hpp>
+#endif
+
+#if defined(BOOST_USE_SEGMENTED_STACKS)
+# if ! (defined(__GNUC__) && __GNUC__ > 3 && __GNUC_MINOR__ > 6)
+#  error "compiler does not support segmented stacks"
+# endif
+# define BOOST_COROUTINES_SEGMENTS 10
 #endif
 
 #endif // BOOST_COROUTINES_DETAIL_CONFIG_H

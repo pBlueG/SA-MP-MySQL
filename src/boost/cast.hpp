@@ -50,17 +50,6 @@
 # include <boost/limits.hpp>
 # include <boost/detail/select_type.hpp>
 
-//  It has been demonstrated numerous times that MSVC 6.0 fails silently at link
-//  time if you use a template function which has template parameters that don't
-//  appear in the function's argument list.
-//
-//  TODO: Add this to config.hpp?
-# if defined(BOOST_MSVC) && BOOST_MSVC < 1300
-#  define BOOST_EXPLICIT_DEFAULT_TARGET , ::boost::type<Target>* = 0
-# else
-#  define BOOST_EXPLICIT_DEFAULT_TARGET
-# endif
-
 namespace boost
 {
 //  See the documentation for descriptions of how to choose between
@@ -73,7 +62,7 @@ namespace boost
     //  section 15.8 exercise 1, page 425.
 
     template <class Target, class Source>
-    inline Target polymorphic_cast(Source* x BOOST_EXPLICIT_DEFAULT_TARGET)
+    inline Target polymorphic_cast(Source* x)
     {
         Target tmp = dynamic_cast<Target>(x);
         if ( tmp == 0 ) throw std::bad_cast();
@@ -92,13 +81,11 @@ namespace boost
     //  Contributed by Dave Abrahams
 
     template <class Target, class Source>
-    inline Target polymorphic_downcast(Source* x BOOST_EXPLICIT_DEFAULT_TARGET)
+    inline Target polymorphic_downcast(Source* x)
     {
         BOOST_ASSERT( dynamic_cast<Target>(x) == x );  // detect logic error
         return static_cast<Target>(x);
     }
-
-#  undef BOOST_EXPLICIT_DEFAULT_TARGET
 
 } // namespace boost
 

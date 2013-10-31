@@ -624,7 +624,6 @@ typename cpp_regex_traits_implementation<charT>::string_type
          return pos->second;
    }
 #if !defined(BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS)\
-               && !BOOST_WORKAROUND(BOOST_MSVC, < 1300)\
                && !BOOST_WORKAROUND(__BORLANDC__, <= 0x0551)
    std::string name(p1, p2);
 #else
@@ -635,7 +634,6 @@ typename cpp_regex_traits_implementation<charT>::string_type
 #endif
    name = lookup_default_collate_name(name);
 #if !defined(BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS)\
-               && !BOOST_WORKAROUND(BOOST_MSVC, < 1300)\
                && !BOOST_WORKAROUND(__BORLANDC__, <= 0x0551)
    if(name.size())
       return string_type(name.begin(), name.end());
@@ -857,7 +855,7 @@ bool cpp_regex_traits_implementation<charT>::isctype(const charT c, char_class_t
 
 
 template <class charT>
-inline boost::shared_ptr<const cpp_regex_traits_implementation<charT> > create_cpp_regex_traits(const std::locale& l BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE(charT))
+inline boost::shared_ptr<const cpp_regex_traits_implementation<charT> > create_cpp_regex_traits(const std::locale& l)
 {
    cpp_regex_traits_base<charT> key(l);
    return ::boost::object_cache<cpp_regex_traits_base<charT>, cpp_regex_traits_implementation<charT> >::get(key, 5);

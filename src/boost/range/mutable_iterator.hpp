@@ -11,15 +11,12 @@
 #ifndef BOOST_RANGE_MUTABLE_ITERATOR_HPP
 #define BOOST_RANGE_MUTABLE_ITERATOR_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
 #include <boost/range/config.hpp>
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-#include <boost/range/detail/iterator.hpp>
-#else
 
 #include <boost/range/detail/extract_optional_type.hpp>
 #include <boost/iterator/iterator_traits.hpp>
@@ -62,6 +59,5 @@ namespace boost
 
 } // namespace boost
 
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #endif

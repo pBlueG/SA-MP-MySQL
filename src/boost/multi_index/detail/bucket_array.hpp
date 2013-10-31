@@ -1,4 +1,4 @@
-/* Copyright 2003-2008 Joaquin M Lopez Munoz.
+/* Copyright 2003-2013 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -9,7 +9,7 @@
 #ifndef BOOST_MULTI_INDEX_DETAIL_BUCKET_ARRAY_HPP
 #define BOOST_MULTI_INDEX_DETAIL_BUCKET_ARRAY_HPP
 
-#if defined(_MSC_VER)&&(_MSC_VER>=1200)
+#if defined(_MSC_VER)
 #pragma once
 #endif
 
@@ -17,7 +17,6 @@
 #include <algorithm>
 #include <boost/multi_index/detail/auto_space.hpp>
 #include <boost/multi_index/detail/hash_index_node.hpp>
-#include <boost/multi_index/detail/prevent_eti.hpp>
 #include <boost/noncopyable.hpp>
 #include <cstddef>
 #include <limits.h>
@@ -85,26 +84,22 @@ protected:
 template<typename Allocator>
 class bucket_array:public bucket_array_base
 {
-  typedef typename prevent_eti<
-    Allocator,
-    hashed_index_node_impl<
-      typename boost::detail::allocator::rebind_to<
-        Allocator,
-        char
-      >::type
-    >
-  >::type                                           node_impl_type;
+  typedef hashed_index_base_node_impl<
+    typename boost::detail::allocator::rebind_to<
+      Allocator,
+      char
+    >::type
+  >                                                  base_node_impl_type;
 
 public:
-  typedef typename node_impl_type::pointer          pointer;
+  typedef typename base_node_impl_type::base_pointer base_pointer;
+  typedef typename base_node_impl_type::pointer      pointer;
 
   bucket_array(const Allocator& al,pointer end_,std::size_t size):
     size_(bucket_array_base::next_prime(size)),
     spc(al,size_+1)
   {
-    clear();
-    end()->next()=end_;
-    end_->next()=end();
+    clear(end_);
   }
 
   std::size_t size()const
@@ -117,22 +112,16 @@ public:
     return hash%size_;
   }
 
-  pointer begin()const{return buckets();}
-  pointer end()const{return buckets()+size_;}
-  pointer at(std::size_t n)const{return buckets()+n;}
+  base_pointer begin()const{return buckets();}
+  base_pointer end()const{return buckets()+size_;}
+  base_pointer at(std::size_t n)const{return buckets()+n;}
 
-  std::size_t first_nonempty(std::size_t n)const
+  void clear(pointer end_)
   {
-    for(;;++n){
-      pointer x=at(n);
-      if(x->next()!=x)return n;
-    }
-  }
-
-  void clear()
-  {
-    for(pointer x=begin(),y=end();x!=y;++x)x->next()=x;
-  }
+    for(base_pointer x=begin(),y=end();x!=y;++x)x->next()=pointer(0);
+    end()->next()=end_->next()=end_;
+    end_->prior()=end();
+ }
 
   void swap(bucket_array& x)
   {
@@ -141,10 +130,10 @@ public:
   }
 
 private:
-  std::size_t                          size_;
-  auto_space<node_impl_type,Allocator> spc;
+  std::size_t                               size_;
+  auto_space<base_node_impl_type,Allocator> spc;
 
-  pointer buckets()const
+  base_pointer buckets()const
   {
     return spc.data();
   }

@@ -17,7 +17,9 @@
 #include <cstddef>
 
 #include <boost/numeric/conversion/cast.hpp>
-
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -92,7 +94,7 @@ struct buffer<BoxIn, BoxOut, box_tag, box_tag>
 {
     template <typename Distance>
     static inline void apply(BoxIn const& box_in, Distance const& distance,
-                Distance const& , BoxIn& box_out)
+                Distance const& , BoxOut& box_out)
     {
         detail::buffer::buffer_box(box_in, distance, box_out);
     }
@@ -105,6 +107,61 @@ struct buffer<BoxIn, BoxOut, box_tag, box_tag>
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_variant {
+
+template <typename Geometry>
+struct buffer
+{
+    template <typename Distance, typename GeometryOut>
+    static inline void apply(Geometry const& geometry,
+                             Distance const& distance,
+                             Distance const& chord_length,
+                             GeometryOut& out)
+    {
+        dispatch::buffer<Geometry, GeometryOut>::apply(geometry, distance, chord_length, out);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Distance, typename GeometryOut>
+    struct visitor: boost::static_visitor<void>
+    {
+        Distance const& m_distance;
+        Distance const& m_chord_length;
+        GeometryOut& m_out;
+
+        visitor(Distance const& distance,
+                Distance const& chord_length,
+                GeometryOut& out)
+        : m_distance(distance),
+          m_chord_length(chord_length),
+          m_out(out)
+        {}
+
+        template <typename Geometry>
+        void operator()(Geometry const& geometry) const
+        {
+            buffer<Geometry>::apply(geometry, m_distance, m_chord_length, m_out);
+        }
+    };
+
+    template <typename Distance, typename GeometryOut>
+    static inline void apply(
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+        Distance const& distance,
+        Distance const& chord_length,
+        GeometryOut& out
+    )
+    {
+        boost::apply_visitor(visitor<Distance, GeometryOut>(distance, chord_length, out), geometry);
+    }
+};
+
+} // namespace resolve_variant
 
 
 /*!
@@ -129,11 +186,7 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
     concept::check<Input const>();
     concept::check<Output>();
 
-    dispatch::buffer
-        <
-            Input,
-            Output
-        >::apply(geometry_in, distance, chord_length, geometry_out);
+    resolve_variant::buffer<Input>::apply(geometry_in, distance, chord_length, geometry_out);
 }
 
 /*!
@@ -145,22 +198,19 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 \tparam Distance \tparam_numeric
 \param geometry \param_geometry
 \param distance The distance to be used for the buffer
-\param chord_length (optional) The length of the chord's in the generated arcs around points or bends
+\param chord_length (optional) The length of the chord's in the generated arcs
+    around points or bends
 \return \return_calc{buffer}
  */
-template <typename Output, typename Input, typename T>
-Output return_buffer(Input const& geometry, T const& distance, T const& chord_length = -1)
+template <typename Output, typename Input, typename Distance>
+Output return_buffer(Input const& geometry, Distance const& distance, Distance const& chord_length = -1)
 {
     concept::check<Input const>();
     concept::check<Output>();
 
     Output geometry_out;
 
-    dispatch::buffer
-        <
-            Input,
-            Output
-        >::apply(geometry, distance, chord_length, geometry_out);
+    resolve_variant::buffer<Input>::apply(geometry, distance, chord_length, geometry_out);
 
     return geometry_out;
 }

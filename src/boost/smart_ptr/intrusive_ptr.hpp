@@ -208,17 +208,6 @@ template<class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const 
     return a != b.get();
 }
 
-#if __GNUC__ == 2 && __GNUC_MINOR__ <= 96
-
-// Resolve the ambiguity between our op!= and the one in rel_ops
-
-template<class T> inline bool operator!=(intrusive_ptr<T> const & a, intrusive_ptr<T> const & b)
-{
-    return a.get() != b.get();
-}
-
-#endif
-
 #if !defined( BOOST_NO_CXX11_NULLPTR )
 
 template<class T> inline bool operator==( intrusive_ptr<T> const & p, boost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
@@ -279,34 +268,16 @@ template<class T, class U> intrusive_ptr<T> dynamic_pointer_cast(intrusive_ptr<U
 
 #if !defined(BOOST_NO_IOSTREAM)
 
-#if defined(BOOST_NO_TEMPLATED_IOSTREAMS) || ( defined(__GNUC__) &&  (__GNUC__ < 3) )
-
-template<class Y> std::ostream & operator<< (std::ostream & os, intrusive_ptr<Y> const & p)
-{
-    os << p.get();
-    return os;
-}
-
-#else
-
 // in STLport's no-iostreams mode no iostream symbols can be used
 #ifndef _STLP_NO_IOSTREAMS
 
-# if defined(BOOST_MSVC) && BOOST_WORKAROUND(BOOST_MSVC, < 1300 && __SGI_STL_PORT)
-// MSVC6 has problems finding std::basic_ostream through the using declaration in namespace _STL
-using std::basic_ostream;
-template<class E, class T, class Y> basic_ostream<E, T> & operator<< (basic_ostream<E, T> & os, intrusive_ptr<Y> const & p)
-# else
 template<class E, class T, class Y> std::basic_ostream<E, T> & operator<< (std::basic_ostream<E, T> & os, intrusive_ptr<Y> const & p)
-# endif 
 {
     os << p.get();
     return os;
 }
 
 #endif // _STLP_NO_IOSTREAMS
-
-#endif // __GNUC__ < 3
 
 #endif // !defined(BOOST_NO_IOSTREAM)
 

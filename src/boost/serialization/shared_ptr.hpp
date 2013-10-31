@@ -2,7 +2,7 @@
 #define BOOST_SERIALIZATION_SHARED_PTR_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -35,7 +35,6 @@
 // version 1 to distinguish from boost 1.32 version. Note: we can only do this
 // for a template when the compiler supports partial template specialization
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     namespace boost {
     namespace serialization{
         template<class T>
@@ -69,19 +68,6 @@
         };
     }}
     #define BOOST_SERIALIZATION_SHARED_PTR(T)
-#else
-    // define macro to let users of these compilers do this
-    #define BOOST_SERIALIZATION_SHARED_PTR(T)                         \
-    BOOST_CLASS_VERSION(                                              \
-        ::boost::shared_ptr< T >,                                     \
-        1                                                             \
-    )                                                                 \
-    BOOST_CLASS_TRACKING(                                             \
-        ::boost::shared_ptr< T >,                                     \
-        ::boost::serialization::track_never                           \
-    )                                                                 \
-    /**/
-#endif
 
 namespace boost {
 namespace serialization{

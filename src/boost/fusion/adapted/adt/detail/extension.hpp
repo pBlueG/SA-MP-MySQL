@@ -19,10 +19,10 @@ namespace boost { namespace fusion
 { 
     namespace detail
     {
-    template <typename T, typename Dummy>
-    struct get_identity
-      : remove_const<typename remove_reference<T>::type>
-    {};
+        template <typename T, typename Dummy>
+        struct get_identity
+          : remove_const<typename remove_reference<T>::type>
+        {};
     }
     
     namespace extension

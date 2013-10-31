@@ -2,7 +2,7 @@
 #define BOOST_SERIALIZATION_VECTOR_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -159,8 +159,6 @@ inline void serialize(
     boost::serialization::split_free(ar, t, file_version);
 }
 
-#if ! BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // vector<bool>
 template<class Archive, class Allocator>
@@ -206,8 +204,6 @@ inline void serialize(
 ){
     boost::serialization::split_free(ar, t, file_version);
 }
-
-#endif // BOOST_WORKAROUND
 
 } // serialization
 } // namespace boost

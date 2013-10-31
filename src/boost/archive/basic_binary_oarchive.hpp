@@ -2,7 +2,7 @@
 #define BOOST_ARCHIVE_BASIC_BINARY_OARCHIVE_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -59,15 +59,7 @@ class basic_binary_oarchive :
     public archive::detail::common_oarchive<Archive>
 {
 protected:
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-public:
-#elif defined(BOOST_MSVC)
-    // for some inexplicable reason insertion of "class" generates compile erro
-    // on msvc 7.1
-    friend detail::interface_oarchive<Archive>;
-#else
     friend class detail::interface_oarchive<Archive>;
-#endif
     // any datatype not specifed below will be handled by base class
     typedef detail::common_oarchive<Archive> detail_common_oarchive;
     template<class T>

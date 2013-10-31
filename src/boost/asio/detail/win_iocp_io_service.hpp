@@ -2,7 +2,7 @@
 // detail/win_iocp_io_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,19 +19,17 @@
 
 #if defined(BOOST_ASIO_HAS_IOCP)
 
-#include <boost/limits.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/detail/call_stack.hpp>
+#include <boost/asio/detail/limits.hpp>
 #include <boost/asio/detail/mutex.hpp>
 #include <boost/asio/detail/op_queue.hpp>
 #include <boost/asio/detail/scoped_ptr.hpp>
 #include <boost/asio/detail/socket_types.hpp>
 #include <boost/asio/detail/thread.hpp>
 #include <boost/asio/detail/timer_queue_base.hpp>
-#include <boost/asio/detail/timer_queue_fwd.hpp>
 #include <boost/asio/detail/timer_queue_set.hpp>
 #include <boost/asio/detail/wait_op.hpp>
-#include <boost/asio/detail/win_iocp_io_service_fwd.hpp>
 #include <boost/asio/detail/win_iocp_operation.hpp>
 #include <boost/asio/detail/win_iocp_thread_info.hpp>
 
@@ -113,15 +111,15 @@ public:
 
   // Request invocation of the given handler.
   template <typename Handler>
-  void dispatch(Handler handler);
+  void dispatch(Handler& handler);
 
   // Request invocation of the given handler and return immediately.
   template <typename Handler>
-  void post(Handler handler);
+  void post(Handler& handler);
 
   // Request invocation of the given operation and return immediately. Assumes
   // that work_started() has not yet been called for the operation.
-  void post_immediate_completion(win_iocp_operation* op)
+  void post_immediate_completion(win_iocp_operation* op, bool)
   {
     work_started();
     post_deferred_completion(op);
@@ -141,7 +139,7 @@ public:
   // called for the operation.
   void post_private_immediate_completion(win_iocp_operation* op)
   {
-    post_immediate_completion(op);
+    post_immediate_completion(op, false);
   }
 
   // Request invocation of the given operation using the thread-private queue

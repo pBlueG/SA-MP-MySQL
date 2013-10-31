@@ -17,6 +17,7 @@
 
 #include <new>
 #include <algorithm>
+#include <iosfwd>
 
 #include <boost/config.hpp>
 #include <boost/assert.hpp>
@@ -38,31 +39,10 @@
 
 #include <boost/optional/optional_fwd.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1200)
-// VC6.0 has the following bug:
-//   When a templated assignment operator exist, an implicit conversion
-//   constructing an optional<T> is used when assigment of the form:
-//     optional<T> opt ; opt = T(...);
-//   is compiled.
-//   However, optional's ctor is _explicit_ and the assignemt shouldn't compile.
-//   Therefore, for VC6.0 templated assignment is disabled.
-//
-#define BOOST_OPTIONAL_NO_CONVERTING_ASSIGNMENT
-#endif
-
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300)
-// VC7.0 has the following bug:
-//   When both a non-template and a template copy-ctor exist
-//   and the templated version is made 'explicit', the explicit is also
-//   given to the non-templated version, making the class non-implicitely-copyable.
-//
-#define BOOST_OPTIONAL_NO_CONVERTING_COPY_CTOR
-#endif
-
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || BOOST_WORKAROUND(BOOST_INTEL_CXX_VERSION,<=700)
-// AFAICT only VC7.1 correctly resolves the overload set
+#if BOOST_WORKAROUND(BOOST_INTEL_CXX_VERSION,<=700)
+// AFAICT only Intel 7 correctly resolves the overload set
 // that includes the in-place factory taking functions,
-// so for the other VC versions, in-place factory support
+// so for the other icc versions, in-place factory support
 // is disabled
 #define BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
 #endif
@@ -83,8 +63,7 @@
 #define BOOST_OPTIONAL_WEAK_OVERLOAD_RESOLUTION
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) > 302 \
-    && !defined(__INTEL_COMPILER)
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
 // GCC since 3.3 has may_alias attribute that helps to alleviate optimizer issues with
 // regard to violation of the strict aliasing rules. The optional< T > storage type is marked
 // with this attribute in order to let the compiler know that it will alias objects of type T
@@ -127,7 +106,7 @@ class aligned_storage
     union
     // This works around GCC warnings about breaking strict aliasing rules when casting storage address to T*
 #if defined(BOOST_OPTIONAL_DETAIL_USE_ATTRIBUTE_MAY_ALIAS)
-    __attribute__((may_alias))
+    __attribute__((__may_alias__))
 #endif
     dummy_u
     {
@@ -476,7 +455,7 @@ class optional_base : public optional_tag
 #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
     void destroy_impl ( is_not_reference_tag ) { get_ptr_impl()->internal_type::~internal_type() ; m_initialized = false ; }
 #else
-    void destroy_impl ( is_not_reference_tag ) { get_ptr_impl()->T::~T() ; m_initialized = false ; }
+    void destroy_impl ( is_not_reference_tag ) { get_ptr_impl()->~T() ; m_initialized = false ; }
 #endif
 
     void destroy_impl ( is_reference_tag     ) { m_initialized = false ; }
@@ -529,7 +508,6 @@ class optional : public optional_detail::optional_base<T>
     // Can throw if T::T(T const&) does
     optional ( bool cond, argument_type val ) : base(cond,val) {}
 
-#ifndef BOOST_OPTIONAL_NO_CONVERTING_COPY_CTOR
     // NOTE: MSVC needs templated versions first
 
     // Creates a deep copy of another convertible optional<U>
@@ -543,7 +521,6 @@ class optional : public optional_detail::optional_base<T>
       if ( rhs.is_initialized() )
         this->construct(rhs.get());
     }
-#endif
 
 #ifndef BOOST_OPTIONAL_NO_INPLACE_FACTORY_SUPPORT
     // Creates an optional<T> with an expression which can be either
@@ -577,8 +554,6 @@ class optional : public optional_detail::optional_base<T>
       }
 #endif
 
-
-#ifndef BOOST_OPTIONAL_NO_CONVERTING_ASSIGNMENT
     // Assigns from another convertible optional<U> (converts && deep-copies the rhs value)
     // Requires a valid conversion from U to T.
     // Basic Guarantee: If T::T( U const& ) throws, this is left UNINITIALIZED
@@ -588,7 +563,6 @@ class optional : public optional_detail::optional_base<T>
         this->assign(rhs);
         return *this ;
       }
-#endif
 
     // Assigns from another optional<T> (deep-copies the rhs value)
     // Basic Guarantee: If T::T( T const& ) throws, this is left UNINITIALIZED
@@ -742,6 +716,11 @@ get_pointer ( optional<T>& opt )
 {
   return opt.get_ptr() ;
 }
+
+// Forward declaration to prevent operator safe-bool from being used.
+template<class CharType, class CharTrait, class T>
+std::basic_ostream<CharType, CharTrait>&
+operator<<(std::basic_ostream<CharType, CharTrait>& out, optional<T> const& v);
 
 // optional's relational operators ( ==, !=, <, >, <=, >= ) have deep-semantics (compare values).
 // WARNING: This is UNLIKE pointers. Use equal_pointees()/less_pointess() in generic code instead.

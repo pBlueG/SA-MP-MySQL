@@ -3,7 +3,7 @@
 
 // MS compatible compilers support #pragma once
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -148,18 +148,11 @@ public:
 #endif
     }
 
-#if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, <= 1200 )
-    template<class Y, class D> shared_count( Y * p, D d ): pi_(0)
-#else
     template<class P, class D> shared_count( P p, D d ): pi_(0)
-#endif
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
     {
-#if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, <= 1200 )
-        typedef Y* P;
-#endif
 #ifndef BOOST_NO_EXCEPTIONS
 
         try
@@ -200,7 +193,7 @@ public:
         }
         catch( ... )
         {
-            D()( p ); // delete p
+            D::operator_fn( p ); // delete p
             throw;
         }
 
@@ -210,7 +203,7 @@ public:
 
         if( pi_ == 0 )
         {
-            D()( p ); // delete p
+            D::operator_fn( p ); // delete p
             boost::throw_exception( std::bad_alloc() );
         }
 
@@ -286,7 +279,7 @@ public:
         }
         catch(...)
         {
-            D()( p );
+            D::operator_fn( p );
 
             if( pi_ != 0 )
             {
@@ -306,7 +299,7 @@ public:
         }
         else
         {
-            D()( p );
+            D::operator_fn( p );
             boost::throw_exception( std::bad_alloc() );
         }
 

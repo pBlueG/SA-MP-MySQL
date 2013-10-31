@@ -370,6 +370,7 @@ namespace boost { namespace polygon{
     template <int op>
     static bool applyLogic(Count2 count) {
 #ifdef BOOST_POLYGON_MSVC
+#pragma warning (push)
 #pragma warning (disable: 4127)
 #endif
       if(op == 0) { //apply or
@@ -383,7 +384,7 @@ namespace boost { namespace polygon{
       } else
         return false;
 #ifdef BOOST_POLYGON_MSVC
-#pragma warning (default: 4127)
+#pragma warning (pop)
 #endif
     }
 
@@ -405,6 +406,7 @@ namespace boost { namespace polygon{
     template <int op>
     static bool applyLogic(Count1 count) {
 #ifdef BOOST_POLYGON_MSVC
+#pragma warning (push)
 #pragma warning (disable: 4127)
 #endif
       if(op == 0) { //apply or
@@ -416,7 +418,7 @@ namespace boost { namespace polygon{
       } else
         return false;
 #ifdef BOOST_POLYGON_MSVC
-#pragma warning (default: 4127)
+#pragma warning (pop)
 #endif
     }
 

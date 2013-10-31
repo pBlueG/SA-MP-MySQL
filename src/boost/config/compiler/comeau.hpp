@@ -34,7 +34,7 @@
 //
 // enable __int64 support in VC emulation mode
 //
-#  if defined(_MSC_VER) && (_MSC_VER >= 1200)
+#  if defined(_MSC_VER)
 #     define BOOST_HAS_MS_INT64
 #  endif
 

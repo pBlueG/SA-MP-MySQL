@@ -14,9 +14,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: apply_fwd.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: apply_fwd.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/aux_/na.hpp>
@@ -36,17 +36,10 @@
 #   include <boost/mpl/aux_/preprocessor/params.hpp>
 #   include <boost/mpl/aux_/preprocessor/default_params.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
 
 #   include <boost/preprocessor/comma_if.hpp>
 #   include <boost/preprocessor/iterate.hpp>
 #   include <boost/preprocessor/cat.hpp>
-
-// agurt, 15/jan/02: top-level 'apply' template gives an ICE on MSVC
-// (for known reasons)
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-#   define BOOST_MPL_CFG_NO_APPLY_TEMPLATE
-#endif
 
 namespace boost { namespace mpl {
 
@@ -64,21 +57,11 @@ namespace boost { namespace mpl {
     BOOST_MPL_PP_PARAMS(n, param) \
     /**/
 
-#   if !defined(BOOST_MPL_CFG_NO_APPLY_TEMPLATE)
-
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 // forward declaration
 template<
       typename F, AUX778076_APPLY_DEF_PARAMS(typename T, na)
     >
 struct apply;
-#else
-namespace aux {
-template< BOOST_AUX_NTTP_DECL(int, arity_) > struct apply_chooser;
-}
-#endif
-
-#   endif // BOOST_MPL_CFG_NO_APPLY_TEMPLATE
 
 #define BOOST_PP_ITERATION_PARAMS_1 \
     (3,(0, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <boost/mpl/apply_fwd.hpp>))

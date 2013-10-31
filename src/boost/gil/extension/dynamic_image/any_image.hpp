@@ -29,6 +29,11 @@
 //#pragma warning(disable : 4244)     // conversion from 'std::ptrdiff_t' to 'int', possible loss of data. even if we static-assert the two types are the same (on visual studio 8)
 //#endif
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) 
+#pragma warning(push) 
+#pragma warning(disable:4512) //assignment operator could not be generated 
+#endif
+
 namespace boost { namespace gil {
 
 namespace detail {
@@ -84,9 +89,11 @@ public:
     template <typename T> explicit any_image(const T& obj)               : parent_t(obj) {}
     template <typename T> explicit any_image(T& obj, bool do_swap)       : parent_t(obj,do_swap) {}
     any_image(const any_image& v)                                        : parent_t((const parent_t&)v)    {}
+    template <typename Types> any_image(const any_image<Types>& v)       : parent_t((const variant<Types>&)v)    {}
 
-    template <typename T> any_image& operator=(const T& obj)             { parent_t::operator=(obj); return *this; }
-    any_image&                       operator=(const any_image& v)       { parent_t::operator=((const parent_t&)v); return *this;}
+    template <typename T> any_image& operator=(const T& obj)                  { parent_t::operator=(obj); return *this; }
+    any_image&                       operator=(const any_image& v)            { parent_t::operator=((const parent_t&)v); return *this;}
+    template <typename Types> any_image& operator=(const any_image<Types>& v) { parent_t::operator=((const variant<Types>&)v); return *this;}
 
     void recreate(const point_t& dims, unsigned alignment=1)               { apply_operation(*this,detail::recreate_image_fnobj(dims,alignment)); }
     void recreate(x_coord_t width, y_coord_t height, unsigned alignment=1) { recreate(point2<std::ptrdiff_t>(width,height),alignment); }
@@ -104,19 +111,23 @@ public:
 /// \ingroup ImageModel
 
 /// \brief Returns the non-constant-pixel view of any image. The returned view is any view.
-template <typename Types>  GIL_FORCEINLINE // Models ImageVectorConcept
+template <typename Types>  BOOST_FORCEINLINE // Models ImageVectorConcept
 typename any_image<Types>::view_t view(any_image<Types>& anyImage) { 
     return apply_operation(anyImage, detail::any_image_get_view<typename any_image<Types>::view_t>());
 }
 
 /// \brief Returns the constant-pixel view of any image. The returned view is any view.
-template <typename Types> GIL_FORCEINLINE // Models ImageVectorConcept
+template <typename Types> BOOST_FORCEINLINE // Models ImageVectorConcept
 typename any_image<Types>::const_view_t const_view(const any_image<Types>& anyImage) { 
     return apply_operation(anyImage, detail::any_image_get_const_view<typename any_image<Types>::const_view_t>());
 }
 ///@}
 
 } }  // namespace boost::gil
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) 
+#pragma warning(pop) 
+#endif 
 
 //#ifdef _MSC_VER
 //#pragma warning(pop)

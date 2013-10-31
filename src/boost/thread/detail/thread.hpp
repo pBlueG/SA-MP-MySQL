@@ -4,7 +4,7 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 // (C) Copyright 2007-2010 Anthony Williams
-// (C) Copyright 20011-2012 Vicente J. Botet Escriba
+// (C) Copyright 2011-2012 Vicente J. Botet Escriba
 
 #include <boost/thread/detail/config.hpp>
 
@@ -334,7 +334,7 @@ namespace boost
             start_thread(attrs);
         }
 #endif
-        thread(BOOST_THREAD_RV_REF(thread) x)
+        thread(BOOST_THREAD_RV_REF(thread) x) BOOST_NOEXCEPT
         {
             thread_info=BOOST_THREAD_RV(x).thread_info;
             BOOST_THREAD_RV(x).thread_info.reset();
@@ -476,8 +476,13 @@ namespace boost
         {
           using namespace chrono;
           system_clock::time_point     s_now = system_clock::now();
-          typename Clock::time_point  c_now = Clock::now();
-          return try_join_until(s_now + ceil<nanoseconds>(t - c_now));
+          bool joined= false;
+          do {
+            typename Clock::duration   d = ceil<nanoseconds>(t-Clock::now());
+            if (d <= Clock::duration::zero()) return false; // in case the Clock::time_point t is already reached
+            joined = try_join_until(s_now + d);
+          } while (! joined);
+          return true;
         }
         template <class Duration>
         bool try_join_until(const chrono::time_point<chrono::system_clock, Duration>& t)
@@ -541,6 +546,7 @@ namespace boost
         void detach();
 
         static unsigned hardware_concurrency() BOOST_NOEXCEPT;
+        static unsigned physical_concurrency() BOOST_NOEXCEPT;
 
 #define BOOST_THREAD_DEFINES_THREAD_NATIVE_HANDLE
         typedef detail::thread_data_base::native_handle_type native_handle_type;
@@ -821,6 +827,19 @@ namespace boost
         };
 
         void BOOST_THREAD_DECL add_thread_exit_function(thread_exit_function_base*);
+        struct shared_state_base;
+#if defined(BOOST_THREAD_PLATFORM_WIN32)
+        inline void make_ready_at_thread_exit(shared_ptr<shared_state_base> as)
+        {
+          detail::thread_data_base* const current_thread_data(detail::get_current_thread_data());
+          if(current_thread_data)
+          {
+            current_thread_data->make_ready_at_thread_exit(as);
+          }
+        }
+#else
+        void BOOST_THREAD_DECL make_ready_at_thread_exit(shared_ptr<shared_state_base> as);
+#endif
     }
 
     namespace this_thread

@@ -97,14 +97,6 @@ namespace detail
       >
   {};
 
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-  template <>
-  struct old_category_to_traversal<int>
-  {
-      typedef int type;
-  };
-# endif
-
   template <class Traversal>
   struct pure_traversal_tag
     : mpl::eval_if<
@@ -131,14 +123,6 @@ namespace detail
   {
   };
   
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-  template <>
-  struct pure_traversal_tag<int>
-  {
-      typedef int type;
-  };
-# endif
-
 } // namespace detail
 
 

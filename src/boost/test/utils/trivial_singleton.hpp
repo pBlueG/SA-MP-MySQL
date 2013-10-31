@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 85187 $
 //
 //  Description : simple helpers for creating cusom output manipulators
 // ***************************************************************************
@@ -15,17 +15,16 @@
 #ifndef BOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER
 #define BOOST_TEST_TRIVIAL_SIGNLETON_HPP_020505GER
 
+// Boost.Test
 #include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
 
-#include <boost/noncopyable.hpp>
-
+// Boost
 #include <boost/test/detail/suppress_warnings.hpp>
 
 //____________________________________________________________________________//
 
 namespace boost {
-
 namespace unit_test {
 
 // ************************************************************************** //
@@ -33,15 +32,19 @@ namespace unit_test {
 // ************************************************************************** //
 
 template<typename Derived>
-class singleton : private boost::noncopyable {
+class singleton {
 public:
-    static Derived& instance() { static Derived the_inst; return the_inst; }    
+    static Derived& instance() { static Derived the_inst; return the_inst; }
+
+    BOOST_DELETED_FUNCTION(singleton(singleton const&))
+    BOOST_DELETED_FUNCTION(singleton& operator=(singleton const&))
+
 protected:
-    singleton()  {}
-    ~singleton() {}
+    BOOST_DEFAULTED_FUNCTION(singleton(), {})
+    BOOST_DEFAULTED_FUNCTION(~singleton(), {})
 };
 
-} // namespace unit_test
+//____________________________________________________________________________//
 
 #define BOOST_TEST_SINGLETON_CONS( type )       \
 friend class boost::unit_test::singleton<type>; \
@@ -65,9 +68,11 @@ namespace { BOOST_JOIN( inst, _t)& inst = BOOST_JOIN( inst, _t)::instance(); }
 
 #endif
 
+//____________________________________________________________________________//
+
+} // namespace unit_test
 } // namespace boost
 
-//____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
 

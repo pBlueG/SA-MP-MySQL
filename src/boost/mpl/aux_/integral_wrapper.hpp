@@ -7,15 +7,14 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: integral_wrapper.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: integral_wrapper.hpp 85961 2013-09-26 14:10:37Z skelly $
+// $Date: 2013-09-26 16:10:37 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85961 $
 
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION!
 
 #include <boost/mpl/integral_c_tag.hpp>
 #include <boost/mpl/aux_/static_cast.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
 #include <boost/mpl/aux_/config/static_constant.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
 
@@ -26,7 +25,7 @@
 #endif
 
 #if !defined(AUX_WRAPPER_PARAMS)
-#   define AUX_WRAPPER_PARAMS(N) BOOST_MPL_AUX_NTTP_DECL(AUX_WRAPPER_VALUE_TYPE, N)
+#   define AUX_WRAPPER_PARAMS(N) AUX_WRAPPER_VALUE_TYPE N
 #endif
 
 #if !defined(AUX_WRAPPER_INST)

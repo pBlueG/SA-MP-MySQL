@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland
- * $Date: 2008-02-27 12:00:24 -0800 (Wed, 27 Feb 2008) $
+ * $Date: 2013-09-30 02:18:55 +0200 (Mo, 30. Sep 2013) $
  */
 
 // This file configures whether the library will support locales and hence
@@ -21,7 +21,6 @@
 
 //This file basically becomes a noop if locales are not properly supported
 #if (defined(BOOST_NO_STD_LOCALE)  \
- || (BOOST_WORKAROUND( BOOST_MSVC, < 1300)) \
  || (BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT( 0x581 )) ) )
 #define BOOST_DATE_TIME_NO_LOCALE
 #endif

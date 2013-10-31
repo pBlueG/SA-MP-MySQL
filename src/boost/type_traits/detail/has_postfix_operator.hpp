@@ -22,7 +22,7 @@
 #include <boost/type_traits/detail/bool_trait_def.hpp>
 
 // avoid warnings
-#if defined(__GNUC__) && ((__GNUC__==3 && __GNUC_MINOR__>=1) || (__GNUC__>3))
+#if defined(__GNUC__)
 #   pragma GCC system_header
 #elif defined(BOOST_MSVC)
 #   pragma warning ( push )

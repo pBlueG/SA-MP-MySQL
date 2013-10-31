@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: equal.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: equal.hpp 85945 2013-09-26 09:46:46Z skelly $
+// $Date: 2013-09-26 11:46:46 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85945 $
 
 #include <boost/mpl/aux_/iter_fold_if_impl.hpp>
 #include <boost/mpl/aux_/iter_apply.hpp>
@@ -28,7 +28,6 @@
 #include <boost/mpl/void.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
-#include <boost/mpl/aux_/msvc_eti_base.hpp>
 
 #include <boost/type_traits/is_same.hpp>
 
@@ -98,9 +97,7 @@ template<
     , typename Predicate = is_same<_,_>
     >
 struct equal
-    : aux::msvc_eti_base< 
-          typename aux::equal_impl<Sequence1,Sequence2,Predicate>::type
-        >::type
+    : aux::equal_impl<Sequence1,Sequence2,Predicate>::type
 {
     BOOST_MPL_AUX_LAMBDA_SUPPORT(2,equal,(Sequence1,Sequence2))
 };

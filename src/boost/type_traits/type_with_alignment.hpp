@@ -69,35 +69,6 @@ typedef int (alignment_dummy::*member_function_ptr)();
 // This template gets instantiated a lot, so use partial
 // specialization when available to reduce the compiler burden.
 //
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-template <bool found = true>
-struct lower_alignment_helper_impl
-{
-    template <std::size_t, class>
-    struct apply
-    {
-        typedef char type;
-        enum { value = true };
-    };
-};
-
-template <>
-struct lower_alignment_helper_impl<false>
-{
-    template <std::size_t target, class TestType>
-    struct apply
-      : public mpl::if_c<(alignment_of<TestType>::value == target), TestType, char>
-    {
-        enum { value = (alignment_of<TestType>::value == target) };
-    };
-};
-
-template <bool found, std::size_t target, class TestType>
-struct lower_alignment_helper
-  : public lower_alignment_helper_impl<found>::template apply<target,TestType>
-{
-};
-#else
 template <bool found, std::size_t target, class TestType>
 struct lower_alignment_helper
 {
@@ -111,7 +82,6 @@ struct lower_alignment_helper<false,target,TestType>
     enum { value = (alignment_of<TestType>::value == target) };
     typedef typename mpl::if_c<value, TestType, char>::type type;
 };
-#endif
 
 #define BOOST_TT_CHOOSE_MIN_ALIGNMENT(R,P,I,T)                                  \
         typename lower_alignment_helper<                                        \
@@ -166,26 +136,14 @@ struct is_aligned
         );
 };
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::max_align,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::lower_alignment<1> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::lower_alignment<2> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::lower_alignment<4> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::lower_alignment<8> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::lower_alignment<10> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::lower_alignment<16> ,true)
-BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::detail::lower_alignment<32> ,true)
-#endif
 
 } // namespace detail
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template<std::size_t Align>
 struct is_pod< ::boost::detail::lower_alignment<Align> >
 {
         BOOST_STATIC_CONSTANT(std::size_t, value = true);
 };
-#endif
 
 // This alignment method originally due to Brian Parker, implemented by David
 // Abrahams, and then ported here by Doug Gregor.
@@ -248,7 +206,7 @@ BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a64,true)
 BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a128,true)
 }
 #endif
-#if (defined(BOOST_MSVC) || (defined(BOOST_INTEL) && defined(_MSC_VER))) && _MSC_VER >= 1300
+#if defined(BOOST_MSVC) || (defined(BOOST_INTEL) && defined(_MSC_VER))
 //
 // MSVC supports types which have alignments greater than the normal
 // maximum: these are used for example in the types __m64 and __m128

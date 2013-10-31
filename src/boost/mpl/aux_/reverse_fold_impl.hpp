@@ -10,17 +10,16 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: reverse_fold_impl.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: reverse_fold_impl.hpp 86249 2013-10-11 23:22:36Z skelly $
+// $Date: 2013-10-12 01:22:36 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86249 $
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/next_prior.hpp>
 #   include <boost/mpl/deref.hpp>
 #   include <boost/mpl/apply.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
-#   if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    || defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
+#   if defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
 #       include <boost/mpl/if.hpp>
 #       include <boost/type_traits/is_same.hpp>
 #   endif

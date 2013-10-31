@@ -14,11 +14,10 @@
 #include <map>
 
 #include <boost/array.hpp>
+#include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
-
-#include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -65,6 +64,12 @@
 namespace boost { namespace geometry
 {
 
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)  
+#endif
+    
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace get_turns
@@ -138,6 +143,11 @@ class get_turns_in_sections
         // About first condition: will be optimized by compiler (static)
         // It checks if it is areal (box,ring,(multi)polygon
         int const n = int(section.range_count);
+
+        boost::ignore_unused_variable_warning(n);
+        boost::ignore_unused_variable_warning(index1);
+        boost::ignore_unused_variable_warning(index2);
+
         return boost::is_same
                     <
                         typename tag_cast
@@ -162,6 +172,8 @@ public :
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
+        boost::ignore_unused_variable_warning(interrupt_policy);
+
         cview_type1 cview1(range_by_section(geometry1, sec1));
         cview_type2 cview2(range_by_section(geometry2, sec2));
         view_type1 view1(cview1);
@@ -244,7 +256,6 @@ public :
                     advance_to_non_duplicate_next(nd_next2, it2, sec2);
 
                     typedef typename boost::range_value<Turns>::type turn_info;
-                    typedef typename turn_info::point_type ip;
 
                     turn_info ti;
                     ti.operations[0].seg_id = segment_identifier(source_id1,
@@ -599,6 +610,8 @@ private:
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
+        boost::ignore_unused_variable_warning(interrupt_policy);
+
         // Depending on code some relations can be left out
 
         typedef typename boost::range_value<Turns>::type turn_info;
@@ -824,13 +837,13 @@ inline void get_turns(Geometry1 const& geometry1,
 {
     concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
-    typedef typename strategy_intersection
-        <
-            typename cs_tag<Geometry1>::type,
-            Geometry1,
-            Geometry2,
-            typename boost::range_value<Turns>::type
-        >::segment_intersection_strategy_type segment_intersection_strategy_type;
+    //typedef typename strategy_intersection
+    //    <
+    //        typename cs_tag<Geometry1>::type,
+    //        Geometry1,
+    //        Geometry2,
+    //        typename boost::range_value<Turns>::type
+    //    >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     typedef detail::overlay::get_turn_info
         <
@@ -867,6 +880,9 @@ inline void get_turns(Geometry1 const& geometry1,
             turns, interrupt_policy);
 }
 
+#if defined(_MSC_VER)
+#pragma warning(pop)  
+#endif
 
 }} // namespace boost::geometry
 

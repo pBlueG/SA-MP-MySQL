@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
+ * $Date: 2008-11-01 11:34:04 +0100 (Sa, 01. Nov 2008) $
  */
 
 /*! @file c_local_time_adjustor.hpp

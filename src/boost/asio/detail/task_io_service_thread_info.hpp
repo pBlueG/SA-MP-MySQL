@@ -2,7 +2,7 @@
 // detail/task_io_service_thread_info.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -17,7 +17,6 @@
 
 #include <boost/asio/detail/event.hpp>
 #include <boost/asio/detail/op_queue.hpp>
-#include <boost/asio/detail/task_io_service_fwd.hpp>
 #include <boost/asio/detail/thread_info_base.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
@@ -25,6 +24,9 @@
 namespace boost {
 namespace asio {
 namespace detail {
+
+class task_io_service;
+class task_io_service_operation;
 
 struct task_io_service_thread_info : public thread_info_base
 {

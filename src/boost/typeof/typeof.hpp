@@ -100,17 +100,7 @@
 #       define MSVC_TYPEOF_HACK
 #   endif
 #elif defined(_MSC_VER)
-#   if (_MSC_VER <= 1300)  // 6.5, 7.0
-#       ifndef BOOST_TYPEOF_EMULATION
-#           ifndef BOOST_TYPEOF_NATIVE
-#               define BOOST_TYPEOF_NATIVE
-#           endif
-#           include <boost/typeof/msvc/typeof_impl.hpp>
-#           define MSVC_TYPEOF_HACK
-#       else
-#           error typeof emulation is not supported
-#       endif
-#   elif (_MSC_VER >= 1310)  // 7.1 ->
+#   if (_MSC_VER >= 1310)  // 7.1 ->
 #       ifndef BOOST_TYPEOF_EMULATION
 #           ifndef BOOST_TYPEOF_NATIVE
 #               ifndef _MSC_EXTENSIONS

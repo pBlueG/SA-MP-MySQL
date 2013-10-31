@@ -8,7 +8,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: shuffle_order.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: shuffle_order.hpp 81442 2012-11-20 19:44:24Z marshall $
  *
  */
 
@@ -98,7 +98,7 @@ public:
      */
     explicit shuffle_order_engine(const base_type & rng) : _rng(rng) { init(); }
 
-#ifndef BOOST_NO_RVALUE_REFERENCES
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     explicit shuffle_order_engine(base_type&& rng) : _rng(rng) { init(); }
 #endif
 

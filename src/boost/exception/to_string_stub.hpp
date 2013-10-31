@@ -101,6 +101,14 @@ boost
         {
         return exception_detail::to_string_dispatch::dispatch(x,s);
         }
+
+    template <class T,class U,class Stub>
+    inline
+    std::string
+    to_string_stub( std::pair<T,U> const & x, Stub s )
+        {
+        return std::string("(") + to_string_stub(x.first,s) + ',' + to_string_stub(x.second,s) + ')';
+        }
     }
 
 #if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)

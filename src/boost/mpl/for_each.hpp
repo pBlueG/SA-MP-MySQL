@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: for_each.hpp 55648 2009-08-18 05:16:53Z agurtovoy $
-// $Date: 2009-08-17 22:16:53 -0700 (Mon, 17 Aug 2009) $
-// $Revision: 55648 $
+// $Id: for_each.hpp 69601 2011-03-06 11:09:13Z jfalcou $
+// $Date: 2011-03-06 12:09:13 +0100 (So, 06. Mrz 2011) $
+// $Revision: 69601 $
 
 #include <boost/mpl/is_sequence.hpp>
 #include <boost/mpl/begin_end.hpp>
@@ -108,7 +108,9 @@ template<
 inline
 void for_each(F f, Sequence* = 0)
 {
-    for_each<Sequence, identity<> >(f);
+  // jfalcou: fully qualifying this call so it doesnt clash with phoenix::for_each
+  // ons ome compilers -- done on 02/28/2011
+  boost::mpl::for_each<Sequence, identity<> >(f);
 }
 
 }}

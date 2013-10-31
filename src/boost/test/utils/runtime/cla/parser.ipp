@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Use, modification, and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 81012 $
 //
 //  Description : implements parser - public interface for CLA parsing and accessing
 // ***************************************************************************
@@ -245,6 +245,15 @@ parser::help( out_stream& ostr )
 
         ostr << curr_param->id_2_report() << BOOST_RT_PARAM_CSTRING_LITERAL( " - " ) << curr_param->p_description << std::endl;
     }
+}
+
+//____________________________________________________________________________//
+
+BOOST_RT_PARAM_INLINE void
+parser::reset()
+{
+    BOOST_TEST_FOREACH( parameter_ptr const&, param, m_parameters )
+        param->reset();
 }
 
 //____________________________________________________________________________//

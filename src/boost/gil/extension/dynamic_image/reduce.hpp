@@ -59,7 +59,7 @@ struct mapping_vector {};
 
 template <typename SrcTypes, typename DstTypes, long K>
 struct at_c<mapping_vector<SrcTypes,DstTypes>, K> {
-    static const std::size_t value=size<DstTypes>::value - order<DstTypes, typename at_c<SrcTypes,K>::type>::type::value +1;
+    static const std::size_t value=size<DstTypes>::value - order<DstTypes, typename gil::at_c<SrcTypes,K>::type>::type::value +1;
     typedef size_t<value> type;
 };
 
@@ -147,11 +147,11 @@ struct unary_reduce : public unary_reduce_impl<Types,Op> {
         typedef typename mpl::mapping_vector<reduced_t, unique_t> indices_t;
         return gil::at_c<indices_t, unsigned short>(index);
     }
-    template <typename Bits> GIL_FORCEINLINE static typename Op::result_type applyc(const Bits& bits, std::size_t index, Op op) {
+    template <typename Bits> BOOST_FORCEINLINE static typename Op::result_type applyc(const Bits& bits, std::size_t index, Op op) {
         return apply_operation_basec<unique_t>(bits,map_index(index),op);
     }
 
-    template <typename Bits> GIL_FORCEINLINE static typename Op::result_type apply(Bits& bits, std::size_t index, Op op) {
+    template <typename Bits> BOOST_FORCEINLINE static typename Op::result_type apply(Bits& bits, std::size_t index, Op op) {
         return apply_operation_base<unique_t>(bits,map_index(index),op);
     }
 };
@@ -161,11 +161,11 @@ struct unary_reduce<Types,Op,true> : public unary_reduce_impl<Types,Op> {
     typedef typename unary_reduce_impl<Types,Op>::unique_t unique_t;
     static unsigned short inline map_index(std::size_t index) { return 0; }
 
-    template <typename Bits> GIL_FORCEINLINE static typename Op::result_type applyc(const Bits& bits, std::size_t index, Op op) {
+    template <typename Bits> BOOST_FORCEINLINE static typename Op::result_type applyc(const Bits& bits, std::size_t index, Op op) {
         return op(*gil_reinterpret_cast_c<const typename mpl::front<unique_t>::type*>(&bits));
     }
 
-    template <typename Bits> GIL_FORCEINLINE static typename Op::result_type apply(Bits& bits, std::size_t index, Op op) {
+    template <typename Bits> BOOST_FORCEINLINE static typename Op::result_type apply(Bits& bits, std::size_t index, Op op) {
         return op(*gil_reinterpret_cast<typename       mpl::front<unique_t>::type*>(&bits));
     }
 };
@@ -245,17 +245,17 @@ public:
 };
 
 template <typename Types, typename UnaryOp>
-GIL_FORCEINLINE typename UnaryOp::result_type apply_operation(variant<Types>& arg, UnaryOp op) {
+BOOST_FORCEINLINE typename UnaryOp::result_type apply_operation(variant<Types>& arg, UnaryOp op) {
     return unary_reduce<Types,UnaryOp>::template apply(arg._bits, arg._index ,op);
 }
 
 template <typename Types, typename UnaryOp>
-GIL_FORCEINLINE typename UnaryOp::result_type apply_operation(const variant<Types>& arg, UnaryOp op) {
+BOOST_FORCEINLINE typename UnaryOp::result_type apply_operation(const variant<Types>& arg, UnaryOp op) {
     return unary_reduce<Types,UnaryOp>::template applyc(arg._bits, arg._index ,op);
 }
 
 template <typename Types1, typename Types2, typename BinaryOp>
-GIL_FORCEINLINE typename BinaryOp::result_type apply_operation(const variant<Types1>& arg1, const variant<Types2>& arg2, BinaryOp op) {    
+BOOST_FORCEINLINE typename BinaryOp::result_type apply_operation(const variant<Types1>& arg1, const variant<Types2>& arg2, BinaryOp op) {    
     return binary_reduce<Types1,Types2,BinaryOp>::template apply(arg1._bits, arg1._index, arg2._bits, arg2._index, op);
 }
 

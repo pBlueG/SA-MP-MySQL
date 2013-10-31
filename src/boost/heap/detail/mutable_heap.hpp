@@ -16,7 +16,6 @@
 #include <list>
 #include <utility>
 
-#include <boost/noncopyable.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/heap/detail/ordered_adaptor_iterator.hpp>
 
@@ -91,6 +90,16 @@ public:
         handle_type(handle_type const & rhs):
             iterator(rhs.iterator)
         {}
+
+        bool operator==(handle_type const & rhs) const
+        {
+            return iterator == rhs.iterator;
+        }
+
+        bool operator!=(handle_type const & rhs) const
+        {
+            return iterator != rhs.iterator;
+        }
 
     private:
         explicit handle_type(list_iterator const & it):
@@ -356,20 +365,6 @@ public:
         list_iterator q_top = q_.top();
         q_.pop();
         objects.erase(q_top);
-    }
-
-    /**
-     * \b Effects: Merge with priority queue rhs.
-     *
-     * \b Complexity: N log(N)
-     *
-     * */
-    void merge(priority_queue_mutable_wrapper const & rhs)
-    {
-        q_.reserve(q_.size() + rhs.q_.size());
-
-        for (typename object_list::const_iterator it = rhs.objects.begin(); it != rhs.objects.end(); ++it)
-            push(it->first);
     }
 
     /**

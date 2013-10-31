@@ -10,13 +10,13 @@
 #ifndef BOOST_RANGE_DETAIL_EXTRACT_OPTIONAL_TYPE_HPP_INCLUDED
 #define BOOST_RANGE_DETAIL_EXTRACT_OPTIONAL_TYPE_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
 #include <boost/config.hpp>
 
-#ifdef BOOST_NO_PARTIAL_TEMPLATE_SPECIALIZATION
+#ifdef BOOST_NO_PARTIAL_SPECIALIZATION_IMPLICIT_DEFAULT_ARGS
 
 #define BOOST_RANGE_EXTRACT_OPTIONAL_TYPE( a_typedef )                         \
     template< typename C >                                                     \

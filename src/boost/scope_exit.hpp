@@ -222,7 +222,7 @@ extern boost::scope_exit::detail::undeclared BOOST_SCOPE_EXIT_AUX_ARGS;
 #include <boost/type_traits/is_function.hpp>
 #include <boost/utility/enable_if.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1310)
+#if defined(BOOST_MSVC)
 #   include <typeinfo>
 #endif
 
@@ -230,7 +230,7 @@ namespace boost { namespace scope_exit { namespace aux {
         namespace msvc_typeof_this {
 
 // compile-time constant code
-#if BOOST_WORKAROUND(BOOST_MSVC, >=1300) && defined(_MSC_EXTENSIONS)
+#if defined(BOOST_MSVC) && defined(_MSC_EXTENSIONS)
 
 template<int N> struct the_counter;
 
@@ -278,27 +278,7 @@ template<> struct encode_counter<0> {};
 
 #endif // compile-time constant code
 
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300) // type-of code
-
-template<typename ID>
-struct msvc_extract_type
-{
-    template<bool>
-    struct id2type_impl;
-
-    typedef id2type_impl<true> id2type;
-};
-
-template<typename T, typename ID>
-struct msvc_register_type : msvc_extract_type<ID>
-{
-    template<>
-    struct id2type_impl<true> { // VC7.0 specific bug-feature.
-        typedef T type;
-    };
-};
-
-#elif BOOST_WORKAROUND(BOOST_MSVC, >= 1400) // type-of code
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) // type-of code
 
 struct msvc_extract_type_default_param {};
 

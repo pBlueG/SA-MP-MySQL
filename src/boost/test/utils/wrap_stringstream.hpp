@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2002-2008.
+//  (C) Copyright Gennadiy Rozental 2002-2012.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 81012 $
 //
 //  Description : wraps strstream and stringstream (depends with one is present)
 //                to provide the unified interface
@@ -156,8 +156,6 @@ typedef basic_wrap_stringstream<char>       wrap_stringstream;
 typedef basic_wrap_stringstream<wchar_t>    wrap_wstringstream;
 
 }  // namespace boost
-
-//____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
 

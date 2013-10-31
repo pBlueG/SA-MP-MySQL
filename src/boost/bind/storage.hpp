@@ -3,7 +3,7 @@
 
 // MS compatible compilers support #pragma once
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -49,7 +49,7 @@ template<class A1> struct storage1
     A1 a1_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( __BORLANDC__ )
+#if !defined( __BORLANDC__ )
 
 template<int I> struct storage1< boost::arg<I> >
 {
@@ -88,7 +88,6 @@ template<class A1, class A2> struct storage2: public storage1<A1>
     A2 a2_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, int I> struct storage2< A1, boost::arg<I> >: public storage1<A1>
 {
@@ -118,7 +117,6 @@ template<class A1, int I> struct storage2< A1, boost::arg<I> (*) () >: public st
     static boost::arg<I> a2_() { return boost::arg<I>(); }
 };
 
-#endif
 
 // 3
 
@@ -137,7 +135,6 @@ template<class A1, class A2, class A3> struct storage3: public storage2< A1, A2 
     A3 a3_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, class A2, int I> struct storage3< A1, A2, boost::arg<I> >: public storage2< A1, A2 >
 {
@@ -167,7 +164,6 @@ template<class A1, class A2, int I> struct storage3< A1, A2, boost::arg<I> (*) (
     static boost::arg<I> a3_() { return boost::arg<I>(); }
 };
 
-#endif
 
 // 4
 
@@ -186,7 +182,6 @@ template<class A1, class A2, class A3, class A4> struct storage4: public storage
     A4 a4_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, class A2, class A3, int I> struct storage4< A1, A2, A3, boost::arg<I> >: public storage3< A1, A2, A3 >
 {
@@ -216,7 +211,6 @@ template<class A1, class A2, class A3, int I> struct storage4< A1, A2, A3, boost
     static boost::arg<I> a4_() { return boost::arg<I>(); }
 };
 
-#endif
 
 // 5
 
@@ -235,7 +229,6 @@ template<class A1, class A2, class A3, class A4, class A5> struct storage5: publ
     A5 a5_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, class A2, class A3, class A4, int I> struct storage5< A1, A2, A3, A4, boost::arg<I> >: public storage4< A1, A2, A3, A4 >
 {
@@ -265,7 +258,6 @@ template<class A1, class A2, class A3, class A4, int I> struct storage5< A1, A2,
     static boost::arg<I> a5_() { return boost::arg<I>(); }
 };
 
-#endif
 
 // 6
 
@@ -284,7 +276,6 @@ template<class A1, class A2, class A3, class A4, class A5, class A6> struct stor
     A6 a6_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, class A2, class A3, class A4, class A5, int I> struct storage6< A1, A2, A3, A4, A5, boost::arg<I> >: public storage5< A1, A2, A3, A4, A5 >
 {
@@ -314,7 +305,6 @@ template<class A1, class A2, class A3, class A4, class A5, int I> struct storage
     static boost::arg<I> a6_() { return boost::arg<I>(); }
 };
 
-#endif
 
 // 7
 
@@ -333,7 +323,6 @@ template<class A1, class A2, class A3, class A4, class A5, class A6, class A7> s
     A7 a7_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, class A2, class A3, class A4, class A5, class A6, int I> struct storage7< A1, A2, A3, A4, A5, A6, boost::arg<I> >: public storage6< A1, A2, A3, A4, A5, A6 >
 {
@@ -363,7 +352,6 @@ template<class A1, class A2, class A3, class A4, class A5, class A6, int I> stru
     static boost::arg<I> a7_() { return boost::arg<I>(); }
 };
 
-#endif
 
 // 8
 
@@ -382,7 +370,6 @@ template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, c
     A8 a8_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, int I> struct storage8< A1, A2, A3, A4, A5, A6, A7, boost::arg<I> >: public storage7< A1, A2, A3, A4, A5, A6, A7 >
 {
@@ -412,7 +399,6 @@ template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, i
     static boost::arg<I> a8_() { return boost::arg<I>(); }
 };
 
-#endif
 
 // 9
 
@@ -431,7 +417,6 @@ template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, c
     A9 a9_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, int I> struct storage9< A1, A2, A3, A4, A5, A6, A7, A8, boost::arg<I> >: public storage8< A1, A2, A3, A4, A5, A6, A7, A8 >
 {
@@ -461,7 +446,6 @@ template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, c
     static boost::arg<I> a9_() { return boost::arg<I>(); }
 };
 
-#endif
 
 } // namespace _bi
 

@@ -2,11 +2,11 @@
 #define DATE_TIME_TIME_HPP___
 
 /* Copyright (c) 2002,2003,2005 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
+ * $Date: 2013-09-15 12:21:59 +0200 (So, 15. Sep 2013) $
  */
 
 
@@ -22,24 +22,24 @@ namespace boost {
 namespace date_time {
 
   //! Representation of a precise moment in time, including the date.
-  /*! 
+  /*!
     This class is a skeleton for the interface of a temporal type
-    with a resolution that is higher than a day.  It is intended that 
-    this class be the base class and that the actual time 
-    class be derived using the BN pattern.  In this way, the derived 
-    class can make decisions such as 'should there be a default constructor' 
+    with a resolution that is higher than a day.  It is intended that
+    this class be the base class and that the actual time
+    class be derived using the BN pattern.  In this way, the derived
+    class can make decisions such as 'should there be a default constructor'
     and what should it set its value to, should there be optional constructors
     say allowing only an time_durations that generate a time from a clock,etc.
     So, in fact multiple time types can be created for a time_system with
     different construction policies, and all of them can perform basic
-    operations by only writing a copy constructor.  Finally, compiler 
-    errors are also shorter. 
-    
+    operations by only writing a copy constructor.  Finally, compiler
+    errors are also shorter.
+
     The real behavior of the time class is provided by the time_system
     template parameter.  This class must provide all the logic
     for addition, subtraction, as well as define all the interface
     types.
-    
+
   */
 
   template <class T, class time_system>
@@ -49,15 +49,16 @@ namespace date_time {
       > >
   {
   public:
+    typedef void _is_boost_date_time_time_point;
     typedef T time_type;
     typedef typename time_system::time_rep_type time_rep_type;
     typedef typename time_system::date_type date_type;
     typedef typename time_system::date_duration_type date_duration_type;
     typedef typename time_system::time_duration_type time_duration_type;
     //typedef typename time_system::hms_type hms_type;
-    
-    base_time(const date_type& day, 
-              const time_duration_type& td, 
+
+    base_time(const date_type& day,
+              const time_duration_type& td,
               dst_flags dst=not_dst) :
       time_(time_system::get_time_rep(day, td, dst))
     {}
@@ -75,15 +76,15 @@ namespace date_time {
     {
       return time_system::get_time_of_day(time_);
     }
-    /*! Optional bool parameter will return time zone as an offset 
-     * (ie "+07:00"). Empty string is returned for classes that do 
+    /*! Optional bool parameter will return time zone as an offset
+     * (ie "+07:00"). Empty string is returned for classes that do
      * not use a time_zone */
     std::string zone_name(bool /*as_offset*/=false) const
     {
       return time_system::zone_name(time_);
     }
-    /*! Optional bool parameter will return time zone as an offset 
-     * (ie "+07:00"). Empty string is returned for classes that do 
+    /*! Optional bool parameter will return time zone as an offset
+     * (ie "+07:00"). Empty string is returned for classes that do
      * not use a time_zone */
     std::string zone_abbrev(bool /*as_offset*/=false) const
     {
@@ -103,7 +104,7 @@ namespace date_time {
     //! check to see if date is one of the infinity values
     bool is_infinity()  const
     {
-      return (is_pos_infinity() || is_neg_infinity()); 
+      return (is_pos_infinity() || is_neg_infinity());
     }
     //! check to see if date is greater than all possible dates
     bool is_pos_infinity()  const
@@ -170,12 +171,12 @@ namespace date_time {
     {
       return time_system::subtract_time_duration(time_, rhs);
     }
-    time_type operator-=(const time_duration_type& td) 
+    time_type operator-=(const time_duration_type& td)
     {
       time_ = (time_system::get_time_rep(date(), time_of_day() - td));
       return time_type(time_);
     }
-    
+
   protected:
     time_rep_type time_;
   };

@@ -7,9 +7,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: logical_op.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: logical_op.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION!
 
@@ -58,7 +58,6 @@ namespace boost { namespace mpl {
 
 namespace aux {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template< bool C_, AUX778076_PARAMS(typename T, 1) >
 struct BOOST_PP_CAT(AUX778076_OP_NAME,impl)
@@ -85,43 +84,6 @@ struct BOOST_PP_CAT(AUX778076_OP_NAME,impl)<
 {
 };
 
-#else
-
-template< bool C_ > struct BOOST_PP_CAT(AUX778076_OP_NAME,impl)
-{
-    template< AUX778076_PARAMS(typename T, 1) > struct result_
-        : BOOST_PP_CAT(AUX778076_OP_VALUE1,_)
-    {
-    };
-};
-
-template<> struct BOOST_PP_CAT(AUX778076_OP_NAME,impl)<AUX778076_OP_VALUE2>
-{
-    template< AUX778076_PARAMS(typename T, 1) > struct result_
-        : BOOST_PP_CAT(AUX778076_OP_NAME,impl)< 
-              BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
-            >::template result_< AUX778076_SHIFTED_PARAMS(T,1),BOOST_PP_CAT(AUX778076_OP_VALUE2,_) >
-    {
-    };
-
-#if BOOST_WORKAROUND(BOOST_MSVC, == 1300)
-    template<> struct result_<AUX778076_SPEC_PARAMS(BOOST_PP_CAT(AUX778076_OP_VALUE2,_))>
-        : BOOST_PP_CAT(AUX778076_OP_VALUE2,_)
-    {
-    };
-};
-#else
-};
-
-template<>
-struct BOOST_PP_CAT(AUX778076_OP_NAME,impl)<AUX778076_OP_VALUE2>
-    ::result_< AUX778076_SPEC_PARAMS(BOOST_PP_CAT(AUX778076_OP_VALUE2,_)) >
-        : BOOST_PP_CAT(AUX778076_OP_VALUE2,_)
-{
-};
-#endif // BOOST_MSVC == 1300
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace aux
 
@@ -131,16 +93,10 @@ template<
     BOOST_MPL_PP_DEF_PARAMS_TAIL(2, typename T, BOOST_PP_CAT(AUX778076_OP_VALUE2,_))
     >
 struct AUX778076_OP_NAME
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     : aux::BOOST_PP_CAT(AUX778076_OP_NAME,impl)<
           BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
         , AUX778076_SHIFTED_PARAMS(T,0)
         >
-#else
-    : aux::BOOST_PP_CAT(AUX778076_OP_NAME,impl)< 
-          BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
-        >::template result_< AUX778076_SHIFTED_PARAMS(T,0) >
-#endif
 {
     BOOST_MPL_AUX_LAMBDA_SUPPORT(
           BOOST_MPL_LIMIT_METAFUNCTION_ARITY

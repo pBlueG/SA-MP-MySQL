@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2009-06-06 04:25:55 -0700 (Sat, 06 Jun 2009) $
+ * $Date: 2013-09-25 15:52:11 +0200 (Mi, 25. Sep 2013) $
  */
 
 
@@ -62,11 +62,7 @@ namespace date_time {
 
   template<typename frac_sec_type,
            time_resolutions res,
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-           boost::int64_t resolution_adjust,
-#else
            typename frac_sec_type::int_type resolution_adjust,
-#endif
            unsigned short frac_digits,
            typename v_type = boost::int32_t >
   class time_resolution_traits {
@@ -89,12 +85,7 @@ namespace date_time {
       return frac_sec_type::is_adapted();
     }
 
-    //Would like this to be frac_sec_type, but some compilers complain
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-    BOOST_STATIC_CONSTANT(boost::int64_t, ticks_per_second = resolution_adjust);
-#else
     BOOST_STATIC_CONSTANT(fractional_seconds_type, ticks_per_second = resolution_adjust);
-#endif
 
     static time_resolutions resolution()
     {

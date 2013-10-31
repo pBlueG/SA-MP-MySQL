@@ -217,6 +217,14 @@ struct heap_base:
     }
 #endif
 
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+    template <class... Args>
+    internal_type make_node(Args && ... val)
+    {
+        return internal_type(std::forward<Args>(val)...);
+    }
+#endif
+
     static T & get_value(internal_type & val)
     {
         return val;
@@ -283,7 +291,24 @@ struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
 {
     typedef StabilityCounterType stability_counter_type;
     typedef T value_type;
-    typedef std::pair<T, stability_counter_type> internal_type;
+
+    struct internal_type
+    {
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+        template <class ...Args>
+        internal_type(stability_counter_type cnt, Args && ... args):
+            first(std::forward<Args>(args)...), second(cnt)
+        {}
+#endif
+
+        internal_type(stability_counter_type const & cnt, T const & value):
+            first(value), second(cnt)
+        {}
+
+        T first;
+        stability_counter_type second;
+    };
+
     typedef size_holder<constant_time_size, size_t> size_holder_type;
     typedef Cmp value_compare;
 
@@ -356,7 +381,7 @@ struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
         stability_counter_type count = ++counter_;
         if (counter_ == (std::numeric_limits<stability_counter_type>::max)())
             BOOST_THROW_EXCEPTION(std::runtime_error("boost::heap counter overflow"));
-        return std::make_pair(val, count);
+        return internal_type(count, val);
     }
 
 #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
@@ -366,7 +391,7 @@ struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
         stability_counter_type count = ++counter_;
         if (counter_ == (std::numeric_limits<stability_counter_type>::max)())
             BOOST_THROW_EXCEPTION(std::runtime_error("boost::heap counter overflow"));
-        return std::make_pair(std::forward<T>(args)..., count);
+        return internal_type (count, std::forward<Args>(args)...);
     }
 #endif
 
@@ -463,6 +488,16 @@ struct node_handle
     reference operator*() const
     {
         return extractor::get_value(node_->value);
+    }
+
+    bool operator==(node_handle const & rhs) const
+    {
+        return node_ == rhs.node_;
+    }
+
+    bool operator!=(node_handle const & rhs) const
+    {
+        return node_ != rhs.node_;
     }
 
     node_pointer node_;

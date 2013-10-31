@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Use, modification, and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 82718 $
 //
 //  Description : Facilities to perform exception safety tests
 // ***************************************************************************
@@ -21,23 +21,24 @@
 #if BOOST_TEST_SUPPORT_INTERACTION_TESTING
 
 #include <boost/test/detail/global_typedef.hpp>
-#include <boost/test/detail/unit_test_parameters.hpp>
+#include <boost/test/unit_test_parameters.hpp>
 
-#include <boost/test/utils/callback.hpp>
 #include <boost/test/utils/wrap_stringstream.hpp>
 #include <boost/test/utils/iterator/token_iterator.hpp>
 
-#include <boost/test/interaction_based.hpp>
-#include <boost/test/test_tools.hpp>
+#include <boost/test/interaction/interaction_based.hpp>
 #include <boost/test/unit_test_log.hpp>
 #include <boost/test/framework.hpp>
-#include <boost/test/test_observer.hpp>
+#include <boost/test/tree/observer.hpp>
 #include <boost/test/debug.hpp>
+
+#include <boost/test/test_tools.hpp> // BOOST_REQUIRE_MESSAGE
 
 #include <boost/test/detail/suppress_warnings.hpp>
 
 // Boost
 #include <boost/lexical_cast.hpp>
+#include <boost/function/function0.hpp>
 
 // STL
 #include <vector>
@@ -51,9 +52,9 @@
 
 namespace boost {
 
-using namespace ::boost::unit_test;
- 
 namespace itest {
+
+using namespace ::boost::unit_test;
 
 // ************************************************************************** //
 // **************             execution_path_point             ************** //
@@ -123,7 +124,7 @@ struct exception_safety_tester : itest::manager, test_observer {
     virtual void        freed( void* p );
 
     // test observer interface
-    virtual void        assertion_result( bool passed );
+    virtual void        assertion_result( unit_test::assertion_result ar );
     virtual int         priority() { return (std::numeric_limits<int>::max)(); } // we want this observer to run the last
 
 private:
@@ -208,7 +209,7 @@ exception_safety_tester::next_execution_path()
     // check memory usage
     if( m_execution_path.size() > 0 ) {
         bool errors_detected = m_invairant_failed || (m_memory_in_use.size() != 0);
-        framework::assertion_result( !errors_detected );
+        framework::assertion_result( errors_detected ? AR_FAILED : AR_PASSED );
 
         if( errors_detected )
             report_error();
@@ -373,9 +374,9 @@ exception_safety_tester::freed( void* p )
 //____________________________________________________________________________//
 
 void
-exception_safety_tester::assertion_result( bool passed )
+exception_safety_tester::assertion_result( unit_test::assertion_result ar )
 {
-    if( !m_internal_activity && !passed ) {
+    if( !m_internal_activity && (ar != AR_PASSED) ) {
         m_invairant_failed = true;
 
         failure_point();
@@ -509,7 +510,7 @@ exception_safety_tester::report_error()
 // ************************************************************************** //
 
 void BOOST_TEST_DECL
-exception_safety( callback0<> const& F, const_string test_name )
+exception_safety( boost::function<void ()> const& F, const_string test_name )
 {
     exception_safety_tester est( test_name );
 
@@ -525,10 +526,7 @@ exception_safety( callback0<> const& F, const_string test_name )
 //____________________________________________________________________________//
 
 }  // namespace itest
-
 } // namespace boost
-
-//____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
 

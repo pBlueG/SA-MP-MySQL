@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: multiplies.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: multiplies.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #include <boost/mpl/times.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
@@ -25,11 +25,7 @@
 
 namespace boost { namespace mpl {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 #   define AUX778076_OP_ARITY BOOST_MPL_LIMIT_METAFUNCTION_ARITY
-#else
-#   define AUX778076_OP_ARITY 2
-#endif
 
 template<
       BOOST_MPL_PP_DEFAULT_PARAMS(AUX778076_OP_ARITY, typename N, na)

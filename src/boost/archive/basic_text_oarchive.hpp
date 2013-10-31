@@ -2,7 +2,7 @@
 #define BOOST_ARCHIVE_BASIC_TEXT_OARCHIVE_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -49,13 +49,8 @@ class basic_text_oarchive :
     public detail::common_oarchive<Archive>
 {
 protected:
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) \
-|| BOOST_WORKAROUND(__BORLANDC__,BOOST_TESTED_AT(0x560))
+#if BOOST_WORKAROUND(__BORLANDC__,BOOST_TESTED_AT(0x560))
 public:
-#elif defined(BOOST_MSVC)
-    // for some inexplicable reason insertion of "class" generates compile erro
-    // on msvc 7.1
-    friend detail::interface_oarchive<Archive>;
 #else
     friend class detail::interface_oarchive<Archive>;
 #endif

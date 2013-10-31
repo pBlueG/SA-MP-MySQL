@@ -11,7 +11,7 @@
 #ifndef BOOST_IOSTREAMS_ZLIB_HPP_INCLUDED
 #define BOOST_IOSTREAMS_ZLIB_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif              
 
@@ -183,10 +183,8 @@ protected:
         {
             bool custom = zlib_allocator<Alloc>::custom;
             do_init( p, compress,
-                     #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-                         custom ? zlib_allocator<Alloc>::allocate : 0,
-                         custom ? zlib_allocator<Alloc>::deallocate : 0,
-                     #endif
+                     custom ? zlib_allocator<Alloc>::allocate : 0,
+                     custom ? zlib_allocator<Alloc>::deallocate : 0,
                      &zalloc );
         }
     void before( const char*& src_begin, const char* src_end,
@@ -202,10 +200,8 @@ public:
     int total_out() const { return total_out_; }
 private:
     void do_init( const zlib_params& p, bool compress, 
-                  #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-                      zlib::xalloc_func, 
-                      zlib::xfree_func, 
-                  #endif
+                  zlib::xalloc_func,
+                  zlib::xfree_func, 
                   void* derived );
     void*        stream_;         // Actual type: z_stream*.
     bool         calculate_crc_;

@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: if.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: if.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #include <boost/mpl/aux_/value_wknd.hpp>
 #include <boost/mpl/aux_/static_cast.hpp>
@@ -24,7 +24,6 @@
 
 namespace boost { namespace mpl {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template<
       bool C
@@ -72,61 +71,6 @@ struct if_
     BOOST_MPL_AUX_LAMBDA_SUPPORT(3,if_,(T1,T2,T3))
 };
 
-#else
-
-// no partial class template specialization
-
-namespace aux {
-
-template< bool C >
-struct if_impl
-{
-    template< typename T1, typename T2 > struct result_
-    {
-        typedef T1 type;
-    };
-};
-
-template<>
-struct if_impl<false>
-{
-    template< typename T1, typename T2 > struct result_
-    { 
-        typedef T2 type;
-    };
-};
-
-} // namespace aux
-
-template<
-      bool C_
-    , typename T1
-    , typename T2
-    >
-struct if_c
-{
-    typedef typename aux::if_impl< C_ >
-        ::template result_<T1,T2>::type type;
-};
-
-// (almost) copy & paste in order to save one more 
-// recursively nested template instantiation to user
-template<
-      typename BOOST_MPL_AUX_NA_PARAM(C_)
-    , typename BOOST_MPL_AUX_NA_PARAM(T1)
-    , typename BOOST_MPL_AUX_NA_PARAM(T2)
-    >
-struct if_
-{
-    enum { msvc_wknd_ = BOOST_MPL_AUX_MSVC_VALUE_WKND(C_)::value };
-
-    typedef typename aux::if_impl< BOOST_MPL_AUX_STATIC_CAST(bool, msvc_wknd_) >
-        ::template result_<T1,T2>::type type;
-
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(3,if_,(C_,T1,T2))
-};
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 BOOST_MPL_AUX_NA_SPEC(3, if_)
 

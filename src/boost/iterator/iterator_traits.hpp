@@ -10,18 +10,8 @@
 
 namespace boost { 
 
-// Unfortunately, g++ 2.95.x chokes when we define a class template
-// iterator_category which has the same name as its
-// std::iterator_category() function, probably due in part to the
-// "std:: is visible globally" hack it uses.  Use
-// BOOST_ITERATOR_CATEGORY to write code that's portable to older
-// GCCs.
-
-# if BOOST_WORKAROUND(__GNUC__, <= 2)
-#  define BOOST_ITERATOR_CATEGORY iterator_category_
-# else
-#  define BOOST_ITERATOR_CATEGORY iterator_category
-# endif
+// Obsolete. Remove.
+#define BOOST_ITERATOR_CATEGORY iterator_category
 
 
 template <class Iterator>
@@ -50,42 +40,10 @@ struct iterator_difference
 };
 
 template <class Iterator>
-struct BOOST_ITERATOR_CATEGORY
+struct iterator_category
 {
     typedef typename boost::detail::iterator_traits<Iterator>::iterator_category type;
 };
-
-# if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-template <>
-struct iterator_value<int>
-{
-    typedef void type;
-};
-  
-template <>
-struct iterator_reference<int>
-{
-    typedef void type;
-};
-
-template <>
-struct iterator_pointer<int>
-{
-    typedef void type;
-};
-  
-template <>
-struct iterator_difference<int>
-{
-    typedef void type;
-};
-  
-template <>
-struct BOOST_ITERATOR_CATEGORY<int>
-{
-    typedef void type;
-};
-# endif
 
 } // namespace boost::iterator
 

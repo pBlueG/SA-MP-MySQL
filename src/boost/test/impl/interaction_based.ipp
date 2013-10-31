@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Use, modification, and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 81012 $
 //
 //  Description : Facilities to perform interaction-based testing
 // ***************************************************************************
@@ -22,9 +22,8 @@
 
 // Boost.Test
 #include <boost/test/detail/config.hpp>
-#include <boost/test/utils/callback.hpp>
-#include <boost/test/interaction_based.hpp>
-#include <boost/test/mock_object.hpp>
+#include <boost/test/interaction/interaction_based.hpp>
+#include <boost/test/interaction/mock_object.hpp>
 #include <boost/test/framework.hpp>     // for setup_error
 
 #include <boost/test/detail/suppress_warnings.hpp>
@@ -36,7 +35,6 @@
 //____________________________________________________________________________//
 
 namespace boost {
-
 namespace itest { // interaction-based testing
 
 // ************************************************************************** //
@@ -78,10 +76,7 @@ manager::instance_ptr( bool reset, manager* new_ptr )
 }
     
 }  // namespace itest
-
 }  // namespace boost
-
-//____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
 

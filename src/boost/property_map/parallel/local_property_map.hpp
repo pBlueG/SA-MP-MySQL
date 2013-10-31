@@ -16,10 +16,6 @@
 #ifndef BOOST_PARALLEL_LOCAL_PROPERTY_MAP_HPP
 #define BOOST_PARALLEL_LOCAL_PROPERTY_MAP_HPP
 
-#ifndef BOOST_GRAPH_USE_MPI
-#error "Parallel BGL files should not be included unless <boost/graph/use_mpi.hpp> has been included"
-#endif
-
 #include <boost/assert.hpp>
 
 namespace boost {

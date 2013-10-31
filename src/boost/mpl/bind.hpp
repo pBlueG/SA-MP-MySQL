@@ -15,9 +15,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: bind.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: bind.hpp 86249 2013-10-11 23:22:36Z skelly $
+// $Date: 2013-10-12 01:22:36 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86249 $
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/bind_fwd.hpp>
@@ -30,9 +30,6 @@
 #   include <boost/mpl/aux_/arity_spec.hpp>
 #   include <boost/mpl/aux_/type_wrapper.hpp>
 #   include <boost/mpl/aux_/yes_no.hpp>
-#   if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-#       include <boost/type_traits/is_reference.hpp>
-#   endif 
 #endif
 
 #include <boost/mpl/aux_/config/bind.hpp>
@@ -63,7 +60,6 @@
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/config/ttp.hpp>
 #   include <boost/mpl/aux_/config/dtp.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
 
 #   include <boost/preprocessor/iterate.hpp>
 #   include <boost/preprocessor/comma_if.hpp>
@@ -119,7 +115,6 @@ namespace boost { namespace mpl {
 
 namespace aux {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template<
       typename T, AUX778076_BIND_PARAMS(typename U)
@@ -153,7 +148,7 @@ struct replace_unnamed_arg< arg<-1>,Arg >
 #   endif // BOOST_MPL_CFG_NO_UNNAMED_PLACEHOLDER_SUPPORT
 
 template<
-      BOOST_MPL_AUX_NTTP_DECL(int, N), AUX778076_BIND_PARAMS(typename U)
+      int N, AUX778076_BIND_PARAMS(typename U)
     >
 struct resolve_bind_arg< arg<N>,AUX778076_BIND_PARAMS(U) >
 {
@@ -171,123 +166,6 @@ struct resolve_bind_arg< bind<F,AUX778076_BIND_PARAMS(T)>,AUX778076_BIND_PARAMS(
 };
 #endif
 
-#else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-
-// agurt, 15/jan/02: it's not a intended to be used as a function class, and 
-// MSVC6.5 has problems with 'apply' name here (the code compiles, but doesn't
-// work), so I went with the 'result_' here, and in all other similar cases
-template< bool >
-struct resolve_arg_impl
-{
-    template< typename T, AUX778076_BIND_PARAMS(typename U) > struct result_
-    {
-        typedef T type;
-    };
-};
-
-template<> 
-struct resolve_arg_impl<true>
-{
-    template< typename T, AUX778076_BIND_PARAMS(typename U) > struct result_
-    {
-        typedef typename AUX778076_APPLY<
-              T
-            , AUX778076_BIND_PARAMS(U)
-            >::type type;
-    };
-};
-
-// for 'resolve_bind_arg'
-template< typename T > struct is_bind_template;
-
-template< 
-      typename T, AUX778076_BIND_PARAMS(typename U)
-    >
-struct resolve_bind_arg
-    : resolve_arg_impl< is_bind_template<T>::value >
-            ::template result_< T,AUX778076_BIND_PARAMS(U) >
-{
-};
-
-#   if !defined(BOOST_MPL_CFG_NO_UNNAMED_PLACEHOLDER_SUPPORT)
-
-template< typename T > 
-struct replace_unnamed_arg_impl
-{
-    template< typename Arg > struct result_
-    {
-        typedef Arg next;
-        typedef T type;
-    };
-};
-
-template<> 
-struct replace_unnamed_arg_impl< arg<-1> >
-{
-    template< typename Arg > struct result_
-    {
-        typedef typename next<Arg>::type next;
-        typedef Arg type;
-    };
-};
-
-template< typename T, typename Arg > 
-struct replace_unnamed_arg
-    : replace_unnamed_arg_impl<T>::template result_<Arg>
-{
-};
-
-#   endif // BOOST_MPL_CFG_NO_UNNAMED_PLACEHOLDER_SUPPORT
-
-// agurt, 10/mar/02: the forward declaration has to appear before any of
-// 'is_bind_helper' overloads, otherwise MSVC6.5 issues an ICE on it
-template< BOOST_MPL_AUX_NTTP_DECL(int, arity_) > struct bind_chooser;
-
-aux::no_tag is_bind_helper(...);
-template< typename T > aux::no_tag is_bind_helper(protect<T>*);
-
-// overload for "main" form
-// agurt, 15/mar/02: MSVC 6.5 fails to properly resolve the overload 
-// in case if we use 'aux::type_wrapper< bind<...> >' here, and all 
-// 'bind' instantiations form a complete type anyway
-#if !defined(BOOST_MPL_CFG_NO_BIND_TEMPLATE)
-template<
-      typename F, AUX778076_BIND_PARAMS(typename T)
-    >
-aux::yes_tag is_bind_helper(bind<F,AUX778076_BIND_PARAMS(T)>*);
-#endif
-
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) >
-aux::yes_tag is_bind_helper(arg<N>*);
-
-template< bool is_ref_ = true >
-struct is_bind_template_impl
-{
-    template< typename T > struct result_
-    {
-        BOOST_STATIC_CONSTANT(bool, value = false);
-    };
-};
-
-template<>
-struct is_bind_template_impl<false>
-{
-    template< typename T > struct result_
-    {
-        BOOST_STATIC_CONSTANT(bool, value = 
-              sizeof(aux::is_bind_helper(static_cast<T*>(0))) 
-                == sizeof(aux::yes_tag)
-            );
-    };
-};
-
-template< typename T > struct is_bind_template
-    : is_bind_template_impl< ::boost::detail::is_reference_impl<T>::value >
-        ::template result_<T>
-{
-};
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace aux
 
@@ -296,8 +174,7 @@ template< typename T > struct is_bind_template
     (3,(0, BOOST_MPL_LIMIT_METAFUNCTION_ARITY, <boost/mpl/bind.hpp>))
 #include BOOST_PP_ITERATE()
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    && !defined(BOOST_MPL_CFG_NO_TEMPLATE_TEMPLATE_PARAMETERS)
+#if !defined(BOOST_MPL_CFG_NO_TEMPLATE_TEMPLATE_PARAMETERS)
 /// if_/eval_if specializations
 #   define AUX778076_SPEC_NAME if_
 #   define BOOST_PP_ITERATION_PARAMS_1 (3,(3, 3, <boost/mpl/bind.hpp>))
@@ -309,42 +186,6 @@ template< typename T > struct is_bind_template
 #   include BOOST_PP_ITERATE()
 #endif
 #endif
-
-// real C++ version is already taken care of
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
-    && !defined(BOOST_MPL_CFG_NO_BIND_TEMPLATE)
-
-namespace aux {
-// apply_count_args
-#define AUX778076_COUNT_ARGS_PREFIX bind
-#define AUX778076_COUNT_ARGS_DEFAULT na
-#define AUX778076_COUNT_ARGS_ARITY BOOST_MPL_LIMIT_METAFUNCTION_ARITY
-#include <boost/mpl/aux_/count_args.hpp>
-}
-
-// bind
-template<
-      typename F, AUX778076_BIND_PARAMS(typename T) AUX778076_DMC_PARAM()
-    >
-struct bind
-    : aux::bind_chooser<
-          aux::bind_count_args<AUX778076_BIND_PARAMS(T)>::value
-        >::template result_< F,AUX778076_BIND_PARAMS(T) >::type
-{
-};
-
-BOOST_MPL_AUX_ARITY_SPEC(
-      BOOST_PP_INC(BOOST_MPL_LIMIT_METAFUNCTION_ARITY)
-    , bind
-    )
-
-BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(
-      BOOST_PP_INC(BOOST_MPL_LIMIT_METAFUNCTION_ARITY)
-    , bind
-    )
-
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #   undef AUX778076_BIND_NESTED_DEFAULT_PARAMS
 #   undef AUX778076_BIND_N_SPEC_PARAMS
@@ -454,7 +295,6 @@ struct BOOST_PP_CAT(bind,i_)
 
 namespace aux {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template<
       typename F AUX778076_BIND_N_PARAMS(i_, typename T), AUX778076_BIND_PARAMS(typename U)
@@ -467,15 +307,6 @@ struct resolve_bind_arg<
     typedef typename AUX778076_APPLY<f_, AUX778076_BIND_PARAMS(U)>::type type;
 };
 
-#else
-
-template<
-      typename F AUX778076_BIND_N_PARAMS(i_, typename T)
-    >
-aux::yes_tag
-is_bind_helper(BOOST_PP_CAT(bind,i_)<F AUX778076_BIND_N_PARAMS(i_,T)>*);
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace aux
 
@@ -483,7 +314,6 @@ BOOST_MPL_AUX_ARITY_SPEC(BOOST_PP_INC(i_), BOOST_PP_CAT(bind,i_))
 BOOST_MPL_AUX_TEMPLATE_ARITY_SPEC(BOOST_PP_INC(i_), BOOST_PP_CAT(bind,i_))
 
 #   if !defined(BOOST_MPL_CFG_NO_BIND_TEMPLATE)
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     
 #if i_ == BOOST_MPL_LIMIT_METAFUNCTION_ARITY
 /// primary template (not a specialization!)
@@ -504,25 +334,6 @@ struct bind< F AUX778076_BIND_N_SPEC_PARAMS(i_, T, na) >
 };
 #endif
 
-#   else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-
-namespace aux {
-
-template<>
-struct bind_chooser<i_>
-{
-    template<
-          typename F, AUX778076_BIND_PARAMS(typename T)
-        >
-    struct result_
-    {
-        typedef BOOST_PP_CAT(bind,i_)< F AUX778076_BIND_N_PARAMS(i_,T) > type;
-    };
-};
-
-} // namespace aux
-
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #   endif // BOOST_MPL_CFG_NO_BIND_TEMPLATE
 
 #endif // AUX778076_SPEC_NAME

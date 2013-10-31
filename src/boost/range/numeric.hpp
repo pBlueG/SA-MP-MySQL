@@ -19,7 +19,7 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#if defined(_MSC_VER) && _MSC_VER >= 1000
+#if defined(_MSC_VER)
     #pragma once
 #endif
 

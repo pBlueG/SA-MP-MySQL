@@ -25,22 +25,6 @@
 
 #define GIL_VERSION "2.1.2"
 
-#ifdef _DEBUG
-#    define GIL_FORCEINLINE inline
-#else
-#ifdef NDEBUG
-#if   defined(_MSC_VER)
-#    define GIL_FORCEINLINE __forceinline
-#elif defined(__GNUC__) && __GNUC__ > 3
-#    define GIL_FORCEINLINE inline __attribute__ ((always_inline))
-#else
-#    define GIL_FORCEINLINE inline
-#endif
-#else
-#    define GIL_FORCEINLINE inline
-#endif
-#endif
-
 // Enable GIL_NONWORD_POINTER_ALIGNMENT_SUPPORTED if your platform supports dereferencing on non-word memory boundary.
 // Enabling the flag results in performance improvement
 #if !defined(__hpux) && !defined(sun) && !defined(__sun) && !defined(__osf__)

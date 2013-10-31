@@ -12,7 +12,7 @@
 #ifndef BOOST_PTR_CONTAINER_PTR_UNORDERED_MAP_HPP
 #define BOOST_PTR_CONTAINER_PTR_UNORDERED_MAP_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -29,13 +29,16 @@ namespace boost
         class Hash           = boost::hash<Key>,
         class Pred           = std::equal_to<Key>,
         class CloneAllocator = heap_clone_allocator,
-        class Allocator      = std::allocator< std::pair<const Key,void*> >
+        class Allocator      = std::allocator< std::pair<const Key,
+                           typename ptr_container_detail::void_ptr<T>::type> >
     >
     class ptr_unordered_map : 
-        public ptr_map_adapter<T,boost::unordered_map<Key,void*,Hash,Pred,Allocator>,
+        public ptr_map_adapter<T,boost::unordered_map<Key,
+            typename ptr_container_detail::void_ptr<T>::type,Hash,Pred,Allocator>,
                                CloneAllocator,false>
     {
-        typedef ptr_map_adapter<T,boost::unordered_map<Key,void*,Hash,Pred,Allocator>,
+        typedef ptr_map_adapter<T,boost::unordered_map<Key,
+            typename ptr_container_detail::void_ptr<T>::type,Hash,Pred,Allocator>,
                                CloneAllocator,false>
             base_type;
 

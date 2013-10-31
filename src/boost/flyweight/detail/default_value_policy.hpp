@@ -9,7 +9,7 @@
 #ifndef BOOST_FLYWEIGHT_DETAIL_DEFAULT_VALUE_POLICY_HPP
 #define BOOST_FLYWEIGHT_DETAIL_DEFAULT_VALUE_POLICY_HPP
 
-#if defined(_MSC_VER)&&(_MSC_VER>=1200)
+#if defined(_MSC_VER)
 #pragma once
 #endif
 

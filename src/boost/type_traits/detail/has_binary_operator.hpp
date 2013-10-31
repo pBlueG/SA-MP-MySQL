@@ -31,12 +31,12 @@
 // msvc:
 //    warning C4018: '<' : signed/unsigned mismatch
 //    warning C4244: '+=' : conversion from 'double' to 'char', possible loss of data
-//    warning C4547: '*' : operator before comma has no effect; expected operator with side-effect
+//    warning C4547: '*' : operator before comma has no effect; expected operator with side-effect
 //    warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
 //    warning C4804: '<' : unsafe use of type 'bool' in operation
 //    warning C4805: '==' : unsafe mix of type 'bool' and type 'char' in operation
 // cannot find another implementation -> declared as system header to suppress these warnings.
-#if defined(__GNUC__) && ((__GNUC__==3 && __GNUC_MINOR__>=1) || (__GNUC__>3))
+#if defined(__GNUC__)
 #   pragma GCC system_header
 #elif defined(BOOST_MSVC)
 #   pragma warning ( push )

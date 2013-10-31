@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_MEM_ALGO_RBTREE_BEST_FIT_HPP
 #define BOOST_INTERPROCESS_MEM_ALGO_RBTREE_BEST_FIT_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -31,11 +31,12 @@
 #include <boost/interprocess/detail/math_functions.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/type_with_alignment.hpp>
+#include <boost/type_traits/make_unsigned.hpp>
 #include <boost/intrusive/pointer_traits.hpp>
 #include <boost/assert.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 #include <algorithm>
 #include <utility>
 #include <climits>
@@ -848,7 +849,7 @@ void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
             if(!priv_expand(reuse_ptr, received_size, received_size, received_size2)){
                BOOST_ASSERT(0);
             }
-            BOOST_ASSERT(received_size = received_size2);
+            BOOST_ASSERT(received_size == received_size2);
          }
          //We need a minimum size to split the previous one
          if(prev_block->m_size >= (needs_backwards_aligned/Alignment + BlockCtrlUnits)){

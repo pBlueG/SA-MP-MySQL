@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: binomial_distribution.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: binomial_distribution.hpp 70017 2011-03-16 03:24:42Z steven_watanabe $
  */
 
 #ifndef BOOST_RANDOM_BINOMIAL_DISTRIBUTION_HPP_INCLUDED

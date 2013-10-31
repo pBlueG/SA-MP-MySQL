@@ -11,7 +11,7 @@
 #define BOOST_XPRESSIVE_DETAIL_DYNAMIC_PARSER_HPP_EAN_10_04_2005
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 # pragma warning(push)
 # pragma warning(disable : 4127) // conditional expression is constant
@@ -353,7 +353,7 @@ inline sequence<BidiIter> make_independent_end_xpression(bool pure)
 
 }}} // namespace boost::xpressive::detail
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma warning(pop)
 #endif
 

@@ -14,9 +14,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: template_arity.hpp 61584 2010-04-26 18:48:26Z agurtovoy $
-// $Date: 2010-04-26 11:48:26 -0700 (Mon, 26 Apr 2010) $
-// $Revision: 61584 $
+// $Id: template_arity.hpp 85961 2013-09-26 14:10:37Z skelly $
+// $Date: 2013-09-26 16:10:37 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85961 $
 
 #include <boost/mpl/aux_/config/ttp.hpp>
 #include <boost/mpl/aux_/config/lambda.hpp>
@@ -51,7 +51,6 @@
 #   include <boost/mpl/aux_/preprocessor/range.hpp>
 #   include <boost/mpl/aux_/preprocessor/repeat.hpp>
 #   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
 
 #   include <boost/preprocessor/seq/fold_left.hpp>
 #   include <boost/preprocessor/comma_if.hpp>
@@ -63,7 +62,7 @@
 
 namespace boost { namespace mpl { namespace aux {
 
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) > struct arity_tag
+template< int N > struct arity_tag
 {
     typedef char (&type)[N + 1];
 };
@@ -73,7 +72,7 @@ template< BOOST_MPL_AUX_NTTP_DECL(int, N) > struct arity_tag
 /**/
 
 template<
-      BOOST_MPL_PP_PARAMS(AUX778076_ARITY, BOOST_MPL_AUX_NTTP_DECL(int, C))
+      BOOST_MPL_PP_PARAMS(AUX778076_ARITY, int C)
     >
 struct max_arity
 {
@@ -94,7 +93,7 @@ arity_tag<0>::type arity_helper(...);
 #   define BOOST_PP_FILENAME_1 <boost/mpl/aux_/template_arity.hpp>
 #   include BOOST_PP_ITERATE()
 
-template< typename F, BOOST_MPL_AUX_NTTP_DECL(int, N) >
+template< typename F, int N >
 struct template_arity_impl
 {
     BOOST_STATIC_CONSTANT(int, value = 
@@ -129,7 +128,6 @@ struct template_arity
 #   endif // BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING
 #   else // BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT
 
-#   include <boost/mpl/aux_/config/eti.hpp>
 
 namespace boost { namespace mpl { namespace aux {
 
@@ -158,13 +156,6 @@ struct template_arity
 {
 };
 
-#if defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
-template<>
-struct template_arity<int>
-    : mpl::int_<-1>
-{
-};
-#endif
 
 }}}
 

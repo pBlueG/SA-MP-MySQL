@@ -62,10 +62,7 @@ basic_text_iarchive<Archive>::init(void){
     #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))
     this->set_library_version(input_library_version);
     #else
-    #if ! BOOST_WORKAROUND(BOOST_MSVC, <= 1200)
-    detail::
-    #endif
-    basic_iarchive::set_library_version(input_library_version);
+    detail::basic_iarchive::set_library_version(input_library_version);
     #endif
 
     // extra little .t is to get around borland quirk

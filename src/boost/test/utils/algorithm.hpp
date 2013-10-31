@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2004-2008.
+//  (C) Copyright Gennadiy Rozental 2004-2012.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 81107 $
 //
 //  Description : addition to STL algorithms
 // ***************************************************************************
@@ -15,6 +15,7 @@
 #ifndef BOOST_ALGORITHM_HPP_062304GER
 #define BOOST_ALGORITHM_HPP_062304GER
 
+// STL
 #include <utility>
 #include <algorithm> // std::find
 #include <functional> // std::bind1st
@@ -216,10 +217,7 @@ find_last_not_of( BidirectionalIterator1 first1, BidirectionalIterator1 last1,
 //____________________________________________________________________________//
 
 } // namespace unit_test
-
 } // namespace boost
-
-//____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
 

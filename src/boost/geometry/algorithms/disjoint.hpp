@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -19,6 +20,9 @@
 
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/static_assert.hpp>
 
@@ -87,13 +91,13 @@ struct assign_disjoint_policy
 
     // We don't assign extra info:
     template 
-	<
-		typename Info,
-		typename Point1,
-		typename Point2,
-		typename IntersectionInfo,
-		typename DirInfo
-	>
+    <
+        typename Info,
+        typename Point1,
+        typename Point2,
+        typename IntersectionInfo,
+        typename DirInfo
+    >
     static inline void apply(Info& , Point1 const& , Point2 const&,
                 IntersectionInfo const&, DirInfo const&)
     {}
@@ -172,6 +176,51 @@ struct general_areal
     }
 };
 
+template <typename Segment, typename Box>
+struct disjoint_segment_box
+{
+    static inline bool apply(Segment const& segment, Box const& box)
+    {
+        typedef typename point_type<Segment>::type point_type;
+        point_type p0, p1;
+        geometry::detail::assign_point_from_index<0>(segment, p0);
+        geometry::detail::assign_point_from_index<1>(segment, p1);
+
+        return ! detail::disjoint::segment_box_intersection<point_type, Box>::apply(p0, p1, box);
+    }
+};
+
+template <typename Linestring, typename Box>
+struct disjoint_linestring_box
+{
+    static inline bool apply(Linestring const& linestring, Box const& box)
+    {
+        typedef typename ::boost::range_value<Linestring>::type point_type;
+        typedef typename ::boost::range_const_iterator<Linestring>::type const_iterator;        
+        typedef typename ::boost::range_size<Linestring>::type size_type;
+
+        const size_type count = ::boost::size(linestring);
+
+        if ( count == 0 )
+            return false;
+        else if ( count == 1 )
+            return detail::disjoint::point_box<point_type, Box, 0, dimension<point_type>::value>
+                   ::apply(*::boost::begin(linestring), box);
+        else
+        {
+            const_iterator it0 = ::boost::begin(linestring);
+            const_iterator it1 = ::boost::begin(linestring) + 1;
+            const_iterator last = ::boost::end(linestring);
+
+            for ( ; it1 != last ; ++it0, ++it1 )
+            {
+                if ( detail::disjoint::segment_box_intersection<point_type, Box>::apply(*it0, *it1, box) )
+                    return false;
+            }
+            return true;
+        }
+    }
+};
 
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
@@ -249,9 +298,9 @@ struct disjoint<Linestring1, Linestring2, 2, linestring_tag, linestring_tag, Rev
     : detail::disjoint::disjoint_linear<Linestring1, Linestring2>
 {};
 
-template <typename Linestring1, typename Linestring2, bool Reverse>
-struct disjoint<Linestring1, Linestring2, 2, segment_tag, segment_tag, Reverse>
-    : detail::disjoint::disjoint_segment<Linestring1, Linestring2>
+template <typename Segment1, typename Segment2, bool Reverse>
+struct disjoint<Segment1, Segment2, 2, segment_tag, segment_tag, Reverse>
+    : detail::disjoint::disjoint_segment<Segment1, Segment2>
 {};
 
 template <typename Linestring, typename Segment, bool Reverse>
@@ -259,9 +308,113 @@ struct disjoint<Linestring, Segment, 2, linestring_tag, segment_tag, Reverse>
     : detail::disjoint::disjoint_linear<Linestring, Segment>
 {};
 
+template <typename Segment, typename Box, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Segment, Box, DimensionCount, segment_tag, box_tag, Reverse>
+    : detail::disjoint::disjoint_segment_box<Segment, Box>
+{};
+
+template <typename Linestring, typename Box, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Linestring, Box, DimensionCount, linestring_tag, box_tag, Reverse>
+    : detail::disjoint::disjoint_linestring_box<Linestring, Box>
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_variant {
+
+template <typename Geometry1, typename Geometry2>
+struct disjoint
+{
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        concept::check_concepts_and_equal_dimensions
+            <
+                Geometry1 const,
+                Geometry2 const
+            >();
+
+        return dispatch::disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct disjoint<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry2 const& m_geometry2;
+
+        visitor(Geometry2 const& geometry2): m_geometry2(geometry2) {}
+
+        template <typename Geometry1>
+        bool operator()(Geometry1 const& geometry1) const
+        {
+            return disjoint<Geometry1, Geometry2>::apply(geometry1, m_geometry2);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+          Geometry2 const& geometry2)
+    {
+        return boost::apply_visitor(visitor(geometry2), geometry1);
+    }
+};
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct disjoint<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry1 const& m_geometry1;
+
+        visitor(Geometry1 const& geometry1): m_geometry1(geometry1) {}
+
+        template <typename Geometry2>
+        bool operator()(Geometry2 const& geometry2) const
+        {
+            return disjoint<Geometry1, Geometry2>::apply(m_geometry1, geometry2);
+        }
+    };
+
+    static inline bool
+    apply(Geometry1 const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2)
+    {
+        return boost::apply_visitor(visitor(geometry1), geometry2);
+    }
+};
+
+template <
+    BOOST_VARIANT_ENUM_PARAMS(typename T1),
+    BOOST_VARIANT_ENUM_PARAMS(typename T2)
+>
+struct disjoint<
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
+>
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        template <typename Geometry1, typename Geometry2>
+        bool operator()(Geometry1 const& geometry1,
+                        Geometry2 const& geometry2) const
+        {
+            return disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2)
+    {
+        return boost::apply_visitor(visitor(), geometry1, geometry2);
+    }
+};
+
+} // namespace resolve_variant
 
 
 
@@ -280,13 +433,7 @@ template <typename Geometry1, typename Geometry2>
 inline bool disjoint(Geometry1 const& geometry1,
             Geometry2 const& geometry2)
 {
-    concept::check_concepts_and_equal_dimensions
-        <
-            Geometry1 const,
-            Geometry2 const
-        >();
-
-    return dispatch::disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    return resolve_variant::disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
 

@@ -33,14 +33,12 @@
 
 #ifdef BOOST_MSVC
 #pragma warning(push)
-#if _MSC_VER >= 1310
 // It is safe to ignore the following warning from MSVC 7.1 or higher:
 // "warning C4351: new behavior: elements of array will be default initialized"
 #pragma warning(disable: 4351)
 // It is safe to ignore the following MSVC warning, which may pop up when T is 
 // a const type: "warning C4512: assignment operator could not be generated".
 #pragma warning(disable: 4512)
-#endif
 #endif
 
 #ifdef BOOST_NO_COMPLETE_VALUE_INITIALIZATION

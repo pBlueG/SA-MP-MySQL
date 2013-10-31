@@ -2,7 +2,7 @@
 #define BOOST_ARCHIVE_DETAIL_BASIC_IARCHIVE_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -22,7 +22,6 @@
 #include <boost/config.hpp>
 #include <boost/noncopyable.hpp>
 
-#include <boost/type_traits/broken_compiler_spec.hpp>
 #include <boost/serialization/tracking_enum.hpp>
 #include <boost/archive/basic_archive.hpp>
 #include <boost/archive/detail/decl.hpp>
@@ -98,12 +97,6 @@ public:
 } // namespace detail
 } // namespace archive
 } // namespace boost
-
-// required by smart_cast for compilers not implementing 
-// partial template specialization
-BOOST_TT_BROKEN_COMPILER_SPEC(
-    boost::archive::detail::basic_iarchive  
-) 
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

@@ -8,8 +8,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // $Source$
-// $Date: 2011-10-09 15:28:33 -0700 (Sun, 09 Oct 2011) $
-// $Revision: 74865 $
+// $Date: 2011-10-07 23:05:54 +0200 (Fr, 07. Okt 2011) $
+// $Revision: 74782 $
 
 #undef BOOST_TT_AUX_BOOL_TRAIT_VALUE_DECL
 #undef BOOST_TT_AUX_BOOL_C_BASE

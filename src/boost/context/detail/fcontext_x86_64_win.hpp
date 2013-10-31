@@ -7,7 +7,7 @@
 #ifndef BOOST_CONTEXT_DETAIL_FCONTEXT_X86_64_H
 #define BOOST_CONTEXT_DETAIL_FCONTEXT_X86_64_H
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -51,12 +51,14 @@ struct fcontext_t
     stack_t             fc_stack;
     void            *   fc_local_storage;
     boost::uint64_t     fc_fp[24];
+    boost::uint64_t     fc_dealloc;
 
     fcontext_t() :
         fc_greg(),
         fc_stack(),
         fc_local_storage( 0),
-        fc_fp()
+        fc_fp(),
+        fc_dealloc()
     {}
 };
 

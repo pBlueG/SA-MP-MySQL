@@ -12,7 +12,7 @@
 #ifndef BOOST_PTR_CONTAINER_PTR_VECTOR_HPP
 #define BOOST_PTR_CONTAINER_PTR_VECTOR_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -29,12 +29,12 @@ namespace boost
         class Allocator      = std::allocator<void*>
     >
     class ptr_vector : public 
-        ptr_sequence_adapter< T, 
-                              std::vector<void*,Allocator>, 
+        ptr_sequence_adapter< T, std::vector<
+            typename ptr_container_detail::void_ptr<T>::type,Allocator>, 
                               CloneAllocator >
     {  
-        typedef ptr_sequence_adapter< T, 
-                                      std::vector<void*,Allocator>, 
+        typedef ptr_sequence_adapter< T, std::vector<
+            typename ptr_container_detail::void_ptr<T>::type,Allocator>, 
                                       CloneAllocator > 
             base_class;
 

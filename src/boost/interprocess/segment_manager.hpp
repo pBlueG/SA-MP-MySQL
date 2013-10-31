@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_SEGMENT_MANAGER_HPP
 #define BOOST_INTERPROCESS_SEGMENT_MANAGER_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -847,7 +847,6 @@ class segment_manager
    {
       (void)is_intrusive;
       typedef IndexType<ipcdetail::index_config<CharT, MemoryAlgorithm> >         index_type;
-      typedef ipcdetail::index_key<CharT, void_pointer>  index_key_t;
       typedef typename index_type::iterator           index_it;
 
       //-------------------------------
@@ -949,7 +948,6 @@ class segment_manager
    {
       (void)is_intrusive_index;
       typedef IndexType<ipcdetail::index_config<CharT, MemoryAlgorithm> >         index_type;
-      typedef ipcdetail::index_key<CharT, void_pointer>  index_key_t;
       typedef typename index_type::iterator           index_it;
       typedef typename index_type::value_type         intrusive_value_type;
 

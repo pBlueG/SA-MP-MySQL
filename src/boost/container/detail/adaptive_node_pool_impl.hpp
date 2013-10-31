@@ -11,7 +11,7 @@
 #ifndef BOOST_CONTAINER_DETAIL_ADAPTIVE_NODE_POOL_IMPL_HPP
 #define BOOST_CONTAINER_DETAIL_ADAPTIVE_NODE_POOL_IMPL_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -27,6 +27,7 @@
 #include <boost/container/detail/math_functions.hpp>
 #include <boost/container/detail/mpl.hpp>
 #include <boost/container/detail/pool_common.hpp>
+#include <boost/container/throw_exception.hpp>
 #include <boost/assert.hpp>
 #include <boost/detail/no_exceptions_support.hpp>
 #include <cstddef>
@@ -780,7 +781,7 @@ class private_adaptive_node_pool_impl
             //In case of error, free memory deallocating all nodes (the new ones allocated
             //in this function plus previously stored nodes in chain).
             this->deallocate_nodes(chain);
-            throw std::bad_alloc();
+            throw_bad_alloc();
          }
          block_info_t &c_info = *new(mem_address)block_info_t();
          mem_address += HdrSize;
@@ -812,7 +813,7 @@ class private_adaptive_node_pool_impl
             //In case of error, free memory deallocating all nodes (the new ones allocated
             //in this function plus previously stored nodes in chain).
             this->deallocate_nodes(chain);
-            throw std::bad_alloc();
+            throw_bad_alloc();
          }
          //First initialize header information on the last subblock
          char *hdr_addr = mem_address + m_real_block_alignment*(m_num_subblocks-1);

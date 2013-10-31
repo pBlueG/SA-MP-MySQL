@@ -14,7 +14,7 @@
 
 #include <boost/smart_ptr/make_shared_object.hpp>
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( BOOST_NO_SFINAE )
+#if !defined( BOOST_NO_SFINAE )
 # include <boost/smart_ptr/make_shared_array.hpp>
 # include <boost/smart_ptr/allocate_shared_array.hpp>
 #endif

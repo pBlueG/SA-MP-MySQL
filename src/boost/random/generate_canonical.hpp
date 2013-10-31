@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: generate_canonical.hpp 72951 2011-07-07 04:57:37Z steven_watanabe $
+ * $Id: generate_canonical.hpp 78511 2012-05-19 13:14:28Z steven_watanabe $
  *
  */
 
@@ -19,7 +19,6 @@
 #include <boost/config/no_tr1/cmath.hpp>
 #include <boost/limits.hpp>
 #include <boost/type_traits/is_integral.hpp>
-#include <boost/math/special_functions.hpp>
 #include <boost/random/detail/signed_unsigned_tools.hpp>
 #include <boost/random/detail/generator_bits.hpp>
 

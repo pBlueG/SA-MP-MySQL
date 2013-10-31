@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Use, modification, and distribution are subject to the 
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 82718 $
 //
 //  Description : flexible configuration file iterator definition
 // ***************************************************************************
@@ -22,7 +22,6 @@
 
 // Boost.Test
 #include <boost/test/utils/iterator/input_iterator_facade.hpp>
-#include <boost/test/utils/callback.hpp>
 #include <boost/test/utils/named_params.hpp>
 
 // Boost
@@ -99,7 +98,7 @@ class config_file_iterator : public unit_test::input_iterator_facade<config_file
     typedef unit_test::input_iterator_facade<config_file_iterator,cstring,cstring> base;
 public:
     // Public typedefs
-    typedef unit_test::callback1<cstring>   command_handler;
+    typedef boost::function<cstring ()>   command_handler;
 
     // Constructors
                     config_file_iterator() {}

@@ -7,7 +7,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author:  Martin Andrian, Jeff Garland, Bart Garst
- * $Date: 2012-09-22 09:04:10 -0700 (Sat, 22 Sep 2012) $
+ * $Date: 2013-10-10 17:43:31 +0200 (Do, 10. Okt 2013) $
  */
 
 #include <cctype>
@@ -580,13 +580,7 @@ namespace date_time {
       ss.imbue(std::locale::classic()); // don't want any formatting
       ss << std::setw(width)
         << std::setfill(static_cast<char_type>('0'));
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-      // JDG [7/6/02 VC++ compatibility]
-      char_type buff[34];
-      ss << _i64toa(static_cast<boost::int64_t>(val), buff, 10);
-#else
       ss << val;
-#endif
       return ss.str();
     }
 
@@ -822,7 +816,7 @@ namespace date_time {
         const_itr itr(m_time_duration_format.begin());
         while (itr != m_time_duration_format.end() && (sitr != stream_end)) {
           if (*itr == '%') {
-            ++itr;
+            if (++itr == m_time_duration_format.end()) break;
             if (*itr != '%') {
               switch(*itr) {
               case 'O':
@@ -994,7 +988,7 @@ namespace date_time {
         const_itr itr(this->m_format.begin());
         while (itr != this->m_format.end() && (sitr != stream_end)) {
           if (*itr == '%') {
-            ++itr;
+            if (++itr == this->m_format.end()) break;
             if (*itr != '%') {
               // the cases are grouped by date & time flags - not alphabetical order
               switch(*itr) {

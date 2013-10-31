@@ -2,12 +2,8 @@
 #define BOOST_SERIALIZATION_COLLECTIONS_LOAD_IMP_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
-#endif
-
-#if defined(_MSC_VER) && (_MSC_VER <= 1020)
-#  pragma warning (disable : 4786) // too long name, harmless warning
 #endif
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8

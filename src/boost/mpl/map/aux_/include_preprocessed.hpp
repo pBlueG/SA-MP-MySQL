@@ -7,9 +7,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: include_preprocessed.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: include_preprocessed.hpp 86242 2013-10-11 23:11:35Z skelly $
+// $Date: 2013-10-12 01:11:35 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86242 $
 
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION!
 
@@ -23,8 +23,6 @@
 
 #if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 #   define AUX778076_INCLUDE_DIR typeof_based
-#elif defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-#   define AUX778076_INCLUDE_DIR no_ctps
 #else
 #   define AUX778076_INCLUDE_DIR plain
 #endif

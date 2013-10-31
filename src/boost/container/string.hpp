@@ -7,28 +7,6 @@
 // See http://www.boost.org/libs/container for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 1996,1997
-// Silicon Graphics Computer Systems, Inc.
-//
-// Permission to use, copy, modify, distribute and sell this software
-// and its documentation for any purpose is hereby granted without fee,
-// provided that the above copyright notice appear in all copies and
-// that both that copyright notice and this permission notice appear
-// in supporting documentation.  Silicon Graphics makes no
-// representations about the suitability of this software for any
-// purpose.  It is provided "as is" without express or implied warranty.
-//
-//
-// Copyright (c) 1994
-// Hewlett-Packard Company
-//
-// Permission to use, copy, modify, distribute and sell this software
-// and its documentation for any purpose is hereby granted without fee,
-// provided that the above copyright notice appear in all copies and
-// that both that copyright notice and this permission notice appear
-// in supporting documentation.  Hewlett-Packard Company makes no
-// representations about the suitability of this software for any
-// purpose.  It is provided "as is" without express or implied warranty.
 
 #ifndef BOOST_CONTAINER_STRING_HPP
 #define BOOST_CONTAINER_STRING_HPP
@@ -38,6 +16,7 @@
 
 #include <boost/container/detail/workaround.hpp>
 #include <boost/container/container_fwd.hpp>
+#include <boost/container/throw_exception.hpp>
 #include <boost/container/detail/utilities.hpp>
 #include <boost/container/detail/iterators.hpp>
 #include <boost/container/detail/algorithms.hpp>
@@ -54,8 +33,7 @@
 
 #include <functional>
 #include <string>
-#include <stdexcept>     
-#include <utility> 
+#include <utility>
 #include <iterator>
 #include <memory>
 #include <algorithm>
@@ -335,8 +313,9 @@ class basic_string_base
             this->priv_storage(new_cap);
          }
       }
-      else
-         throw_length_error();
+      else{
+         throw_length_error("basic_string::allocate_initial_block max_size() exceeded");
+      }
    }
 
    void deallocate_block()
@@ -344,13 +323,6 @@ class basic_string_base
      
    size_type max_size() const
    {  return allocator_traits_type::max_size(this->alloc()) - 1; }
-
-   // Helper functions for exception handling.
-   void throw_length_error() const
-   {  throw(std::length_error("basic_string"));  }
-
-   void throw_out_of_range() const
-   {  throw(std::out_of_range("basic_string"));  }
 
    protected:
    size_type priv_capacity() const
@@ -432,7 +404,7 @@ class basic_string_base
    {
       if(this->is_short()){
          if(other.is_short()){
-            container_detail::do_swap(this->members_.m_repr, other.members_.m_repr);
+            std::swap(this->members_.m_repr, other.members_.m_repr);
          }
          else{
             short_t short_backup(this->members_.m_repr.short_repr());
@@ -453,7 +425,7 @@ class basic_string_base
             this->members_.m_repr.short_repr() = short_backup;
          }
          else{
-            container_detail::do_swap(this->members_.m_repr.long_repr(), other.members_.m_repr.long_repr());
+            boost::container::swap_dispatch(this->members_.m_repr.long_repr(), other.members_.m_repr.long_repr());
          }
       }
    }
@@ -663,7 +635,7 @@ class basic_string
    {
       this->priv_terminate_string();
       if (pos > s.size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::basic_string out of range position");
       else
          this->assign
             (s.begin() + pos, s.begin() + pos + container_detail::min_value(n, s.size() - pos));
@@ -965,7 +937,7 @@ class basic_string
    }
 
    //! <b>Effects</b>: Inserts or erases elements at the end such that
-   //!   the size becomes n. New elements are default constructed.
+   //!   the size becomes n. New elements are value initialized.
    //!
    //! <b>Throws</b>: If memory allocation throws
    //!
@@ -991,7 +963,7 @@ class basic_string
    void reserve(size_type res_arg)
    {
       if (res_arg > this->max_size()){
-         this->throw_length_error();
+         throw_length_error("basic_string::reserve max_size() exceeded");
       }
 
       if (this->capacity() < res_arg){
@@ -1083,7 +1055,7 @@ class basic_string
    reference at(size_type n)
    {
       if (n >= this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::at invalid subscript");
       return *(this->priv_addr() + n);
    }
 
@@ -1097,7 +1069,7 @@ class basic_string
    //! <b>Complexity</b>: Constant.
    const_reference at(size_type n) const {
       if (n >= this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::at invalid subscript");
       return *(this->priv_addr() + n);
    }
 
@@ -1142,7 +1114,7 @@ class basic_string
    basic_string& append(const basic_string& s, size_type pos, size_type n)
    {
       if (pos > s.size())
-      this->throw_out_of_range();
+         throw_out_of_range("basic_string::append out of range position");
       return this->append(s.begin() + pos,
                           s.begin() + pos + container_detail::min_value(n, s.size() - pos));
    }
@@ -1226,7 +1198,7 @@ class basic_string
    basic_string& assign(const basic_string& s, size_type pos, size_type n)
    {
       if (pos > s.size())
-      this->throw_out_of_range();
+         throw_out_of_range("basic_string::assign out of range position");
       return this->assign(s.begin() + pos,
                           s.begin() + pos + container_detail::min_value(n, s.size() - pos));
    }
@@ -1296,9 +1268,9 @@ class basic_string
    {
       const size_type sz = this->size();
       if (pos > sz)
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::insert out of range position");
       if (sz > this->max_size() - s.size())
-         this->throw_length_error();
+         throw_length_error("basic_string::insert max_size() exceeded");
       this->insert(this->priv_addr() + pos, s.begin(), s.end());
       return *this;
    }
@@ -1316,10 +1288,10 @@ class basic_string
       const size_type sz = this->size();
       const size_type str_size = s.size();
       if (pos1 > sz || pos2 > str_size)
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::insert out of range position");
       size_type len = container_detail::min_value(n, str_size - pos2);
       if (sz > this->max_size() - len)
-         this->throw_length_error();
+         throw_length_error("basic_string::insert max_size() exceeded");
       const CharT *beg_ptr = container_detail::to_raw_pointer(s.begin()) + pos2;
       const CharT *end_ptr = beg_ptr + len;
       this->insert(this->priv_addr() + pos1, beg_ptr, end_ptr);
@@ -1340,9 +1312,9 @@ class basic_string
    basic_string& insert(size_type pos, const CharT* s, size_type n)
    {
       if (pos > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::insert out of range position");
       if (this->size() > this->max_size() - n)
-         this->throw_length_error();
+         throw_length_error("basic_string::insert max_size() exceeded");
       this->insert(this->priv_addr() + pos, s, s + n);
       return *this;
    }
@@ -1358,10 +1330,10 @@ class basic_string
    basic_string& insert(size_type pos, const CharT* s)
    {
       if (pos > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::insert out of range position");
       size_type len = Traits::length(s);
       if (this->size() > this->max_size() - len)
-         this->throw_length_error();
+         throw_length_error("basic_string::insert max_size() exceeded");
       this->insert(this->priv_addr() + pos, s, s + len);
       return *this;
    }
@@ -1375,9 +1347,9 @@ class basic_string
    basic_string& insert(size_type pos, size_type n, CharT c)
    {
       if (pos > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::insert out of range position");
       if (this->size() > this->max_size() - n)
-         this->throw_length_error();
+         throw_length_error("basic_string::insert max_size() exceeded");
       this->insert(const_iterator(this->priv_addr() + pos), n, c);
       return *this;
    }
@@ -1551,7 +1523,7 @@ class basic_string
    basic_string& erase(size_type pos = 0, size_type n = npos)
    {
       if (pos > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::erase out of range position");
       const pointer addr = this->priv_addr();
       erase(addr + pos, addr + pos + container_detail::min_value(n, this->size() - pos));
       return *this;
@@ -1633,10 +1605,10 @@ class basic_string
    basic_string& replace(size_type pos1, size_type n1, const basic_string& str)
    {
       if (pos1 > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::replace out of range position");
       const size_type len = container_detail::min_value(n1, this->size() - pos1);
       if (this->size() - len >= this->max_size() - str.size())
-         this->throw_length_error();
+         throw_length_error("basic_string::replace max_size() exceeded");
       const pointer addr = this->priv_addr();
       return this->replace( const_iterator(addr + pos1)
                           , const_iterator(addr + pos1 + len)
@@ -1656,11 +1628,11 @@ class basic_string
                          const basic_string& str, size_type pos2, size_type n2)
    {
       if (pos1 > this->size() || pos2 > str.size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::replace out of range position");
       const size_type len1 = container_detail::min_value(n1, this->size() - pos1);
       const size_type len2 = container_detail::min_value(n2, str.size() - pos2);
       if (this->size() - len1 >= this->max_size() - len2)
-         this->throw_length_error();
+         throw_length_error("basic_string::replace max_size() exceeded");
       const pointer addr    = this->priv_addr();
       const pointer straddr = str.priv_addr();
       return this->replace(addr + pos1, addr + pos1 + len1,
@@ -1684,10 +1656,10 @@ class basic_string
    basic_string& replace(size_type pos1, size_type n1, const CharT* s, size_type n2)
    {
       if (pos1 > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::replace out of range position");
       const size_type len = container_detail::min_value(n1, this->size() - pos1);
       if (n2 > this->max_size() || size() - len >= this->max_size() - n2)
-         this->throw_length_error();
+         throw_length_error("basic_string::replace max_size() exceeded");
       const pointer addr    = this->priv_addr();
       return this->replace(addr + pos1, addr + pos1 + len, s, s + n2);
    }
@@ -1709,11 +1681,11 @@ class basic_string
    basic_string& replace(size_type pos, size_type n1, const CharT* s)
    {
       if (pos > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::replace out of range position");
       const size_type len = container_detail::min_value(n1, this->size() - pos);
       const size_type n2 = Traits::length(s);
       if (n2 > this->max_size() || this->size() - len >= this->max_size() - n2)
-         this->throw_length_error();
+         throw_length_error("basic_string::replace max_size() exceeded");
       const pointer addr    = this->priv_addr();
       return this->replace(addr + pos, addr + pos + len,
                      s, s + Traits::length(s));
@@ -1730,10 +1702,10 @@ class basic_string
    basic_string& replace(size_type pos1, size_type n1, size_type n2, CharT c)
    {
       if (pos1 > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::replace out of range position");
       const size_type len = container_detail::min_value(n1, this->size() - pos1);
       if (n2 > this->max_size() || this->size() - len >= this->max_size() - n2)
-         this->throw_length_error();
+         throw_length_error("basic_string::replace max_size() exceeded");
       const pointer addr    = this->priv_addr();
       return this->replace(addr + pos1, addr + pos1 + len, n2, c);
    }
@@ -1858,7 +1830,7 @@ class basic_string
    size_type copy(CharT* s, size_type n, size_type pos = 0) const
    {
       if (pos > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::copy out of range position");
       const size_type len = container_detail::min_value(n, this->size() - pos);
       Traits::copy(s, container_detail::to_raw_pointer(this->priv_addr() + pos), len);
       return len;
@@ -2230,7 +2202,7 @@ class basic_string
    basic_string substr(size_type pos = 0, size_type n = npos) const
    {
       if (pos > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::substr out of range position");
       const pointer addr = this->priv_addr();
       return basic_string(addr + pos,
                           addr + pos + container_detail::min_value(n, size() - pos), this->alloc());
@@ -2263,7 +2235,7 @@ class basic_string
    int compare(size_type pos1, size_type n1, const basic_string& str) const
    {
       if (pos1 > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::compare out of range position");
       const pointer addr    = this->priv_addr();
       const pointer str_addr = str.priv_addr();
       return s_compare(addr + pos1,
@@ -2282,7 +2254,7 @@ class basic_string
    int compare(size_type pos1, size_type n1, const basic_string& str, size_type pos2, size_type n2) const
    {
       if (pos1 > this->size() || pos2 > str.size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::compare out of range position");
       const pointer addr     = this->priv_addr();
       const pointer str_addr = str.priv_addr();
       return s_compare(addr + pos1,
@@ -2309,7 +2281,7 @@ class basic_string
    int compare(size_type pos1, size_type n1, const CharT* s, size_type n2) const
    {
       if (pos1 > this->size())
-         this->throw_out_of_range();
+         throw_out_of_range("basic_string::compare out of range position");
       const pointer addr = this->priv_addr();
       return s_compare( addr + pos1,
                         addr + pos1 + container_detail::min_value(n1, this->size() - pos1),

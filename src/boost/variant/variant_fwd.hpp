@@ -3,8 +3,8 @@
 // See http://www.boost.org for updates, documentation, and revision history.
 //-----------------------------------------------------------------------------
 //
-// Copyright (c) 2003
-// Eric Friedman, Itay Maman
+// Copyright (c) 2003 Eric Friedman, Itay Maman
+// Copyright (c) 2013 Antony Polukhin
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -71,6 +71,54 @@
 #   define BOOST_VARIANT_NO_FULL_RECURSIVE_VARIANT_SUPPORT
 #endif
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && defined(BOOST_VARIANT_USE_VARIADIC_TEMPLATES)
+#include <boost/preprocessor/seq/size.hpp>
+
+#define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_class class)(
+#define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_typename typename)(
+
+#define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_class class...
+#define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_typename typename...
+
+#define ARGS_VARIADER_1(x) x ## N...
+#define ARGS_VARIADER_2(x) BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_ ## x ## N
+
+#define BOOST_VARIANT_MAKE_VARIADIC(sequence, x)        BOOST_VARIANT_MAKE_VARIADIC_I(BOOST_PP_SEQ_SIZE(sequence), x)
+#define BOOST_VARIANT_MAKE_VARIADIC_I(argscount, x)     BOOST_VARIANT_MAKE_VARIADIC_II(argscount, x)
+#define BOOST_VARIANT_MAKE_VARIADIC_II(argscount, orig) ARGS_VARIADER_ ## argscount(orig)
+
+///////////////////////////////////////////////////////////////////////////////
+// BOOST_VARIANT_ENUM_PARAMS and BOOST_VARIANT_ENUM_SHIFTED_PARAMS
+//
+// Convenience macro for enumeration of variant params.
+// When variadic templates are available expands:
+//      BOOST_VARIANT_ENUM_PARAMS(class Something)      => class Something0, class... SomethingN
+//      BOOST_VARIANT_ENUM_PARAMS(typename Something)   => typename Something0, typename... SomethingN
+//      BOOST_VARIANT_ENUM_PARAMS(Something)            => Something0, SomethingN...
+//      BOOST_VARIANT_ENUM_PARAMS(Something)            => Something0, SomethingN...
+//      BOOST_VARIANT_ENUM_SHIFTED_PARAMS(class Something)      => class... SomethingN
+//      BOOST_VARIANT_ENUM_SHIFTED_PARAMS(typename Something)   => typename... SomethingN
+//      BOOST_VARIANT_ENUM_SHIFTED_PARAMS(Something)            => SomethingN...
+//      BOOST_VARIANT_ENUM_SHIFTED_PARAMS(Something)            => SomethingN...
+//
+// Rationale: Cleaner, simpler code for clients of variant library. Minimal 
+// code modifications to move from C++03 to C++11.
+//
+// Without !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && defined(BOOST_VARIANT_USE_VARIADIC_TEMPLATES)
+// will be used BOOST_VARIANT_ENUM_PARAMS and BOOST_VARIANT_ENUM_SHIFTED_PARAMS from below `#else`
+//
+
+#define BOOST_VARIANT_ENUM_PARAMS(x) \
+    x ## 0, \
+    BOOST_VARIANT_MAKE_VARIADIC( (BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_ ## x), x) \
+    /**/
+
+#define BOOST_VARIANT_ENUM_SHIFTED_PARAMS(x) \
+    BOOST_VARIANT_MAKE_VARIADIC( (BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_ ## x), x) \
+    /**/
+
+#else 
+
 ///////////////////////////////////////////////////////////////////////////////
 // macro BOOST_VARIANT_RECURSIVE_VARIANT_MAX_ARITY
 //
@@ -100,6 +148,7 @@
 #define BOOST_VARIANT_ENUM_SHIFTED_PARAMS( param )  \
     BOOST_PP_ENUM_SHIFTED_PARAMS(BOOST_VARIANT_LIMIT_TYPES, param)
 
+#endif // BOOST_NO_CXX11_VARIADIC_TEMPLATES
 
 namespace boost {
 
@@ -168,6 +217,11 @@ BOOST_PP_REPEAT(
 
 }} // namespace detail::variant
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && defined(BOOST_VARIANT_USE_VARIADIC_TEMPLATES)
+
+#define BOOST_VARIANT_AUX_DECLARE_PARAMS BOOST_VARIANT_ENUM_PARAMS(typename T)
+
+#else
 ///////////////////////////////////////////////////////////////////////////////
 // (detail) macro BOOST_VARIANT_AUX_DECLARE_PARAM
 //
@@ -195,6 +249,8 @@ BOOST_PP_REPEAT(
         , T \
         ) \
     /**/
+
+#endif // BOOST_NO_CXX11_VARIADIC_TEMPLATES
 
 ///////////////////////////////////////////////////////////////////////////////
 // class template variant (concept inspired by Andrei Alexandrescu)

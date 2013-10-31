@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2012-10-10 12:05:03 -0700 (Wed, 10 Oct 2012) $
+ * $Date: 2013-09-15 12:21:59 +0200 (So, 15. Sep 2013) $
  */
 
 #include <boost/cstdint.hpp>
@@ -42,6 +42,7 @@ namespace date_time {
    * either (haven't tried) */
   {
   public:
+    typedef void _is_boost_date_time_duration;
     typedef T duration_type;  //the subclass
     typedef rep_type traits_type;
     typedef typename rep_type::day_type  day_type;

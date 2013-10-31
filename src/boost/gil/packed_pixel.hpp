@@ -77,11 +77,13 @@ struct packed_pixel {
     template <typename P> packed_pixel(const P& p, typename enable_if_c<is_pixel<P>::value>::type* d=0)            { check_compatible<P>(); static_copy(p,*this); }   
     packed_pixel(int chan0, int chan1) : _bitfield(0) { 
         BOOST_STATIC_ASSERT((num_channels<packed_pixel>::value==2)); 
-        at_c<0>(*this)=chan0; at_c<1>(*this)=chan1; 
+        gil::at_c<0>(*this)=chan0; gil::at_c<1>(*this)=chan1; 
     } 
     packed_pixel(int chan0, int chan1, int chan2) : _bitfield(0) { 
         BOOST_STATIC_ASSERT((num_channels<packed_pixel>::value==3)); 
-        gil::at_c<0>(*this)=chan0; gil::at_c<1>(*this)=chan1; gil::at_c<2>(*this)=chan2; 
+        gil::at_c<0>(*this) = chan0;
+        gil::at_c<1>(*this) = chan1;
+        gil::at_c<2>(*this) = chan2;
     } 
     packed_pixel(int chan0, int chan1, int chan2, int chan3) : _bitfield(0) { 
         BOOST_STATIC_ASSERT((num_channels<packed_pixel>::value==4)); 
@@ -106,11 +108,11 @@ private:
 
 // Support for assignment/equality comparison of a channel with a grayscale pixel
     static void check_gray() {  BOOST_STATIC_ASSERT((is_same<typename Layout::color_space_t, gray_t>::value)); }
-    template <typename Channel> void assign(const Channel& chan, mpl::false_)       { check_gray(); at_c<0>(*this)=chan; }
-    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return at_c<0>(*this)==chan; }
+    template <typename Channel> void assign(const Channel& chan, mpl::false_)       { check_gray(); gil::at_c<0>(*this)=chan; }
+    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return gil::at_c<0>(*this)==chan; }
 public:
-    packed_pixel&  operator= (int chan)       { check_gray(); at_c<0>(*this)=chan; return *this; }
-    bool           operator==(int chan) const { check_gray(); return at_c<0>(*this)==chan; }
+    packed_pixel&  operator= (int chan)       { check_gray(); gil::at_c<0>(*this)=chan; return *this; }
+    bool           operator==(int chan) const { check_gray(); return gil::at_c<0>(*this)==chan; }
 };
 
 /////////////////////////////

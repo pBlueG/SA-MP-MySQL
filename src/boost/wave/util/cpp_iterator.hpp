@@ -204,7 +204,7 @@ bool has_parameters = false;
 
     // get rid of trailing T_EOF
     if (!macrodefinition.empty() && token_id(macrodefinition.back()) == T_EOF)
-        macrodefinition.resize(macrodefinition.size()-1);
+        macrodefinition.pop_back();
 
 //  If no macrodefinition is given, and the macro string does not end with a
 //  '=', then the macro should be defined with the value '1'
@@ -794,7 +794,7 @@ typename ContextT::position_type pos = act_token.get_position();
             char buffer[22];
 
                 using namespace std;    // for some systems sprintf is in namespace std
-                sprintf (buffer, "%d", pos.get_line());
+                sprintf (buffer, "%ld", pos.get_line());
 
                 pos.set_column(++column);                 // account for ' '
                 pending.push_back(result_type(T_INTLIT, buffer, pos));

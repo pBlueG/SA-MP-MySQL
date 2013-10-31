@@ -8,7 +8,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: gamma_distribution.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: gamma_distribution.hpp 68817 2011-02-12 20:03:17Z steven_watanabe $
  *
  */
 

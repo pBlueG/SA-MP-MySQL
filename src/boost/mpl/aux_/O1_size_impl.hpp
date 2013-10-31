@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: O1_size_impl.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: O1_size_impl.hpp 85948 2013-09-26 09:47:38Z skelly $
+// $Date: 2013-09-26 11:47:38 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85948 $
 
 #include <boost/mpl/O1_size_fwd.hpp>
 #include <boost/mpl/long.hpp>
@@ -29,8 +29,7 @@ namespace boost { namespace mpl {
 // member, and -1 otherwise; conrete sequences might override it by 
 // specializing either the 'O1_size_impl' or the primary 'O1_size' template
 
-#   if !BOOST_WORKAROUND(BOOST_MSVC, < 1300) \
-    && !BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003))
+#   if !BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003))
 
 namespace aux {
 template< typename Sequence > struct O1_size_impl
@@ -69,7 +68,7 @@ struct O1_size_impl
     };
 };
 
-#   else // BOOST_MSVC
+#   else // __MWERKS__
 
 template< typename Tag >
 struct O1_size_impl

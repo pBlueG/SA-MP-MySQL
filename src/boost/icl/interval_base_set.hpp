@@ -168,13 +168,6 @@ public:
         BOOST_CONCEPT_ASSERT((LessThanComparableConcept<DomainT>));
     }
 
-    /** Assignment operator */
-    interval_base_set& operator = (const interval_base_set& src) 
-    { 
-        this->_set = src._set;
-        return *this; 
-    }
-
 #   ifndef BOOST_ICL_NO_CXX11_RVALUE_REFERENCES
     //==========================================================================
     //= Move semantics
@@ -188,13 +181,22 @@ public:
     }
 
     /** Move assignment operator */
-    interval_base_set& operator = (interval_base_set&& src) 
-    { 
+    interval_base_set& operator = (interval_base_set src) 
+    {                           //call by value sice 'src' is a "sink value"
         this->_set = boost::move(src._set);
         return *this; 
     }
 
     //==========================================================================
+#   else
+
+    /** Copy assignment operator */
+    interval_base_set& operator = (const interval_base_set& src) 
+    { 
+        this->_set = src._set;
+        return *this; 
+    }
+
 #   endif // BOOST_ICL_NO_CXX11_RVALUE_REFERENCES
 
     /** swap the content of containers */
@@ -231,7 +233,6 @@ public:
     const_iterator find(const element_type& key_value)const
     { 
         return icl::find(*this, key_value);
-        //CL return this->_set.find(icl::singleton<segment_type>(key)); 
     }
 
     /** Find the first interval, that collides with interval \c key_interval */

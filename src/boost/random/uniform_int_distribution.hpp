@@ -8,7 +8,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_int_distribution.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: uniform_int_distribution.hpp 69975 2011-03-14 19:42:32Z steven_watanabe $
  *
  * Revision history
  *  2001-04-08  added min<max assertion (N. Becker)

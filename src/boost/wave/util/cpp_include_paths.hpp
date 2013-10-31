@@ -58,8 +58,7 @@ struct bidirectional_map
     typedef std::pair<FromType, ToType> value_type;
 
 #if defined(BOOST_NO_POINTER_TO_MEMBER_TEMPLATE_PARAMETERS) || \
-    (defined(BOOST_MSVC) && \
-        ( (BOOST_MSVC < 1300) || (BOOST_MSVC == 1600) )) || \
+    (defined(BOOST_MSVC) && (BOOST_MSVC == 1600) ) || \
     (defined(BOOST_INTEL_CXX_VERSION) && \
         (defined(_MSC_VER) && (BOOST_INTEL_CXX_VERSION <= 700))) 
 

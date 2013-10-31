@@ -7,7 +7,7 @@
 #ifndef BOOST_UNORDERED_DETAIL_UNIQUE_HPP_INCLUDED
 #define BOOST_UNORDERED_DETAIL_UNIQUE_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -334,8 +334,6 @@ namespace boost { namespace unordered { namespace detail {
 
         value_type& operator[](key_type const& k)
         {
-            typedef typename value_type::second_type mapped_type;
-    
             std::size_t key_hash = this->hash(k);
             iterator pos = this->find_node(key_hash, k);
     

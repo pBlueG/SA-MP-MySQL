@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: advance.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: advance.hpp 85961 2013-09-26 14:10:37Z skelly $
+// $Date: 2013-09-26 16:10:37 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85961 $
 
 #include <boost/mpl/advance_fwd.hpp>
 #include <boost/mpl/less.hpp>
@@ -25,7 +25,6 @@
 #include <boost/mpl/aux_/advance_backward.hpp>
 #include <boost/mpl/aux_/value_wknd.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
 
 namespace boost { namespace mpl {
 
@@ -61,7 +60,7 @@ struct advance
 
 template<
       typename Iterator
-    , BOOST_MPL_AUX_NTTP_DECL(long, N)
+    , long N
     >
 struct advance_c
     : advance_impl< typename tag<Iterator>::type >

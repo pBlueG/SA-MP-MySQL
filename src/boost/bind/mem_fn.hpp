@@ -3,7 +3,7 @@
 
 // MS compatible compilers support #pragma once
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -352,7 +352,7 @@ public:
         return call(u, &u);
     }
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300) && !BOOST_WORKAROUND(__MWERKS__, < 0x3200)
+#if !BOOST_WORKAROUND(__MWERKS__, < 0x3200)
 
     R & operator()(T & t) const
     {

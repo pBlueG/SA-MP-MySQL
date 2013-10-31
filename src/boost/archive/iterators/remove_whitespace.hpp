@@ -2,7 +2,7 @@
 #define BOOST_ARCHIVE_ITERATORS_REMOVE_WHITESPACE_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -25,9 +25,6 @@
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
-
-//#include <boost/detail/workaround.hpp>
-//#if ! BOOST_WORKAROUND(BOOST_MSVC, <=1300)
 
 // here is the default standard implementation of the functor used
 // by the filter iterator to remove spaces.  Unfortunately usage
@@ -52,8 +49,6 @@ namespace std{ using ::isspace; }
 #undef isspace
 #undef iswspace
 #endif
-
-//#endif // BOOST_WORKAROUND
 
 namespace { // anonymous
 

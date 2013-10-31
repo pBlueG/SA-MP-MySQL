@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Use, modification, and distribution are subject to the 
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 81012 $
 //
 //  Description : implements facility to hide input traversing details
 // ***************************************************************************
@@ -49,6 +49,8 @@ argv_traverser::argv_traverser()
 BOOST_RT_PARAM_INLINE void
 argv_traverser::init( int argc, char_type** argv )
 {
+    m_buffer.clear();
+
     for( int index = 1; index < argc; ++index ) {
         m_buffer += argv[index];
         if( index != argc-1 )

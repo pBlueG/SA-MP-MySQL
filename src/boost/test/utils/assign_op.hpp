@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 81012 $
 //
 //  Description : overloadable assignment
 // ***************************************************************************
@@ -16,7 +16,6 @@
 #define BOOST_TEST_ASSIGN_OP_033005GER
 
 namespace boost {
-
 namespace unit_test {
 
 // ************************************************************************** //
@@ -34,7 +33,6 @@ assign_op( T& t, S const& s, long )
 //____________________________________________________________________________//
 
 } // namespace unit_test
-
 } // namespace boost
 
 #endif // BOOST_TEST_ASSIGN_OP_033005GER

@@ -121,11 +121,7 @@ namespace boost
           is_class<Predicate>
         , Iterator
       >::type x
-    , Iterator end = Iterator()
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-    , Predicate* = 0
-#endif 
-  )
+    , Iterator end = Iterator())
   {
       return filter_iterator<Predicate,Iterator>(x,end);
   }

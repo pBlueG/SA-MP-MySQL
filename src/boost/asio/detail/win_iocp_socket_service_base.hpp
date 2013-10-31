@@ -2,7 +2,7 @@
 // detail/win_iocp_socket_service_base.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,11 +19,10 @@
 
 #if defined(BOOST_ASIO_HAS_IOCP)
 
-#include <boost/type_traits/is_same.hpp>
-#include <boost/utility/addressof.hpp>
 #include <boost/asio/error.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/socket_base.hpp>
+#include <boost/asio/detail/addressof.hpp>
 #include <boost/asio/detail/bind_handler.hpp>
 #include <boost/asio/detail/buffer_sequence_adapter.hpp>
 #include <boost/asio/detail/fenced_block.hpp>
@@ -216,11 +215,11 @@ public:
   template <typename ConstBufferSequence, typename Handler>
   void async_send(base_implementation_type& impl,
       const ConstBufferSequence& buffers,
-      socket_base::message_flags flags, Handler handler)
+      socket_base::message_flags flags, Handler& handler)
   {
     // Allocate and construct an operation to wrap the handler.
     typedef win_iocp_socket_send_op<ConstBufferSequence, Handler> op;
-    typename op::ptr p = { boost::addressof(handler),
+    typename op::ptr p = { boost::asio::detail::addressof(handler),
       boost_asio_handler_alloc_helpers::allocate(
         sizeof(op), handler), 0 };
     p.p = new (p.v) op(impl.cancel_token_, buffers, handler);
@@ -239,11 +238,11 @@ public:
   // Start an asynchronous wait until data can be sent without blocking.
   template <typename Handler>
   void async_send(base_implementation_type& impl, const null_buffers&,
-      socket_base::message_flags, Handler handler)
+      socket_base::message_flags, Handler& handler)
   {
     // Allocate and construct an operation to wrap the handler.
     typedef win_iocp_null_buffers_op<Handler> op;
-    typename op::ptr p = { boost::addressof(handler),
+    typename op::ptr p = { boost::asio::detail::addressof(handler),
       boost_asio_handler_alloc_helpers::allocate(
         sizeof(op), handler), 0 };
     p.p = new (p.v) op(impl.cancel_token_, handler);
@@ -283,11 +282,11 @@ public:
   template <typename MutableBufferSequence, typename Handler>
   void async_receive(base_implementation_type& impl,
       const MutableBufferSequence& buffers,
-      socket_base::message_flags flags, Handler handler)
+      socket_base::message_flags flags, Handler& handler)
   {
     // Allocate and construct an operation to wrap the handler.
     typedef win_iocp_socket_recv_op<MutableBufferSequence, Handler> op;
-    typename op::ptr p = { boost::addressof(handler),
+    typename op::ptr p = { boost::asio::detail::addressof(handler),
       boost_asio_handler_alloc_helpers::allocate(
         sizeof(op), handler), 0 };
     p.p = new (p.v) op(impl.state_, impl.cancel_token_, buffers, handler);
@@ -306,11 +305,11 @@ public:
   // Wait until data can be received without blocking.
   template <typename Handler>
   void async_receive(base_implementation_type& impl, const null_buffers&,
-      socket_base::message_flags flags, Handler handler)
+      socket_base::message_flags flags, Handler& handler)
   {
     // Allocate and construct an operation to wrap the handler.
     typedef win_iocp_null_buffers_op<Handler> op;
-    typename op::ptr p = { boost::addressof(handler),
+    typename op::ptr p = { boost::asio::detail::addressof(handler),
       boost_asio_handler_alloc_helpers::allocate(
         sizeof(op), handler), 0 };
     p.p = new (p.v) op(impl.cancel_token_, handler);
@@ -357,11 +356,11 @@ public:
   template <typename MutableBufferSequence, typename Handler>
   void async_receive_with_flags(base_implementation_type& impl,
       const MutableBufferSequence& buffers, socket_base::message_flags in_flags,
-      socket_base::message_flags& out_flags, Handler handler)
+      socket_base::message_flags& out_flags, Handler& handler)
   {
     // Allocate and construct an operation to wrap the handler.
     typedef win_iocp_socket_recvmsg_op<MutableBufferSequence, Handler> op;
-    typename op::ptr p = { boost::addressof(handler),
+    typename op::ptr p = { boost::asio::detail::addressof(handler),
       boost_asio_handler_alloc_helpers::allocate(
         sizeof(op), handler), 0 };
     p.p = new (p.v) op(impl.cancel_token_, buffers, out_flags, handler);
@@ -380,11 +379,11 @@ public:
   template <typename Handler>
   void async_receive_with_flags(base_implementation_type& impl,
       const null_buffers&, socket_base::message_flags in_flags,
-      socket_base::message_flags& out_flags, Handler handler)
+      socket_base::message_flags& out_flags, Handler& handler)
   {
     // Allocate and construct an operation to wrap the handler.
     typedef win_iocp_null_buffers_op<Handler> op;
-    typename op::ptr p = { boost::addressof(handler),
+    typename op::ptr p = { boost::asio::detail::addressof(handler),
       boost_asio_handler_alloc_helpers::allocate(
         sizeof(op), handler), 0 };
     p.p = new (p.v) op(impl.cancel_token_, handler);

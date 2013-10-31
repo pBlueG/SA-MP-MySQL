@@ -79,7 +79,7 @@ public:
         : rd_index_(5)
         , random_(std::fopen( "/dev/urandom", "rb" ))
     {}
-
+    
     ~seed_rng()
     {
         if (random_) {
@@ -140,7 +140,7 @@ private:
         }
 
         {
-            unsigned int rn[] =
+            unsigned int rn[] = 
                 { static_cast<unsigned int>(std::rand())
                 , static_cast<unsigned int>(std::rand())
                 , static_cast<unsigned int>(std::rand())
@@ -189,7 +189,7 @@ private:
     unsigned int rd_[5];
     int rd_index_;
     std::FILE * random_;
-
+    
 private: // make seed_rng noncopyable
     seed_rng(seed_rng const&);
     seed_rng& operator=(seed_rng const&);
@@ -212,7 +212,7 @@ class generator_iterator
       , single_pass_traversal_tag
       , typename Generator::result_type const&
     > super_t;
-
+    
  public:
     generator_iterator() : m_g(NULL), m_value(0) {}
     generator_iterator(Generator* g) : m_g(g), m_value((*m_g)()) {}

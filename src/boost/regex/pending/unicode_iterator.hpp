@@ -141,7 +141,7 @@ class u32_to_u16_iterator
 {
    typedef boost::iterator_facade<u32_to_u16_iterator<BaseIterator, U16Type>, U16Type, std::bidirectional_iterator_tag, const U16Type> base_type;
 
-#if !defined(BOOST_NO_STD_ITERATOR_TRAITS) && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(BOOST_NO_STD_ITERATOR_TRAITS)
    typedef typename std::iterator_traits<BaseIterator>::value_type base_value_type;
 
    BOOST_STATIC_ASSERT(sizeof(base_value_type)*CHAR_BIT == 32);
@@ -256,7 +256,7 @@ class u16_to_u32_iterator
    // special values for pending iterator reads:
    BOOST_STATIC_CONSTANT(U32Type, pending_read = 0xffffffffu);
 
-#if !defined(BOOST_NO_STD_ITERATOR_TRAITS) && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(BOOST_NO_STD_ITERATOR_TRAITS)
    typedef typename std::iterator_traits<BaseIterator>::value_type base_value_type;
 
    BOOST_STATIC_ASSERT(sizeof(base_value_type)*CHAR_BIT == 16);
@@ -371,7 +371,7 @@ class u32_to_u8_iterator
 {
    typedef boost::iterator_facade<u32_to_u8_iterator<BaseIterator, U8Type>, U8Type, std::bidirectional_iterator_tag, const U8Type> base_type;
    
-#if !defined(BOOST_NO_STD_ITERATOR_TRAITS) && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(BOOST_NO_STD_ITERATOR_TRAITS)
    typedef typename std::iterator_traits<BaseIterator>::value_type base_value_type;
 
    BOOST_STATIC_ASSERT(sizeof(base_value_type)*CHAR_BIT == 32);
@@ -499,7 +499,7 @@ class u8_to_u32_iterator
    // special values for pending iterator reads:
    BOOST_STATIC_CONSTANT(U32Type, pending_read = 0xffffffffu);
 
-#if !defined(BOOST_NO_STD_ITERATOR_TRAITS) && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if !defined(BOOST_NO_STD_ITERATOR_TRAITS)
    typedef typename std::iterator_traits<BaseIterator>::value_type base_value_type;
 
    BOOST_STATIC_ASSERT(sizeof(base_value_type)*CHAR_BIT == 8);

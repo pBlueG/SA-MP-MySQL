@@ -11,7 +11,7 @@
 #ifndef BOOST_IOSTREAMS_BZIP2_HPP_INCLUDED
 #define BOOST_IOSTREAMS_BZIP2_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
                    
@@ -157,10 +157,8 @@ protected:
         {
             bool custom = bzip2_allocator<Alloc>::custom;
             do_init( compress,
-                     #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-                         custom ? bzip2_allocator<Alloc>::allocate : 0,
-                         custom ? bzip2_allocator<Alloc>::deallocate : 0,
-                     #endif
+                     custom ? bzip2_allocator<Alloc>::allocate : 0,
+                     custom ? bzip2_allocator<Alloc>::deallocate : 0,
                      custom ? &alloc : 0 );
         }
     void before( const char*& src_begin, const char* src_end,
@@ -172,10 +170,8 @@ protected:
     void end(bool compress);
 private:
     void do_init( bool compress, 
-                  #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-                      bzip2::alloc_func, 
-                      bzip2::free_func, 
-                  #endif
+                  bzip2::alloc_func,
+                  bzip2::free_func, 
                   void* derived );
     bzip2_params  params_;
     void*         stream_; // Actual type: bz_stream*.

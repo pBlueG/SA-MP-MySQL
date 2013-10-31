@@ -6,7 +6,7 @@
 #ifndef BOOST_UNORDERED_MAP_FWD_HPP_INCLUDED
 #define BOOST_UNORDERED_MAP_FWD_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 

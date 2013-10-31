@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2010-01-10 11:17:23 -0800 (Sun, 10 Jan 2010) $
+ * $Date: 2013-09-25 15:52:11 +0200 (Mi, 25. Sep 2013) $
  */
 
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -64,26 +64,12 @@ namespace posix_time {
       ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.seconds());
       //TODO the following is totally non-generic, yelling FIXME
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-      boost::int64_t frac_sec =
-        date_time::absolute_value(td.fractional_seconds());
-      // JDG [7/6/02 VC++ compatibility]
-      charT buff[32];
-      _i64toa(frac_sec, buff, 10);
-#else
       time_duration::fractional_seconds_type frac_sec =
         date_time::absolute_value(td.fractional_seconds());
-#endif
       if (frac_sec != 0) {
         ss  << "." << std::setw(time_duration::num_fractional_digits())
             << std::setfill(fill_char)
-
-          // JDG [7/6/02 VC++ compatibility]
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-            << buff;
-#else
-        << frac_sec;
-#endif
+            << frac_sec;
       }
     }// else
     return ss.str();
@@ -133,26 +119,12 @@ namespace posix_time {
       ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.seconds());
       //TODO the following is totally non-generic, yelling FIXME
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-      boost::int64_t frac_sec =
-        date_time::absolute_value(td.fractional_seconds());
-      // JDG [7/6/02 VC++ compatibility]
-      charT buff[32];
-      _i64toa(frac_sec, buff, 10);
-#else
       time_duration::fractional_seconds_type frac_sec =
         date_time::absolute_value(td.fractional_seconds());
-#endif
       if (frac_sec != 0) {
         ss  << "." << std::setw(time_duration::num_fractional_digits())
             << std::setfill(fill_char)
-
-          // JDG [7/6/02 VC++ compatibility]
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-            << buff;
-#else
-        << frac_sec;
-#endif
+            << frac_sec;
       }
     }// else
     return ss.str();

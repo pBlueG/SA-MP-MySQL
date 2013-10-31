@@ -17,7 +17,6 @@
 #include <boost/mpl/aux_/largest_int.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
-#include <boost/mpl/aux_/config/eti.hpp>
 #include <boost/mpl/aux_/config/integral.hpp>
 #include <boost/mpl/aux_/config/static_constant.hpp>
 #include <boost/mpl/aux_/config/dependent_nttp.hpp>

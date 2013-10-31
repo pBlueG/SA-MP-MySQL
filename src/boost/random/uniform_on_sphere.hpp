@@ -8,7 +8,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_on_sphere.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: uniform_on_sphere.hpp 82936 2013-02-16 20:30:51Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -161,18 +161,22 @@ public:
     template<class Engine>
     const result_type & operator()(Engine& eng)
     {
-        RealType sqsum = 0;
-        for(typename Cont::iterator it = _container.begin();
-            it != _container.end();
-            ++it) {
-            RealType val = _normal(eng);
-            *it = val;
-            sqsum += val * val;
+        if (!_container.empty()) {
+            RealType sqsum = 0;
+            do {
+                for(typename Cont::iterator it = _container.begin();
+                    it != _container.end();
+                    ++it) {
+                    RealType val = _normal(eng);
+                    *it = val;
+                    sqsum += val * val;
+                }
+            } while(sqsum == 0);
+            using std::sqrt;
+            // for all i: result[i] /= sqrt(sqsum)
+            std::transform(_container.begin(), _container.end(), _container.begin(),
+                           std::bind2nd(std::divides<RealType>(), sqrt(sqsum)));
         }
-        using std::sqrt;
-        // for all i: result[i] /= sqrt(sqsum)
-        std::transform(_container.begin(), _container.end(), _container.begin(),
-                       std::bind2nd(std::divides<RealType>(), sqrt(sqsum)));
         return _container;
     }
 

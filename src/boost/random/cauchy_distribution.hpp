@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: cauchy_distribution.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: cauchy_distribution.hpp 68822 2011-02-13 03:28:59Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files

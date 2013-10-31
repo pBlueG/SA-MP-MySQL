@@ -1,4 +1,4 @@
-/* Copyright 2006-2009 Joaquin M Lopez Munoz.
+/* Copyright 2006-2013 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -9,7 +9,7 @@
 #ifndef BOOST_FLYWEIGHT_DETAIL_FLYWEIGHT_CORE_HPP
 #define BOOST_FLYWEIGHT_DETAIL_FLYWEIGHT_CORE_HPP
 
-#if defined(_MSC_VER)&&(_MSC_VER>=1200)
+#if defined(_MSC_VER)
 #pragma once
 #endif
 
@@ -63,11 +63,11 @@ public:
   }
 
   template<typename Checker>
-  static void erase(const handle_type& h,Checker check)
+  static void erase(const handle_type& h,Checker chk)
   {
     typedef typename core::lock_type lock_type;
     lock_type lock(core::mutex());
-    if(check(h))core::factory().erase(h);
+    if(chk(h))core::factory().erase(h);
   }
 };
 

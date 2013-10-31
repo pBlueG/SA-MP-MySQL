@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: enable_warnings.hpp 58649 2010-01-02 21:23:17Z steven_watanabe $
+ * $Id: enable_warnings.hpp 57008 2009-10-19 22:53:04Z steven_watanabe $
  *
  */
 

@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: joint_iter.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: joint_iter.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #include <boost/mpl/next_prior.hpp>
 #include <boost/mpl/deref.hpp>
@@ -20,13 +20,9 @@
 #include <boost/mpl/aux_/lambda_spec.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-#   include <boost/type_traits/is_same.hpp>
-#endif
 
 namespace boost { namespace mpl {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template<
       typename Iterator1
@@ -69,49 +65,6 @@ struct next< joint_iter<L1,L1,I2> >
     typedef joint_iter< L1,L1,typename mpl::next<I2>::type > type;
 };
 
-#else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-
-template<
-      typename Iterator1
-    , typename LastIterator1
-    , typename Iterator2
-    >
-struct joint_iter;
-
-template< bool > struct joint_iter_impl
-{
-    template< typename I1, typename L1, typename I2 > struct result_
-    {
-        typedef I1 base;
-        typedef forward_iterator_tag category;
-        typedef joint_iter< typename mpl::next<I1>::type,L1,I2 > next;
-        typedef typename deref<I1>::type type;
-    };
-};
-
-template<> struct joint_iter_impl<true>
-{
-    template< typename I1, typename L1, typename I2 > struct result_
-    {
-        typedef I2 base;
-        typedef forward_iterator_tag category;
-        typedef joint_iter< L1,L1,typename mpl::next<I2>::type > next;
-        typedef typename deref<I2>::type type;
-    };
-};
-
-template<
-      typename Iterator1
-    , typename LastIterator1
-    , typename Iterator2
-    >
-struct joint_iter
-    : joint_iter_impl< is_same<Iterator1,LastIterator1>::value >
-        ::template result_<Iterator1,LastIterator1,Iterator2>
-{
-};
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 BOOST_MPL_AUX_PASS_THROUGH_LAMBDA_SPEC(3, joint_iter)
 

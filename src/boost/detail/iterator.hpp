@@ -71,7 +71,6 @@
 # endif // STLPort <= 4.1b4 && no partial specialization
 
 # if !defined(BOOST_NO_STD_ITERATOR_TRAITS)             \
-  && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
   && !defined(BOOST_MSVC_STD_ITERATOR)
     
 namespace boost { namespace detail {
@@ -87,8 +86,7 @@ using std::distance;
 
 # else
 
-#  if  !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)  \
-    && !defined(BOOST_MSVC_STD_ITERATOR)
+#  if  !defined(BOOST_MSVC_STD_ITERATOR)
 
 // This is the case where everything conforms except BOOST_NO_STD_ITERATOR_TRAITS
 
@@ -135,10 +133,6 @@ struct iterator_traits<T const*>
 # include <boost/type_traits/detail/yes_no_type.hpp>
 # include <boost/type_traits/is_pointer.hpp>
 
-# ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-#  include <boost/type_traits/is_same.hpp>
-#  include <boost/type_traits/remove_pointer.hpp>
-# endif
 # ifdef BOOST_BAD_OUTPUT_ITERATOR_SPECIALIZATION
 #  include <boost/type_traits/is_base_and_derived.hpp>
 # endif
@@ -262,7 +256,6 @@ struct stlport_40_debug_iterator_traits
 
 template <class T> struct pointer_iterator_traits;
 
-#   ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <class T>
 struct pointer_iterator_traits<T*>
 {
@@ -272,50 +265,6 @@ struct pointer_iterator_traits<T*>
     typedef std::random_access_iterator_tag iterator_category;
     typedef std::ptrdiff_t difference_type;
 };
-#   else
-
-// In case of no template partial specialization, and if T is a
-// pointer, iterator_traits<T>::value_type can still be computed.  For
-// some basic types, remove_pointer is manually defined in
-// type_traits/broken_compiler_spec.hpp. For others, do it yourself.
-
-template<class P> class please_invoke_BOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee;
-
-template<class P>
-struct pointer_value_type
-  : mpl::if_<
-        is_same<P, typename remove_pointer<P>::type>
-      , please_invoke_BOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee<P>
-      , typename remove_const<
-            typename remove_pointer<P>::type
-        >::type
-    >
-{
-};
-
-
-template<class P>
-struct pointer_reference
-  : mpl::if_<
-        is_same<P, typename remove_pointer<P>::type>
-      , please_invoke_BOOST_TT_BROKEN_COMPILER_SPEC_on_cv_unqualified_pointee<P>
-      , typename remove_pointer<P>::type&
-    >
-{
-};
-
-template <class T>
-struct pointer_iterator_traits
-{
-    typedef T pointer;
-    typedef std::random_access_iterator_tag iterator_category;
-    typedef std::ptrdiff_t difference_type;
-
-    typedef typename pointer_value_type<T>::type value_type;
-    typedef typename pointer_reference<T>::type reference;
-};
-
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 // We'll sort iterator types into one of these classifications, from which we
 // can determine the difference_type, pointer, reference, and value_type

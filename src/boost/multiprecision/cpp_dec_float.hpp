@@ -16,11 +16,18 @@
 #ifndef BOOST_MP_CPP_DEC_FLOAT_BACKEND_HPP
 #define BOOST_MP_CPP_DEC_FLOAT_BACKEND_HPP
 
+#include <boost/config.hpp>
 #include <boost/cstdint.hpp>
+#include <limits>
+#ifndef BOOST_NO_CXX11_HDR_ARRAY
+#include <array>
+#else
 #include <boost/array.hpp>
+#endif
+#include <boost/cstdint.hpp>
 #include <boost/multiprecision/number.hpp>
 #include <boost/multiprecision/detail/big_lanczos.hpp>
-#include <vector>
+#include <boost/multiprecision/detail/dynamic_array.hpp>
 
 //
 // Headers required for Boost.Math integration:
@@ -41,32 +48,6 @@ struct number_category<backends::cpp_dec_float<Digits10, ExponentType, Allocator
 
 namespace backends{
 
-namespace detail{
-
-template <class T, class Allocator>
-struct rebind
-{
-   typedef typename Allocator::template rebind<T>::other type;
-};
-
-template <class T, unsigned S, class Allocator>
-struct dynamic_array : public std::vector<T, typename rebind<T, Allocator>::type>
-{
-   dynamic_array()
-      : std::vector<T, typename rebind<T, Allocator>::type>(static_cast<typename std::vector<T, typename rebind<T, Allocator>::type>::size_type>(S), static_cast<T>(0)) {}
-
-   T* data()
-   {
-      return &*this->begin();
-   }
-   const T* data()const
-   {
-      return &*this->begin();
-   }
-};
-
-}
-
 template <unsigned Digits10, class ExponentType, class Allocator>
 class cpp_dec_float
 {
@@ -74,8 +55,8 @@ private:
    static const boost::int32_t cpp_dec_float_digits10_setting = Digits10;
 
    // We need at least 16-bits in the exponent type to do anything sensible:
-   BOOST_STATIC_ASSERT_MSG(sizeof(ExponentType) > 1, "ExponentType is too small.");
    BOOST_STATIC_ASSERT_MSG(boost::is_signed<ExponentType>::value, "ExponentType must be a signed built in integer type.");
+   BOOST_STATIC_ASSERT_MSG(sizeof(ExponentType) > 1, "ExponentType is too small.");
 
 public:
    typedef mpl::list<long long>           signed_types;
@@ -124,10 +105,17 @@ private:
    }
    fpclass_type;
 
+#ifndef BOOST_NO_CXX11_HDR_ARRAY
+   typedef typename mpl::if_<is_void<Allocator>,
+      std::array<boost::uint32_t, cpp_dec_float_elem_number>,
+      detail::dynamic_array<boost::uint32_t, cpp_dec_float_elem_number, Allocator>
+      >::type array_type;
+#else
    typedef typename mpl::if_<is_void<Allocator>,
       boost::array<boost::uint32_t, cpp_dec_float_elem_number>,
       detail::dynamic_array<boost::uint32_t, cpp_dec_float_elem_number, Allocator>
       >::type array_type;
+#endif
 
    array_type      data;
    ExponentType    exp;
@@ -452,9 +440,9 @@ public:
    }
 
    // Comparison functions
-   bool isnan   (void) const  { return (fpclass == cpp_dec_float_NaN); }
-   bool isinf   (void) const  { return (fpclass == cpp_dec_float_inf); }
-   bool isfinite(void) const  { return (fpclass == cpp_dec_float_finite); }
+   bool isnan    BOOST_PREVENT_MACRO_SUBSTITUTION(void) const  { return (fpclass == cpp_dec_float_NaN); }
+   bool isinf    BOOST_PREVENT_MACRO_SUBSTITUTION(void) const  { return (fpclass == cpp_dec_float_inf); }
+   bool isfinite BOOST_PREVENT_MACRO_SUBSTITUTION(void) const  { return (fpclass == cpp_dec_float_finite); }
 
    bool iszero (void) const 
    {
@@ -517,7 +505,7 @@ public:
    static cpp_dec_float pow2(long long i);
    ExponentType order()const 
    {
-      const bool bo_order_is_zero = ((!isfinite()) || (data[0] == static_cast<boost::uint32_t>(0u)));
+      const bool bo_order_is_zero = ((!(isfinite)()) || (data[0] == static_cast<boost::uint32_t>(0u)));
       //
       // Binary search to find the order of the leading term:
       //
@@ -564,6 +552,17 @@ public:
       }
 
       return (bo_order_is_zero ? static_cast<ExponentType>(0) : static_cast<ExponentType>(exp + prefix));
+   }
+
+   template<class Archive>
+   void serialize(Archive & ar, const unsigned int /*version*/)
+   {
+      for(unsigned i = 0; i < data.size(); ++i)
+         ar & data[i];
+      ar & exp;
+      ar & neg;
+      ar & fpclass;
+      ar & prec_elem;
    }
 
 private:
@@ -621,14 +620,14 @@ const boost::int32_t cpp_dec_float<Digits10, ExponentType, Allocator>::cpp_dec_f
 template <unsigned Digits10, class ExponentType, class Allocator>
 cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, ExponentType, Allocator>::operator+=(const cpp_dec_float<Digits10, ExponentType, Allocator>& v)
 {
-   if(isnan())
+   if((isnan)())
    {
       return *this;
    }
 
-   if(isinf())
+   if((isinf)())
    {
-      if(v.isinf() && (isneg() != v.isneg()))
+      if((v.isinf)() && (isneg() != v.isneg()))
       {
          *this = nan();
       }
@@ -858,12 +857,12 @@ cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, Expone
    neg = false;
 
    // Handle special cases like zero, inf and NaN.
-   const bool b_u_is_inf  =   isinf();
-   const bool b_v_is_inf  = v.isinf();
+   const bool b_u_is_inf  =   (isinf)();
+   const bool b_v_is_inf  = (v.isinf)();
    const bool b_u_is_zero =   iszero();
    const bool b_v_is_zero = v.iszero();
 
-   if(   (isnan() || v.isnan())
+   if(   ((isnan)() || (v.isnan)())
       || (b_u_is_inf && b_v_is_zero)
       || (b_v_is_inf && b_u_is_zero)
       )
@@ -944,7 +943,7 @@ cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, Expone
 template <unsigned Digits10, class ExponentType, class Allocator>
 cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, ExponentType, Allocator>::operator/=(const cpp_dec_float<Digits10, ExponentType, Allocator>& v)  
 {
-   const bool u_and_v_are_finite_and_identical = (   isfinite()
+   const bool u_and_v_are_finite_and_identical = (   (isfinite)()
       && (fpclass == v.fpclass)
       && (exp     == v.exp)
       && (cmp_data(v.data) == static_cast<boost::int32_t>(0)));
@@ -964,7 +963,7 @@ cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, Expone
    {
       if(iszero())
       {
-         if(v.isnan() || v.iszero())
+         if((v.isnan)() || v.iszero())
          {
             return *this = v;
          }
@@ -988,10 +987,10 @@ cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, Expone
    neg = false;
 
    // Handle special cases like zero, inf and NaN.
-   const bool b_u_is_inf  = isinf();
+   const bool b_u_is_inf  = (isinf)();
    const bool b_n_is_zero = (n == static_cast<boost::int32_t>(0));
 
-   if(isnan() || (b_u_is_inf && b_n_is_zero))
+   if((isnan)() || (b_u_is_inf && b_n_is_zero))
    {
       return (*this = nan());
    }
@@ -1083,12 +1082,12 @@ cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, Expone
    neg = false;
 
    // Handle special cases like zero, inf and NaN.
-   if(isnan())
+   if((isnan)())
    {
       return *this;
    }
 
-   if(isinf())
+   if((isinf)())
    {
       *this = inf();
       if(b_neg)
@@ -1177,12 +1176,12 @@ cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, Expone
       return *this;
    }
 
-   if(isnan())
+   if((isnan)())
    {
       return *this;
    }
 
-   if(isinf())
+   if((isinf)())
    {
       return *this = zero();
    }
@@ -1239,7 +1238,7 @@ cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, Expone
 {
    // Compute the square root of *this.
 
-   if(isneg() || (!isfinite()))
+   if(isneg() || (!(isfinite)()))
    {
       *this = nan();
       return *this;
@@ -1348,21 +1347,21 @@ int cpp_dec_float<Digits10, ExponentType, Allocator>::compare(const cpp_dec_floa
    //                -1 for *this < v
 
    // Handle all non-finite cases.
-   if((!isfinite()) || (!v.isfinite()))
+   if((!(isfinite)()) || (!(v.isfinite)()))
    {
       // NaN can never equal NaN. Return an implementation-dependent
       // signed result. Also note that comparison of NaN with NaN
       // using operators greater-than or less-than is undefined.
-      if(isnan() || v.isnan()) { return (isnan() ? 1 : -1); }
+      if((isnan)() || (v.isnan)()) { return ((isnan)() ? 1 : -1); }
 
-      if(isinf() && v.isinf())
+      if((isinf)() && (v.isinf)())
       {
          // Both *this and v are infinite. They are equal if they have the same sign.
          // Otherwise, *this is less than v if and only if *this is negative.
          return ((neg == v.neg) ? 0 : (neg ? -1 : 1));
       }
 
-      if(isinf())
+      if((isinf)())
       {
          // *this is infinite, but v is finite.
          // So negative infinite *this is less than any finite v.
@@ -1422,7 +1421,7 @@ bool cpp_dec_float<Digits10, ExponentType, Allocator>::isone() const
 {
    // Check if the value of *this is identically 1 or very close to 1.
 
-   const bool not_negative_and_is_finite = ((!neg) && isfinite());
+   const bool not_negative_and_is_finite = ((!neg) && (isfinite)());
 
    if(not_negative_and_is_finite)
    {
@@ -1518,9 +1517,9 @@ double cpp_dec_float<Digits10, ExponentType, Allocator>::extract_double(void) co
    // Returns the double conversion of a cpp_dec_float<Digits10, ExponentType, Allocator>.
 
    // Check for non-normal cpp_dec_float<Digits10, ExponentType, Allocator>.
-   if(!isfinite())
+   if(!(isfinite)())
    {
-      if(isnan())
+      if((isnan)())
       {
          return std::numeric_limits<double>::quiet_NaN();
       }
@@ -1564,9 +1563,9 @@ long double cpp_dec_float<Digits10, ExponentType, Allocator>::extract_long_doubl
    // Returns the long double conversion of a cpp_dec_float<Digits10, ExponentType, Allocator>.
 
    // Check if *this cpp_dec_float<Digits10, ExponentType, Allocator> is subnormal.
-   if(!isfinite())
+   if(!(isfinite)())
    {
-      if(isnan())
+      if((isnan)())
       {
          return std::numeric_limits<long double>::quiet_NaN();
       }
@@ -1698,7 +1697,7 @@ cpp_dec_float<Digits10, ExponentType, Allocator> cpp_dec_float<Digits10, Exponen
 {
    // Compute the signed integer part of x.
 
-   if(!isfinite())
+   if(!(isfinite)())
    {
       return *this;
    }
@@ -1709,12 +1708,9 @@ cpp_dec_float<Digits10, ExponentType, Allocator> cpp_dec_float<Digits10, Exponen
       // Thus the integer part is zero.
       return zero();
    }
-   else if(exp >= static_cast<ExponentType>(Digits10 - 1))
-   {
-      // The number is too large to resolve the integer part.
-      // Thus it is already a pure integer part.
-      return *this;
-   }
+
+   // Truncate the digits from the decimal part, including guard digits
+   // that do not belong to the integer part.
 
    // Make a local copy.
    cpp_dec_float<Digits10, ExponentType, Allocator> x = *this;
@@ -1723,7 +1719,8 @@ cpp_dec_float<Digits10, ExponentType, Allocator> cpp_dec_float<Digits10, Exponen
    const size_t first_clear = (static_cast<size_t>(x.exp) / static_cast<size_t>(cpp_dec_float_elem_digits10)) + 1u;
    const size_t last_clear  =  static_cast<size_t>(cpp_dec_float_elem_number);
 
-   std::fill(x.data.begin() + first_clear, x.data.begin() + last_clear, static_cast<boost::uint32_t>(0u));
+   if(first_clear < last_clear)
+      std::fill(x.data.begin() + first_clear, x.data.begin() + last_clear, static_cast<boost::uint32_t>(0u));
 
    return x;
 }
@@ -1731,7 +1728,7 @@ cpp_dec_float<Digits10, ExponentType, Allocator> cpp_dec_float<Digits10, Exponen
 template <unsigned Digits10, class ExponentType, class Allocator>
 std::string cpp_dec_float<Digits10, ExponentType, Allocator>::str(boost::intmax_t number_of_digits, std::ios_base::fmtflags f) const
 {
-   if(this->isinf())
+   if((this->isinf)())
    {
       if(this->isneg())
          return "-inf";
@@ -1740,7 +1737,7 @@ std::string cpp_dec_float<Digits10, ExponentType, Allocator>::str(boost::intmax_
       else 
          return "inf";
    }
-   else if(this->isnan())
+   else if((this->isnan)())
    {
       return "nan";
    }
@@ -2206,7 +2203,7 @@ cpp_dec_float<Digits10, ExponentType, Allocator>::cpp_dec_float(const double man
 }
 
 template <unsigned Digits10, class ExponentType, class Allocator>
-cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, ExponentType, Allocator>::operator = (long double a)  
+cpp_dec_float<Digits10, ExponentType, Allocator>& cpp_dec_float<Digits10, ExponentType, Allocator>::operator= (long double a)
 {
    // Christopher Kormanyos's original code used a cast to long long here, but that fails
    // when long double has more digits than a long long.
@@ -2613,26 +2610,23 @@ cpp_dec_float<Digits10, ExponentType, Allocator> cpp_dec_float<Digits10, Exponen
        cpp_dec_float("1.701411834604692317316873037158841057280000000000000000000000000000000000000000000000000000000000000e38")
    }};
 
-   if((p > static_cast<ExponentType>(-128)) && (p < static_cast<ExponentType>(+128)))
+   if((p > static_cast<long long>(-128)) && (p < static_cast<long long>(+128)))
    {
       return p2_data[static_cast<std::size_t>(p + ((p2_data.size() - 1u) / 2u))];
    }
-
-   // Compute and return 2^p.
-   if(p < static_cast<ExponentType>(0))
-   {
-      return pow2(static_cast<ExponentType>(-p)).calculate_inv();
-   }
-   else if(p < static_cast<ExponentType>(std::numeric_limits<boost::uint64_t>::digits))
-   {
-      const boost::uint64_t p2 = static_cast<boost::uint64_t>(static_cast<boost::uint64_t>(1uLL) << p);
-      return cpp_dec_float(p2);
-   }
    else
    {
-      cpp_dec_float<Digits10, ExponentType, Allocator> t;
-      default_ops::detail::pow_imp(t, two(), p, mpl::true_());
-      return t;
+      // Compute and return 2^p.
+      if(p < static_cast<long long>(0))
+      {
+         return pow2(static_cast<long long>(-p)).calculate_inv();
+      }
+      else
+      {
+         cpp_dec_float<Digits10, ExponentType, Allocator> t;
+         default_ops::detail::pow_imp(t, two(), p, mpl::true_());
+         return t;
+      }
    }
 }
 
@@ -2740,9 +2734,9 @@ inline void eval_convert_to(long double* result, cpp_dec_float<Digits10, Exponen
 template <unsigned Digits10, class ExponentType, class Allocator>
 inline int eval_fpclassify(const cpp_dec_float<Digits10, ExponentType, Allocator>& x) 
 {
-   if(x.isinf())
+   if((x.isinf)())
       return FP_INFINITE;
-   if(x.isnan())
+   if((x.isnan)())
       return FP_NAN;
    if(x.iszero())
       return FP_ZERO;
@@ -2776,7 +2770,7 @@ template <unsigned Digits10, class ExponentType, class Allocator>
 inline void eval_floor(cpp_dec_float<Digits10, ExponentType, Allocator>& result, const cpp_dec_float<Digits10, ExponentType, Allocator>& x)  
 {
    result = x;
-   if(!x.isfinite() || x.isint()) 
+   if(!(x.isfinite)() || x.isint()) 
    { 
       return; 
    }
@@ -2790,7 +2784,7 @@ template <unsigned Digits10, class ExponentType, class Allocator>
 inline void eval_ceil(cpp_dec_float<Digits10, ExponentType, Allocator>& result, const cpp_dec_float<Digits10, ExponentType, Allocator>& x)  
 {
    result = x;
-   if(!x.isfinite() || x.isint()) 
+   if(!(x.isfinite)() || x.isint()) 
    { 
       return; 
    }
@@ -2803,9 +2797,9 @@ inline void eval_ceil(cpp_dec_float<Digits10, ExponentType, Allocator>& result, 
 template <unsigned Digits10, class ExponentType, class Allocator>
 inline void eval_trunc(cpp_dec_float<Digits10, ExponentType, Allocator>& result, const cpp_dec_float<Digits10, ExponentType, Allocator>& x)
 {
-   if(!x.isfinite()) 
+   if(!(x.isfinite)()) 
    { 
-      result = boost::math::policies::raise_rounding_error("boost::multiprecision::trunc<%1%>(%1%)", 0, number<cpp_dec_float<Digits10, ExponentType, Allocator> >(x), 0, boost::math::policies::policy<>()).backend();
+      result = boost::math::policies::raise_rounding_error("boost::multiprecision::trunc<%1%>(%1%)", 0, number<cpp_dec_float<Digits10, ExponentType, Allocator> >(x), number<cpp_dec_float<Digits10, ExponentType, Allocator> >(x), boost::math::policies::policy<>()).backend();
       return;
    }
    else if(x.isint())
@@ -2819,10 +2813,19 @@ inline void eval_trunc(cpp_dec_float<Digits10, ExponentType, Allocator>& result,
 template <unsigned Digits10, class ExponentType, class Allocator, class ArgType>
 inline void eval_ldexp(cpp_dec_float<Digits10, ExponentType, Allocator>& result, const cpp_dec_float<Digits10, ExponentType, Allocator>& x, ArgType e)  
 {
-   if((static_cast<long long>(e) > (std::numeric_limits<ExponentType>::max)()) || (static_cast<long long>(e) < (std::numeric_limits<ExponentType>::min)()))
+   const long long the_exp = static_cast<long long>(e);
+
+   if((the_exp > (std::numeric_limits<ExponentType>::max)()) || (the_exp < (std::numeric_limits<ExponentType>::min)()))
       BOOST_THROW_EXCEPTION(std::runtime_error(std::string("Exponent value is out of range.")));
+
    result = x;
-   result *= cpp_dec_float<Digits10, ExponentType, Allocator>::pow2(e);
+
+   if     ((the_exp > static_cast<long long>(-std::numeric_limits<long long>::digits)) && (the_exp < static_cast<long long>(0)))
+      result.div_unsigned_long_long(1ULL << static_cast<long long>(-the_exp));
+   else if((the_exp < static_cast<long long>( std::numeric_limits<long long>::digits)) && (the_exp > static_cast<long long>(0)))
+      result.mul_unsigned_long_long(1ULL << the_exp);
+   else if(the_exp != static_cast<long long>(0))
+      result *= cpp_dec_float<Digits10, ExponentType, Allocator>::pow2(e);
 }
 
 template <unsigned Digits10, class ExponentType, class Allocator>
@@ -2853,7 +2856,7 @@ inline void eval_frexp(cpp_dec_float<Digits10, ExponentType, Allocator>& result,
 
    result *= cpp_dec_float<Digits10, ExponentType, Allocator>::pow2(-t);
 
-   if(result.iszero() || result.isinf() || result.isnan())
+   if(result.iszero() || (result.isinf)() || (result.isnan)())
    {
       // pow2 overflowed, slip the calculation up:
       result = x;
@@ -2957,7 +2960,7 @@ namespace std
       BOOST_STATIC_CONSTEXPR ExponentType          max_exponent      = boost::multiprecision::cpp_dec_float<Digits10, ExponentType, Allocator>::cpp_dec_float_max_exp;      // Type differs from int.
       BOOST_STATIC_CONSTEXPR ExponentType          max_exponent10    = boost::multiprecision::cpp_dec_float<Digits10, ExponentType, Allocator>::cpp_dec_float_max_exp10;    // Type differs from int.
       BOOST_STATIC_CONSTEXPR int                     radix             = boost::multiprecision::cpp_dec_float<Digits10, ExponentType, Allocator>::cpp_dec_float_radix;
-      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_to_nearest;
+      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_indeterminate;
       BOOST_STATIC_CONSTEXPR bool                    has_infinity      = true;
       BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = true;
       BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;

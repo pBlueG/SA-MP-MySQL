@@ -14,17 +14,18 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_APPEND_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_APPEND_HPP
 
-#include <boost/range.hpp>
 
-
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/algorithms/num_interior_rings.hpp>
-#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/geometries/variant.hpp>
+#include <boost/range.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 
 namespace boost { namespace geometry
@@ -174,7 +175,7 @@ struct append_range<polygon_tag, Polygon, Range>
         : detail::append::range_to_polygon<Polygon, Range>
 {};
 
-}
+} // namespace splitted_dispatch
 
 
 // Default: append a range (or linestring or ring or whatever) to any geometry
@@ -193,10 +194,76 @@ struct append<Geometry, RangeOrPoint, point_tag>
     : splitted_dispatch::append_point<typename tag<Geometry>::type, Geometry, RangeOrPoint>
 {};
 
-
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_variant {
+
+template <typename Geometry>
+struct append
+{
+    template <typename RangeOrPoint>
+    static inline void apply(Geometry& geometry,
+                             RangeOrPoint const& range_or_point,
+                             int ring_index,
+                             int multi_index)
+    {
+        concept::check<Geometry>();
+        dispatch::append<Geometry, RangeOrPoint>::apply(geometry,
+                                                        range_or_point,
+                                                        ring_index,
+                                                        multi_index);
+    }
+};
+
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename RangeOrPoint>
+    struct visitor: boost::static_visitor<void>
+    {
+        RangeOrPoint const& m_range_or_point;
+        int m_ring_index;
+        int m_multi_index;
+    
+        visitor(RangeOrPoint const& range_or_point,
+                int ring_index,
+                int multi_index):
+            m_range_or_point(range_or_point),
+            m_ring_index(ring_index),
+            m_multi_index(multi_index)
+        {}
+    
+        template <typename Geometry>
+        void operator()(Geometry& geometry) const
+        {
+            append<Geometry>::apply(geometry,
+                                    m_range_or_point,
+                                    m_ring_index,
+                                    m_multi_index);
+        }
+    };
+
+    template <typename RangeOrPoint>
+    static inline void apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& variant_geometry,
+                             RangeOrPoint const& range_or_point,
+                             int ring_index,
+                             int multi_index)
+    {
+        apply_visitor(
+            visitor<RangeOrPoint>(
+                range_or_point,
+                ring_index,
+                multi_index
+            ),
+            variant_geometry
+        );
+    }
+};
+
+} // namespace resolve_variant;
 
 
 /*!
@@ -215,15 +282,10 @@ struct append<Geometry, RangeOrPoint, point_tag>
  */
 template <typename Geometry, typename RangeOrPoint>
 inline void append(Geometry& geometry, RangeOrPoint const& range_or_point,
-            int ring_index = -1, int multi_index = 0)
+                   int ring_index = -1, int multi_index = 0)
 {
-    concept::check<Geometry>();
-
-    dispatch::append
-        <
-            Geometry,
-            RangeOrPoint
-        >::apply(geometry, range_or_point, ring_index, multi_index);
+    resolve_variant::append<Geometry>
+                   ::apply(geometry, range_or_point, ring_index, multi_index);
 }
 
 

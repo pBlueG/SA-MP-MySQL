@@ -22,6 +22,9 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -39,6 +42,12 @@
 
 namespace boost { namespace geometry
 {
+
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)
+#endif
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace correct
@@ -137,7 +146,7 @@ struct correct_ring
             {
                 geometry::append(r, *boost::begin(r));
             }
-            if (! disjoint && geometry::closure<Ring>::value != closed)
+            if (! disjoint && s != closed)
             {
                 // Open it by removing last point
                 geometry::traits::resize<Ring>::apply(r, boost::size(r) - 1);
@@ -236,6 +245,40 @@ struct correct<Polygon, polygon_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_variant {
+
+template <typename Geometry>
+struct correct
+{
+    static inline void apply(Geometry& geometry)
+    {
+        concept::check<Geometry const>();
+        dispatch::correct<Geometry>::apply(geometry);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct correct<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<void>
+    {
+        template <typename Geometry>
+        void operator()(Geometry& geometry) const
+        {
+            correct<Geometry>::apply(geometry);
+        }
+    };
+
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry)
+    {
+        boost::apply_visitor(visitor(), geometry);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief Corrects a geometry
 \details Corrects a geometry: all rings which are wrongly oriented with respect
@@ -251,11 +294,12 @@ struct correct<Polygon, polygon_tag>
 template <typename Geometry>
 inline void correct(Geometry& geometry)
 {
-    concept::check<Geometry const>();
-
-    dispatch::correct<Geometry>::apply(geometry);
+    resolve_variant::correct<Geometry>::apply(geometry);
 }
 
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 }} // namespace boost::geometry
 

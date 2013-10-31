@@ -15,7 +15,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
-#include <boost/range/iterator_range.hpp>
+#include <boost/range/iterator_range_core.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
@@ -132,10 +132,7 @@ namespace boost {
             // increment
             void increment()
             {
-                if(m_Match.begin() == m_Match.end())
-                    m_Match=this->do_find(m_Match.end(),m_End);
-                else
-                    m_Match=this->do_find(m_Match.begin()+1,m_End);
+                m_Match=this->do_find(m_Match.end(),m_End);
             }
 
             // comparison

@@ -166,14 +166,7 @@ namespace boost {
       >
       struct tuple_meta_accumulate
         : mpl::eval_if<
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-              mpl::or_<
-#endif 
                   boost::is_same<Tuple, tuples::null_type>
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-                , boost::is_same<Tuple,int>
-              >
-#endif 
             , mpl::identity<StartType>
             , tuple_meta_accumulate_impl<
                   Tuple
@@ -366,14 +359,6 @@ namespace boost {
         , random_access_traversal_tag
       >::type type;
     };
-
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) // ETI workaround
-      template <>
-      struct minimum_traversal_category_in_iterator_tuple<int>
-      {
-          typedef int type;
-      };
-#endif
       
       // We need to call tuple_meta_accumulate with mpl::and_ as the
       // accumulating functor. To this end, we need to wrap it into

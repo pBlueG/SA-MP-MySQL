@@ -11,7 +11,7 @@
 
 #include <ostream>
 #include <string>
-#include <algorithm>
+#include <algorithm> // std::copy
 #include <locale>
 
 #include <boost/config.hpp> // msvc 6.0 needs this to suppress warnings 

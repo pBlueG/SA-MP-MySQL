@@ -202,8 +202,7 @@
 // VC7 isn't able to compile the flex_string class, fall back to std::string 
 // CW up to 8.3 chokes as well *sigh*
 // Tru64/CXX has linker problems when using flex_string
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || \
-    BOOST_WORKAROUND(__MWERKS__, < 0x3200) || \
+#if BOOST_WORKAROUND(__MWERKS__, < 0x3200) || \
     (defined(__DECCXX) && defined(__alpha)) || \
     defined(BOOST_WAVE_STRINGTYPE_USE_STDSTRING) 
 
@@ -228,7 +227,7 @@
 //  BOOST_WAVE_STRINGTYPE above.
 #include <boost/wave/util/flex_string.hpp>
 
-#endif // BOOST_WORKAROUND(_MSC_VER, <= 1300) et.al.
+#endif // BOOST_WORKAROUND(__MWERKS__, < 0x3200) et.al.
 #endif // !defined(BOOST_WAVE_STRINGTYPE)
 
 ///////////////////////////////////////////////////////////////////////////////

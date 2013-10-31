@@ -17,27 +17,22 @@
 #ifndef BOOST_PARALLEL_DISTRIBUTED_PROPERTY_MAP_HPP
 #define BOOST_PARALLEL_DISTRIBUTED_PROPERTY_MAP_HPP
 
-#ifndef BOOST_GRAPH_USE_MPI
-#error "Parallel BGL files should not be included unless <boost/graph/use_mpi.hpp> has been included"
-#endif
-
 #include <boost/assert.hpp>
 #include <boost/type_traits/is_base_and_derived.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/optional.hpp>
-#include <boost/graph/parallel/process_group.hpp>
-#include <boost/graph/detail/edge.hpp>
+#include <boost/property_map/parallel/process_group.hpp>
 #include <boost/function/function1.hpp>
 #include <vector>
 #include <set>
-#include <boost/graph/parallel/basic_reduce.hpp>
-#include <boost/graph/parallel/detail/untracked_pair.hpp>
+#include <boost/property_map/parallel/basic_reduce.hpp>
+#include <boost/property_map/parallel/detail/untracked_pair.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/property_map/parallel/local_property_map.hpp>
 #include <map>
 #include <boost/version.hpp>
-#include <boost/graph/distributed/unsafe_serialize.hpp>
+#include <boost/property_map/parallel/unsafe_serialize.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
@@ -47,8 +42,6 @@
 #include <boost/serialization/utility.hpp>
 
 namespace boost { namespace parallel {
-
-using boost::graph::parallel::trigger_receive_context;
 
 namespace detail {
   /**************************************************************************
@@ -692,16 +685,6 @@ make_distributed_property_map(const ProcessGroup& pg, GlobalMap global,
 }
 
 } } // end namespace boost::parallel
-
-// Boost's functional/hash
-namespace boost {
-  template<typename D, typename V>
-  struct hash<boost::detail::edge_desc_impl<D, V> >
-  {
-    std::size_t operator()(const boost::detail::edge_desc_impl<D, V> & x) const
-    { return hash_value(x.get_property()); }
-  };
-}
 
 #include <boost/property_map/parallel/impl/distributed_property_map.ipp>
 

@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: iterator.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: iterator.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #include <boost/mpl/set/aux_/set0.hpp>
 #include <boost/mpl/has_key.hpp>
@@ -44,12 +44,8 @@ template< typename Set, typename Tail > struct s_iter_impl
     typedef forward_iterator_tag        category;
     typedef typename Tail::item_type_   type;
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-    typedef typename s_iter_get< Set,typename Tail::base >::type next;
-#endif
 };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template< typename Set, typename Tail > 
 struct next< s_iter<Set,Tail> >
@@ -73,25 +69,6 @@ template< typename Set > struct s_iter<Set, set0<> >
     typedef forward_iterator_tag category;
 };
 
-#else
-
-template< typename Set >
-struct s_end_iter
-{
-    typedef forward_iterator_tag    category;
-    typedef s_iter<Set,set0<> >     next;
-};
-
-template< typename Set, typename Tail > struct s_iter
-    : if_< 
-          is_same< Tail,set0<> >
-        , s_end_iter<Set>
-        , s_iter_impl<Set,Tail>
-        >::type
-{
-};
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 }}
 

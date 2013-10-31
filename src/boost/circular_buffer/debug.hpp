@@ -9,7 +9,7 @@
 #if !defined(BOOST_CIRCULAR_BUFFER_DEBUG_HPP)
 #define BOOST_CIRCULAR_BUFFER_DEBUG_HPP
 
-#if defined(_MSC_VER) && _MSC_VER >= 1200
+#if defined(_MSC_VER)
     #pragma once
 #endif
 

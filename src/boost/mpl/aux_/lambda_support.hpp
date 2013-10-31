@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: lambda_support.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: lambda_support.hpp 85956 2013-09-26 13:05:50Z skelly $
+// $Date: 2013-09-26 15:05:50 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85956 $
 
 #include <boost/mpl/aux_/config/lambda.hpp>
 
@@ -122,7 +122,7 @@ template< BOOST_MPL_PP_PARAMS(i,typename T) > \
     , name< BOOST_MPL_PP_ENUM(i,::boost::mpl::na) >* \
     ); \
 /**/
-#elif !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+#else
 #   define BOOST_MPL_AUX_LAMBDA_SUPPORT_HAS_REBIND(i, name, params) \
 template< BOOST_MPL_PP_PARAMS(i,typename T) > \
 ::boost::mpl::aux::yes_tag operator|( \
@@ -130,8 +130,6 @@ template< BOOST_MPL_PP_PARAMS(i,typename T) > \
     , ::boost::mpl::aux::has_rebind_tag< name<BOOST_MPL_PP_PARAMS(i,T)> >* \
     ); \
 /**/
-#else
-#   define BOOST_MPL_AUX_LAMBDA_SUPPORT_HAS_REBIND(i, name, params) /**/
 #endif
 
 #   if !defined(__BORLANDC__)

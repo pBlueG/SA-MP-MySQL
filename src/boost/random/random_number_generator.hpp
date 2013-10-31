@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: random_number_generator.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: random_number_generator.hpp 70017 2011-03-16 03:24:42Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files

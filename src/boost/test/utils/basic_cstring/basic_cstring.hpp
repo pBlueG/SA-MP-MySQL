@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2004-2008.
+//  (C) Copyright Gennadiy Rozental 2004-2012.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 57992 $
+//  Version     : $Revision: 81184 $
 //
 //  Description : class basic_cstring wraps C string and provide std_string like 
 //                interface
@@ -19,6 +19,9 @@
 // Boost.Test
 #include <boost/test/utils/basic_cstring/basic_cstring_fwd.hpp>
 #include <boost/test/utils/basic_cstring/bcs_char_traits.hpp>
+
+// Boost
+#include <boost/type_traits/remove_cv.hpp>
 
 // STL
 #include <string>
@@ -44,6 +47,7 @@ public:
     typedef typename ut_detail::bcs_char_traits<CharT>::std_string  std_string;
 
     typedef CharT                                       value_type;
+    typedef typename remove_cv<value_type>::type        value_ret_type;
     typedef value_type*                                 pointer;
     typedef value_type const*                           const_pointer;
     typedef value_type&                                 reference;
@@ -74,8 +78,8 @@ public:
     basic_cstring( pointer first, pointer last );
 
     // data access methods
-    value_type      operator[]( size_type index ) const;
-    value_type      at( size_type index ) const;
+    value_ret_type  operator[]( size_type index ) const;
+    value_ret_type  at( size_type index ) const;
 
     // size operators
     size_type       size() const;
@@ -91,18 +95,18 @@ public:
     self_type&      trim_left( size_type trim_size );
     self_type&      trim_right( iterator it );
     self_type&      trim_left( iterator it );
-#ifndef __IBMCPP__
+#if !BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(800))
     self_type&      trim_left( self_type exclusions = self_type() ) ;
     self_type&      trim_right( self_type exclusions = self_type() ) ;
     self_type&      trim( self_type exclusions = self_type() ) ;
 #else
-    // VisualAge version 6 has in this case a problem with the default arguments.
-    self_type&      trim_left( self_type exclusions ) ;
-    self_type&      trim_right( self_type exclusions ) ;
-    self_type&      trim( self_type exclusions ) ;
-    self_type&      trim_left() { trim_left( self_type() ) ; }
-    self_type&      trim_right() { trim_right( self_type() ) ; }
-    self_type&      trim() { trim( self_type() ) ; }
+    // VA C++/XL C++ v6 and v8 has in this case a problem with the default arguments.
+    self_type&      trim_left( self_type exclusions );
+    self_type&      trim_right( self_type exclusions );
+    self_type&      trim( self_type exclusions );
+    self_type&      trim_left()     { return trim_left( self_type() ); }
+    self_type&      trim_right()    { return trim_right( self_type() ); }
+    self_type&      trim()          { return trim( self_type() ); }
 #endif
 
     // Assignment operators
@@ -205,7 +209,7 @@ basic_cstring<CharT>::basic_cstring( pointer first, pointer last )
 //____________________________________________________________________________//
 
 template<typename CharT>
-inline typename basic_cstring<CharT>::value_type
+inline typename basic_cstring<CharT>::value_ret_type
 basic_cstring<CharT>::operator[]( size_type index ) const
 {
     return m_begin[index];
@@ -214,7 +218,7 @@ basic_cstring<CharT>::operator[]( size_type index ) const
 //____________________________________________________________________________//
 
 template<typename CharT>
-inline typename basic_cstring<CharT>::value_type
+inline typename basic_cstring<CharT>::value_ret_type
 basic_cstring<CharT>::at( size_type index ) const
 {
     if( m_begin + index >= m_end )
@@ -682,12 +686,12 @@ operator!=( typename basic_cstring<CharT>::std_string const& s2, basic_cstring<C
 // ************************************************************************** //
 
 template<typename CharT>
-inline typename basic_cstring<CharT>::value_type
+inline typename basic_cstring<CharT>::value_ret_type
 first_char( basic_cstring<CharT> source )
 {
-    typedef typename basic_cstring<CharT>::value_type string_value_type;
+    typedef typename basic_cstring<CharT>::value_ret_type res_type;
 
-    return source.is_empty() ? static_cast<string_value_type>(0) : *source.begin();
+    return source.is_empty() ? static_cast<res_type>(0) : *source.begin();
 }
 
 //____________________________________________________________________________//
@@ -697,12 +701,12 @@ first_char( basic_cstring<CharT> source )
 // ************************************************************************** //
 
 template<typename CharT>
-inline typename basic_cstring<CharT>::value_type
+inline typename basic_cstring<CharT>::value_ret_type
 last_char( basic_cstring<CharT> source )
 {
-    typedef typename basic_cstring<CharT>::value_type string_value_type;
+    typedef typename basic_cstring<CharT>::value_ret_type res_type;
 
-    return source.is_empty() ? static_cast<string_value_type>(0) : *(source.end()-1);
+    return source.is_empty() ? static_cast<res_type>(0) : *(source.end()-1);
 }
 
 //____________________________________________________________________________//
@@ -716,6 +720,28 @@ inline void
 assign_op( std::basic_string<CharT1>& target, basic_cstring<CharT2> src, int )
 {
     target.assign( src.begin(), src.size() );
+}
+
+//____________________________________________________________________________//
+
+template<typename CharT1, typename CharT2>
+inline std::basic_string<CharT1>&
+operator+=( std::basic_string<CharT1>& target, basic_cstring<CharT2> const& str )
+{
+    target.append( str.begin(), str.end() );
+    return target;
+}
+
+//____________________________________________________________________________//
+
+template<typename CharT1, typename CharT2>
+inline std::basic_string<CharT1>
+operator+( std::basic_string<CharT1> const& lhs, basic_cstring<CharT2> const& rhs )
+{
+    std::basic_string<CharT1> res( lhs );
+
+    res.append( rhs.begin(), rhs.end() );
+    return res;
 }
 
 //____________________________________________________________________________//

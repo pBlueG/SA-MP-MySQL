@@ -13,13 +13,12 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: sequence_wrapper.hpp 49271 2008-10-11 06:46:00Z agurtovoy $
-// $Date: 2008-10-10 23:46:00 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49271 $
+// $Id: sequence_wrapper.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/config/static_constant.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
 
 #   include <boost/preprocessor/arithmetic/sub.hpp>
 #   include <boost/preprocessor/tuple/elem.hpp>
@@ -93,7 +92,7 @@ namespace boost { namespace mpl {
 #else // AUX778076_SEQUENCE_INTEGRAL_WRAPPER
 
 #   define AUX778076_SEQUENCE_PARAM_NAME C
-#   define AUX778076_SEQUENCE_TEMPLATE_PARAM BOOST_MPL_AUX_NTTP_DECL(long, C)
+#   define AUX778076_SEQUENCE_TEMPLATE_PARAM long C
 #   define AUX778076_SEQUENCE_DEFAULT LONG_MAX
 
 #   define AUX778076_SEQUENCE_PARAMS() \
@@ -146,65 +145,17 @@ namespace boost { namespace mpl {
 #endif // AUX778076_SEQUENCE_INTEGRAL_WRAPPER
 
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 // forward declaration
 template<
       AUX778076_SEQUENCE_DEFAULT_PARAMS()
     >
 struct AUX778076_SEQUENCE_NAME;
-#else
-namespace aux {
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) > 
-struct BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser);
-}
-#endif
 
 #define BOOST_PP_ITERATION_PARAMS_1 \
     (3,(0, AUX778076_SEQUENCE_LIMIT, <boost/mpl/aux_/sequence_wrapper.hpp>))
 #include BOOST_PP_ITERATE()
 
 // real C++ version is already taken care of
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-
-namespace aux {
-// ???_count_args
-#define AUX778076_COUNT_ARGS_PREFIX         AUX778076_SEQUENCE_NAME
-#define AUX778076_COUNT_ARGS_DEFAULT        AUX778076_SEQUENCE_DEFAULT
-#define AUX778076_COUNT_ARGS_PARAM_NAME     AUX778076_SEQUENCE_PARAM_NAME
-#define AUX778076_COUNT_ARGS_TEMPLATE_PARAM AUX778076_SEQUENCE_TEMPLATE_PARAM
-#define AUX778076_COUNT_ARGS_ARITY          AUX778076_SEQUENCE_LIMIT
-#define AUX778076_COUNT_ARGS_USE_STANDARD_PP_PRIMITIVES
-#include <boost/mpl/aux_/count_args.hpp>
-
-template<
-      AUX778076_SEQUENCE_PARAMS()
-    >
-struct BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)
-{
-    typedef aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_count_args)<
-          BOOST_PP_ENUM_PARAMS(AUX778076_SEQUENCE_LIMIT, AUX778076_SEQUENCE_PARAM_NAME)
-        > arg_num_;
-    
-    typedef typename aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser)< arg_num_::value >
-        ::template result_< AUX778076_SEQUENCE_ARGS() >::type type;
-};
-
-} // namespace aux
-
-template<
-      AUX778076_SEQUENCE_DEFAULT_PARAMS()
-    >
-struct AUX778076_SEQUENCE_NAME
-    : aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)<
-          AUX778076_SEQUENCE_ARGS()
-        >::type
-{
-    typedef typename aux::BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_impl)<
-          AUX778076_SEQUENCE_ARGS()
-        >::type type;
-};
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #   undef AUX778076_SEQUENCE_N_PARTIAL_SPEC_ARGS
 #   undef AUX778076_SEQUENCE_N_ARGS
@@ -229,7 +180,6 @@ struct AUX778076_SEQUENCE_NAME
 #else
 #define i_ BOOST_PP_FRAME_ITERATION(1)
 
-#   if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 #if i_ == AUX778076_SEQUENCE_LIMIT
 
@@ -260,33 +210,6 @@ struct AUX778076_SEQUENCE_NAME< AUX778076_SEQUENCE_N_PARTIAL_SPEC_ARGS(i_) >
 
 #endif // i_ == AUX778076_SEQUENCE_LIMIT
 
-#   else
-
-namespace aux {
-
-template<>
-struct BOOST_PP_CAT(AUX778076_SEQUENCE_NAME,_chooser)<i_>
-{
-    template<
-          AUX778076_SEQUENCE_PARAMS()
-        >
-    struct result_
-    {
-#if i_ > 0 || defined(AUX778076_SEQUENCE_INTEGRAL_WRAPPER)
-        typedef typename AUX778076_SEQUENCE_NAME_N(i_)<
-              AUX778076_SEQUENCE_N_ARGS(i_)
-            >::type type;
-#else
-        typedef AUX778076_SEQUENCE_NAME_N(i_)<
-              AUX778076_SEQUENCE_N_ARGS(i_)
-            >::type type;
-#endif
-    };
-};
-
-} // namespace aux
-
-#   endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #undef i_
 #endif // BOOST_PP_IS_ITERATING

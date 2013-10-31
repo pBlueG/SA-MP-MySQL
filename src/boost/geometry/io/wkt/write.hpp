@@ -18,23 +18,34 @@
 #include <string>
 
 #include <boost/array.hpp>
-#include <boost/concept/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
 #include <boost/geometry/io/wkt/detail/prefix.hpp>
 
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
+
 namespace boost { namespace geometry
 {
+
+// Silence warning C4512: 'boost::geometry::wkt_manipulator<Geometry>' : assignment operator could not be generated
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4512)  
+#endif
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace wkt
@@ -109,9 +120,14 @@ struct wkt_range
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-                Range const& range)
+                Range const& range, bool force_closed)
     {
         typedef typename boost::range_iterator<Range const>::type iterator_type;
+
+        typedef stream_coordinate
+            <
+                point_type, 0, dimension<point_type>::type::value
+            > stream_type;
 
         bool first = true;
 
@@ -119,19 +135,32 @@ struct wkt_range
 
         // TODO: check EMPTY here
 
-        for (iterator_type it = boost::begin(range);
-            it != boost::end(range);
-            ++it)
+        iterator_type begin = boost::begin(range);
+        iterator_type end = boost::end(range);
+        for (iterator_type it = begin; it != end; ++it)
         {
             os << (first ? "" : ",");
-            stream_coordinate
-                <
-                    point_type, 0, dimension<point_type>::type::value
-                >::apply(os, *it);
+            stream_type::apply(os, *it);
             first = false;
         }
 
+        // optionally, close range to ring by repeating the first point
+        if (force_closed 
+            && boost::size(range) > 1
+            && geometry::disjoint(*begin, *(end - 1)))
+        {
+            os << ",";
+            stream_type::apply(os, *begin);
+        }
+
         os << SuffixPolicy::apply();
+    }
+
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Range const& range)
+    {
+        apply(os, range, false);
     }
 
 private:
@@ -160,18 +189,19 @@ struct wkt_poly
                 Polygon const& poly)
     {
         typedef typename ring_type<Polygon const>::type ring;
+        bool const force_closed = true;
 
         os << PrefixPolicy::apply();
         // TODO: check EMPTY here
         os << "(";
-        wkt_sequence<ring>::apply(os, exterior_ring(poly));
+        wkt_sequence<ring>::apply(os, exterior_ring(poly), force_closed);
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             os << ",";
-            wkt_sequence<ring>::apply(os, *it);
+            wkt_sequence<ring>::apply(os, *it, force_closed);
         }
         os << ")";
     }
@@ -240,18 +270,12 @@ struct wkt_segment
 namespace dispatch
 {
 
-template <typename Tag, typename Geometry>
-struct wkt
-{
-   BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+struct wkt: not_implemented<Tag>
+{};
 
 template <typename Point>
-struct wkt<point_tag, Point>
+struct wkt<Point, point_tag>
     : detail::wkt::wkt_point
         <
             Point,
@@ -260,7 +284,7 @@ struct wkt<point_tag, Point>
 {};
 
 template <typename Linestring>
-struct wkt<linestring_tag, Linestring>
+struct wkt<Linestring, linestring_tag>
     : detail::wkt::wkt_range
         <
             Linestring,
@@ -275,12 +299,12 @@ struct wkt<linestring_tag, Linestring>
 It is therefore streamed as a polygon
 */
 template <typename Box>
-struct wkt<box_tag, Box>
+struct wkt<Box, box_tag>
     : detail::wkt::wkt_box<Box>
 {};
 
 template <typename Segment>
-struct wkt<segment_tag, Segment>
+struct wkt<Segment, segment_tag>
     : detail::wkt::wkt_segment<Segment>
 {};
 
@@ -291,7 +315,7 @@ A ring is equivalent to a polygon without inner rings
 It is therefore streamed as a polygon
 */
 template <typename Ring>
-struct wkt<ring_tag, Ring>
+struct wkt<Ring, ring_tag>
     : detail::wkt::wkt_range
         <
             Ring,
@@ -304,13 +328,54 @@ struct wkt<ring_tag, Ring>
 \brief Specialization to stream polygon as WKT
 */
 template <typename Polygon>
-struct wkt<polygon_tag, Polygon>
+struct wkt<Polygon, polygon_tag>
     : detail::wkt::wkt_poly
         <
             Polygon,
             detail::wkt::prefix_polygon
         >
 {};
+
+
+template <typename Geometry>
+struct devarianted_wkt
+{
+    template <typename OutputStream>
+    static inline void apply(OutputStream& os, Geometry const& geometry)
+    {
+        wkt<Geometry>::apply(os, geometry);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct devarianted_wkt<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename OutputStream>
+    struct visitor: static_visitor<void>
+    {
+        OutputStream& m_os;
+
+        visitor(OutputStream& os)
+            : m_os(os)
+        {}
+
+        template <typename Geometry>
+        inline void operator()(Geometry const& geometry) const
+        {
+            devarianted_wkt<Geometry>::apply(m_os, geometry);
+        }
+    };
+
+    template <typename OutputStream>
+    static inline void apply(
+        OutputStream& os,
+        variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry
+    )
+    {
+        apply_visitor(visitor<OutputStream>(os), geometry);
+    }
+};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
@@ -340,11 +405,7 @@ public:
             std::basic_ostream<Char, Traits>& os,
             wkt_manipulator const& m)
     {
-        dispatch::wkt
-            <
-                typename tag<Geometry>::type,
-                Geometry
-            >::apply(os, m.m_geometry);
+        dispatch::devarianted_wkt<Geometry>::apply(os, m.m_geometry);
         os.flush();
         return os;
     }
@@ -370,6 +431,10 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 
     return wkt_manipulator<Geometry>(geometry);
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)  
+#endif
 
 }} // namespace boost::geometry
 

@@ -9,7 +9,7 @@
 
 // MS compatible compilers support #pragma once
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -35,14 +35,13 @@
 # define BOOST_EXCEPTION_DISABLE
 #endif
 
-#if !defined( BOOST_EXCEPTION_DISABLE ) && defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, < 1310 )
-# define BOOST_EXCEPTION_DISABLE
-#endif
-
 #if !defined( BOOST_EXCEPTION_DISABLE )
 # include <boost/exception/exception.hpp>
+#if !defined(BOOST_THROW_EXCEPTION_CURRENT_FUNCTION)
 # include <boost/current_function.hpp>
-# define BOOST_THROW_EXCEPTION(x) ::boost::exception_detail::throw_exception_(x,BOOST_CURRENT_FUNCTION,__FILE__,__LINE__)
+# define BOOST_THROW_EXCEPTION_CURRENT_FUNCTION BOOST_CURRENT_FUNCTION
+#endif
+# define BOOST_THROW_EXCEPTION(x) ::boost::exception_detail::throw_exception_(x,BOOST_THROW_EXCEPTION_CURRENT_FUNCTION,__FILE__,__LINE__)
 #else
 # define BOOST_THROW_EXCEPTION(x) ::boost::throw_exception(x)
 #endif

@@ -20,11 +20,11 @@ namespace boost { namespace fusion
         template <typename Tag, typename Sequence>
         struct convert
         {
-            typedef typename extension::convert_impl<Tag> gen;
-
             typedef typename
-                gen::template apply<Sequence>::type
-            type;
+                extension::convert_impl<Tag>::template apply<Sequence>
+            gen;
+
+            typedef typename gen::type type;
         };
     }
 

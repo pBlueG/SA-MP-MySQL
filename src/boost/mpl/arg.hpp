@@ -15,9 +15,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: arg.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: arg.hpp 85961 2013-09-26 14:10:37Z skelly $
+// $Date: 2013-09-26 16:10:37 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85961 $
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/arg_fwd.hpp>
@@ -43,7 +43,6 @@
 #   include <boost/mpl/aux_/preprocessor/params.hpp>
 #   include <boost/mpl/aux_/config/lambda.hpp>
 #   include <boost/mpl/aux_/config/dtp.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
 
 #   include <boost/preprocessor/iterate.hpp>
 #   include <boost/preprocessor/inc.hpp>

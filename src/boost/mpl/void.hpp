@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: void.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: void.hpp 85891 2013-09-25 10:27:56Z skelly $
+// $Date: 2013-09-25 12:27:56 +0200 (Mi, 25. Sep 2013) $
+// $Revision: 85891 $
 
 #include <boost/mpl/void_fwd.hpp>
 #include <boost/mpl/bool.hpp>
@@ -36,36 +36,24 @@ template< typename T >
 struct is_void_
     : false_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-    using false_::value;
-#endif
 };
 
 template<>
 struct is_void_<void_>
     : true_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-    using true_::value;
-#endif
 };
 
 template< typename T >
 struct is_not_void_
     : true_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-    using true_::value;
-#endif
 };
 
 template<>
 struct is_not_void_<void_>
     : false_
 {
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-    using false_::value;
-#endif
 };
 
 BOOST_MPL_AUX_NA_SPEC(1, is_void_)

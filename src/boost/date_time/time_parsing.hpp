@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2012-10-10 12:05:03 -0700 (Wed, 10 Oct 2012) $
+ * $Date: 2013-09-25 15:52:11 +0200 (Mi, 25. Sep 2013) $
  */
 
 #include "boost/tokenizer.hpp"
@@ -81,23 +81,6 @@ namespace date_time {
       };
       case 3: {
         int digits = static_cast<int>(beg->length());
-        //Works around a bug in MSVC 6 library that does not support
-        //operator>> thus meaning lexical_cast will fail to compile.
-#if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-        // msvc wouldn't compile 'time_duration::num_fractional_digits()' 
-        // (required template argument list) as a workaround a temp 
-        // time_duration object was used
-        time_duration td(hour,min,sec,fs);
-        int precision = td.num_fractional_digits();
-        // _atoi64 is an MS specific function
-        if(digits >= precision) {
-          // drop excess digits
-          fs = _atoi64(beg->substr(0, precision).c_str());
-        }
-        else {
-          fs = _atoi64(beg->c_str());
-        }
-#else
         int precision = time_duration::num_fractional_digits();
         if(digits >= precision) {
           // drop excess digits
@@ -106,7 +89,6 @@ namespace date_time {
         else {
           fs = boost::lexical_cast<boost::int64_t>(*beg);
         }
-#endif
         if(digits < precision){
           // trailing zeros get dropped from the string, 
           // "1:01:01.1" would yield .000001 instead of .100000
@@ -246,22 +228,6 @@ namespace date_time {
           {
             std::string char_digits(ti->substr(1)); // digits w/no decimal
             int digits = static_cast<int>(char_digits.length());
-            
-            //Works around a bug in MSVC 6 library that does not support
-            //operator>> thus meaning lexical_cast will fail to compile.
-#if (defined(BOOST_MSVC) && (_MSC_VER <= 1200))  // 1200 == VC++ 6.0
-            // _atoi64 is an MS specific function
-            if(digits >= precision) {
-              // drop excess digits
-              fs = _atoi64(char_digits.substr(0, precision).c_str());
-            }
-            else if(digits == 0) {
-              fs = 0; // just in case _atoi64 doesn't like an empty string
-            }
-            else {
-              fs = _atoi64(char_digits.c_str());
-            }
-#else
             if(digits >= precision) {
               // drop excess digits
               fs = boost::lexical_cast<boost::int64_t>(char_digits.substr(0, precision));
@@ -272,7 +238,6 @@ namespace date_time {
             else {
               fs = boost::lexical_cast<boost::int64_t>(char_digits);
             }
-#endif
             if(digits < precision){
               // trailing zeros get dropped from the string, 
               // "1:01:01.1" would yield .000001 instead of .100000

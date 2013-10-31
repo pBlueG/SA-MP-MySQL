@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: bitor.hpp 63520 2010-07-02 08:59:55Z agurtovoy $
-// $Date: 2010-07-02 01:59:55 -0700 (Fri, 02 Jul 2010) $
-// $Revision: 63520 $
+// $Id: bitor.hpp 59248 2010-01-24 05:45:36Z agurtovoy $
+// $Date: 2010-01-24 06:45:36 +0100 (So, 24. Jan 2010) $
+// $Revision: 59248 $
 
 // agurt, 23/jan/10: workaround a conflict with <iso646.h> header's 
 // macros, see http://tinyurl.com/ycwdxco; 'defined(bitor)'

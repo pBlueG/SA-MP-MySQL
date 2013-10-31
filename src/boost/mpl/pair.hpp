@@ -10,14 +10,12 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: pair.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: pair.hpp 85945 2013-09-26 09:46:46Z skelly $
+// $Date: 2013-09-26 11:46:46 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85945 $
 
-#include <boost/mpl/aux_/msvc_eti_base.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
-#include <boost/mpl/aux_/config/eti.hpp>
 
 namespace boost { namespace mpl {
 
@@ -39,11 +37,7 @@ template<
     >
 struct first
 {
-#if !defined(BOOST_MPL_CFG_MSVC_70_ETI_BUG)
     typedef typename P::first type;
-#else
-    typedef typename aux::msvc_eti_base<P>::first type;
-#endif
     BOOST_MPL_AUX_LAMBDA_SUPPORT(1,first,(P))
 };
 
@@ -52,11 +46,7 @@ template<
     >
 struct second
 {
-#if !defined(BOOST_MPL_CFG_MSVC_70_ETI_BUG)
     typedef typename P::second type;
-#else
-    typedef typename aux::msvc_eti_base<P>::second type;
-#endif
     BOOST_MPL_AUX_LAMBDA_SUPPORT(1,second,(P))
 };
 

@@ -24,7 +24,7 @@
 #ifndef BOOST_INTERPROCESS_ERRORS_HPP
 #define BOOST_INTERPROCESS_ERRORS_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -115,6 +115,7 @@ enum error_code_t
    invalid_argument,
    timeout_when_locking_error,
    timeout_when_waiting_error,
+   owner_dead_error
 };
 
 typedef int    native_error_t;

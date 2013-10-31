@@ -9,7 +9,7 @@
 #if !defined(BOOST_FUNCTIONAL_HASH_DETAIL_LIMITS_HEADER)
 #define BOOST_FUNCTIONAL_HASH_DETAIL_LIMITS_HEADER
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 

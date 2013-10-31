@@ -3,7 +3,7 @@
 
 // MS compatible compilers support #pragma once
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -80,19 +80,7 @@ public:
         {
             long tmp = static_cast< long const volatile& >( use_count_ );
             if( tmp == 0 ) return false;
-
-#if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, == 1200 )
-
-            // work around a code generation bug
-
-            long tmp2 = tmp + 1;
-            if( BOOST_INTERLOCKED_COMPARE_EXCHANGE( &use_count_, tmp2, tmp ) == tmp2 - 1 ) return true;
-
-#else
-
             if( BOOST_INTERLOCKED_COMPARE_EXCHANGE( &use_count_, tmp + 1, tmp ) == tmp ) return true;
-
-#endif
         }
     }
 

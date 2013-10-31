@@ -45,7 +45,7 @@
 #        define BOOST_PP_CONFIG_FLAGS() (BOOST_PP_CONFIG_STRICT())
 #    elif defined(__BORLANDC__) || defined(__IBMC__) || defined(__IBMCPP__) || defined(__SUNPRO_CC)
 #        define BOOST_PP_CONFIG_FLAGS() (BOOST_PP_CONFIG_BCC())
-#    elif defined(_MSC_VER)
+#    elif defined(_MSC_VER) && !defined(__clang__)
 #        define BOOST_PP_CONFIG_FLAGS() (BOOST_PP_CONFIG_MSVC())
 #    else
 #        define BOOST_PP_CONFIG_FLAGS() (BOOST_PP_CONFIG_STRICT())

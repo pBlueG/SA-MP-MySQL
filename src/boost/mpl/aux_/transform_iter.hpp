@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: transform_iter.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: transform_iter.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #include <boost/mpl/apply.hpp>
 #include <boost/mpl/iterator_tags.hpp>
@@ -26,7 +26,6 @@ namespace boost { namespace mpl {
 
 namespace aux {
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 template<
       typename Iterator
@@ -55,64 +54,6 @@ struct transform_iter< LastIterator,LastIterator,F >
     typedef forward_iterator_tag category;
 };
 
-#else
-
-template<
-      typename Iterator
-    , typename LastIterator
-    , typename F
-    >
-struct transform_iter;
-
-template< bool >
-struct transform_iter_impl 
-{
-    template<
-          typename Iterator
-        , typename LastIterator
-        , typename F
-        >
-    struct result_
-    {
-        typedef Iterator base;
-        typedef forward_iterator_tag category;
-        typedef transform_iter< typename mpl::next<Iterator>::type,LastIterator,F > next;
-        
-        typedef typename apply1<
-              F
-            , typename deref<Iterator>::type
-            >::type type;
-    };
-};
-
-template<>
-struct transform_iter_impl<true>
-{
-    template<
-          typename Iterator
-        , typename LastIterator
-        , typename F
-        >
-    struct result_
-    {
-        typedef Iterator base;
-        typedef forward_iterator_tag category;
-    };
-};
-
-template<
-      typename Iterator
-    , typename LastIterator
-    , typename F
-    >
-struct transform_iter
-    : transform_iter_impl<
-          ::boost::is_same<Iterator,LastIterator>::value
-        >::template result_< Iterator,LastIterator,F >
-{
-};
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 } // namespace aux
 

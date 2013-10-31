@@ -17,6 +17,8 @@
 #include <numeric>
 #include <utility>
 
+#include <boost/detail/no_exceptions_support.hpp>
+
 #include <boost/mpl/contains.hpp>
 #include <boost/mpl/deref.hpp>
 #include <boost/mpl/assert.hpp>
@@ -1652,8 +1654,6 @@ private:
          if (this != &rhs) 
          {
             Derived::operator=(rhs);
-            // initialize our list of states with the ones defined in Derived::initial_state
-            fill_states(this);
             do_copy(rhs);
          }
         return *this;
@@ -1734,15 +1734,20 @@ private:
     template <class StateType,class EventType>
     HandledEnum do_process_helper(EventType const& evt, ::boost::mpl::false_ const &, bool is_direct_call)
     {
-        try
+        // when compiling without exception support there is no formal parameter "e" in the catch handler. 
+        // Declaring a local variable here does not hurt and will be "used" to make the code in the handler 
+        // compilable although the code will never be executed.
+        std::exception e;
+        BOOST_TRY
         {
             return this->do_process_event(evt,is_direct_call);
         }
-        catch (std::exception& e)
+        BOOST_CATCH (std::exception& e)
         {
             // give a chance to the concrete state machine to handle
             this->exception_caught(evt,*this,e);
-        } 
+        }
+        BOOST_CATCH_END
         return HANDLED_FALSE;
     }
     // handling of deferred events
@@ -1971,7 +1976,7 @@ private:
                 ret_handled = handled;
             }
 
-            // process completion transitions BEFORE any other event in the pool (UML Standard 2.3 §15.3.14)
+            // process completion transitions BEFORE any other event in the pool (UML Standard 2.3 15.3.14)
             handle_eventless_transitions_helper<library_sm> eventless_helper(this,(handled == HANDLED_TRUE));
             eventless_helper.process_completion_event();
 

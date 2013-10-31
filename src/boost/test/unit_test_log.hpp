@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2001-2008.
+//  (C) Copyright Gennadiy Rozental 2001-2012.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 82718 $
 //
 //  Description : defines singleton class unit_test_log and all manipulators.
 //  unit_test_log has output stream like interface. It's implementation is
@@ -18,7 +18,7 @@
 #define BOOST_TEST_UNIT_TEST_LOG_HPP_071894GER
 
 // Boost.Test
-#include <boost/test/test_observer.hpp>
+#include <boost/test/tree/observer.hpp>
 
 #include <boost/test/detail/global_typedef.hpp>
 #include <boost/test/detail/log_level.hpp>
@@ -29,7 +29,6 @@
 #include <boost/test/utils/lazy_ostream.hpp>
 
 // Boost
-#include <boost/utility.hpp>
 
 // STL
 #include <iosfwd>   // for std::ostream&
@@ -39,7 +38,6 @@
 //____________________________________________________________________________//
 
 namespace boost {
-
 namespace unit_test {
 
 // ************************************************************************** //
@@ -93,17 +91,15 @@ private:
 class BOOST_TEST_DECL unit_test_log_t : public test_observer, public singleton<unit_test_log_t> {
 public:
     // test_observer interface implementation
-    void                test_start( counter_t test_cases_amount );
-    void                test_finish();
-    void                test_aborted();
+    virtual void        test_start( counter_t test_cases_amount );
+    virtual void        test_finish();
+    virtual void        test_aborted();
 
-    void                test_unit_start( test_unit const& );
-    void                test_unit_finish( test_unit const&, unsigned long elapsed );
-    void                test_unit_skipped( test_unit const& );
-    void                test_unit_aborted( test_unit const& );
+    virtual void        test_unit_start( test_unit const& );
+    virtual void        test_unit_finish( test_unit const&, unsigned long elapsed );
+    virtual void        test_unit_skipped( test_unit const& );
 
-    void                assertion_result( bool passed );
-    void                exception_caught( execution_exception const& );
+    virtual void        exception_caught( execution_exception const& ex );
 
     virtual int         priority() { return 1; }
 
@@ -126,9 +122,12 @@ public:
     ut_detail::entry_value_collector operator()( log_level );   // initiate entry collection
 
 private:
-    bool            log_entry_start();
+    // Implementation helpers
+    bool                log_entry_start();
+    void                log_entry_context();
+    void                clear_entry_context();
 
-    BOOST_TEST_SINGLETON_CONS( unit_test_log_t );
+    BOOST_TEST_SINGLETON_CONS( unit_test_log_t )
 }; // unit_test_log_t
 
 BOOST_TEST_SINGLETON_INST( unit_test_log )
@@ -140,7 +139,6 @@ BOOST_TEST_SINGLETON_INST( unit_test_log )
 /**/
 
 } // namespace unit_test
-
 } // namespace boost
 
 // ************************************************************************** //
@@ -149,7 +147,7 @@ BOOST_TEST_SINGLETON_INST( unit_test_log )
 
 #define BOOST_TEST_MESSAGE( M )                                 \
     BOOST_TEST_LOG_ENTRY( ::boost::unit_test::log_messages )    \
-    << (::boost::unit_test::lazy_ostream::instance() << M)      \
+    << BOOST_TEST_LAZY_MSG( M )                                 \
 /**/
 
 //____________________________________________________________________________//

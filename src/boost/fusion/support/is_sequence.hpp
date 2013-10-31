@@ -61,7 +61,7 @@ namespace boost { namespace fusion
         struct is_sequence
           : mpl::bool_<
                 (bool)extension::is_sequence_impl<
-                typename fusion::detail::tag_of<T>::type
+                    typename fusion::detail::tag_of<T>::type
                 >::template apply<T>::type::value
             >
         {};

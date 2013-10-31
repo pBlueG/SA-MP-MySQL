@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: is_even.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: is_even.hpp 85956 2013-09-26 13:05:50Z skelly $
+// $Date: 2013-09-26 15:05:50 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85956 $
 
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
@@ -22,27 +22,11 @@
 
 namespace boost { namespace mpl {
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-namespace aux
-{
-  template <class N>
-  struct is_even_base
-  {
-      enum { value = (N::value % 2) == 0 };
-      typedef bool_<value> type;
-  };
-}
-#endif 
-
 template<
       typename BOOST_MPL_AUX_NA_PARAM(N)
     >
 struct is_even
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-  : aux::is_even_base<N>::type
-#else
   : bool_<((N::value % 2) == 0)>
-#endif 
 {
     BOOST_MPL_AUX_LAMBDA_SUPPORT(1,is_even,(N))
 };

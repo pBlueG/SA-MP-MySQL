@@ -20,7 +20,6 @@
 
 #include <boost/concept_archetype.hpp>
 
-#include <boost/mpl/aux_/msvc_eti_base.hpp>
 #include <boost/mpl/bitand.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/equal_to.hpp>
@@ -119,26 +118,24 @@ namespace detail
 
   template <class Value, class AccessCategory, class TraversalCategory>
   struct operator_brackets
-    : mpl::aux::msvc_eti_base<
-          typename mpl::eval_if<
-              is_convertible<TraversalCategory, random_access_traversal_tag>
-            , mpl::eval_if<
+    : mpl::eval_if<
+          is_convertible<TraversalCategory, random_access_traversal_tag>
+        , mpl::eval_if<
+              iterator_archetypes::has_access<
+                  AccessCategory
+                , iterator_archetypes::writable_iterator_t
+              >
+            , mpl::identity<writable_operator_brackets<Value> >
+            , mpl::if_<
                   iterator_archetypes::has_access<
                       AccessCategory
-                    , iterator_archetypes::writable_iterator_t
+                    , iterator_archetypes::readable_iterator_t
                   >
-                , mpl::identity<writable_operator_brackets<Value> >
-                , mpl::if_<
-                      iterator_archetypes::has_access<
-                          AccessCategory
-                        , iterator_archetypes::readable_iterator_t
-                      >
-                    , readable_operator_brackets<Value>
-                    , no_operator_brackets
-                  >
+                , readable_operator_brackets<Value>
+                , no_operator_brackets
               >
-            , mpl::identity<no_operator_brackets>
-          >::type
+          >
+        , mpl::identity<no_operator_brackets>
       >::type
   {};
   
@@ -154,9 +151,7 @@ namespace detail
 
   template <class Derived, class Value, class TraversalCategory>
   struct traversal_archetype_
-    : mpl::aux::msvc_eti_base<
-          typename traversal_archetype_impl<TraversalCategory>::template archetype<Derived,Value>
-      >::type
+    : traversal_archetype_impl<TraversalCategory>::template archetype<Derived,Value>
   {
       typedef typename
         traversal_archetype_impl<TraversalCategory>::template archetype<Derived,Value>
@@ -205,12 +200,6 @@ namespace detail
   bool operator==(traversal_archetype_<Derived, Value, single_pass_traversal_tag> const&,
                   traversal_archetype_<Derived, Value, single_pass_traversal_tag> const&) { return true; }
   
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-  // doesn't seem to pick up != from equality_comparable
-  template <class Derived, class Value>
-  bool operator!=(traversal_archetype_<Derived, Value, single_pass_traversal_tag> const&,
-                  traversal_archetype_<Derived, Value, single_pass_traversal_tag> const&) { return true; }
-#endif 
   template <>
   struct traversal_archetype_impl<forward_traversal_tag>
   {
@@ -309,11 +298,9 @@ struct iterator_access_archetype_impl
 
 template <class Value, class AccessCategory>
 struct iterator_access_archetype
-  : mpl::aux::msvc_eti_base<
-        typename iterator_access_archetype_impl<
-            AccessCategory
-        >::template archetype<Value>
-    >::type
+  : iterator_access_archetype_impl<
+        AccessCategory
+    >::template archetype<Value>
 {
 };
 
@@ -343,9 +330,7 @@ struct iterator_access_archetype_impl<
     template <class Value>
     struct archetype
     {
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
         BOOST_STATIC_ASSERT(!is_const<Value>::value);
-# endif 
         typedef void value_type;
         typedef void reference;
         typedef void pointer;
@@ -396,9 +381,7 @@ struct iterator_access_archetype_impl<iterator_archetypes::writable_lvalue_itera
             Value, iterator_archetypes::readable_lvalue_iterator_t
         >
     {
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
         BOOST_STATIC_ASSERT((!is_const<Value>::value));
-# endif 
     };
 };
   

@@ -14,15 +14,14 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: apply_wrap.hpp 49272 2008-10-11 06:50:46Z agurtovoy $
-// $Date: 2008-10-10 23:50:46 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49272 $
+// $Id: apply_wrap.hpp 86248 2013-10-11 23:20:59Z skelly $
+// $Date: 2013-10-12 01:20:59 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86248 $
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/aux_/arity.hpp>
 #   include <boost/mpl/aux_/has_apply.hpp>
 #   include <boost/mpl/aux_/na.hpp>
-#   include <boost/mpl/aux_/msvc_never_true.hpp>
 #endif
 
 #include <boost/mpl/aux_/config/use_preprocessed.hpp>
@@ -42,7 +41,6 @@
 #   include <boost/mpl/aux_/config/bcc.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/config/dtp.hpp>
-#   include <boost/mpl/aux_/config/eti.hpp>
 #   include <boost/mpl/aux_/config/msvc.hpp>
 #   include <boost/mpl/aux_/config/workaround.hpp>
 
@@ -86,26 +84,7 @@ namespace boost { namespace mpl {
 
 #   define i_ BOOST_PP_FRAME_ITERATION(1)
 
-#   if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-// MSVC version
-
-#define AUX778076_MSVC_DTW_NAME BOOST_PP_CAT(msvc_apply,i_)
-#define AUX778076_MSVC_DTW_ORIGINAL_NAME apply
-#define AUX778076_MSVC_DTW_ARITY i_
-#include <boost/mpl/aux_/msvc_dtw.hpp>
-
-template<
-      typename F BOOST_PP_COMMA_IF(i_) AUX778076_APPLY_WRAP_PARAMS(i_, typename T)
-    >
-struct BOOST_PP_CAT(apply_wrap,i_)
-{
-    // Metafunction forwarding confuses vc6
-    typedef typename BOOST_PP_CAT(msvc_apply,i_)<F>::template result_<
-          AUX778076_APPLY_WRAP_PARAMS(i_, T)
-        >::type type;
-};
-
-#   elif defined(BOOST_MPL_CFG_BROKEN_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
+#   if defined(BOOST_MPL_CFG_BROKEN_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
 // MWCW/Borland version
 
 template<
@@ -139,19 +118,11 @@ template<
 #endif
     >
 struct BOOST_PP_CAT(apply_wrap,i_)
-// metafunction forwarding confuses MSVC 7.0
-#if !BOOST_WORKAROUND(BOOST_MSVC, == 1300)
     : F::template apply< AUX778076_APPLY_WRAP_PARAMS(i_, T) >
 {
-#else
-{    
-    typedef typename F::template apply<
-         AUX778076_APPLY_WRAP_PARAMS(i_, T)
-        >::type type;
-#endif
 };
 
-#if i_ == 0 && !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#if i_ == 0
 template< typename F >
 struct BOOST_PP_CAT(apply_wrap,i_)<F,true_>
     : F::apply
@@ -161,14 +132,6 @@ struct BOOST_PP_CAT(apply_wrap,i_)<F,true_>
 
 #   endif // workarounds
 
-#if defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
-/// workaround for ETI bug
-template<>
-struct BOOST_PP_CAT(apply_wrap,i_)<AUX778076_APPLY_WRAP_SPEC_PARAMS(i_, int)>
-{
-    typedef int type;
-};
-#endif
 
 #   undef i_
 

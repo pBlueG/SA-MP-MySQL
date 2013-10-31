@@ -208,7 +208,7 @@ template<int N, class HT, class TT>
 inline typename access_traits<
                   typename element<N, cons<HT, TT> >::type
                 >::non_const_type
-get(cons<HT, TT>& c BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
+get(cons<HT, TT>& c) {
   typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
       apply<cons<HT, TT> > impl;
   typedef BOOST_DEDUCED_TYPENAME impl::type cons_element;
@@ -222,7 +222,7 @@ template<int N, class HT, class TT>
 inline typename access_traits<
                   typename element<N, cons<HT, TT> >::type
                 >::const_type
-get(const cons<HT, TT>& c BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
+get(const cons<HT, TT>& c) {
   typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
       apply<cons<HT, TT> > impl;
   typedef BOOST_DEDUCED_TYPENAME impl::type cons_element;
@@ -399,7 +399,7 @@ struct cons<HT, null_type> {
   typename access_traits<
              typename element<N, self_type>::type
             >::non_const_type
-  get(BOOST_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) {
+  get() {
     return boost::tuples::get<N>(*this);
   }
 
@@ -407,7 +407,7 @@ struct cons<HT, null_type> {
   typename access_traits<
              typename element<N, self_type>::type
            >::const_type
-  get(BOOST_EXPLICIT_TEMPLATE_NON_TYPE(int, N)) const {
+  get() const {
     return boost::tuples::get<N>(*this);
   }
 

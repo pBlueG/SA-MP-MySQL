@@ -20,6 +20,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
 
 
 namespace boost { namespace geometry
@@ -61,7 +62,7 @@ static inline bool last_covered_by(Turn const& turn, Operation const& op,
         <
             point_type,
             0, dimension<point_type>::value
-        >::apply(point_in_between, linestring[op.seg_id.segment_index], turn.point);
+        >::apply(point_in_between, *(::boost::begin(linestring) + op.seg_id.segment_index), turn.point);
 
     return geometry::covered_by(point_in_between, polygon);
 }
@@ -182,11 +183,12 @@ struct action_selector<overlay_intersection>
         // and add the output piece
         geometry::copy_segments<false>(linestring, segment_id, index, current_piece);
         detail::overlay::append_no_duplicates(current_piece, point);
-        if (current_piece.size() > 1)
+        if (::boost::size(current_piece) > 1)
         {
             *out++ = current_piece;
         }
-        current_piece.clear();
+
+        geometry::clear(current_piece);
     }
 
     static inline bool is_entered(bool entered)
@@ -396,7 +398,7 @@ public :
         }
 
         // Output the last one, if applicable
-        if (current_piece.size() > 1)
+        if (::boost::size(current_piece) > 1)
         {
             *out++ = current_piece;
         }

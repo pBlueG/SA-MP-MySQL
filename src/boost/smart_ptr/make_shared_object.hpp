@@ -87,6 +87,10 @@ public:
         destroy();
     }
 
+    static void operator_fn( T* ) // operator() can't be static
+    {
+    }
+
     void * address() BOOST_NOEXCEPT
     {
         return storage_.data_;
@@ -103,7 +107,6 @@ template< class T > struct sp_if_not_array
     typedef boost::shared_ptr< T > type;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 template< class T > struct sp_if_not_array< T[] >
 {
@@ -117,7 +120,6 @@ template< class T, std::size_t N > struct sp_if_not_array< T[N] >
 
 #endif
 
-#endif
 
 } // namespace detail
 

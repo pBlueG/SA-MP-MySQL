@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 12:00:24 -0800 (Wed, 27 Feb 2008) $
+ * $Date: 2013-09-25 15:52:11 +0200 (Mi, 25. Sep 2013) $
  */
 
 #include "boost/date_time/gregorian/gregorian_types.hpp"
@@ -71,9 +71,6 @@ namespace gregorian {
   }
 #endif //BOOST_NO_STD_ITERATOR_TRAITS
   
-#if (defined(_MSC_VER) && (_MSC_VER < 1300))
-    // This function cannot be compiled with MSVC 6.0 due to internal compiler shorcomings
-#else
   //! Function to parse a date_period from a string (eg: [2003-Oct-31/2003-Dec-25])
   inline date_period date_period_from_string(const std::string& s){
     return date_time::from_simple_string_type<date,char>(s);
@@ -84,7 +81,6 @@ namespace gregorian {
     return date_time::from_simple_string_type<date,wchar_t>(s);
   }
 #  endif // BOOST_NO_STD_WSTRING
-#endif
 
 } } //namespace gregorian
 

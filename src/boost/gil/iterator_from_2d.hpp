@@ -105,7 +105,7 @@ private:
         }
     }
 
-    GIL_FORCEINLINE void advance(difference_type d) {  
+    BOOST_FORCEINLINE void advance(difference_type d) {  
         if (_width==0) return;  // unfortunately we need to check for that. Default-constructed images have width of 0 and the code below will throw if executed.
         point_t delta;
         if (_coords.x+d>=0) {  // not going back to a previous row?

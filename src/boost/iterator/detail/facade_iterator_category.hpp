@@ -73,15 +73,8 @@ struct iterator_writability_disabled
 // Convert an iterator_facade's traversal category, Value parameter,
 // and ::reference type to an appropriate old-style category.
 //
-// If writability has been disabled per the above metafunction, the
-// result will not be convertible to output_iterator_tag.
-//
-// Otherwise, if Traversal == single_pass_traversal_tag, the following
-// conditions will result in a tag that is convertible both to
-// input_iterator_tag and output_iterator_tag:
-//
-//    1. Reference is a reference to non-const
-//    2. Reference is not a reference and is convertible to Value
+// Due to changeset 21683, this now never results in a category convertible
+// to output_iterator_tag.
 //
 template <class Traversal, class ValueParam, class Reference>
 struct iterator_facade_default_category
@@ -138,7 +131,6 @@ template <class Category, class Traversal>
 struct iterator_category_with_traversal
   : Category, Traversal
 {
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
     // Make sure this isn't used to build any categories where
     // convertibility to Traversal is redundant.  Should just use the
     // Category element in that case.
@@ -154,7 +146,6 @@ struct iterator_category_with_traversal
 #  if !BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
     BOOST_MPL_ASSERT((is_iterator_traversal<Traversal>));
 #  endif 
-# endif 
 };
 
 // Computes an iterator_category tag whose traversal is Traversal and
@@ -162,9 +153,7 @@ struct iterator_category_with_traversal
 template <class Traversal, class ValueParam, class Reference>
 struct facade_iterator_category_impl
 {
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
     BOOST_MPL_ASSERT_NOT((is_iterator_category<Traversal>));
-# endif 
     
     typedef typename iterator_facade_default_category<
         Traversal,ValueParam,Reference

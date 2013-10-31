@@ -657,7 +657,6 @@ namespace boost
       {};
       virtual ~BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)()
       {
-        disconnect_all_slots();
       }
       connection connect(const slot_type &slot, connect_position position = at_back)
       {
@@ -714,6 +713,11 @@ namespace boost
       {
         return (*_pimpl).set_combiner(combiner_arg);
       }
+      void swap(BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) & other)
+      {
+        using std::swap;
+        swap(_pimpl, other._pimpl);
+      }
     protected:
       virtual shared_ptr<void> lock_pimpl() const
       {
@@ -723,6 +727,17 @@ namespace boost
       shared_ptr<impl_class>
         _pimpl;
     };
+
+#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
+    // free swap function for signalN classes, findable by ADL
+    template<BOOST_SIGNALS2_SIGNAL_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS)>
+      void swap(
+        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> &sig1,
+        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> &sig2 )
+    {
+      sig1.swap(sig2);
+    }
+#endif
 
     namespace detail
     {

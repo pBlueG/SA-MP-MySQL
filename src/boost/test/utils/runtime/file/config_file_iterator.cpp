@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2005-2008.
+//  (C) Copyright Gennadiy Rozental 2005-2012.
 //  Use, modification, and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 85186 $
 //
 //  Description : flexible configuration file iterator implementation
 // ***************************************************************************
@@ -24,9 +24,9 @@
 
 
 // Boost
-#include <boost/utility.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/bind.hpp>
+#include <boost/noncopyable.hpp>
 
 // Boost.Test
 #include <boost/test/utils/basic_cstring/compare.hpp>

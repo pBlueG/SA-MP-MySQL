@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: inserter_algorithm.hpp 55648 2009-08-18 05:16:53Z agurtovoy $
-// $Date: 2009-08-17 22:16:53 -0700 (Mon, 17 Aug 2009) $
-// $Revision: 55648 $
+// $Id: inserter_algorithm.hpp 86245 2013-10-11 23:17:48Z skelly $
+// $Date: 2013-10-12 01:17:48 +0200 (Sa, 12. Okt 2013) $
+// $Revision: 86245 $
 
 #include <boost/mpl/back_inserter.hpp>
 #include <boost/mpl/front_inserter.hpp>
@@ -33,7 +33,6 @@
 
 #include <boost/preprocessor/arithmetic/dec.hpp>
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 #   define BOOST_MPL_AUX_INSERTER_ALGORITHM_DEF(arity, name) \
 BOOST_MPL_AUX_COMMON_NAME_WKND(name) \
@@ -90,70 +89,5 @@ BOOST_MPL_AUX_NA_SPEC(arity, name) \
 BOOST_MPL_AUX_NA_SPEC(arity, reverse_##name) \
 /**/
 
-#else
-
-#   define BOOST_MPL_AUX_INSERTER_ALGORITHM_DEF(arity, name) \
-BOOST_MPL_AUX_COMMON_NAME_WKND(name) \
-template< \
-      BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), typename P) \
-    > \
-struct def_##name##_impl \
-    : if_< has_push_back<P1> \
-        , aux::name##_impl< \
-              BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), P) \
-            , back_inserter< typename clear<P1>::type > \
-            > \
-        , aux::reverse_##name##_impl< \
-              BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), P) \
-            , front_inserter< typename clear<P1>::type > \
-            > \
-        >::type \
-{ \
-}; \
-\
-template< \
-      BOOST_MPL_PP_DEFAULT_PARAMS(arity, typename P, na) \
-    > \
-struct name \
-{ \
-    typedef typename eval_if< \
-          is_na<BOOST_PP_CAT(P, arity)> \
-        , def_##name##_impl<BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), P)> \
-        , aux::name##_impl<BOOST_MPL_PP_PARAMS(arity, P)> \
-        >::type type; \
-}; \
-\
-template< \
-      BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), typename P) \
-    > \
-struct def_reverse_##name##_impl \
-    : if_< has_push_back<P1> \
-        , aux::reverse_##name##_impl< \
-              BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), P) \
-            , back_inserter< typename clear<P1>::type > \
-            > \
-        , aux::name##_impl< \
-              BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), P) \
-            , front_inserter< typename clear<P1>::type > \
-            > \
-        >::type \
-{ \
-}; \
-template< \
-      BOOST_MPL_PP_DEFAULT_PARAMS(arity, typename P, na) \
-    > \
-struct reverse_##name \
-{ \
-    typedef typename eval_if< \
-          is_na<BOOST_PP_CAT(P, arity)> \
-        , def_reverse_##name##_impl<BOOST_MPL_PP_PARAMS(BOOST_PP_DEC(arity), P)> \
-        , aux::reverse_##name##_impl<BOOST_MPL_PP_PARAMS(arity, P)> \
-        >::type type; \
-}; \
-BOOST_MPL_AUX_NA_SPEC(arity, name) \
-BOOST_MPL_AUX_NA_SPEC(arity, reverse_##name) \
-/**/
-
-#endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 #endif // BOOST_MPL_AUX_INSERTER_ALGORITHM_HPP_INCLUDED

@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: operators.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
+ * $Id: operators.hpp 68789 2011-02-11 22:07:04Z steven_watanabe $
  */
 
 #ifndef BOOST_RANDOM_DETAIL_OPERATORS_HPP

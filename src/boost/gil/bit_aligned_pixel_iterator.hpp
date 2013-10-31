@@ -23,7 +23,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <functional>
+
+#include <boost/config/suffix.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+
 #include "gil_config.hpp"
 #include "bit_aligned_pixel_reference.hpp"
 #include "pixel_iterator.hpp"

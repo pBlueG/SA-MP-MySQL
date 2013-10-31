@@ -192,6 +192,11 @@ class compressed_sparse_row_graph<directedS, VertexProperty, EdgeProperty, Graph
                                             VertexProperty, Vertex, typed_identity_property_map<Vertex> >
     inherited_vertex_properties;
 
+  // Some tests to prevent use of "void" is a property type (as was done in some test cases):
+  BOOST_STATIC_ASSERT((!is_same<VertexProperty, void>::value));
+  BOOST_STATIC_ASSERT((!is_same<EdgeProperty, void>::value));
+  BOOST_STATIC_ASSERT((!is_same<GraphProperty, void>::value));
+
  public:
   // For Property Graph
   typedef GraphProperty graph_property_type;
@@ -642,8 +647,6 @@ class compressed_sparse_row_graph<directedS, VertexProperty, EdgeProperty, Graph
                      const GlobalToLocal& global_to_local) {
     typedef compressed_sparse_row_graph Graph;
     typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    typedef typename boost::graph_traits<Graph>::vertices_size_type vertex_num;
-    typedef typename boost::graph_traits<Graph>::edges_size_type edge_num;
     typedef std::vector<std::pair<vertex_t, vertex_t> > edge_vector_t;
     edge_vector_t new_edges(first, last);
     if (new_edges.empty()) return;
@@ -666,8 +669,6 @@ class compressed_sparse_row_graph<directedS, VertexProperty, EdgeProperty, Graph
                      const GlobalToLocal& global_to_local) {
     typedef compressed_sparse_row_graph Graph;
     typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    typedef typename boost::graph_traits<Graph>::vertices_size_type vertex_num;
-    typedef typename boost::graph_traits<Graph>::edges_size_type edge_num;
     typedef std::pair<vertex_t, vertex_t> vertex_pair;
     typedef std::vector<
               boost::tuple<vertex_pair,
@@ -1164,7 +1165,6 @@ inline std::pair<typename BOOST_BIDIR_CSR_GRAPH_TYPE::in_edge_iterator,
                  typename BOOST_BIDIR_CSR_GRAPH_TYPE::in_edge_iterator>
 in_edges(Vertex v, const BOOST_BIDIR_CSR_GRAPH_TYPE& g)
 {
-  typedef typename BOOST_BIDIR_CSR_GRAPH_TYPE::edge_descriptor ed;
   typedef typename BOOST_BIDIR_CSR_GRAPH_TYPE::in_edge_iterator it;
   EdgeIndex v_row_start = g.m_backward.m_rowstart[v];
   EdgeIndex next_row_start = g.m_backward.m_rowstart[v + 1];
@@ -1368,7 +1368,6 @@ put(Tag tag,
     typename property_map<BOOST_CSR_GRAPH_TYPE, Tag>::key_type k,
     typename lookup_one_property<typename property_map<BOOST_CSR_GRAPH_TYPE, Tag>::plist_type, Tag>::type val) {
   typedef typename property_map<BOOST_CSR_GRAPH_TYPE, Tag>::all_tag all_tag;
-  typedef typename property_map<BOOST_CSR_GRAPH_TYPE, all_tag>::type outer_pm;
   lookup_one_property<typename property_map<BOOST_CSR_GRAPH_TYPE, Tag>::plist_type, Tag>::lookup(get(all_tag(), g, k), tag) = val;
 }
 

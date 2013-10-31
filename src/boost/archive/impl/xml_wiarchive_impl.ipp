@@ -21,7 +21,7 @@ namespace std{
 #ifndef BOOST_NO_STD_WSTREAMBUF
 
 #include <boost/assert.hpp>
-#include <algorithm>
+#include <algorithm> // std::copy
 
 #include <boost/detail/workaround.hpp> // Dinkumware and RogueWave
 #if BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, == 1)

@@ -8,7 +8,7 @@
 #ifndef BOOST_IOSTREAMS_DETAIL_CHAIN_HPP_INCLUDED
 #define BOOST_IOSTREAMS_DETAIL_CHAIN_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -39,14 +39,11 @@
 #include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type.hpp>
-#include <boost/iostreams/detail/execute.hpp>   // VC6.5 requires this
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1310)        // #include order
-# include <boost/mpl/int.hpp>
-#endif
+#include <boost/iostreams/detail/execute.hpp>
 
 // Sometimes type_info objects must be compared by name. Borrowed from
 // Boost.Python and Boost.Function.
-#if (defined(__GNUC__) && __GNUC__ >= 3) || \
+#if defined(__GNUC__) || \
      defined(_AIX) || \
     (defined(__sgi) && defined(__host_mips)) || \
     (defined(linux) && defined(__INTEL_COMPILER) && defined(__ICC)) \
@@ -58,20 +55,15 @@
 # define BOOST_IOSTREAMS_COMPARE_TYPE_ID(X,Y) ((X)==(Y))
 #endif
 
-// Deprecated
+// Deprecated. Unused.
 #define BOOST_IOSTREAMS_COMPONENT_TYPE(chain, index) \
     chain.component_type( index ) \
     /**/
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, < 1310)
-# define BOOST_IOSTREAMS_COMPONENT(chain, index, target) \
+// Deprecated. Unused.
+#define BOOST_IOSTREAMS_COMPONENT(chain, index, target) \
     chain.component< target >( index ) \
     /**/
-#else
-# define BOOST_IOSTREAMS_COMPONENT(chain, index, target) \
-    chain.component( index, ::boost::type< target >() ) \
-    /**/
-#endif
 
 namespace boost { namespace iostreams {
 
@@ -180,7 +172,6 @@ public:
         return (*boost::next(list().begin(), n))->component_type();
     }
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, < 1310)
     // Deprecated.
     template<int N>
     const std::type_info& component_type() const { return component_type(N); }
@@ -191,9 +182,8 @@ public:
     // Deprecated.
     template<int N, typename T> 
     T* component() const { return component<T>(N); }
-#endif
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, < 1310)
+#if !BOOST_WORKAROUND(BOOST_MSVC, == 1310)
     private:
 #endif
     template<typename T>
@@ -456,7 +446,6 @@ public:
     const std::type_info& component_type(int n) const
     { return chain_->component_type(n); }
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, < 1310)
     // Deprecated.
     template<int N>
     const std::type_info& component_type() const
@@ -470,11 +459,6 @@ public:
     template<int N, typename T>
     T* component() const
     { return chain_->BOOST_NESTED_TEMPLATE component<N, T>(); }
-#else
-    template<typename T>
-    T* component(int n, boost::type<T> t) const
-    { return chain_->component(n, t); }
-#endif
 
     bool is_complete() const { return chain_->is_complete(); }
     bool auto_close() const { return chain_->auto_close(); }

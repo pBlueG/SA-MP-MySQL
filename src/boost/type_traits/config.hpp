@@ -27,8 +27,6 @@
 #endif
 
 # if (BOOST_WORKAROUND(__MWERKS__, < 0x3000)                         \
-    || BOOST_WORKAROUND(BOOST_MSVC, <= 1301)                        \
-    || !defined(__EDG_VERSION__) && BOOST_WORKAROUND(__GNUC__, < 3) \
     || BOOST_WORKAROUND(__IBMCPP__, < 600 )                         \
     || BOOST_WORKAROUND(__BORLANDC__, < 0x5A0)                      \
     || defined(__ghs)                                               \
@@ -43,14 +41,6 @@
 
 #ifndef BOOST_TT_NO_CONFORMING_IS_CLASS_IMPLEMENTATION
 # define BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION 1
-#endif
-
-//
-// Define BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING 
-// when we can't test for function types with elipsis:
-//
-#if BOOST_WORKAROUND(__GNUC__, < 3)
-#  define BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
 #endif
 
 //

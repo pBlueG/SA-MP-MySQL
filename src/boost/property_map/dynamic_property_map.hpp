@@ -234,6 +234,15 @@ public:
     return *this;
   }
 
+  template<typename PropertyMap>
+  dynamic_properties
+  property(const std::string& name, PropertyMap property_map_) const
+  {
+    dynamic_properties result = *this;
+    result.property(name, property_map_);
+    return result;
+  }
+
   iterator       begin()       { return property_maps.begin(); }
   const_iterator begin() const { return property_maps.begin(); }
   iterator       end()         { return property_maps.end(); }
@@ -290,7 +299,6 @@ put(const std::string& name, dynamic_properties& dp, const Key& key,
   }
 }
 
-#ifndef BOOST_NO_EXPLICIT_FUNCTION_TEMPLATE_ARGUMENTS 
 template<typename Value, typename Key>
 Value
 get(const std::string& name, const dynamic_properties& dp, const Key& key)
@@ -303,7 +311,6 @@ get(const std::string& name, const dynamic_properties& dp, const Key& key)
 
   BOOST_THROW_EXCEPTION(dynamic_get_failure(name));
 }
-#endif
 
 template<typename Value, typename Key>
 Value

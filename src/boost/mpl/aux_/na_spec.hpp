@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: na_spec.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-10 23:19:02 -0700 (Fri, 10 Oct 2008) $
-// $Revision: 49267 $
+// $Id: na_spec.hpp 85961 2013-09-26 14:10:37Z skelly $
+// $Date: 2013-09-26 16:10:37 +0200 (Do, 26. Sep 2013) $
+// $Revision: 85961 $
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/lambda_fwd.hpp>
@@ -28,8 +28,6 @@
 #include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
 #include <boost/mpl/aux_/lambda_arity_param.hpp>
 #include <boost/mpl/aux_/config/dtp.hpp>
-#include <boost/mpl/aux_/config/eti.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
 #include <boost/mpl/aux_/config/ttp.hpp>
 #include <boost/mpl/aux_/config/lambda.hpp>
 #include <boost/mpl/aux_/config/overload_resolution.hpp>
@@ -42,7 +40,7 @@
 #if defined(BOOST_MPL_CFG_BROKEN_DEFAULT_PARAMETERS_IN_NESTED_TEMPLATES)
 #   define BOOST_MPL_AUX_NA_SPEC_ARITY(i, name) \
 namespace aux { \
-template< BOOST_MPL_AUX_NTTP_DECL(int, N) > \
+template< int N > \
 struct arity< \
           name< BOOST_MPL_AUX_NA_PARAMS(i) > \
         , N \
@@ -136,18 +134,8 @@ struct template_arity< \
 #   define BOOST_MPL_AUX_NA_SPEC_TEMPLATE_ARITY(i, j, name) /**/
 #endif
 
-#if defined(BOOST_MPL_CFG_MSVC_ETI_BUG)
-#   define BOOST_MPL_AUX_NA_SPEC_ETI(i, name) \
-template<> \
-struct name< BOOST_MPL_PP_ENUM(i, int) > \
-{ \
-    typedef int type; \
-    enum { value = 0 }; \
-}; \
-/**/
-#else
+// Obsolete. Remove.
 #   define BOOST_MPL_AUX_NA_SPEC_ETI(i, name) /**/
-#endif
 
 #define BOOST_MPL_AUX_NA_PARAM(param) param = na
 
@@ -160,12 +148,10 @@ BOOST_MPL_AUX_NA_SPEC_TEMPLATE_ARITY(i, i, name) \
 
 #define BOOST_MPL_AUX_NA_SPEC(i, name) \
 BOOST_MPL_AUX_NA_SPEC_NO_ETI(i, name) \
-BOOST_MPL_AUX_NA_SPEC_ETI(i, name) \
 /**/
 
 #define BOOST_MPL_AUX_NA_SPEC2(i, j, name) \
 BOOST_MPL_AUX_NA_SPEC_MAIN(i, name) \
-BOOST_MPL_AUX_NA_SPEC_ETI(i, name) \
 BOOST_MPL_AUX_NA_SPEC_LAMBDA(i, name) \
 BOOST_MPL_AUX_NA_SPEC_ARITY(i, name) \
 BOOST_MPL_AUX_NA_SPEC_TEMPLATE_ARITY(i, j, name) \

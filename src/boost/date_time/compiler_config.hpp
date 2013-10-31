@@ -5,7 +5,7 @@
  * Subject to the Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2011-07-26 10:40:21 -0700 (Tue, 26 Jul 2011) $
+ * $Date: 2013-10-01 10:43:14 +0200 (Di, 01. Okt 2013) $
  */
 
 #include <cstdlib>
@@ -18,8 +18,6 @@
 // compilers. They must define this macro to use the legacy IO.
 //     (defined(__BORLANDC__) && (__BORLANDC__ <= 0x0581) ) )   &&
  #if(  BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x581) ) \
-    || BOOST_WORKAROUND( __GNUC__, < 3)                         \
-    || (BOOST_WORKAROUND( _MSC_VER, <= 1300) )                  \
     )                                                           \
     && !defined(USE_DATE_TIME_PRE_1_33_FACET_IO)
 # define USE_DATE_TIME_PRE_1_33_FACET_IO
@@ -41,10 +39,6 @@
 
 // Include extensions to date_duration - comment out to remove this feature
 #define BOOST_DATE_TIME_OPTIONAL_GREGORIAN_TYPES
-// these extensions are known to cause problems with gcc295
-#if defined(__GNUC__) && (__GNUC__ < 3)
-#undef BOOST_DATE_TIME_OPTIONAL_GREGORIAN_TYPES
-#endif
 
 #if (defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION) || BOOST_WORKAROUND( __BORLANDC__,  BOOST_TESTED_AT(0x581) ) )
 #define BOOST_DATE_TIME_NO_MEMBER_INIT
@@ -80,10 +74,7 @@ namespace std {
 // Compilers affected are:
 // gcc295, msvc (neither with STLPort), any borland
 // 
-#if (((defined(__GNUC__) && (__GNUC__ < 3)) || \
-      (defined(_MSC_VER) && (_MSC_VER < 1300)) ) && \
-      !defined(_STLP_OWN_IOSTREAMS) ) || \
-      BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x581) )
+#if BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x581) )
 #define BOOST_DATE_TIME_INCLUDE_LIMITED_HEADERS
 #endif
 

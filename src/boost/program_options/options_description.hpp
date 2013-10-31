@@ -61,8 +61,8 @@ namespace program_options {
 
             Alas, derived->base conversion for auto_ptr does not really work,
             see
-            http://anubis.dkuug.dk/jtc1/sc22/wg21/docs/papers/2000/n1232.pdf
-            http://std.dkuug.dk/jtc1/sc22/wg21/docs/cwg_defects.html#84
+            http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2000/n1232.pdf
+            http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#84
 
             So, we have to use plain old pointers. Besides, users are not
             expected to use the constructor directly.

@@ -2,7 +2,7 @@
 #define BOOST_ARCHIVE_BINARY_IARCHIVE_HPP
 
 // MS compatible compilers support #pragma once
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -29,7 +29,7 @@ namespace boost {
 namespace archive {
 
 // do not derive from the classes below.  If you want to extend this functionality
-// via inhertance, derived from text_iarchive_impl instead.  This will
+// via inhertance, derived from binary_iarchive_impl instead.  This will
 // preserve correct static polymorphism.
 
 // same as binary_iarchive below - without the shared_ptr_helper
