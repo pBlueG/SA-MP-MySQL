@@ -4,15 +4,162 @@
 
 
 #include "CMySQLQuery.h"
-#include "CMySQLResult.h"
 #include "CMySQLHandle.h"
 #include "CCallback.h"
-#include "COrm.h"
+//#include "COrm.h"
 #include "CLog.h"
 
 #include "misc.h"
 
+#include <boost/thread.hpp>
+#include <boost/thread/future.hpp>
 
+
+CMySQLQuery CMySQLQuery::Create(
+	string query, const CMySQLConnection *connection,
+	string cbname, string cbformat, stack<string> cbparams)
+{
+	CMySQLQuery QueryObj(connection);
+
+	QueryObj.Query = boost::move(query);
+	QueryObj.Callback.Name = boost::move(cbname);
+	QueryObj.Callback.Format = boost::move(cbformat);
+	QueryObj.Callback.Params = boost::move(cbparams);
+
+
+	MYSQL *ConnPtr = const_cast<MYSQL*>(QueryObj.Connection->GetMySQLPointer()); //don't try this at home kids!
+	if (ConnPtr != nullptr)
+	{
+		mysql_thread_init();
+		if (mysql_real_query(ConnPtr, QueryObj.Query.c_str(), QueryObj.Query.length()) == 0)
+		{
+			CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "query was successful");
+
+			MYSQL_RES *SQLResult = mysql_store_result(ConnPtr); //this has to be here
+
+			//why should we process the result if it won't and can't be used?
+			if (QueryObj.Callback.Name.length() > 0)
+			{
+				if (SQLResult != NULL)
+				{
+					MYSQL_FIELD *SQLField;
+					MYSQL_ROW SQLRow;
+
+
+					QueryObj.Result.m_WarningCount = mysql_warning_count(ConnPtr);
+
+					QueryObj.Result.m_Rows = mysql_num_rows(SQLResult);
+					QueryObj.Result.m_Fields = mysql_num_fields(SQLResult);
+					
+					QueryObj.Result.m_Data.reserve((unsigned int)QueryObj.Result.m_Rows + 1);
+					QueryObj.Result.m_FieldNames.reserve(QueryObj.Result.m_Fields + 1);
+
+
+					while ((SQLField = mysql_fetch_field(SQLResult)))
+						QueryObj.Result.m_FieldNames.push_back(SQLField->name);
+
+
+					while (SQLRow = mysql_fetch_row(SQLResult))
+					{
+						std::vector< vector<string> >::iterator It = QueryObj.Result.m_Data.insert(QueryObj.Result.m_Data.end(), vector<string>());
+						It->reserve(QueryObj.Result.m_Fields + 1);
+
+						for (unsigned int a = 0; a < QueryObj.Result.m_Fields; ++a)
+							It->push_back(!SQLRow[a] ? "NULL" : SQLRow[a]);
+					}
+
+				}
+				else if (mysql_field_count(ConnPtr) == 0) //query is non-SELECT query
+				{
+					QueryObj.Result.m_WarningCount = mysql_warning_count(ConnPtr);
+					QueryObj.Result.m_AffectedRows = mysql_affected_rows(ConnPtr);
+					QueryObj.Result.m_InsertID = mysql_insert_id(ConnPtr);
+				}
+				else //error
+				{
+					int ErrorID = mysql_errno(ConnPtr);
+					string ErrorString(mysql_error(ConnPtr));
+
+					CLog::Get()->LogFunction(LOG_ERROR, LogFuncBuf, "an error occured while storing the result: (error #%d) \"%s\"", ErrorID, ErrorString.c_str());
+
+					//we clear the callback name and forward it to the callback handler
+					//the callback handler free's all memory but doesn't call the callback because there's no callback name
+					QueryObj.Callback.Name.clear();
+				}
+			}
+			else  //no callback was specified
+			{
+				CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "no callback specified, skipping result saving");
+			}
+
+			if (SQLResult != NULL)
+				mysql_free_result(SQLResult);
+		}
+		else  //mysql_real_query failed
+		{
+			int ErrorID = mysql_errno(ConnPtr);
+			string ErrorString(mysql_error(ConnPtr));
+
+			CLog::Get()->LogFunction(LOG_ERROR, LogFuncBuf, "(error #%d) %s", ErrorID, ErrorString.c_str());
+
+
+			if (QueryObj.Connection->GetAutoReconnect() && ErrorID == 2006)
+			{
+				CLog::Get()->LogFunction(LOG_WARNING, LogFuncBuf, "lost connection, reconnecting..");
+
+				MYSQL_RES *SQLRes;
+				if ((SQLRes = mysql_store_result(ConnPtr)) != NULL)
+					mysql_free_result(SQLRes);
+
+				QueryObj.Connection->Disconnect();
+				QueryObj.Connection->Connect();
+			}
+
+			if (QueryObj.Callback.Name.size() > 0)
+			{
+				//forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
+				//recycle these structures, change some data
+				
+				//OrmObject = NULL;
+				//OrmQueryType = 0;
+
+				while (QueryObj.Callback.Params.size() > 0)
+					QueryObj.Callback.Params.pop();
+
+				char
+					strErrorID[12],
+					strConnID[12];
+				ConvertIntToStr(ErrorID, strErrorID);
+				//ConvertIntToStr(ConnHandle->GetID(), strConnID); //TODO: THIS IS IMPORTANT!!!!!!
+
+				QueryObj.Callback.Params.push(strErrorID);
+				QueryObj.Callback.Params.push(ErrorString);
+				QueryObj.Callback.Params.push(QueryObj.Callback.Name);
+				QueryObj.Callback.Params.push(QueryObj.Query);
+				QueryObj.Callback.Params.push(strConnID);
+
+				QueryObj.Callback.Name = "OnQueryError";
+				QueryObj.Callback.Format = "dsssd";
+
+				//CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "error will be triggered in OnQueryError");
+			}
+		}
+		mysql_thread_end();
+	}
+
+	/*if (Threaded == true)
+	{
+		//the query gets passed to the callback handler in any case
+		//if query successful, it calls the callback and free's memory
+		//if not it only free's the memory
+		CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "data being passed to ProcessCallbacks()");
+		CCallback::AddQueryToQueue(this);
+	}*/
+
+
+	return QueryObj;
+}
+/*
 CMySQLQuery::CMySQLQuery()  :
 	Threaded(true),
 
@@ -37,8 +184,8 @@ CMySQLQuery::~CMySQLQuery() {
 CMySQLQuery *CMySQLQuery::Create(
 	const char *query, CMySQLHandle *connhandle, 
 	const char *cbname, const char *cbformat, 
-	bool threaded /* = true */,
-	COrm *ormobject /* = NULL */, unsigned short orm_querytype /* = 0 */)
+	bool threaded ,
+	COrm *ormobject , unsigned short orm_querytype)
 {
 	if(connhandle == NULL) 
 	{
@@ -249,3 +396,4 @@ void CMySQLQuery::Execute()
 		CCallback::AddQueryToQueue(this);
 	}
 }
+*/

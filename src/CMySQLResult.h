@@ -20,10 +20,10 @@ class CMySQLResult
 public:
 	friend class CMySQLQuery;
 
-	inline void Destroy()
+	/*inline void Destroy()
 	{
 		delete this;
-	}
+	}*/
 
 	inline my_ulonglong GetRowCount() const 
 	{
@@ -55,9 +55,9 @@ public:
 		return m_WarningCount;
 	}
 
-private:
 	CMySQLResult();
 	~CMySQLResult();
+private:
 
 	unsigned int m_Fields;
 	my_ulonglong m_Rows;

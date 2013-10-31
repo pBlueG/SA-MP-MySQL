@@ -4,13 +4,16 @@
 
 
 #include <string>
-#include <boost/unordered_map.hpp>
-#include <boost/lockfree/spsc_queue.hpp>
+//#include <boost/unordered_map.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/atomic.hpp>
+//#include <boost/atomic.hpp>
+#include <unordered_map>
+#include <forward_list>
 
 using std::string;
-using boost::unordered_map;
+using std::unordered_map;
+using std::forward_list;
+
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -19,8 +22,9 @@ using boost::unordered_map;
 
 #include "main.h"
 
+#include "CMySQLResult.h"
 
-class CMySQLResult;
+
 class CMySQLQuery;
 
 
@@ -41,7 +45,7 @@ public:
 	//escape a string to dest
 	void EscapeString(const char *src, string &dest);
 
-	inline MYSQL *GetMySQLPointer() 
+	inline const MYSQL *GetMySQLPointer() const
 	{
 		return m_Connection;
 	}
@@ -66,7 +70,7 @@ private:
 			m_IsConnected(false),
 			m_AutoReconnect(auto_reconnect),
 
-			m_Connection(NULL)
+			m_Connection(nullptr)
 	{ }
 	~CMySQLConnection()
 	{ }
@@ -103,26 +107,17 @@ public:
 		return m_MainConnection;
 	}
 
-	//returns MySQL connection for unthreaded queries
-	inline CMySQLConnection *GetQueryConnection() const 
-	{
-		return m_QueryConnection;
-	}
+	CMySQLConnection *GetFreeQueryConnection();
+	void SetQueryConnectionFree(const CMySQLConnection* connection);
+	void ExecuteOnConnectionPool(void(CMySQLConnection::*func)());
 	
+
 	//checks if handle exists by id
 	static inline bool IsValid(int id) 
 	{
 		return (SQLHandle.find(id) != SQLHandle.end());
 	}
 
-	//schedules query
-	inline bool ScheduleQuery(CMySQLQuery *query) 
-	{
-		m_QueryCounter++;
-		return m_QueryQueue.push(query);
-	}
-	//process queries
-	void ProcessQueries();
 
 	//fabric function
 	static CMySQLHandle *Create(string host, string user, string pass, string db, size_t port, bool reconnect);
@@ -139,20 +134,20 @@ public:
 		return m_MyID;
 	}
 	//returns number of unprocessed queries
-	inline unsigned int GetUnprocessedQueryCount() const 
+	/*inline unsigned int GetUnprocessedQueryCount() const 
 	{
 		return m_QueryCounter;
-	}
+	}*/
 
 
-	void SetActiveResult(CMySQLResult *result);
+	void SetActiveResult(CMySQLResult result);
 	
-	int SaveActiveResult();
+	/*int SaveActiveResult();
 	bool DeleteSavedResult(int resultid);
-	bool SetActiveResult(int resultid);
-	inline CMySQLResult *GetActiveResult() const 
+	bool SetActiveResult(int resultid);*/
+	inline CMySQLResult *GetActiveResult() 
 	{
-		return m_ActiveResult;
+		return &m_ActiveResult;
 	}
 	inline bool IsActiveResultSaved() const 
 	{
@@ -170,24 +165,23 @@ private:
 
 	static unordered_map<int, CMySQLHandle *> SQLHandle;
 	
-	boost::atomic<bool> m_QueryThreadRunning;
+	/*boost::atomic<bool> m_QueryThreadRunning;
 	boost::atomic<unsigned int> m_QueryCounter;
 	boost::thread *m_QueryThread;
 	boost::lockfree::spsc_queue <
 			CMySQLQuery *,
 			boost::lockfree::capacity<16384> 
-		> m_QueryQueue;
+		> m_QueryQueue;*/
 
 	unordered_map<int, CMySQLResult*> m_SavedResults;
 
-	CMySQLResult *m_ActiveResult;
+	CMySQLResult m_ActiveResult;
 	int m_ActiveResultID; //ID of stored result; 0 if not stored yet
 
 	int m_MyID;
 
-	CMySQLConnection
-		*m_MainConnection, //only used in main thread
-		*m_QueryConnection; //used for threaded queries
+	CMySQLConnection *m_MainConnection; //only used in main thread
+	forward_list<std::tuple<CMySQLConnection*, bool>> m_ConnectionPool;
 };
 
 enum E_DATATYPES 
