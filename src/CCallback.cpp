@@ -11,32 +11,33 @@
 #include "misc.h"
 #include <cstdio>
 
-/*boost::lockfree::queue<
-		CMySQLQuery*, 
-		boost::lockfree::fixed_sized<true>,
-		boost::lockfree::capacity<8192>
-	> CCallback::m_CallbackQueue;*/
-list<std::tuple<boost::unique_future<CMySQLQuery>, CMySQLHandle*>> CCallback::m_CallbackQueue;
+#include <chrono>
+
+
+list<tuple<future<CMySQLQuery>, CMySQLHandle*>> CCallback::m_CallbackQueue;
+mutex CCallback::m_QueueMtx;
 
 list<AMX *> CCallback::m_AmxList;
+
 
 
 void CCallback::ProcessCallbacks() 
 {
 	if (!m_CallbackQueue.empty())
 	{
+		std::lock_guard<mutex> LockGuard(m_QueueMtx);
 		auto i = m_CallbackQueue.begin();
 		do
 		{
-			//auto FutureRes = boost::move(std::get<0>((*i)));
 			auto &FutureRes = std::get<0>((*i));
-			if (FutureRes.is_ready())
+
+			if (FutureRes.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
 			{
-				CMySQLQuery QueryObj = boost::move(FutureRes.get());
+				CMySQLQuery QueryObj = std::move(FutureRes.get());
+				bool PassByRef = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
 				
-				for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
+				for (auto &amx : m_AmxList)
 				{
-					AMX *amx = (*a);
 					cell amx_Ret;
 					int amx_Index;
 					cell amx_MemoryAddress = -1;
@@ -45,61 +46,36 @@ void CCallback::ProcessCallbacks()
 					{
 						CLog::Get()->StartCallback(QueryObj.Callback.Name.c_str());
 
-						int StringIndex = QueryObj.Callback.Format.length() - 1;
-						while (!QueryObj.Callback.Params.empty() && StringIndex >= 0)
+						while (!QueryObj.Callback.Params.empty())
 						{
-							switch (QueryObj.Callback.Format.at(StringIndex))
+							boost::variant<cell, string> value = std::move(QueryObj.Callback.Params.top());
+							if (value.type() == typeid(cell))
 							{
-								case 'i':
-								case 'd':
-								{
-									int val = 0;
-									ConvertStrToInt(QueryObj.Callback.Params.top().c_str(), val);
-
-									/*if (PassByReference == false)
-										amx_Push(amx, (cell)val);
-									else*/
-									{
-										cell tmpAddress;
-										amx_PushArray(amx, &tmpAddress, NULL, (cell*)&val, 1);
-										if (amx_MemoryAddress < NULL)
-											amx_MemoryAddress = tmpAddress;
-									}
-								}
-								break;
-								case 'f':
-								{
-									float float_val = 0.0f;
-									ConvertStrToFloat(QueryObj.Callback.Params.top().c_str(), float_val);
-									cell FParam = amx_ftoc(float_val);
-
-									/*if (PassByReference == false)
-										amx_Push(amx, FParam);
-									else*/
-									{
-										cell tmpAddress;
-										amx_PushArray(amx, &tmpAddress, NULL, (cell*)&FParam, 1);
-										if (amx_MemoryAddress < NULL)
-											amx_MemoryAddress = tmpAddress;
-									}
-								}
-								break;
-								default:
+								if (PassByRef)
 								{
 									cell tmpAddress;
-									amx_PushString(amx, &tmpAddress, NULL, QueryObj.Callback.Params.top().c_str(), 0, 0);
+									amx_PushArray(amx, &tmpAddress, NULL, (cell*)&boost::get<cell>(value), 1);
 									if (amx_MemoryAddress < NULL)
 										amx_MemoryAddress = tmpAddress;
 								}
+								else
+									amx_Push(amx, boost::get<cell>(value));
+							}
+							else
+							{
+								cell tmpAddress;
+								amx_PushString(amx, &tmpAddress, NULL, boost::get<string>(value).c_str(), 0, 0);
+								if (amx_MemoryAddress < NULL)
+									amx_MemoryAddress = tmpAddress;
 							}
 
-							StringIndex--;
 							QueryObj.Callback.Params.pop();
 						}
 
 						CMySQLHandle *ConnHandle = std::get<1>(*i);
-						ConnHandle->SetActiveResult(boost::move(QueryObj.Result));
-						//Query->Result = NULL;
+						ConnHandle->DecreaseQueryCounter();
+						ConnHandle->SetActiveResult(QueryObj.Result);
+						//QueryObj.Result = nullptr;
 						CMySQLHandle::ActiveHandle = ConnHandle;
 
 						amx_Exec(amx, &amx_Ret, amx_Index);
@@ -108,11 +84,10 @@ void CCallback::ProcessCallbacks()
 
 						CMySQLHandle::ActiveHandle = nullptr;
 
-						//if (ConnHandle->IsActiveResultSaved() == false)
-							//ConnHandle->GetActiveResult()->Destroy();
+						if (ConnHandle->IsActiveResultSaved() == false)
+							delete ConnHandle->GetActiveResult();
 
-						//Query->ConnHandle->SetActiveResult((CMySQLResult *)NULL);
-						ConnHandle->SetQueryConnectionFree(QueryObj.Connection);
+						ConnHandle->SetActiveResult(nullptr);
 
 						CLog::Get()->EndCallback();
 
@@ -125,8 +100,10 @@ void CCallback::ProcessCallbacks()
 			}
 			else
 			{
-				//std::get<0>(*i) = boost::move(FutureRes);
+				//if(mysql_options.execute-in-order == true)
+					//return ;
 			}
+			
 		} 
 		while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
 	}
@@ -134,14 +111,14 @@ void CCallback::ProcessCallbacks()
 
 
 
-void CCallback::AddAmx( AMX *amx ) 
+void CCallback::AddAmx(AMX *amx) 
 {
 	m_AmxList.push_back(amx);
 }
 
-void CCallback::EraseAmx( AMX *amx ) 
+void CCallback::EraseAmx(AMX *amx) 
 {
-	for (list<AMX *>::iterator a = m_AmxList.begin(); a != m_AmxList.end(); ++a) 
+	for (auto a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 	{
 		if ( (*a) == amx) 
 		{
@@ -151,42 +128,38 @@ void CCallback::EraseAmx( AMX *amx )
 	}
 }
 
-void CCallback::ClearAll() {
-	//CMySQLQuery *tmpQuery = NULL;
-	//while(m_CallbackQueue.pop(tmpQuery))
-	//	tmpQuery->Destroy();
+void CCallback::ClearAll() 
+{
+	m_CallbackQueue.clear();
 }
 
-void CCallback::FillCallbackParams(stack<string> &dest, string &format, AMX* amx, cell* params, const int ConstParamCount) 
+void CCallback::FillCallbackParams(stack<boost::variant<cell, string>> &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount)
 {
+	if (format == nullptr || !(*format))
+		return ;
+
 	unsigned int ParamIdx = 1;
-	cell *AddressPtr;
+	cell *AddressPtr = nullptr;
 
-	for(string::iterator c = format.begin(), end = format.end(); c != end; ++c) 
+	do
 	{
-		if ( (*c) == 'd' || (*c) == 'i') 
+		char *StrBuf = nullptr;
+		switch (*format)
 		{
-			amx_GetAddr(amx, params[ConstParamCount + ParamIdx], &AddressPtr);
-			char IntBuf[12]; //12 -> strlen of (-2^31) + '\0'
-			ConvertIntToStr<10>((*AddressPtr), IntBuf);
-			dest.push(IntBuf);
-		} 
-		else if ( (*c) == 's' || (*c) == 'z') 
-		{
-			char *StrBuf = NULL;
-			amx_StrParam(amx, params[ConstParamCount + ParamIdx], StrBuf);
-			dest.push(StrBuf == NULL ? string() : StrBuf);
-		} 
-		else if ( (*c) == 'f') 
-		{
-			amx_GetAddr(amx, params[ConstParamCount + ParamIdx], &AddressPtr);
-			char FloatBuf[84]; //84 -> strlen of (2^(2^7)) + '\0'
-			ConvertFloatToStr(amx_ctof(*AddressPtr), FloatBuf);
-			dest.push(FloatBuf);
-		} 
-		else 
-			dest.push("NULL");
-
+			case 'd':
+			case 'i':
+			case 'f':
+				amx_GetAddr(amx, params[ConstParamCount + ParamIdx], &AddressPtr);
+				dest.push(*AddressPtr);
+				break;
+			case 'z':
+			case 's':
+				amx_StrParam(amx, params[ConstParamCount + ParamIdx], StrBuf);
+				dest.push(StrBuf == nullptr ? string() : string(StrBuf));
+				break;
+			default:
+				dest.push(string("NULL"));
+		}
 		ParamIdx++;
-	}
+	} while (*(++format));
 }

@@ -4,15 +4,22 @@
 
 
 #include <string>
-//#include <boost/unordered_map.hpp>
-#include <boost/thread/thread.hpp>
-//#include <boost/atomic.hpp>
+#include <thread>
 #include <unordered_map>
 #include <forward_list>
+#include <tuple>
+#include <functional>
+#include <queue>
+#include <atomic>
 
 using std::string;
 using std::unordered_map;
 using std::forward_list;
+using std::thread;
+using std::tuple;
+using std::function;
+using std::queue;
+using std::atomic;
 
 
 #ifdef WIN32
@@ -29,13 +36,13 @@ class CMySQLQuery;
 
 
 #define ERROR_INVALID_CONNECTION_HANDLE(function, id) \
-	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid connection handle (ID = %d)", id), 0
+	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid connection handle (ID = %d)", id)
 
 
 class CMySQLConnection 
 {
 public:
-	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect);
+	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect);
 	void Destroy();
 
 	//(dis)connect to the MySQL server
@@ -45,7 +52,16 @@ public:
 	//escape a string to dest
 	void EscapeString(const char *src, string &dest);
 
-	inline const MYSQL *GetMySQLPointer() const
+	inline void ToggleState(bool toggle)
+	{
+		m_State = toggle;
+	}
+	inline bool GetState() const
+	{
+		return m_State;
+	}
+
+	inline MYSQL *GetMySQLPointer() const
 	{
 		return m_Connection;
 	}
@@ -60,7 +76,7 @@ public:
 	}
 
 private:
-	CMySQLConnection(string &host, string &user, string &passw, string &db, unsigned int port, bool auto_reconnect)
+	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect)
 		:	m_Host(host),
 			m_User(user),
 			m_Passw(passw),
@@ -70,7 +86,9 @@ private:
 			m_IsConnected(false),
 			m_AutoReconnect(auto_reconnect),
 
-			m_Connection(nullptr)
+			m_Connection(nullptr),
+
+			m_State(false)
 	{ }
 	~CMySQLConnection()
 	{ }
@@ -82,7 +100,7 @@ private:
 		m_User,
 		m_Passw,
 		m_Database;
-	unsigned int m_Port;
+	size_t m_Port;
 
 	//connection status
 	bool m_IsConnected;
@@ -92,12 +110,16 @@ private:
 
 	//internal MYSQL pointer
 	MYSQL *m_Connection;
+
+	bool m_State;
 };
 
 
 class CMySQLHandle 
 {
 public:
+
+
 	//freezes the thread until all pending queries are executed
 	void WaitForQueryExec();
 
@@ -107,9 +129,12 @@ public:
 		return m_MainConnection;
 	}
 
-	CMySQLConnection *GetFreeQueryConnection();
-	void SetQueryConnectionFree(const CMySQLConnection* connection);
-	void ExecuteOnConnectionPool(void(CMySQLConnection::*func)());
+	void ExecuteOnConnectionPool(void (CMySQLConnection::*func)());
+
+	inline void QueueQuery(function<CMySQLQuery(CMySQLConnection*)> &&func)
+	{
+		m_QueryQueue.push(std::move(func));
+	}
 	
 
 	//checks if handle exists by id
@@ -120,7 +145,7 @@ public:
 
 
 	//fabric function
-	static CMySQLHandle *Create(string host, string user, string pass, string db, size_t port, bool reconnect);
+	static CMySQLHandle *Create(string host, string user, string pass, string db, size_t port, size_t pool_size, bool reconnect);
 	//delete function, call this instead of delete operator!
 	void Destroy();
 	//returns MySQL handle by id
@@ -134,29 +159,34 @@ public:
 		return m_MyID;
 	}
 	//returns number of unprocessed queries
-	/*inline unsigned int GetUnprocessedQueryCount() const 
+	inline unsigned int GetUnprocessedQueryCount() const 
 	{
 		return m_QueryCounter;
-	}*/
+	}
+	inline void DecreaseQueryCounter()
+	{
+		m_QueryCounter--;
+	}
 
 
-	void SetActiveResult(CMySQLResult result);
+	void SetActiveResult(CMySQLResult *result);
 	
-	/*int SaveActiveResult();
+	int SaveActiveResult();
 	bool DeleteSavedResult(int resultid);
-	bool SetActiveResult(int resultid);*/
+	bool SetActiveResult(int resultid);
 	inline CMySQLResult *GetActiveResult() 
 	{
-		return &m_ActiveResult;
+		return m_ActiveResult;
 	}
 	inline bool IsActiveResultSaved() const 
 	{
 		return m_ActiveResultID > 0 ? true : false;
 	}
 
-	
-	static void ClearAll();
 
+	void ExecThreadStashFunc();
+
+	static void ClearAll();
 
 	static CMySQLHandle *ActiveHandle;
 private:
@@ -165,23 +195,20 @@ private:
 
 	static unordered_map<int, CMySQLHandle *> SQLHandle;
 	
-	/*boost::atomic<bool> m_QueryThreadRunning;
-	boost::atomic<unsigned int> m_QueryCounter;
-	boost::thread *m_QueryThread;
-	boost::lockfree::spsc_queue <
-			CMySQLQuery *,
-			boost::lockfree::capacity<16384> 
-		> m_QueryQueue;*/
+	queue< function<CMySQLQuery(CMySQLConnection*)> > m_QueryQueue;
+	thread m_QueryStashThread;
+	atomic<bool> m_QueryThreadRunning;
+	atomic<unsigned int> m_QueryCounter;
 
 	unordered_map<int, CMySQLResult*> m_SavedResults;
 
-	CMySQLResult m_ActiveResult;
+	CMySQLResult *m_ActiveResult;
 	int m_ActiveResultID; //ID of stored result; 0 if not stored yet
 
 	int m_MyID;
 
 	CMySQLConnection *m_MainConnection; //only used in main thread
-	forward_list<std::tuple<CMySQLConnection*, bool>> m_ConnectionPool;
+	forward_list<CMySQLConnection*> m_ConnectionPool;
 };
 
 enum E_DATATYPES 

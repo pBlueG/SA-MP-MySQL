@@ -5,13 +5,15 @@
 
 #include <string>
 #include <stack>
+#include <boost/variant.hpp>
 
 using std::string;
 using std::stack;
 
-#include "CMySQLResult.h"
+#include "main.h"
 
 
+class CMySQLResult;
 class CMySQLHandle;
 class CMySQLConnection;
 class CCallback;
@@ -22,38 +24,25 @@ class CMySQLQuery
 {
 public:
 	static CMySQLQuery Create(
-		string query, const CMySQLConnection *connection,
-		string cbname, string cbformat, stack<string> cbparams
-		);
-	//static CMySQLQuery Create(const char *query, CMySQLHandle *connhandle, const char *cbname, const char *cbformat, stack<string> cbparams, bool threaded = true, COrm *ormobject = NULL, unsigned short orm_querytype = 0);
-	//static CMySQLQuery Create(const char *query) {}
-	//void Destroy();
-
-	//CMySQLQuery *Execute();
+		string query, CMySQLConnection *connection,
+		string cbname, stack<boost::variant<cell, string>> cbparams
+	);
 
 
 	string Query;
-	//bool Threaded;
 
-	//CMySQLHandle *ConnHandle;
-	const CMySQLConnection *Connection;
-	CMySQLResult Result;
-	//CMySQLResult *Result;
-	//CCallback *Callback;
+	CMySQLConnection *Connection = nullptr;
+	CMySQLResult *Result = nullptr;
 	struct s_Callback
 	{
-		stack<string> Params;
+		stack<boost::variant<cell, string>> Params;
 		string Name;
-		string Format;
 	} Callback;
 
 	//COrm *OrmObject;
 	//unsigned short OrmQueryType;
-	~CMySQLQuery() {}
-private:
-	CMySQLQuery(const CMySQLConnection *connection) :
-		Connection(connection)
-	{ }
+	CMySQLQuery() {}
+	~CMySQLQuery();
 	
 };
 

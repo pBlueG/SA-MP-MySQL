@@ -7,11 +7,6 @@
 #include "CLog.h"
 
 //#include <vld.h>
-/*
-namespace boost 
-{
-	void tss_cleanup_implemented(void) {}
-};*/
 
 
 extern void	*pAMXFunctions;
@@ -87,18 +82,18 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 	{"mysql_close",						Native::mysql_close},
 	{"mysql_reconnect",					Native::mysql_reconnect},
 	
-	/*{"mysql_current_handle",			Native::mysql_current_handle},
+	{"mysql_current_handle",			Native::mysql_current_handle},
 	{"mysql_unprocessed_queries",		Native::mysql_unprocessed_queries},
 	
 	{"mysql_errno",						Native::mysql_errno},
 	{"mysql_escape_string",				Native::mysql_escape_string},
-	{"mysql_format",					Native::mysql_format},*/
-	{ "mysql_tquery",					Native::mysql_tquery },/*
-	{"mysql_query",						Native::mysql_query},
-
+	{"mysql_format",					Native::mysql_format},
+	{ "mysql_tquery",					Native::mysql_tquery },
+	//{"mysql_query",						Native::mysql_query},
+	 
 	{"mysql_stat",						Native::mysql_stat},
 	{"mysql_get_charset",				Native::mysql_get_charset},
-	{"mysql_set_charset",				Native::mysql_set_charset},*/
+	{"mysql_set_charset",				Native::mysql_set_charset},
 
 
 	{"cache_get_data",					Native::cache_get_data},
@@ -114,9 +109,9 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 	{"cache_get_field_content_int",		Native::cache_get_field_content_int},
 	{"cache_get_field_content_float",	Native::cache_get_field_content_float},
 
-	/*{"cache_save",						Native::cache_save},
+	{"cache_save",						Native::cache_save},
 	{"cache_delete",					Native::cache_delete},
-	{"cache_set_active",				Native::cache_set_active},*/
+	{"cache_set_active",				Native::cache_set_active},
 
 	{"cache_affected_rows",				Native::cache_affected_rows},
 	{"cache_insert_id",					Native::cache_insert_id},

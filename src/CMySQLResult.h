@@ -13,17 +13,13 @@ using std::string;
 	#include <WinSock2.h>
 #endif
 #include "mysql_include/mysql.h"
-
+#include "CLog.h"
 
 class CMySQLResult 
 {
 public:
 	friend class CMySQLQuery;
 
-	/*inline void Destroy()
-	{
-		delete this;
-	}*/
 
 	inline my_ulonglong GetRowCount() const 
 	{
