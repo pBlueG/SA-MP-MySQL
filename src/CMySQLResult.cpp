@@ -39,10 +39,10 @@ void CMySQLResult::GetRowDataByName(unsigned int row, const char *field, char **
 	if(row >= m_Rows || m_Fields == 0)
 		return (void)CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d')", row);
 	
-	if(field == NULL)
+	if(field == nullptr)
 		return (void)CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "empty field name specified");
 
-	if(dest == NULL)
+	if (dest == nullptr)
 		return (void)CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid destination specified");
 
 	for(unsigned int i = 0; i < m_Fields; ++i) 

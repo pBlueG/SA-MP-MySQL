@@ -6,71 +6,53 @@
 #include <list>
 #include <stack>
 #include <string>
-//#include <boost/lockfree/queue.hpp>
-#include <queue>
-#include <tuple>//#include <boost/tuple/tuple.hpp>
-#include <boost/thread/future.hpp>
+//#include <queue>
+#include <tuple>
+#include <future>
+#include <mutex>
+#include <boost/variant.hpp>
 
 using std::list;
 using std::stack;
 using std::string;
-using std::queue;
+//using std::queue;
+using std::tuple;
+using std::future;
+using std::mutex;
 
 #include "main.h"
+#include "CMySQLQuery.h"
 
 
-class CMySQLQuery;
 class CMySQLHandle;
 
 
 class CCallback 
 {
+private:
+	static list<tuple<future<CMySQLQuery>, CMySQLHandle*>> m_CallbackQueue;
+	static mutex m_QueueMtx;
+
+	static list<AMX *> m_AmxList;
+
 public:
 
-	static void FillCallbackParams(stack<string> &dest, string &format, AMX* amx, cell* params, const int ConstParamCount);
-
-	CCallback() :
-		IsInline(false)
-	{}
-	~CCallback() {}
-
-
-	stack<string> Parameters;
-	string Name;
-	string ParamFormat;
-	bool IsInline;
+	static void FillCallbackParams(stack<boost::variant<cell, string>> &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount);
 
 	
 	static void ProcessCallbacks();
 	
-	/*static inline void AddQueryToQueue(CMySQLQuery *cb) 
+	static inline void AddQueryToQueue(future<CMySQLQuery> &&fut, CMySQLHandle *handle)
 	{
-		m_CallbackQueue.push(cb);
+		std::lock_guard<mutex> LockGuard(m_QueueMtx);
+		m_CallbackQueue.push_front(std::make_tuple(std::move(fut), handle));
 	}
-	static inline boost::unique_future<void> GetNextQuery() 
-	{
-		CMySQLQuery *NextQuery = NULL;
-		m_CallbackQueue.pop(NextQuery);
-		return NextQuery;
-		//return m_CallbackQueue.pop();
-	}*/
 
 	static void AddAmx(AMX *amx);
 	static void EraseAmx(AMX *amx);
 
 	static void ClearAll();
 
-//private:
-	/*static boost::lockfree::queue<
-			CMySQLQuery*, 
-			boost::lockfree::fixed_sized<true>,
-			boost::lockfree::capacity<8192>
-		> m_CallbackQueue;*/
-	//static queue<boost::unique_future<void>> m_CallbackQueue;
-	static list<std::tuple<boost::unique_future<CMySQLQuery>, CMySQLHandle*>> m_CallbackQueue;
-
-
-	static list<AMX *> m_AmxList;
 };
 
 
