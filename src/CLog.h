@@ -47,7 +47,8 @@ public:
 
 
 	void Initialize(const char *logfile);
-	int LogFunction(unsigned status, char *funcname, char *msg, ...);
+	int LogFunction(unsigned loglevel, char *funcname, char *msg, ...);
+	int LogText(unsigned int loglevel, char* text);
 	void StartCallback(const char *cbname);
 	void EndCallback();
 
@@ -94,7 +95,6 @@ private:
 	~CLog();
 
 	void ProcessLog();
-	void TextLog(unsigned int level, char* text);
 
 	
 	char m_LogFileName[32];
@@ -103,7 +103,6 @@ private:
 
 	boost::thread *m_LogThread;
 	boost::atomic<bool> m_LogThreadAlive;
-
 	boost::thread::id m_MainThreadID;
 
 	boost::lockfree::queue<

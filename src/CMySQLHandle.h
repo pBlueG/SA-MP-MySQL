@@ -86,7 +86,7 @@ private:
 			m_IsConnected(false),
 			m_AutoReconnect(auto_reconnect),
 
-			m_Connection(nullptr),
+			m_Connection(NULL),
 
 			m_State(false)
 	{ }

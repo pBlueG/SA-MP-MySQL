@@ -60,9 +60,7 @@ void CLog::ProcessLog()
 				char timeform[16];
 				time_t rawtime;
 				time(&rawtime);
-				struct tm * timeinfo;
-				timeinfo = localtime(&rawtime);
-				strftime(timeform, sizeof(timeform), "%X", timeinfo);
+				strftime(timeform, sizeof(timeform), "%X", localtime(&rawtime));
 
 				//escape "'s in Msg
 				string LogMsg(LogData->Msg);
@@ -89,7 +87,7 @@ void CLog::ProcessLog()
 	}
 	fputs("</script></body></html>", LogFile);
 	fclose(LogFile);
-	m_LogThreadAlive = true;
+	//m_LogThreadAlive = true;
 }
 
 void CLog::Initialize(const char *logfile) 
@@ -105,31 +103,28 @@ void CLog::SetLogType(unsigned int logtype)
 		return ;
 	if(logtype == m_LogType)
 		return ;
+
 	m_LogType = logtype;
+
+	string filename(m_LogFileName);
+	int Pos = filename.find_first_of(".");
+	filename.erase(Pos, filename.size() - Pos);
+
 	if(logtype == LOG_TYPE_HTML) 
 	{
 		if(m_LogThread == NULL)
 			m_LogThread = new boost::thread(&CLog::ProcessLog, this);
-		m_LogThread->detach();
 
-		string FileName(m_LogFileName);
-		int Pos = FileName.find_first_of(".");
-		FileName.erase(Pos, FileName.size() - Pos);
-		FileName.append(".html");
-		strcpy(m_LogFileName, FileName.c_str());
+		filename.append(".html");
 	}
 	else if(logtype == LOG_TYPE_TEXT) 
-	{
-		string FileName(m_LogFileName);
-		int Pos = FileName.find_first_of(".");
-		FileName.erase(Pos, FileName.size() - Pos);
-		FileName.append(".txt");
-		strcpy(m_LogFileName, FileName.c_str());
-	}
+		filename.append(".txt");
+
+	strcpy(m_LogFileName, filename.c_str());
 }
 
 
-int CLog::LogFunction(unsigned int status, char *funcname, char *msg, ...) 
+int CLog::LogFunction(unsigned int loglevel, char *funcname, char *msg, ...) 
 {
 	if(m_LogLevel != LOG_NONE)
 	{
@@ -137,39 +132,40 @@ int CLog::LogFunction(unsigned int status, char *funcname, char *msg, ...)
 		{
 			case LOG_TYPE_HTML: 
 			{
-				if (m_LogLevel & status) 
+				if (m_LogLevel & loglevel) 
 				{
-					m_SLogData *LogData = new m_SLogData;
+					m_SLogData *log_data = new m_SLogData;
 
-					LogData->Info = (boost::this_thread::get_id() != m_MainThreadID) ? LOG_INFO_THREADED : LOG_INFO_NONE;
-					LogData->Status = status;
+					log_data->Info = (boost::this_thread::get_id() != m_MainThreadID) ? LOG_INFO_THREADED : LOG_INFO_NONE;
+					log_data->Status = loglevel;
 
-					LogData->Msg = (char *)malloc(2048 * sizeof(char));
+					log_data->Msg = (char *)malloc(2048 * sizeof(char));
 					va_list args;
 					va_start(args, msg);
-					vsprintf(LogData->Msg, msg, args);
+					vsprintf(log_data->Msg, msg, args);
 					va_end (args);
 
-					LogData->Name = (char *)malloc((strlen(funcname)+1) * sizeof(char));
-					strcpy(LogData->Name, funcname);
+					log_data->Name = (char *)malloc((strlen(funcname)+1) * sizeof(char));
+					strcpy(log_data->Name, funcname);
 
-					m_LogQueue.push(LogData);
+					m_LogQueue.push(log_data);
 				}
 			} 
 			break;
 			case LOG_TYPE_TEXT: 
 			{
-				char MsgBuf[2048];
-				int RealMsgLen=0;
+				char msg_buf[2048];
+				int real_msg_len=0;
+
 				va_list args;
 				va_start(args, msg);
-				RealMsgLen = vsprintf(MsgBuf, msg, args);
+				real_msg_len = vsprintf(msg_buf, msg, args);
 				va_end (args);
 			
-				char *LogText = (char *)malloc((strlen(funcname) + RealMsgLen + 8) * sizeof(char));
-				sprintf(LogText, "%s - %s", funcname, MsgBuf);
-				TextLog(status, LogText);
-				free(LogText);
+				char *log_text = (char *)malloc((strlen(funcname) + real_msg_len + 8) * sizeof(char));
+				sprintf(log_text, "%s - %s", funcname, msg_buf);
+				LogText(loglevel, log_text);
+				free(log_text);
 			} 
 			break;
 		}
@@ -177,6 +173,39 @@ int CLog::LogFunction(unsigned int status, char *funcname, char *msg, ...)
 	return 0;
 }
 
+int CLog::LogText(unsigned int loglevel, char* text) 
+{
+    if (m_LogLevel & loglevel) 
+	{
+        char prefix[16];
+        switch(loglevel) {
+			case LOG_ERROR:
+				sprintf(prefix, "ERROR");
+				break;
+			case LOG_WARNING:
+				sprintf(prefix, "WARNING");
+				break;
+			case LOG_DEBUG:
+				sprintf(prefix, "DEBUG");
+				break;
+        }
+        char timeform[16];
+        time_t rawtime;
+        time(&rawtime);
+        struct tm * timeinfo;
+        timeinfo = localtime(&rawtime);
+        strftime(timeform, sizeof(timeform), "%X", timeinfo);
+
+        FILE *log_file = fopen(m_LogFileName, "a");
+        if(log_file != NULL) 
+		{
+            fprintf(log_file, "[%s] [%s] %s\n", timeform, prefix, text);
+            fclose(log_file);
+        }
+                
+    }
+	return 0;
+}
 
 void CLog::StartCallback(const char *cbname) 
 {
@@ -184,18 +213,19 @@ void CLog::StartCallback(const char *cbname)
 		return ;
 	if(m_LogType == LOG_TYPE_HTML) 
 	{
-		m_SLogData *LogData = new m_SLogData;
+		m_SLogData *log_data = new m_SLogData;
 
-		LogData->Info = LOG_INFO_CALLBACK_BEGIN;
-		LogData->Msg = (char *)malloc((strlen(cbname)+20) * sizeof(char));
-		sprintf(LogData->Msg, "StartCB(\"%s\");", cbname);
+		log_data->Info = LOG_INFO_CALLBACK_BEGIN;
+		log_data->Msg = (char *)malloc((strlen(cbname)+20) * sizeof(char));
+		sprintf(log_data->Msg, "StartCB(\"%s\");", cbname);
 
-		m_LogQueue.push(LogData);
+		m_LogQueue.push(log_data);
 	}
-	else if(m_LogType == LOG_TYPE_TEXT) {
-		char LogText[64];
-		sprintf(LogText, "Calling callback \"%s\"..", cbname);
-		TextLog(LOG_DEBUG, LogText);
+	else if(m_LogType == LOG_TYPE_TEXT) 
+	{
+		char log_text[64];
+		sprintf(log_text, "Calling callback \"%s\"..", cbname);
+		LogText(LOG_DEBUG, log_text);
 	}
 }
 
@@ -207,54 +237,24 @@ void CLog::EndCallback()
 	if(m_LogLevel == LOG_NONE)
 		return ;
 	
-	m_SLogData *LogData = new m_SLogData;
-	LogData->Info = LOG_INFO_CALLBACK_END;
-	m_LogQueue.push(LogData);
+	m_SLogData *log_data = new m_SLogData;
+	log_data->Info = LOG_INFO_CALLBACK_END;
+	m_LogQueue.push(log_data);
 }
 
 
-CLog::~CLog() {
+CLog::~CLog() 
+{
 	if(m_LogThread != NULL) 
 	{
 		m_LogThreadAlive = false;
-		
-		while(m_LogThreadAlive == false) 
-			boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 
+		//while(m_LogThreadAlive == false) 
+			//boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+
+		m_LogThread->join();
 		delete m_LogThread;
 	}
 }
 
-void CLog::TextLog(unsigned int level, char* text) 
-{
-    if (m_LogLevel & level) 
-	{
-        char prefix[16];
-        switch(level) {
-        case LOG_ERROR:
-            sprintf(prefix, "ERROR");
-            break;
-        case LOG_WARNING:
-            sprintf(prefix, "WARNING");
-            break;
-        case LOG_DEBUG:
-            sprintf(prefix, "DEBUG");
-            break;
-        }
-        char timeform[16];
-        time_t rawtime;
-        time(&rawtime);
-        struct tm * timeinfo;
-        timeinfo = localtime(&rawtime);
-        strftime(timeform, sizeof(timeform), "%X", timeinfo);
-
-        FILE *file = fopen(m_LogFileName, "a");
-        if(file != NULL) 
-		{
-            fprintf(file, "[%s] [%s] %s\n", timeform, prefix, text);
-            fclose(file);
-        }
-                
-    }
-}
 
