@@ -12,19 +12,19 @@ using namespace boost::spirit;
 bool ConvertStrToInt(const char *src, int &dest) 
 {
 	const char 
-		*FirstIt = src,
-		*LastIt = FirstIt+strlen(src);
+		*first_iter = src,
+		*last_iter = first_iter+strlen(src);
 
-	return qi::parse(FirstIt, LastIt, qi::int_, dest);
+	return qi::parse(first_iter, last_iter, qi::int_, dest);
 }
 
 bool ConvertStrToFloat(const char *src, float &dest) 
 {
 	const char 
-		*FirstIt(src),
-		*LastIt(FirstIt+strlen(src));
+		*first_iter(src),
+		*last_iter(first_iter+strlen(src));
 
-	return qi::parse(FirstIt, LastIt, qi::float_, dest);
+	return qi::parse(first_iter, last_iter, qi::float_, dest);
 }
 
 
@@ -42,16 +42,16 @@ template bool ConvertIntToStr<2>(int src, char *dest);
 
 bool ConvertIntToStr(int src, char *dest) 
 {
-	bool ReturnVal = karma::generate(dest, karma::int_generator<int>(), src);
+	bool success = karma::generate(dest, karma::int_generator<int>(), src);
 	*dest = 0;
-	return ReturnVal;
+	return success;
 }
 
 bool ConvertFloatToStr(float src, char *dest) 
 {
-	bool ReturnVal = karma::generate(dest, double_, src);
+	bool success = karma::generate(dest, double_, src);
 	*dest = 0;
-	return ReturnVal;
+	return success;
 }
 
 

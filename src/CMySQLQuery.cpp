@@ -28,7 +28,7 @@ CMySQLQuery CMySQLQuery::Create(
 
 
 	MYSQL *ConnPtr = QueryObj.Connection->GetMySQLPointer();
-	if (ConnPtr != nullptr)
+	if (ConnPtr != NULL)
 	{
 		mysql_thread_init();
 
@@ -48,7 +48,7 @@ CMySQLQuery CMySQLQuery::Create(
 			//why should we process the result if it won't and can't be used?
 			if (QueryObj.Callback.Name.length() > 0)
 			{
-				if (SQLResult != nullptr)
+				if (SQLResult != NULL)
 				{
 					MYSQL_FIELD *SQLField;
 					MYSQL_ROW SQLRow;
@@ -73,7 +73,7 @@ CMySQLQuery CMySQLQuery::Create(
 						vector<string> Row;
 						Row.reserve(QueryObj.Result->m_Fields + 1);
 						for (unsigned int a = 0; a != QueryObj.Result->m_Fields; ++a)
-							Row.push_back(SQLRow[a] == nullptr ? "NULL" : SQLRow[a]);
+							Row.push_back(SQLRow[a] == NULL ? "NULL" : SQLRow[a]);
 
 						QueryObj.Result->m_Data.push_back(std::move(Row));
 					}
@@ -103,7 +103,7 @@ CMySQLQuery CMySQLQuery::Create(
 				CLog::Get()->LogFunction(LOG_DEBUG, LogFuncBuf, "no callback specified, skipping result saving");
 			}
 
-			if (SQLResult != nullptr)
+			if (SQLResult != NULL)
 				mysql_free_result(SQLResult);
 		}
 		else  //mysql_real_query failed

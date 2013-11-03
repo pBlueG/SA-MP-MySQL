@@ -75,19 +75,19 @@ void CCallback::ProcessCallbacks()
 						CMySQLHandle *ConnHandle = std::get<1>(*i);
 						ConnHandle->DecreaseQueryCounter();
 						ConnHandle->SetActiveResult(QueryObj.Result);
-						//QueryObj.Result = NULL;
+						//QueryObj.Result = nullptr;
 						CMySQLHandle::ActiveHandle = ConnHandle;
 
 						amx_Exec(amx, &amx_Ret, amx_Index);
 						if (amx_MemoryAddress >= NULL)
 							amx_Release(amx, amx_MemoryAddress);
 
-						CMySQLHandle::ActiveHandle = NULL;
+						CMySQLHandle::ActiveHandle = nullptr;
 
 						if (ConnHandle->IsActiveResultSaved() == false)
 							delete ConnHandle->GetActiveResult();
 
-						ConnHandle->SetActiveResult(NULL);
+						ConnHandle->SetActiveResult(nullptr);
 
 						CLog::Get()->EndCallback();
 
@@ -128,22 +128,29 @@ void CCallback::EraseAmx(AMX *amx)
 	}
 }
 
+<<<<<<< HEAD
 void CCallback::ClearAll() 
 {
 	m_CallbackQueue.clear();
+=======
+void CCallback::ClearAll() {
+	CMySQLQuery *query = NULL;
+	while(m_CallbackQueue.pop(query))
+		query->Destroy();
+>>>>>>> fd2861b... code refactoring and improvement
 }
 
 void CCallback::FillCallbackParams(stack<boost::variant<cell, string>> &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount)
 {
-	if (format == NULL || !(*format))
+	if (format == nullptr || !(*format))
 		return ;
 
 	unsigned int ParamIdx = 1;
-	cell *AddressPtr = NULL;
+	cell *AddressPtr = nullptr;
 
 	do
 	{
-		char *StrBuf = NULL;
+		char *StrBuf = nullptr;
 		switch (*format)
 		{
 			case 'd':
@@ -155,7 +162,7 @@ void CCallback::FillCallbackParams(stack<boost::variant<cell, string>> &dest, co
 			case 'z':
 			case 's':
 				amx_StrParam(amx, params[ConstParamCount + ParamIdx], StrBuf);
-				dest.push(StrBuf == NULL ? string() : string(StrBuf));
+				dest.push(StrBuf == nullptr ? string() : string(StrBuf));
 				break;
 			default:
 				dest.push(string("NULL"));
