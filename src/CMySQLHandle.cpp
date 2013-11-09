@@ -12,6 +12,7 @@
 
 unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
 CMySQLHandle *CMySQLHandle::ActiveHandle = NULL;
+CMySQLOptions MySQLOptions;
 
 
 CMySQLHandle::CMySQLHandle(int id) : 
@@ -51,31 +52,45 @@ void CMySQLHandle::WaitForQueryExec()
 
 CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string db, size_t port, size_t pool_size, bool reconnect) 
 {
-	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
-
-	int id = 1;
-	if(SQLHandle.size() > 0) 
-	{
-		unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
-		do 
-		{
-			id = itHandle->first+1;
-			++itHandle;
-		} 
-		while(SQLHandle.find(id) != SQLHandle.end());
+	CMySQLHandle *handle = NULL;
+	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+	if (MySQLOptions.DuplicateConnections == false && SQLHandle.size() > 0) {
+		//code used for checking duplicate connections
+		for(unordered_map<int, CMySQLHandle*>::iterator i = SQLHandle.begin(), end = SQLHandle.end(); i != end; ++i) {
+			CMySQLConnection *Connection = i->second->m_MainConnection;
+			if((*Connection) == (*main_connection))
+			{
+				CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::Create", "connection already exists");
+				handle = i->second;
+				break;
+			}
+		}
 	}
+	if(handle == NULL) {
+			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
+
+		int id = 1;
+		if(SQLHandle.size() > 0) 
+		{
+			unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
+			do 
+			{
+				id = itHandle->first+1;
+				++itHandle;
+			} while(SQLHandle.find(id) != SQLHandle.end());
+		}
 
 
-	CMySQLHandle *handle = new CMySQLHandle(id);
+		handle = new CMySQLHandle(id);
 
-	//init connections
-	handle->m_MainConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+		//init connections
+		handle->m_MainConnection = main_connection;
 	for (size_t i = 0; i < pool_size; ++i)
 		handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
 
-	SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
-	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
-		
+		SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
+	}
 	return handle;
 }
 
@@ -110,8 +125,7 @@ int CMySQLHandle::SaveActiveResult()
 				{
 					id = itHandle->first+1;
 					++itHandle;
-				} 
-				while(m_SavedResults.find(id) != m_SavedResults.end());
+				} while(m_SavedResults.find(id) != m_SavedResults.end());
 			}
 
 			m_ActiveResultID = id;
@@ -184,7 +198,7 @@ bool CMySQLHandle::SetActiveResult(int resultid)
 
 void CMySQLHandle::ClearAll()
 {
-	for(auto i = SQLHandle.begin(); i != SQLHandle.end(); ++i)
+	for(unordered_map<int, CMySQLHandle *>::iterator i = SQLHandle.begin(); i != SQLHandle.end(); ++i)
 		i->second->Destroy();
 	
 	SQLHandle.clear();
@@ -287,12 +301,12 @@ void CMySQLConnection::EscapeString(const char *src, string &dest)
 {
 	if(src != NULL && m_IsConnected) 
 	{
-		size_t SrcLen = strlen(src);
-		char *tmpEscapedStr = (char *)malloc((SrcLen*2 + 1) * sizeof(char));
+		size_t src_len = strlen(src);
+		char *escaped_str = (char *)malloc((src_len*2 + 1) * sizeof(char));
 
-		size_t EscapedLen = mysql_real_escape_string(m_Connection, tmpEscapedStr, src, SrcLen);
-		dest.assign(tmpEscapedStr);
+		mysql_real_escape_string(m_Connection, escaped_str, src, src_len);
+		dest.assign(escaped_str);
 
-		free(tmpEscapedStr);
+		free(escaped_str);
 	}
 }

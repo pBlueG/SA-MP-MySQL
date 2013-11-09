@@ -1,9 +1,9 @@
 R35
 - code cleanup and improvements
 - fixed bug where mysql_escape_string didn't set the dest. var. to empty if the source var. was empty
-- removed duplicate connection check; you can now create multiple connections to the same database
 - fixed bug where the HTML logging logged every callback even if there wasn't any error/warning/debug message in it
 - added native "mysql_current_handle", take a look at the wiki for more informations (http://wiki.sa-mp.com/wiki/MySQL/R33)
+- added native "mysql_option"
 
 R34
 - fixed bug where orm_update generated wrong queries

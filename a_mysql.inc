@@ -50,6 +50,10 @@ enum VarDatatype
 	DATATYPE_STRING
 };
 
+enum E_MYSQL_OPTION
+{
+	DUPLICATE_CONNECTIONS
+};
 
 #define mysql_insert_id cache_insert_id
 #define mysql_affected_rows cache_affected_rows
@@ -121,8 +125,9 @@ native mysql_connect(const host[], const user[], const database[], const passwor
 native mysql_close(connectionHandle = 1, bool:wait = true);
 native mysql_reconnect(connectionHandle = 1);
 
-native mysql_current_handle();
 native mysql_unprocessed_queries(connectionHandle = 1);
+native mysql_current_handle();
+native mysql_option(E_MYSQL_OPTION:type, value);
 
 native mysql_errno(connectionHandle = 1);
 native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len = sizeof(destination));
