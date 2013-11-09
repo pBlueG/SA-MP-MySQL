@@ -53,30 +53,30 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 {
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
 
-	int ID = 1;
+	int id = 1;
 	if(SQLHandle.size() > 0) 
 	{
 		unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
 		do 
 		{
-			ID = itHandle->first+1;
+			id = itHandle->first+1;
 			++itHandle;
 		} 
-		while(SQLHandle.find(ID) != SQLHandle.end());
+		while(SQLHandle.find(id) != SQLHandle.end());
 	}
 
 
-	CMySQLHandle *Handle = new CMySQLHandle(ID);
+	CMySQLHandle *handle = new CMySQLHandle(id);
 
 	//init connections
-	Handle->m_MainConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+	handle->m_MainConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
 	for (size_t i = 0; i < pool_size; ++i)
-		Handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
+		handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
 
-	SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(ID, Handle) );
-	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with ID = %d", ID);
+	SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
+	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
 		
-	return Handle;
+	return handle;
 }
 
 void CMySQLHandle::Destroy() 
@@ -98,27 +98,27 @@ int CMySQLHandle::SaveActiveResult()
 		if(m_ActiveResultID != 0) //if active cache was already saved
 		{
 			CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::SaveActiveResult", "active cache was already saved");
-			return m_ActiveResultID; //return the ID of already saved cache
+			return m_ActiveResultID; //return the id of already saved cache
 		}
 		else 
 		{
-			int ID = 1;
+			int id = 1;
 			if(!m_SavedResults.empty()) 
 			{
 				unordered_map<int, CMySQLResult*>::iterator itHandle = m_SavedResults.begin();
 				do 
 				{
-					ID = itHandle->first+1;
+					id = itHandle->first+1;
 					++itHandle;
 				} 
-				while(m_SavedResults.find(ID) != m_SavedResults.end());
+				while(m_SavedResults.find(id) != m_SavedResults.end());
 			}
 
-			m_ActiveResultID = ID;
-			m_SavedResults.insert( std::map<int, CMySQLResult*>::value_type(ID, m_ActiveResult) );
+			m_ActiveResultID = id;
+			m_SavedResults.insert( std::map<int, CMySQLResult*>::value_type(id, m_ActiveResult) );
 			
-			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved with ID = %d", ID);
-			return ID; 
+			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved with id = %d", id);
+			return id; 
 		}
 	}
 	
@@ -144,7 +144,7 @@ bool CMySQLHandle::DeleteSavedResult(int resultid)
 		}
 	}
 	
-	CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::DeleteSavedResult", "invalid result ID ('%d')", resultid);
+	CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::DeleteSavedResult", "invalid result id ('%d')", resultid);
 	return false;
 }
 
@@ -177,7 +177,7 @@ bool CMySQLHandle::SetActiveResult(int resultid)
 		m_ActiveResult = NULL;
 		m_ActiveResultID = 0;
 		ActiveHandle = NULL;
-		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SetActiveResult", "invalid result ID specified, setting active result to zero");
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SetActiveResult", "invalid result id specified, setting active result to zero");
 	}
 	return true;
 }
@@ -206,7 +206,7 @@ void CMySQLHandle::ExecThreadStashFunc()
 		{
 			function<CMySQLQuery(CMySQLConnection*)> QueryFunc (std::move(m_QueryQueue.front()));
 			m_QueryQueue.pop();
-			bool FuncExec = false;
+			bool func_executed = false;
 			do
 			{
 				for (auto &c : m_ConnectionPool)
@@ -218,14 +218,14 @@ void CMySQLHandle::ExecThreadStashFunc()
 
 						std::future<CMySQLQuery> fut = std::async(std::launch::async, QueryFunc, connection);
 						CCallback::AddQueryToQueue(std::move(fut), this);
-						FuncExec = true;
+						func_executed = true;
 						m_QueryCounter++;
 						break;
 					}
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			} 
-			while (FuncExec == false);
+			while (func_executed == false);
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
