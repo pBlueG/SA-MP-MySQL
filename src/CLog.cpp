@@ -87,7 +87,6 @@ void CLog::ProcessLog()
 	}
 	fputs("</script></body></html>", LogFile);
 	fclose(LogFile);
-	//m_LogThreadAlive = true;
 }
 
 void CLog::Initialize(const char *logfile) 
@@ -248,9 +247,6 @@ CLog::~CLog()
 	if(m_LogThread != NULL) 
 	{
 		m_LogThreadAlive = false;
-
-		//while(m_LogThreadAlive == false) 
-			//boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 
 		m_LogThread->join();
 		delete m_LogThread;

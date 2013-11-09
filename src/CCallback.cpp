@@ -29,21 +29,23 @@ void CCallback::ProcessCallbacks()
 		auto i = m_CallbackQueue.begin();
 		do
 		{
-			auto &FutureRes = std::get<0>((*i));
+			auto &future_res = std::get<0>((*i));
 
-			if (FutureRes.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+			if (future_res.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
 			{
-				CMySQLQuery QueryObj = std::move(FutureRes.get());
-				bool PassByRef = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
+				CMySQLQuery QueryObj = std::move(future_res.get()); 
+				CMySQLHandle *Handle = std::get<1>(*i);
+				bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
+
+				Handle->DecreaseQueryCounter();
 				
 				for (auto &amx : m_AmxList)
 				{
-					cell amx_Ret;
-					int amx_Index;
-					cell amx_MemoryAddress = -1;
+					int amx_index;
 
-					if (amx_FindPublic(amx, QueryObj.Callback.Name.c_str(), &amx_Index) == AMX_ERR_NONE)
+					if (amx_FindPublic(amx, QueryObj.Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
 					{
+						cell amx_mem_addr = -1; 
 						CLog::Get()->StartCallback(QueryObj.Callback.Name.c_str());
 
 						while (!QueryObj.Callback.Params.empty())
@@ -51,43 +53,41 @@ void CCallback::ProcessCallbacks()
 							boost::variant<cell, string> value = std::move(QueryObj.Callback.Params.top());
 							if (value.type() == typeid(cell))
 							{
-								if (PassByRef)
+								if (pass_by_ref)
 								{
-									cell tmpAddress;
-									amx_PushArray(amx, &tmpAddress, NULL, (cell*)&boost::get<cell>(value), 1);
-									if (amx_MemoryAddress < NULL)
-										amx_MemoryAddress = tmpAddress;
+									cell tmp_addr;
+									amx_PushArray(amx, &tmp_addr, NULL, (cell*)&boost::get<cell>(value), 1);
+									if (amx_mem_addr < NULL)
+										amx_mem_addr = tmp_addr;
 								}
 								else
 									amx_Push(amx, boost::get<cell>(value));
 							}
 							else
 							{
-								cell tmpAddress;
-								amx_PushString(amx, &tmpAddress, NULL, boost::get<string>(value).c_str(), 0, 0);
-								if (amx_MemoryAddress < NULL)
-									amx_MemoryAddress = tmpAddress;
+								cell tmp_addr;
+								amx_PushString(amx, &tmp_addr, NULL, boost::get<string>(value).c_str(), 0, 0);
+								if (amx_mem_addr < NULL)
+									amx_mem_addr = tmp_addr;
 							}
 
 							QueryObj.Callback.Params.pop();
 						}
 
-						CMySQLHandle *ConnHandle = std::get<1>(*i);
-						ConnHandle->DecreaseQueryCounter();
-						ConnHandle->SetActiveResult(QueryObj.Result);
-						//QueryObj.Result = NULL;
-						CMySQLHandle::ActiveHandle = ConnHandle;
+						Handle->SetActiveResult(QueryObj.Result);
+						CMySQLHandle::ActiveHandle = Handle;
 
-						amx_Exec(amx, &amx_Ret, amx_Index);
-						if (amx_MemoryAddress >= NULL)
-							amx_Release(amx, amx_MemoryAddress);
+						cell amx_ret;
+						amx_Exec(amx, &amx_ret, amx_index);
+						if (amx_mem_addr >= NULL)
+							amx_Release(amx, amx_mem_addr);
 
 						CMySQLHandle::ActiveHandle = NULL;
 
-						if (ConnHandle->IsActiveResultSaved() == false)
-							delete ConnHandle->GetActiveResult();
+						if (Handle->IsActiveResultSaved() == false)
+							delete Handle->GetActiveResult();
 
-						ConnHandle->SetActiveResult(NULL);
+						Handle->SetActiveResult(NULL);
 
 						CLog::Get()->EndCallback();
 
@@ -104,8 +104,7 @@ void CCallback::ProcessCallbacks()
 					//return ;
 			}
 			
-		} 
-		while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
+		} while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
 	}
 }
 
