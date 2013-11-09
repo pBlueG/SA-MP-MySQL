@@ -770,6 +770,26 @@ cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params)
 	return 1;
 }
 
+//native mysql_option(E_MYSQL_OPTION:type, value);
+cell AMX_NATIVE_CALL Native::mysql_option(AMX* amx, cell* params)
+{
+	unsigned short option_type = params[1];
+	int option_value = params[2];
+	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_option", "option: %d, value: %d", option_type, option_value);
+
+
+	switch(option_type)
+	{
+		case DUPLICATE_CONNECTIONS:
+			MySQLOptions.DuplicateConnections = !!option_value;
+			break;
+		default:
+			return CLog::Get()->LogFunction(LOG_ERROR, "mysql_option", "invalid option");
+	}
+
+	return 1;
+}
+
 //native mysql_current_handle();
 cell AMX_NATIVE_CALL Native::mysql_current_handle(AMX* amx, cell* params)
 {
