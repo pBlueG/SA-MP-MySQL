@@ -81,6 +81,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;WINVER=0x0501;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
