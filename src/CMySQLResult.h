@@ -15,6 +15,7 @@ using std::string;
 #include "mysql_include/mysql.h"
 #include "CLog.h"
 
+
 class CMySQLResult 
 {
 public:

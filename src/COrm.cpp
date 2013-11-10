@@ -76,32 +76,32 @@ void COrm::ApplyActiveResult(unsigned int row)
 	m_ErrorID = ORM_ERROR_OK;
 	for(size_t v=0; v < m_Vars.size(); ++v) 
 	{
-		SVarInfo *Var = m_Vars.at(v);
+		SVarInfo *var = m_Vars.at(v);
 
 		char *data = NULL;
-		result->GetRowDataByName(row, Var->Name.c_str(), &data);
+		result->GetRowDataByName(row, var->Name.c_str(), &data);
 
 		if(data != NULL) 
 		{
-			switch(Var->Datatype) 
+			switch(var->Datatype) 
 			{
 				case DATATYPE_INT: 
 				{
-					int IntVar = 0;
-					if(ConvertStrToInt(data, IntVar))
-						(*Var->Address) = IntVar;
+					int int_var = 0;
+					if(ConvertStrToInt(data, int_var))
+						(*var->Address) = int_var;
 				} 
 				break;
 				case DATATYPE_FLOAT: 
 				{
-					float FloatVar = 0.0f;
-					if(ConvertStrToFloat(data, FloatVar))
-						(*Var->Address) = amx_ftoc(FloatVar);
+					float float_var = 0.0f;
+					if(ConvertStrToFloat(data, float_var))
+						(*var->Address) = amx_ftoc(float_var);
 
 				} 
 				break;
 				case DATATYPE_STRING:
-					amx_SetString(Var->Address, data != NULL ? data : "NULL", 0, 0, Var->MaxLen);
+					amx_SetString(var->Address, data != NULL ? data : "NULL", 0, 0, var->MaxLen);
 				break;
 			}
 		}
@@ -116,9 +116,9 @@ void COrm::ApplyActiveResult(unsigned int row)
 		{
 			if(m_KeyVar->Datatype == DATATYPE_INT) 
 			{
-				int IntVar = 0;
-				if(ConvertStrToInt(key_data, IntVar))
-					(*(m_KeyVar->Address)) = IntVar;
+				int int_var = 0;
+				if(ConvertStrToInt(key_data, int_var))
+					(*(m_KeyVar->Address)) = int_var;
 			}
 			else if(m_KeyVar->Datatype == DATATYPE_STRING) 
 				amx_SetString(m_KeyVar->Address, key_data, 0, 0, m_KeyVar->MaxLen);
@@ -213,10 +213,10 @@ void COrm::GenerateUpdateQuery(string &dest)
 				sprintf(str_buf, "%s`%s`='%f'", FirstIt == true ? "" : ",", var->Name.c_str(), static_cast<float>( amx_ctof(*(var->Address)) ));
 				break;
 			case DATATYPE_STRING:
-				char *StrVal = (char *)alloca(sizeof(char) * var->MaxLen+1);
-				amx_GetString(StrVal, var->Address, 0, var->MaxLen);
+				char *str_val = (char *)alloca(sizeof(char) * var->MaxLen+1);
+				amx_GetString(str_val, var->Address, 0, var->MaxLen);
 				string escaped_str;
-				m_ConnHandle->GetMainConnection()->EscapeString(StrVal, escaped_str);
+				m_ConnHandle->GetMainConnection()->EscapeString(str_val, escaped_str);
 				sprintf(str_buf, "%s`%s`='%s'", FirstIt == true ? "" : ",", var->Name.c_str(), escaped_str.c_str());
 				break;
 		}

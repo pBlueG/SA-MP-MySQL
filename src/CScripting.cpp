@@ -16,7 +16,7 @@
 
 logprintf_t logprintf;
 
-/*
+
 //native ORM:orm_create(table[], connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::orm_create(AMX* amx, cell* params)
 {
@@ -95,22 +95,24 @@ cell AMX_NATIVE_CALL Native::orm_select(AMX* amx, cell* params)
 
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), cb_name, cb_format, true, OrmObject, ORM_QUERYTYPE_SELECT);
-	if(Query != NULL)
-	{
-		if(Query->Callback->Name.length() > 0)
-			Query->Callback->FillCallbackParams(amx, params, ConstParamCount);
+	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
+	
+	string 
+		Query,
+		CB_Name(cb_name != NULL ? cb_name : "");
+	stack<boost::variant<cell, string>> CB_Params;
 
-		if(CLog::Get()->IsLogLevel(LOG_DEBUG))
-		{
-			string short_query(Query->Query);
-			if(short_query.length() > 512)
-				short_query.resize(512);
-			CLog::Get()->LogFunction(LOG_DEBUG, "orm_select", "scheduling query \"%s\"..", short_query.c_str());
-		}
+	if (cb_format != NULL)
+		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
-		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
-	}
+	OrmObject->GenerateSelectQuery(Query);
+
+	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
+		boost::move(Query), _1, Handle->GetID(),
+		boost::move(CB_Name), boost::move(CB_Params),
+		OrmObject, ORM_QUERYTYPE_SELECT
+	);
+	Handle->QueueQuery(boost::move(QueryFunc));
 	return 1;
 }
 
@@ -126,19 +128,19 @@ cell AMX_NATIVE_CALL Native::orm_update(AMX* amx, cell* params)
 	
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), NULL, NULL, true, OrmObject, ORM_QUERYTYPE_UPDATE);
-	if(Query != NULL)
-	{
-		if(CLog::Get()->IsLogLevel(LOG_DEBUG))
-		{
-			string short_query(Query->Query);
-			if(short_query.length() > 512)
-				short_query.resize(512);
-			CLog::Get()->LogFunction(LOG_DEBUG, "orm_update", "scheduling query \"%s\"..", short_query.c_str());
-		}
+	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
+	
+	string Query, CB_Name;
+	stack<boost::variant<cell, string>> CB_Params;
 
-		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
-	}
+	OrmObject->GenerateUpdateQuery(Query);
+
+	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
+		boost::move(Query), _1, Handle->GetID(),
+		boost::move(CB_Name), boost::move(CB_Params),
+		OrmObject, ORM_QUERYTYPE_UPDATE
+	);
+	Handle->QueueQuery(boost::move(QueryFunc));
 	return 1;
 }
 
@@ -163,22 +165,24 @@ cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params)
 
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), cb_name, cb_format, true, OrmObject, ORM_QUERYTYPE_INSERT);
-	if(Query != NULL)
-	{
-		if(Query->Callback->Name.length() > 0)
-			Query->Callback->FillCallbackParams(amx, params, ConstParamCount);
+	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
+	
+	string 
+		Query,
+		CB_Name(cb_name != NULL ? cb_name : "");
+	stack<boost::variant<cell, string>> CB_Params;
 
-		if(CLog::Get()->IsLogLevel(LOG_DEBUG))
-		{
-			string short_query(Query->Query);
-			if(short_query.length() > 512)
-				short_query.resize(512);
-			CLog::Get()->LogFunction(LOG_DEBUG, "orm_insert", "scheduling query \"%s\"..", short_query.c_str());
-		}
+	if (cb_format != NULL)
+		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
-		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
-	}
+	OrmObject->GenerateInsertQuery(Query);
+
+	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
+		boost::move(Query), _1, Handle->GetID(),
+		boost::move(CB_Name), boost::move(CB_Params),
+		OrmObject, ORM_QUERYTYPE_INSERT
+	);
+	Handle->QueueQuery(boost::move(QueryFunc));
 	return 1;
 }
 
@@ -194,23 +198,22 @@ cell AMX_NATIVE_CALL Native::orm_delete(AMX* amx, cell* params)
 
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), NULL, NULL, true, OrmObject, ORM_QUERYTYPE_DELETE);
-	if(Query != NULL)
-	{
+	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
+	
+	string Query, CB_Name;
+	stack<boost::variant<cell, string>> CB_Params;
 
-		if(CLog::Get()->IsLogLevel(LOG_DEBUG))
-		{
-			string short_query(Query->Query);
-			if(short_query.length() > 512)
-				short_query.resize(512);
-			CLog::Get()->LogFunction(LOG_DEBUG, "orm_delete", "scheduling query \"%s\"..", short_query.c_str());
-		}
+	OrmObject->GenerateDeleteQuery(Query);
 
-		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
+	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
+		boost::move(Query), _1, Handle->GetID(),
+		boost::move(CB_Name), boost::move(CB_Params),
+		OrmObject, ORM_QUERYTYPE_DELETE
+	);
+	Handle->QueueQuery(boost::move(QueryFunc));
 
-		if(!!(params[2]) == true)
+	if(!!(params[2]) == true)
 			OrmObject->ClearVariableValues();
-	}
 	return 1;
 }
 
@@ -235,22 +238,24 @@ cell AMX_NATIVE_CALL Native::orm_save(AMX* amx, cell* params)
 
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
-	CMySQLQuery *Query = CMySQLQuery::Create(NULL, OrmObject->GetConnectionHandle(), cb_name, cb_format, true, OrmObject, ORM_QUERYTYPE_SAVE);
-	if(Query != NULL)
-	{
-		if(Query->Callback->Name.length() > 0)
-			Query->Callback->FillCallbackParams(amx, params, ConstParamCount);
+	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
+	
+	string 
+		Query,
+		CB_Name(cb_name != NULL ? cb_name : "");
+	stack<boost::variant<cell, string>> CB_Params;
 
-		if(CLog::Get()->IsLogLevel(LOG_DEBUG))
-		{
-			string short_query(Query->Query);
-			if(short_query.length() > 512)
-				short_query.resize(512);
-			CLog::Get()->LogFunction(LOG_DEBUG, "orm_save", "scheduling query \"%s\"..", short_query.c_str());
-		}
+	if (cb_format != NULL)
+		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
-		OrmObject->GetConnectionHandle()->ScheduleQuery(Query);
-	}
+	unsigned short OrmQueryType = OrmObject->GenerateSaveQuery(Query);
+
+	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
+		boost::move(Query), _1, Handle->GetID(),
+		boost::move(CB_Name), boost::move(CB_Params),
+		OrmObject, OrmQueryType
+	);
+	Handle->QueueQuery(boost::move(QueryFunc));
 	return 1;
 }
 
@@ -300,7 +305,7 @@ cell AMX_NATIVE_CALL Native::orm_setkey(AMX* amx, cell* params)
 		CLog::Get()->LogFunction(LOG_ERROR, "orm_setkey", "empty variable name specified");
 	return 1;
 }
-*/
+
 
 //native cache_affected_rows(connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::cache_affected_rows(AMX* amx, cell* params)
@@ -849,8 +854,9 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
-		boost::move(Query), _1,
-		boost::move(CB_Name), boost::move(CB_Params)
+		boost::move(Query), _1, connection_id,
+		boost::move(CB_Name), boost::move(CB_Params),
+		static_cast<COrm*>(NULL), 0
 	);
 	Handle->QueueQuery(boost::move(QueryFunc));
 	return 1;
@@ -878,7 +884,7 @@ cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params)
 	string query(query_str != NULL ? query_str : string());
 	int stored_result_id = 0;
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
-	CMySQLQuery QueryObj (CMySQLQuery::Create(boost::move(query), Handle->GetMainConnection(), string(), stack<boost::variant<cell, string> >()));
+	CMySQLQuery QueryObj (CMySQLQuery::Create(boost::move(query), Handle->GetMainConnection(), connection_id, string(), stack<boost::variant<cell, string>>()));
 
 	if(use_cache == true)
 	{
