@@ -129,7 +129,7 @@ int CMySQLHandle::SaveActiveResult()
 			}
 
 			m_ActiveResultID = id;
-			m_SavedResults.insert( std::map<int, CMySQLResult*>::value_type(id, m_ActiveResult) );
+			m_SavedResults.insert({ id, m_ActiveResult });
 			
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved with id = %d", id);
 			return id; 
@@ -230,7 +230,7 @@ void CMySQLHandle::ExecThreadStashFunc()
 					{
 						connection->ToggleState(true);
 
-						std::future<CMySQLQuery> fut = std::async(std::launch::async, QueryFunc, connection);
+						future<CMySQLQuery> fut = std::async(std::launch::async, QueryFunc, connection);
 						CCallback::AddQueryToQueue(std::move(fut), this);
 						func_executed = true;
 						m_QueryCounter++;

@@ -5,7 +5,10 @@
 #include <stdarg.h>
 
 #include <string>
+#include <chrono>
+
 using std::string;
+namespace chrono = std::chrono;
 
 #include "CLog.h"
 
@@ -82,7 +85,7 @@ void CLog::ProcessLog()
 
 			delete LogData;
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(10));
 		
 	}
 	fputs("</script></body></html>", LogFile);
@@ -93,7 +96,7 @@ void CLog::Initialize(const char *logfile)
 {
 	strcpy(m_LogFileName, logfile);
 	SetLogType(m_LogType);
-	m_MainThreadID = boost::this_thread::get_id();
+	m_MainThreadID = this_thread::get_id();
 }
 
 void CLog::SetLogType(unsigned int logtype)  
@@ -112,7 +115,7 @@ void CLog::SetLogType(unsigned int logtype)
 	if(logtype == LOG_TYPE_HTML) 
 	{
 		if(m_LogThread == NULL)
-			m_LogThread = new boost::thread(&CLog::ProcessLog, this);
+			m_LogThread = new thread(&CLog::ProcessLog, this);
 
 		filename.append(".html");
 	}
@@ -135,7 +138,7 @@ int CLog::LogFunction(unsigned int loglevel, char *funcname, char *msg, ...)
 				{
 					m_SLogData *log_data = new m_SLogData;
 
-					log_data->Info = (boost::this_thread::get_id() != m_MainThreadID) ? LOG_INFO_THREADED : LOG_INFO_NONE;
+					log_data->Info = (this_thread::get_id() != m_MainThreadID) ? LOG_INFO_THREADED : LOG_INFO_NONE;
 					log_data->Status = loglevel;
 
 					log_data->Msg = (char *)malloc(2048 * sizeof(char));
