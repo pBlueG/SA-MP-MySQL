@@ -11,9 +11,6 @@
 
 #include "misc.h"
 
-#include <boost/thread.hpp>
-#include <boost/thread/future.hpp>
-
 
 CMySQLQuery CMySQLQuery::Create(
 	string query, CMySQLConnection *connection,
@@ -22,9 +19,9 @@ CMySQLQuery CMySQLQuery::Create(
 	CMySQLQuery QueryObj;
 
 	QueryObj.Connection = connection;
-	QueryObj.Query = boost::move(query);
-	QueryObj.Callback.Name = boost::move(cbname);
-	QueryObj.Callback.Params = boost::move(cbparams);
+	QueryObj.Query = std::move(query);
+	QueryObj.Callback.Name = std::move(cbname);
+	QueryObj.Callback.Params = std::move(cbparams);
 
 
 	MYSQL *mysql_connection = QueryObj.Connection->GetMySQLPointer();

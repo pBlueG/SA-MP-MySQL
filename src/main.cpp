@@ -117,7 +117,7 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 	{"cache_affected_rows",				Native::cache_affected_rows},
 	{"cache_insert_id",					Native::cache_insert_id},
 	{"cache_warning_count",				Native::cache_warning_count},
-	{NULL, NULL}
+	{0, 0}
 };
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) 
