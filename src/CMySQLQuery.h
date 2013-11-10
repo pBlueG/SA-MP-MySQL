@@ -14,9 +14,7 @@ using std::stack;
 
 
 class CMySQLResult;
-class CMySQLHandle;
 class CMySQLConnection;
-class CCallback;
 class COrm;
 
 
@@ -24,24 +22,39 @@ class CMySQLQuery
 {
 public:
 	static CMySQLQuery Create(
-		string query, CMySQLConnection *connection,
+		string query, CMySQLConnection *connection, unsigned int connection_id,
 		string cbname, stack< boost::variant<cell, string> > cbparams
+		COrm *orm_object = NULL, unsigned short orm_querytype = 0
 	);
 
 
 	string Query;
 
-	CMySQLConnection *Connection = NULL;
-	CMySQLResult *Result = NULL;
+	CMySQLConnection *Connection;
+	CMySQLResult *Result;
+
 	struct s_Callback
 	{
 		stack< boost::variant<cell, string> > Params;
 		string Name;
 	} Callback;
 
-	//COrm *OrmObject;
-	//unsigned short OrmQueryType;
-	CMySQLQuery() {}
+	struct s_Orm
+	{
+		s_Orm() :
+			Object(NULL),
+			Type(0)
+		{}
+		
+		COrm *Object;
+		unsigned short Type;
+	} Orm;
+
+
+	CMySQLQuery() :
+		Connection(NULL),
+		Result(NULL)
+	{}
 	~CMySQLQuery() {}
 	
 };

@@ -58,23 +58,22 @@ extern "C"
 #endif
 const AMX_NATIVE_INFO MySQLNatives[] = 
 {
-	/*
 	{"orm_create",						Native::orm_create},
 	{"orm_destroy",						Native::orm_destroy},
 
 	{"orm_errno",						Native::orm_errno},
-
+	
 	{"orm_select",						Native::orm_select},
 	{"orm_update",						Native::orm_update},
 	{"orm_insert",						Native::orm_insert},
 	{"orm_delete",						Native::orm_delete},
-
+	
 	{"orm_save",						Native::orm_save},
-
+	
 	{"orm_apply_cache",					Native::orm_apply_cache},
 
 	{"orm_addvar",						Native::orm_addvar},
-	{"orm_setkey",						Native::orm_setkey},*/
+	{"orm_setkey",						Native::orm_setkey},
 
 
 	{"mysql_log",						Native::mysql_log}, 

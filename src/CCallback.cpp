@@ -5,7 +5,7 @@
 #include "CMySQLHandle.h"
 #include "CMySQLQuery.h"
 #include "CMySQLResult.h"
-//#include "COrm.h"
+#include "COrm.h"
 #include "CLog.h"
 
 #include "misc.h"
@@ -33,10 +33,28 @@ void CCallback::ProcessCallbacks()
 			{
 				CMySQLQuery QueryObj = boost::move(future_res.get());
 				CMySQLHandle *Handle = boost::get<1>(*i);
-				bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
 
 				Handle->DecreaseQueryCounter();
+
+
+				if(QueryObj.Orm.Object != NULL)
+				{
+					switch(QueryObj.Orm.Type) 
+					{
+						case ORM_QUERYTYPE_SELECT:
+							QueryObj.Orm.Object->ApplySelectResult(QueryObj.Result);
+							break;
+
+						case ORM_QUERYTYPE_INSERT:
+							QueryObj.Orm.Object->ApplyInsertResult(QueryObj.Result);
+							break;
+					}
+				}
 				
+				if(!QueryObj.Callback.Name.empty())
+				{
+					
+					bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
 					for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 					{
 						AMX *amx = (*a);
@@ -98,10 +116,7 @@ void CCallback::ProcessCallbacks()
 				i = m_CallbackQueue.erase(i);
 			}
 			else
-			{
-				//if(mysql_options.execute-in-order == true)
-					//return ;
-			}
+				return;
 			
 		} while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
 	}

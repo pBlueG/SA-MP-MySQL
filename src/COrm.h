@@ -12,14 +12,14 @@ using std::string;
 using std::vector;
 using boost::unordered_map;
 
-typedef boost::variant<int, double, string> VarType;
-
-
 #include "main.h"
 
 
+typedef boost::variant<int, double, string> VarType;
+
+
 #define ERROR_INVALID_ORM_ID(function, id) \
-	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid orm id (ID = %d)", id), 0
+	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid orm id (ID = %d)", id)
 
 
 class CMySQLHandle;
