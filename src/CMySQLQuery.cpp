@@ -50,29 +50,56 @@ CMySQLQuery CMySQLQuery::Create(
 					MYSQL_FIELD *mysql_field;
 					MYSQL_ROW mysql_row;
 
-					QueryObj.Result = new CMySQLResult;
+					CMySQLResult *result_ptr = QueryObj.Result = new CMySQLResult;
 
 					QueryObj.Result->m_WarningCount = mysql_warning_count(mysql_connection);
 								 
-					QueryObj.Result->m_Rows = mysql_num_rows(mysql_result);
-					QueryObj.Result->m_Fields = mysql_num_fields(mysql_result);
+					const my_ulonglong num_rows = QueryObj.Result->m_Rows = mysql_num_rows(mysql_result);
+					const unsigned int num_fields = QueryObj.Result->m_Fields = mysql_num_fields(mysql_result);
 								  
-					QueryObj.Result->m_Data.reserve((unsigned int)QueryObj.Result->m_Rows + 1);
+					//QueryObj.Result->m_Data.reserve((unsigned int)QueryObj.Result->m_Rows + 1);
 					QueryObj.Result->m_FieldNames.reserve(QueryObj.Result->m_Fields + 1);
 
-
+					
+					size_t row_data_size = 0;
 					while (mysql_field = mysql_fetch_field(mysql_result))
-						QueryObj.Result->m_FieldNames.push_back(mysql_field->name);
-
-
-					while (mysql_row = mysql_fetch_row(mysql_result))
 					{
-						vector<string> Row;
-						Row.reserve(QueryObj.Result->m_Fields + 1);
-						for (unsigned int a = 0; a != QueryObj.Result->m_Fields; ++a)
-							Row.push_back(mysql_row[a] == NULL ? "NULL" : mysql_row[a]);
+						QueryObj.Result->m_FieldNames.push_back(mysql_field->name);
+						row_data_size += mysql_field->max_length + 1;
+					}
 
-						QueryObj.Result->m_Data.push_back(std::move(Row));
+					
+					size_t
+						mem_head_size = sizeof(char**)* static_cast<size_t>(num_rows),
+						mem_row_size = (sizeof(char*)* (num_fields + 1)) + ((row_data_size)* sizeof(char));
+						//+1 because there is another value in memory pointing to somewhere
+						//+20 because there are even more pointers after the normal data
+					//mem_row_size has to be a multiple of 8
+					while (mem_row_size % 8 != 0)
+						mem_row_size++;
+
+					const size_t mem_size = mem_head_size + static_cast<size_t>(num_rows) * mem_row_size;
+					char ***mem_data = result_ptr->m_Data = static_cast<char***>(malloc(mem_size));
+					char **mem_offset = reinterpret_cast<char**>(&mem_data[num_rows]);
+
+					for (size_t r = 0; r != num_rows; ++r)
+					{
+						mysql_row = mysql_fetch_row(mysql_result); 
+						unsigned long *mysql_lengths = mysql_fetch_lengths(mysql_result);
+
+						//copy mysql result data to our location
+						mem_data[r] = mem_offset;
+						mem_offset += mem_row_size/4;
+						memcpy(mem_data[r], mysql_row, mem_row_size);
+
+						char *mem_row_offset = reinterpret_cast<char*>(mem_data[r] + (size_t)(num_fields+1));
+						for (size_t f = 0; f != num_fields; ++f)
+						{
+							//correct the pointers of the copied mysql result data
+							if (f != 0)
+								mem_row_offset += (size_t)(mysql_lengths[f - 1] + 1);
+							mem_data[r][f] = mem_row_offset;
+						}
 					}
 
 				}

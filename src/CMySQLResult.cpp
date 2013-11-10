@@ -20,7 +20,7 @@ void CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx, char **de
 {
 	if(row < m_Rows && fieldidx < m_Fields) 
 	{
-		(*dest) = const_cast<char*>(m_Data.at(row).at(fieldidx).c_str());
+		(*dest) = m_Data[row][fieldidx];
 
 		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 		{
@@ -49,7 +49,7 @@ void CMySQLResult::GetRowDataByName(unsigned int row, const char *field, char **
 	{
 		if(::strcmp(m_FieldNames.at(i).c_str(), field) == 0) 
 		{
-			(*dest) = const_cast<char*>(m_Data.at(row).at(i).c_str());
+			(*dest) = m_Data[row][i];
 
 			if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 			{
@@ -77,5 +77,7 @@ CMySQLResult::CMySQLResult() :
 
 CMySQLResult::~CMySQLResult() 
 {
+	free(m_Data);
+
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::~CMySQLResult()", "deconstructor called");
 }
