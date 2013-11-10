@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samp-plugin-mysql", "samp-plugin-mysql.vcxproj", "{53A7F0FD-6581-4F8A-A8D6-F4C2F50E72DF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "thread-test", "..\thread-test\thread-test.vcxproj", "{F1B249E2-483C-43A7-A78E-11439CD1034F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -17,10 +15,6 @@ Global
 		{53A7F0FD-6581-4F8A-A8D6-F4C2F50E72DF}.Debug|Win32.Build.0 = Debug|Win32
 		{53A7F0FD-6581-4F8A-A8D6-F4C2F50E72DF}.Release|Win32.ActiveCfg = Release|Win32
 		{53A7F0FD-6581-4F8A-A8D6-F4C2F50E72DF}.Release|Win32.Build.0 = Release|Win32
-		{F1B249E2-483C-43A7-A78E-11439CD1034F}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F1B249E2-483C-43A7-A78E-11439CD1034F}.Debug|Win32.Build.0 = Debug|Win32
-		{F1B249E2-483C-43A7-A78E-11439CD1034F}.Release|Win32.ActiveCfg = Release|Win32
-		{F1B249E2-483C-43A7-A78E-11439CD1034F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

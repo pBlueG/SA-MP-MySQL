@@ -25,8 +25,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	
 	if (mysql_library_init(0, NULL, NULL)) 
 	{
-		logprintf(" >> plugin.mysql: Plugin failed to load due to uninitialized MySQL library (libmysql probably missing).");
-		exit(0);
+		logprintf(" >> plugin.mysql: plugin failed to load due to uninitialized MySQL library ('libmysql.dll' probably missing).");
 		return false;
 	}
 	
@@ -59,7 +58,8 @@ extern "C"
 #endif
 const AMX_NATIVE_INFO MySQLNatives[] = 
 {
-	/*{"orm_create",						Native::orm_create},
+	/*
+	{"orm_create",						Native::orm_create},
 	{"orm_destroy",						Native::orm_destroy},
 
 	{"orm_errno",						Native::orm_errno},

@@ -64,6 +64,7 @@
       <ModuleDefinitionFile>plugin.def</ModuleDefinitionFile>
       <AdditionalDependencies>src/mysql_lib/libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SUBSYSTEM:CONSOLE,5.01 /OSVERSION:5.1 %(AdditionalOptions)</AdditionalOptions>
+      <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>COPY "$(TargetPath)" "D:\MySQL R8 Testing\plugins\"</Command>
@@ -89,6 +90,7 @@
       <AdditionalOptions>/SUBSYSTEM:CONSOLE,5.01 /OSVERSION:5.1 %(AdditionalOptions)</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
+      <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>COPY "$(TargetPath)" "D:\MySQL R8 Testing\plugins\"</Command>

@@ -6,19 +6,17 @@
 #include <list>
 #include <stack>
 #include <string>
-//#include <queue>
-#include <tuple>
-#include <future>
-#include <mutex>
+#include <boost/tuple/tuple.hpp>
+#include <boost/thread/future.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/variant.hpp>
 
 using std::list;
 using std::stack;
 using std::string;
-//using std::queue;
-using std::tuple;
-using std::future;
-using std::mutex;
+using boost::tuple;
+using boost::shared_future;
+using boost::mutex;
 
 #include "main.h"
 #include "CMySQLQuery.h"
@@ -30,22 +28,22 @@ class CMySQLHandle;
 class CCallback 
 {
 private:
-	static list<tuple<future<CMySQLQuery>, CMySQLHandle*>> m_CallbackQueue;
+	static list< tuple<shared_future<CMySQLQuery>, CMySQLHandle*> > m_CallbackQueue;
 	static mutex m_QueueMtx;
 
 	static list<AMX *> m_AmxList;
 
 public:
 
-	static void FillCallbackParams(stack<boost::variant<cell, string>> &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount);
+	static void FillCallbackParams(stack< boost::variant<cell, string> > &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount);
 
 	
 	static void ProcessCallbacks();
 	
-	static inline void AddQueryToQueue(future<CMySQLQuery> &&fut, CMySQLHandle *handle)
+	static inline void AddQueryToQueue(shared_future<CMySQLQuery> fut, CMySQLHandle *handle)
 	{
-		std::lock_guard<mutex> LockGuard(m_QueueMtx);
-		m_CallbackQueue.push_front(std::make_tuple(std::move(fut), handle));
+		boost::mutex::scoped_lock LockGuard(m_QueueMtx);
+		m_CallbackQueue.push_front(make_tuple(boost::move(fut), handle));
 	}
 
 	static void AddAmx(AMX *amx);

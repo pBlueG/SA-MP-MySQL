@@ -5,10 +5,10 @@
 #include <stdarg.h>
 
 #include <string>
-#include <chrono>
+#include <boost/chrono.hpp>
 
 using std::string;
-namespace chrono = std::chrono;
+namespace chrono = boost::chrono;
 
 #include "CLog.h"
 

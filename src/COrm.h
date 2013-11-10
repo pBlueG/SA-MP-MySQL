@@ -5,13 +5,12 @@
 
 #include <string>
 #include <vector>
-//#include <boost/unordered_map.hpp>
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 #include <boost/variant.hpp>
 
 using std::string;
 using std::vector;
-using std::unordered_map;
+using boost::unordered_map;
 
 typedef boost::variant<int, double, string> VarType;
 

@@ -11,11 +11,8 @@
 #include "misc.h"
 #include <cstdio>
 
-#include <chrono>
-namespace chrono = std::chrono;
 
-
-list<tuple<future<CMySQLQuery>, CMySQLHandle*>> CCallback::m_CallbackQueue;
+list< tuple<shared_future<CMySQLQuery>, CMySQLHandle*> > CCallback::m_CallbackQueue;
 mutex CCallback::m_QueueMtx;
 
 list<AMX *> CCallback::m_AmxList;
@@ -26,76 +23,77 @@ void CCallback::ProcessCallbacks()
 {
 	if (!m_CallbackQueue.empty())
 	{
-		std::lock_guard<mutex> LockGuard(m_QueueMtx);
-		auto i = m_CallbackQueue.begin();
+		boost::mutex::scoped_lock LockGuard(m_QueueMtx);
+		list< tuple<shared_future<CMySQLQuery>, CMySQLHandle*> >::iterator i = m_CallbackQueue.begin();
 		do
 		{
-			auto &future_res = std::get<0>((*i));
+			shared_future<CMySQLQuery> &future_res = boost::get<0>((*i));
 
-			if (future_res.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+			if(future_res.has_value())
 			{
-				CMySQLQuery QueryObj = std::move(future_res.get()); 
-				CMySQLHandle *Handle = std::get<1>(*i);
+				CMySQLQuery QueryObj = boost::move(future_res.get());
+				CMySQLHandle *Handle = boost::get<1>(*i);
 				bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
 
 				Handle->DecreaseQueryCounter();
 				
-				for (auto &amx : m_AmxList)
-				{
-					int amx_index;
-
-					if (amx_FindPublic(amx, QueryObj.Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
+					for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 					{
-						cell amx_mem_addr = -1; 
-						CLog::Get()->StartCallback(QueryObj.Callback.Name.c_str());
+						AMX *amx = (*a);
+						int amx_index;
 
-						while (!QueryObj.Callback.Params.empty())
+						if (amx_FindPublic(amx, QueryObj.Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
 						{
-							boost::variant<cell, string> value = std::move(QueryObj.Callback.Params.top());
-							if (value.type() == typeid(cell))
+							cell amx_mem_addr = -1; 
+							CLog::Get()->StartCallback(QueryObj.Callback.Name.c_str());
+
+							while (!QueryObj.Callback.Params.empty())
 							{
-								if (pass_by_ref)
+								boost::variant<cell, string> value = boost::move(QueryObj.Callback.Params.top());
+								if (value.type() == typeid(cell))
+								{
+									if (pass_by_ref)
+									{
+										cell tmp_addr;
+										amx_PushArray(amx, &tmp_addr, NULL, (cell*)&boost::get<cell>(value), 1);
+										if (amx_mem_addr < NULL)
+											amx_mem_addr = tmp_addr;
+									}
+									else
+										amx_Push(amx, boost::get<cell>(value));
+								}
+								else
 								{
 									cell tmp_addr;
-									amx_PushArray(amx, &tmp_addr, NULL, (cell*)&boost::get<cell>(value), 1);
+									amx_PushString(amx, &tmp_addr, NULL, boost::get<string>(value).c_str(), 0, 0);
 									if (amx_mem_addr < NULL)
 										amx_mem_addr = tmp_addr;
 								}
-								else
-									amx_Push(amx, boost::get<cell>(value));
-							}
-							else
-							{
-								cell tmp_addr;
-								amx_PushString(amx, &tmp_addr, NULL, boost::get<string>(value).c_str(), 0, 0);
-								if (amx_mem_addr < NULL)
-									amx_mem_addr = tmp_addr;
+
+								QueryObj.Callback.Params.pop();
 							}
 
-							QueryObj.Callback.Params.pop();
+							Handle->SetActiveResult(QueryObj.Result);
+							CMySQLHandle::ActiveHandle = Handle;
+
+							cell amx_ret;
+							amx_Exec(amx, &amx_ret, amx_index);
+							if (amx_mem_addr >= NULL)
+								amx_Release(amx, amx_mem_addr);
+
+							CMySQLHandle::ActiveHandle = NULL;
+
+							if (Handle->IsActiveResultSaved() == false)
+								delete Handle->GetActiveResult();
+
+							Handle->SetActiveResult((CMySQLResult*)NULL);
+
+							CLog::Get()->EndCallback();
+
+							break; //we have found our callback, exit loop
 						}
-
-						Handle->SetActiveResult(QueryObj.Result);
-						CMySQLHandle::ActiveHandle = Handle;
-
-						cell amx_ret;
-						amx_Exec(amx, &amx_ret, amx_index);
-						if (amx_mem_addr >= NULL)
-							amx_Release(amx, amx_mem_addr);
-
-						CMySQLHandle::ActiveHandle = NULL;
-
-						if (Handle->IsActiveResultSaved() == false)
-							delete Handle->GetActiveResult();
-
-						Handle->SetActiveResult(NULL);
-
-						CLog::Get()->EndCallback();
-
-						break; //we have found our callback, exit loop
 					}
 				}
-
 
 				i = m_CallbackQueue.erase(i);
 			}
@@ -118,7 +116,7 @@ void CCallback::AddAmx(AMX *amx)
 
 void CCallback::EraseAmx(AMX *amx) 
 {
-	for (auto a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
+	for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 	{
 		if ( (*a) == amx) 
 		{
@@ -133,7 +131,7 @@ void CCallback::ClearAll()
 	m_CallbackQueue.clear();
 }
 
-void CCallback::FillCallbackParams(stack<boost::variant<cell, string>> &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount)
+void CCallback::FillCallbackParams(stack< boost::variant<cell, string> > &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount)
 {
 	if (format == NULL || !(*format))
 		return ;

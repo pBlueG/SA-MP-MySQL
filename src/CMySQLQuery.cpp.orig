@@ -13,15 +13,21 @@
 
 
 CMySQLQuery CMySQLQuery::Create(
+<<<<<<< HEAD
 	string query, CMySQLConnection *connection,
 	string cbname, stack<boost::variant<cell, string>> cbparams)
+=======
+	string query, CMySQLConnection *connection, unsigned int connection_id,
+	string cbname, stack< boost::variant<cell, string> > cbparams,
+	COrm *orm_object /*= NULL*/, unsigned short orm_querytype /*= 0*/)
+>>>>>>> 9451975... make code g++ 4.4+ compatible
 {
 	CMySQLQuery QueryObj;
 
 	QueryObj.Connection = connection;
-	QueryObj.Query = std::move(query);
-	QueryObj.Callback.Name = std::move(cbname);
-	QueryObj.Callback.Params = std::move(cbparams);
+	QueryObj.Query = boost::move(query);
+	QueryObj.Callback.Name = boost::move(cbname);
+	QueryObj.Callback.Params = boost::move(cbparams);
 
 
 	MYSQL *mysql_connection = QueryObj.Connection->GetMySQLPointer();
@@ -97,11 +103,6 @@ CMySQLQuery CMySQLQuery::Create(
 							//correct the pointers of the copied mysql result data
 							if (mem_data[r][f] != NULL) //don't touch NULL values
 							{
-<<<<<<< HEAD
-								mem_row_offset += static_cast<size_t>(mysql_lengths[f - 1]);
-								if (mem_data[r][f] != NULL) //if the row value isn't NULL
-									mem_row_offset += 1; //add length for '\0' delimiter
-=======
 								if (f != 0)
 								{
 									mem_row_offset += static_cast<size_t>(mysql_lengths[f - 1]);
@@ -110,7 +111,6 @@ CMySQLQuery CMySQLQuery::Create(
 								}
 
 								mem_data[r][f] = mem_row_offset;
->>>>>>> 339a0a9... fix bug with new result-saving code related to NULL-values part 2
 							}
 						}
 					}
@@ -125,10 +125,7 @@ CMySQLQuery CMySQLQuery::Create(
 				}
 				else //error
 				{
-					int ErrorID = mysql_errno(mysql_connection);
-					string ErrorString(mysql_error(mysql_connection));
-
-					CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "an error occured while storing the result: (error #%d) \"%s\"", ErrorID, ErrorString.c_str());
+					CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "an error occured while storing the result: (error #%d) \"%s\"", mysql_errno(mysql_connection), mysql_error(mysql_connection));
 
 					//we clear the callback name and forward it to the callback handler
 					//the callback handler free's all memory but doesn't call the callback because there's no callback name
@@ -191,9 +188,4 @@ CMySQLQuery CMySQLQuery::Create(
 	connection->ToggleState(false);
 
 	return QueryObj;
-}
-
-CMySQLQuery::~CMySQLQuery()
-{
-	//delete Result;
 }
