@@ -58,7 +58,7 @@ private:
 	unsigned int m_Fields;
 	my_ulonglong m_Rows;
 
-	vector< vector<string> > m_Data;
+	char ***m_Data;
 	vector<string> m_FieldNames;
 
 	my_ulonglong 
