@@ -7,8 +7,7 @@
 #include "CMySQLQuery.h"
 #include "CCallback.h"
 
-#include <chrono>
-namespace chrono = std::chrono;
+#include <boost/chrono.hpp>
 
 
 unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
@@ -26,7 +25,7 @@ CMySQLHandle::CMySQLHandle(int id) :
 
 	m_QueryCounter(0),
 	m_QueryThreadRunning(true),
-	m_QueryStashThread(std::bind(&CMySQLHandle::ExecThreadStashFunc, this))
+	m_QueryStashThread(boost::bind(&CMySQLHandle::ExecThreadStashFunc, this))
 {
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::CMySQLHandle", "constructor called");
 }
@@ -48,16 +47,21 @@ CMySQLHandle::~CMySQLHandle()
 void CMySQLHandle::WaitForQueryExec() 
 {
 	while (!m_QueryQueue.empty())
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		this_thread::sleep_for(boost::chrono::milliseconds(5));
 }
 
 CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string db, size_t port, size_t pool_size, bool reconnect) 
 {
+	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
+
 	CMySQLHandle *handle = NULL;
 	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
-	if (MySQLOptions.DuplicateConnections == false && SQLHandle.size() > 0) {
+
+	if (MySQLOptions.DuplicateConnections == false && SQLHandle.size() > 0) 
+	{
 		//code used for checking duplicate connections
-		for(unordered_map<int, CMySQLHandle*>::iterator i = SQLHandle.begin(), end = SQLHandle.end(); i != end; ++i) {
+		for(unordered_map<int, CMySQLHandle*>::iterator i = SQLHandle.begin(), end = SQLHandle.end(); i != end; ++i) 
+		{
 			CMySQLConnection *Connection = i->second->m_MainConnection;
 			if((*Connection) == (*main_connection))
 			{
@@ -67,10 +71,9 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 			}
 		}
 	}
+
 	if(handle == NULL) 
 	{
-		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
-
 		int id = 1;
 		if(SQLHandle.size() > 0) 
 		{
@@ -87,9 +90,8 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 		//init connections
 		handle->m_MainConnection = main_connection;
-
 		for (size_t i = 0; i < pool_size; ++i)
-			handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
+			handle->m_ConnectionPool.insert(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
 
 		SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
 
@@ -104,10 +106,10 @@ void CMySQLHandle::Destroy()
 	delete this;
 }
 
-void CMySQLHandle::ExecuteOnConnectionPool(void(CMySQLConnection::*func)())
+void CMySQLHandle::ExecuteOnConnectionPool(void (CMySQLConnection::*func)())
 {
-	for (auto &t : m_ConnectionPool)
-		(t->*func)();
+	for(unordered_set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
+		((*c)->*func)();
 }
 
 int CMySQLHandle::SaveActiveResult() 
@@ -133,7 +135,7 @@ int CMySQLHandle::SaveActiveResult()
 			}
 
 			m_ActiveResultID = id;
-			m_SavedResults.insert({ id, m_ActiveResult });
+			m_SavedResults.insert( std::map<int, CMySQLResult*>::value_type(id, m_ActiveResult) );
 			
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved with id = %d", id);
 			return id; 
@@ -222,30 +224,30 @@ void CMySQLHandle::ExecThreadStashFunc()
 	{
 		while (!m_QueryQueue.empty())
 		{
-			function<CMySQLQuery(CMySQLConnection*)> QueryFunc (std::move(m_QueryQueue.front()));
+			function<CMySQLQuery(CMySQLConnection*)> QueryFunc (boost::move(m_QueryQueue.front()));
 			m_QueryQueue.pop();
 			bool func_executed = false;
 			do
 			{
-				for (auto &c : m_ConnectionPool)
+				for(unordered_set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
 				{
-					CMySQLConnection *connection = c;
+					CMySQLConnection *connection = (*c);
 					if (connection->GetState() == false)
 					{
 						connection->ToggleState(true);
 
-						future<CMySQLQuery> fut = std::async(std::launch::async, QueryFunc, connection);
-						CCallback::AddQueryToQueue(std::move(fut), this);
+						shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
+						CCallback::AddQueryToQueue(boost::move(fut), this);
 						func_executed = true;
 						m_QueryCounter++;
 						break;
 					}
 				}
-					this_thread::sleep_for(chrono::milliseconds(10));
+				this_thread::sleep_for(boost::chrono::milliseconds(10));
 			} 
 			while (func_executed == false);
 		}
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(boost::chrono::milliseconds(10));
 	}
 }
 

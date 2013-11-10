@@ -13,9 +13,6 @@
 #include "malloc.h"
 #include <cmath>
 
-#include <thread>
-#include <future>
-
 
 logprintf_t logprintf;
 
@@ -847,15 +844,15 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 		CB_Name(cb_name != NULL ? cb_name : "");
 
 
-	stack<boost::variant<cell, string>> CB_Params;
+	stack<boost::variant<cell, string> > CB_Params;
 	if (cb_format != NULL)
 		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = std::bind(&CMySQLQuery::Create,
-		std::move(Query), std::placeholders::_1,
-		std::move(CB_Name), std::move(CB_Params)
+	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
+		boost::move(Query), _1,
+		boost::move(CB_Name), boost::move(CB_Params)
 	);
-	Handle->QueueQuery(std::move(QueryFunc));
+	Handle->QueueQuery(boost::move(QueryFunc));
 	return 1;
 }
 
@@ -881,7 +878,7 @@ cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params)
 	string query(query_str != NULL ? query_str : string());
 	int stored_result_id = 0;
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
-	CMySQLQuery QueryObj (CMySQLQuery::Create(std::move(query), Handle->GetMainConnection(), string(), stack<boost::variant<cell, string>>()));
+	CMySQLQuery QueryObj (CMySQLQuery::Create(boost::move(query), Handle->GetMainConnection(), string(), stack<boost::variant<cell, string> >()));
 
 	if(use_cache == true)
 	{

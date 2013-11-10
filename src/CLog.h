@@ -4,13 +4,12 @@
 
 
 #include <boost/lockfree/queue.hpp>
-#include <atomic>
-#include <thread>
+#include <boost/atomic.hpp>
+#include <boost/thread/thread.hpp>
 
-using std::atomic;
-using std::thread;
-namespace this_thread = std::this_thread;
-
+using boost::atomic;
+using boost::thread;
+namespace this_thread = boost::this_thread;
 
 enum e_LogLevel 
 {

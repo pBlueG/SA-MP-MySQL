@@ -4,25 +4,23 @@
 
 
 #include <string>
-#include <thread>
-#include <future>
-#include <unordered_map>
-#include <forward_list>
-#include <tuple>
-#include <functional>
+#include <boost/thread/thread.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/function.hpp>
 #include <queue>
-#include <atomic>
+#include <boost/atomic.hpp>
 
 using std::string;
-using std::unordered_map;
-using std::forward_list;
-using std::thread;
-using std::future;
-using std::tuple;
-using std::function;
+using boost::unordered_map;
+using boost::unordered_set;
+using boost::thread;
+using boost::tuple;
+using boost::function;
 using std::queue;
-using std::atomic;
-namespace this_thread = std::this_thread;
+using boost::atomic;
+namespace this_thread = boost::this_thread;
 
 
 #ifdef WIN32
@@ -139,9 +137,9 @@ public:
 
 	void ExecuteOnConnectionPool(void (CMySQLConnection::*func)());
 
-	inline void QueueQuery(function<CMySQLQuery(CMySQLConnection*)> &&func)
+	inline void QueueQuery(function< CMySQLQuery (CMySQLConnection*) > func)
 	{
-		m_QueryQueue.push(std::move(func));
+		m_QueryQueue.push(boost::move(func));
 	}
 	
 
@@ -216,7 +214,7 @@ private:
 	int m_MyID;
 
 	CMySQLConnection *m_MainConnection; //only used in main thread
-	forward_list<CMySQLConnection*> m_ConnectionPool;
+	unordered_set<CMySQLConnection*> m_ConnectionPool;
 };
 
 

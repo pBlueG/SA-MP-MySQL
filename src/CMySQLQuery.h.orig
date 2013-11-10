@@ -23,33 +23,32 @@ class COrm;
 class CMySQLQuery
 {
 public:
-<<<<<<< HEAD
 	static CMySQLQuery Create(
+<<<<<<< HEAD
 		string query, CMySQLConnection *connection,
 		string cbname, stack<boost::variant<cell, string>> cbparams
-	);
 =======
-	static CMySQLQuery *Create(const char *query, CMySQLHandle *connhandle, const char *cbname, bool threaded = true, COrm *ormobject = NULL, unsigned short orm_querytype = 0);
-	void Destroy();
-
-	void Execute();
->>>>>>> fd2861b... code refactoring and improvement
+		string query, CMySQLConnection *connection, unsigned int connection_id,
+		string cbname, stack< boost::variant<cell, string> > cbparams,
+		COrm *orm_object = NULL, unsigned short orm_querytype = 0
+>>>>>>> 9451975... make code g++ 4.4+ compatible
+	);
 
 
 	string Query;
 
-	CMySQLConnection *Connection = nullptr;
-	CMySQLResult *Result = nullptr;
+	CMySQLConnection *Connection = NULL;
+	CMySQLResult *Result = NULL;
 	struct s_Callback
 	{
-		stack<boost::variant<cell, string>> Params;
+		stack< boost::variant<cell, string> > Params;
 		string Name;
 	} Callback;
 
 	//COrm *OrmObject;
 	//unsigned short OrmQueryType;
 	CMySQLQuery() {}
-	~CMySQLQuery();
+	~CMySQLQuery() {}
 	
 };
 
