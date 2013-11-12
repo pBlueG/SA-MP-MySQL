@@ -73,7 +73,6 @@ CMySQLQuery CMySQLQuery::Create(
 						mem_head_size = sizeof(char**)* static_cast<size_t>(num_rows),
 						mem_row_size = (sizeof(char*)* (num_fields + 1)) + ((row_data_size)* sizeof(char));
 						//+1 because there is another value in memory pointing to somewhere
-						//+20 because there are even more pointers after the normal data
 					//mem_row_size has to be a multiple of 8
 					while (mem_row_size % 8 != 0)
 						mem_row_size++;
@@ -84,21 +83,29 @@ CMySQLQuery CMySQLQuery::Create(
 
 					for (size_t r = 0; r != num_rows; ++r)
 					{
-						mysql_row = mysql_fetch_row(mysql_result); 
+						mysql_row = mysql_fetch_row(mysql_result);
 						unsigned long *mysql_lengths = mysql_fetch_lengths(mysql_result);
 
 						//copy mysql result data to our location
 						mem_data[r] = mem_offset;
-						mem_offset += mem_row_size/4;
+						mem_offset += mem_row_size/sizeof(char**);
 						memcpy(mem_data[r], mysql_row, mem_row_size);
 
-						char *mem_row_offset = reinterpret_cast<char*>(mem_data[r] + (size_t)(num_fields+1));
+						char *mem_row_offset = reinterpret_cast<char*>(mem_data[r] + static_cast<size_t>(num_fields+1));
 						for (size_t f = 0; f != num_fields; ++f)
 						{
 							//correct the pointers of the copied mysql result data
-							if (f != 0)
-								mem_row_offset += (size_t)(mysql_lengths[f - 1] + 1);
-							mem_data[r][f] = mem_row_offset;
+							if (mem_data[r][f] != NULL) //don't touch NULL values
+							{
+								if (f != 0)
+								{
+									mem_row_offset += static_cast<size_t>(mysql_lengths[f - 1]);
+									if (mem_data[r][f - 1] != NULL) //if the row value isn't NULL
+										mem_row_offset += 1; //add length for '\0' delimiter
+								}
+
+								mem_data[r][f] = mem_row_offset;
+							}
 						}
 					}
 
