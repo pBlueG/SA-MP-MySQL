@@ -24,7 +24,7 @@ void CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx, char **de
 
 		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 		{
-			string ShortenDest(*dest);
+			string ShortenDest((*dest) != NULL ? (*dest) : "NULL");
 			if(ShortenDest.length() > 1024)
 				ShortenDest.resize(1024);
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetRowData", "row: '%d', field: '%d', data: \"%s\"", row, fieldidx, ShortenDest.c_str());
@@ -53,7 +53,7 @@ void CMySQLResult::GetRowDataByName(unsigned int row, const char *field, char **
 
 			if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 			{
-				string ShortenDest(*dest);
+				string ShortenDest((*dest) != NULL ? (*dest) : "NULL");
 				if(ShortenDest.length() > 1024)
 					ShortenDest.resize(1024);
 				CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetRowDataByName", "row: '%d', field: \"%s\", data: \"%s\"", row, field, ShortenDest.c_str());
