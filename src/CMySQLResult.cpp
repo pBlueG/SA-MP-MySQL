@@ -68,6 +68,9 @@ void CMySQLResult::GetRowDataByName(unsigned int row, const char *field, char **
 CMySQLResult::CMySQLResult() :
 	m_Fields(0),
 	m_Rows(0),
+
+	m_Data(NULL),
+
 	m_InsertID(0),
 	m_AffectedRows(0),
 	m_WarningCount(0)
@@ -77,6 +80,7 @@ CMySQLResult::CMySQLResult() :
 
 CMySQLResult::~CMySQLResult() 
 {
+	if (m_Data != NULL)
 	free(m_Data);
 
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::~CMySQLResult()", "deconstructor called");
