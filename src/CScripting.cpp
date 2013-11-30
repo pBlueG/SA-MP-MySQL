@@ -13,8 +13,6 @@
 #include "malloc.h"
 #include <cmath>
 
-//#include <boost/thread.hpp>
-//#include <boost/thread/future.hpp>
 #include <thread>
 #include <future>
 

@@ -44,7 +44,7 @@ public:
 			m_Instance = new CLog;
 		return m_Instance;
 	}
-	static inline void Delete() 
+	static inline void Destroy() 
 	{
 		delete m_Instance;
 	}

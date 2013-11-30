@@ -186,8 +186,3 @@ CMySQLQuery CMySQLQuery::Create(
 
 	return QueryObj;
 }
-
-CMySQLQuery::~CMySQLQuery()
-{
-	//delete Result;
-}

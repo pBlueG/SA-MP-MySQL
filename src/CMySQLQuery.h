@@ -42,7 +42,7 @@ public:
 	//COrm *OrmObject;
 	//unsigned short OrmQueryType;
 	CMySQLQuery() {}
-	~CMySQLQuery();
+	~CMySQLQuery() {}
 	
 };
 
