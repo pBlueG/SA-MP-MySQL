@@ -8,6 +8,7 @@
 #include "CCallback.h"
 
 #include <chrono>
+namespace chrono = std::chrono;
 
 
 unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
@@ -66,19 +67,18 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 			}
 		}
 	}
+<<<<<<< HEAD
 	if(handle == NULL) {
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
+=======
+	if(handle == nullptr) 
+	{
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
+>>>>>>> 13b3d67... code refactoring
 
 		int id = 1;
 		if(SQLHandle.size() > 0) 
 		{
-<<<<<<< HEAD
-			id = itHandle->first+1;
-			++itHandle;
-		} 
-		while(SQLHandle.find(id) != SQLHandle.end());
-	}
-=======
 			unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
 			do 
 			{
@@ -86,29 +86,23 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 				++itHandle;
 			} while(SQLHandle.find(id) != SQLHandle.end());
 		}
->>>>>>> 7bbaa57... added native "mysql_option"
 
 
 		handle = new CMySQLHandle(id);
 
-<<<<<<< HEAD
-	//init connections
-	handle->m_MainConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
-	for (size_t i = 0; i < pool_size; ++i)
-		handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
-
-	SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
-	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
-		
-=======
 		//init connections
 		handle->m_MainConnection = main_connection;
-		handle->m_QueryConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+
+		for (size_t i = 0; i < pool_size; ++i)
+			handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
 
 		SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13b3d67... code refactoring
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
 	}
->>>>>>> 7bbaa57... added native "mysql_option"
 	return handle;
 }
 
@@ -143,12 +137,11 @@ int CMySQLHandle::SaveActiveResult()
 				{
 					id = itHandle->first+1;
 					++itHandle;
-				} 
-				while(m_SavedResults.find(id) != m_SavedResults.end());
+				} while(m_SavedResults.find(id) != m_SavedResults.end());
 			}
 
 			m_ActiveResultID = id;
-			m_SavedResults.insert( std::map<int, CMySQLResult*>::value_type(id, m_ActiveResult) );
+			m_SavedResults.insert({ id, m_ActiveResult });
 			
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved with id = %d", id);
 			return id; 
@@ -217,7 +210,7 @@ bool CMySQLHandle::SetActiveResult(int resultid)
 
 void CMySQLHandle::ClearAll()
 {
-	for(auto i = SQLHandle.begin(); i != SQLHandle.end(); ++i)
+	for(unordered_map<int, CMySQLHandle *>::iterator i = SQLHandle.begin(); i != SQLHandle.end(); ++i)
 		i->second->Destroy();
 	
 	SQLHandle.clear();
@@ -249,18 +242,18 @@ void CMySQLHandle::ExecThreadStashFunc()
 					{
 						connection->ToggleState(true);
 
-						std::future<CMySQLQuery> fut = std::async(std::launch::async, QueryFunc, connection);
+						future<CMySQLQuery> fut = std::async(std::launch::async, QueryFunc, connection);
 						CCallback::AddQueryToQueue(std::move(fut), this);
 						func_executed = true;
 						m_QueryCounter++;
 						break;
 					}
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					this_thread::sleep_for(chrono::milliseconds(10));
 			} 
 			while (func_executed == false);
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
 
@@ -320,12 +313,12 @@ void CMySQLConnection::EscapeString(const char *src, string &dest)
 {
 	if(src != NULL && m_IsConnected) 
 	{
-		size_t SrcLen = strlen(src);
-		char *tmpEscapedStr = (char *)malloc((SrcLen*2 + 1) * sizeof(char));
+		size_t src_len = strlen(src);
+		char *escaped_str = (char *)malloc((src_len*2 + 1) * sizeof(char));
 
-		size_t EscapedLen = mysql_real_escape_string(m_Connection, tmpEscapedStr, src, SrcLen);
-		dest.assign(tmpEscapedStr);
+		mysql_real_escape_string(m_Connection, escaped_str, src, src_len);
+		dest.assign(escaped_str);
 
-		free(tmpEscapedStr);
+		free(escaped_str);
 	}
 }

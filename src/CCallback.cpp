@@ -12,6 +12,7 @@
 #include <cstdio>
 
 #include <chrono>
+namespace chrono = std::chrono;
 
 
 list<tuple<future<CMySQLQuery>, CMySQLHandle*>> CCallback::m_CallbackQueue;

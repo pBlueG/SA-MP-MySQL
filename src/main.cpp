@@ -43,7 +43,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 	CCallback::ClearAll();
 	CMySQLHandle::ClearAll();
 	mysql_library_end();
-	CLog::Delete(); //this has to be the last!
+	CLog::Destroy(); //this has to be the last because Destroy-functions in ClearAll() are logging data
 
 	logprintf("plugin.mysql: Plugin unloaded."); 
 }

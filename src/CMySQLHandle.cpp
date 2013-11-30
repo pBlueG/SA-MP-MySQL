@@ -8,6 +8,7 @@
 #include "CCallback.h"
 
 #include <chrono>
+namespace chrono = std::chrono;
 
 
 unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
@@ -66,8 +67,9 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 			}
 		}
 	}
-	if(handle == NULL) {
-			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
+	if(handle == NULL) 
+	{
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
 
 		int id = 1;
 		if(SQLHandle.size() > 0) 
@@ -85,10 +87,12 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 		//init connections
 		handle->m_MainConnection = main_connection;
-	for (size_t i = 0; i < pool_size; ++i)
-		handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
+
+		for (size_t i = 0; i < pool_size; ++i)
+			handle->m_ConnectionPool.push_front(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
 
 		SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
+
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
 	}
 	return handle;
@@ -237,11 +241,11 @@ void CMySQLHandle::ExecThreadStashFunc()
 						break;
 					}
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					this_thread::sleep_for(chrono::milliseconds(10));
 			} 
 			while (func_executed == false);
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
 
