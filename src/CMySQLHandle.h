@@ -53,14 +53,7 @@ public:
 	//escape a string to dest
 	void EscapeString(const char *src, string &dest);
 
-	inline void ToggleState(bool toggle)
-	{
-		m_State = toggle;
-	}
-	inline bool GetState() const
-	{
-		return m_State;
-	}
+	atomic<bool> IsInUse;
 
 	inline MYSQL *GetMySQLPointer() const
 	{
@@ -94,7 +87,7 @@ private:
 
 			m_Connection(NULL),
 
-			m_State(false)
+			IsInUse(false)
 	{ }
 	~CMySQLConnection()
 	{ }
@@ -116,8 +109,6 @@ private:
 
 	//internal MYSQL pointer
 	MYSQL *m_Connection;
-
-	bool m_State;
 };
 
 
@@ -135,11 +126,11 @@ public:
 		return m_MainConnection;
 	}
 
-	void ExecuteOnConnectionPool(void (CMySQLConnection::*func)());
+	void ExecuteOnConnections(void (CMySQLConnection::*func)());
 
-	inline void QueueQuery(function< CMySQLQuery (CMySQLConnection*) > func)
+	inline void QueueQuery(function< CMySQLQuery (CMySQLConnection*) > func, bool use_pool = false)
 	{
-		m_QueryQueue.push(boost::move(func));
+		m_QueryQueue.push(boost::move(boost::make_tuple(boost::move(func), use_pool)));
 	}
 	
 
@@ -201,7 +192,7 @@ private:
 
 	static unordered_map<int, CMySQLHandle *> SQLHandle;
 	
-	queue< function<CMySQLQuery(CMySQLConnection*)> > m_QueryQueue;
+	queue< tuple< function<CMySQLQuery(CMySQLConnection*)>, bool> > m_QueryQueue;
 	thread m_QueryStashThread;
 	atomic<bool> m_QueryThreadRunning;
 	atomic<unsigned int> m_QueryCounter;
@@ -214,6 +205,7 @@ private:
 	int m_MyID;
 
 	CMySQLConnection *m_MainConnection; //only used in main thread
+	CMySQLConnection *m_ThreadConnection; //for normal threaded queries
 	unordered_set<CMySQLConnection*> m_ConnectionPool;
 };
 

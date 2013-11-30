@@ -27,7 +27,7 @@ CMySQLQuery CMySQLQuery::Create(
 
 
 	MYSQL *mysql_connection = QueryObj.Connection->GetMySQLPointer();
-	if (connection != NULL)
+	if (mysql_connection != NULL)
 	{
 		mysql_thread_init();
 
@@ -180,7 +180,7 @@ CMySQLQuery CMySQLQuery::Create(
 		}
 		mysql_thread_end();
 	}
-	connection->ToggleState(false);
+	connection->IsInUse = false;
 
 	return QueryObj;
 }

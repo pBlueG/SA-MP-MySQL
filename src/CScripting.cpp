@@ -719,8 +719,8 @@ cell AMX_NATIVE_CALL Native::mysql_connect(AMX* amx, cell* params)
 		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_connect", "empty connection data specified");
 	
 	CMySQLHandle *Handle = CMySQLHandle::Create(host, user, pass != NULL ? pass : "", db, port, pool_size, auto_reconnect);
-	Handle->GetMainConnection()->Connect();
-	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Connect);
+	Handle->ExecuteOnConnections(&CMySQLConnection::Connect);
+
 	return static_cast<cell>(Handle->GetID());
 }
 
@@ -742,8 +742,7 @@ cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
 	if(wait == true)
 		Handle->WaitForQueryExec();
 
-	Handle->GetMainConnection()->Disconnect();
-	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Disconnect);
+	Handle->ExecuteOnConnections(&CMySQLConnection::Disconnect);
 	Handle->Destroy();
 	return 1;
 }
@@ -759,13 +758,12 @@ cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params)
 	
 	cell return_val = 0;
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
-	Handle->GetMainConnection()->Disconnect();
-	Handle->GetMainConnection()->Connect();
 
 	//wait until all threaded queries are executed, then reconnect query connection
 	Handle->WaitForQueryExec();
-	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Disconnect);
-	Handle->ExecuteOnConnectionPool(&CMySQLConnection::Connect);
+
+	Handle->ExecuteOnConnections(&CMySQLConnection::Disconnect);
+	Handle->ExecuteOnConnections(&CMySQLConnection::Connect);
 
 	return 1;
 }
@@ -814,6 +812,53 @@ cell AMX_NATIVE_CALL Native::mysql_unprocessed_queries(AMX* amx, cell* params)
 	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->GetUnprocessedQueryCount());
 }
 
+
+//native mysql_pquery(conhandle, query[], callback[], format[], {Float,_}:...);
+cell AMX_NATIVE_CALL Native::mysql_pquery(AMX* amx, cell* params)
+{
+	static const int ConstParamCount = 4;
+	unsigned int connection_id = params[1];
+
+	char
+		*query_str = NULL,
+		*cb_name = NULL,
+		*cb_format = NULL;
+	amx_StrParam(amx, params[2], query_str);
+	amx_StrParam(amx, params[3], cb_name);
+	amx_StrParam(amx, params[4], cb_format);
+
+	if (CLog::Get()->IsLogLevel(LOG_DEBUG))
+	{
+		string short_query(query_str == NULL ? "" : query_str);
+		short_query.resize(64);
+		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_pquery", "connection: %d, query: \"%s\", callback: \"%s\", format: \"%s\"", connection_id, short_query.c_str(), cb_name, cb_format);
+	}
+
+	if (!CMySQLHandle::IsValid(connection_id))
+		return ERROR_INVALID_CONNECTION_HANDLE("mysql_pquery", connection_id);
+
+	if (cb_format != NULL && strlen(cb_format) != ((params[0] / 4) - ConstParamCount))
+		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_pquery", "callback parameter count does not match format specifier length");
+
+	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
+
+	string
+		Query(query_str != NULL ? query_str : ""),
+		CB_Name(cb_name != NULL ? cb_name : "");
+
+
+	stack<boost::variant<cell, string> > CB_Params;
+	if (cb_format != NULL)
+		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+
+	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = boost::bind(&CMySQLQuery::Create,
+		boost::move(Query), _1, connection_id,
+		boost::move(CB_Name), boost::move(CB_Params),
+		static_cast<COrm*>(NULL), 0
+		);
+	Handle->QueueQuery(boost::move(QueryFunc), true);
+	return 1;
+}
 
 //native mysql_tquery(conhandle, query[], callback[], format[], {Float,_}:...);
 cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
