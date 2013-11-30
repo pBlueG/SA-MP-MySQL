@@ -40,6 +40,7 @@ namespace Native
 	cell AMX_NATIVE_CALL mysql_errno(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL mysql_escape_string(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL mysql_format(AMX* amx, cell* params);
+	cell AMX_NATIVE_CALL mysql_pquery(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL mysql_tquery(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL mysql_query(AMX* amx, cell* params);
 	

@@ -132,6 +132,10 @@ native mysql_option(E_MYSQL_OPTION:type, value);
 native mysql_errno(connectionHandle = 1);
 native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len = sizeof(destination));
 native mysql_format(connectionHandle, output[], len, format[], {Float,_}:...);
+native mysql_pquery(connectionHandle, query[], callback[], format[], {Float,_}:...);
+/*
+native mysql_pquery_inline(connHandle, query[], callback:Callback, format[], {Float,_}:...); //y_inline
+*/
 native mysql_tquery(connectionHandle, query[], callback[], format[], {Float,_}:...);
 /*
 native mysql_tquery_inline(connHandle, query[], callback:Callback, format[], {Float,_}:...); //y_inline
@@ -206,6 +210,9 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 		return -1;
 	}
 	
+	#define mysql_pquery_inline(%0,%1,%2,"%3"%4) \
+		mysql_pquery(%0,%1,"FJ37DH3JG_MYSQL_INTERNAL","d"#%3,MySQL_Internal_SaveInline(%2)%4)
+		
 	#define mysql_tquery_inline(%0,%1,%2,"%3"%4) \
 		mysql_tquery(%0,%1,"FJ37DH3JG_MYSQL_INTERNAL","d"#%3,MySQL_Internal_SaveInline(%2)%4)
 	

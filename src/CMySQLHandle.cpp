@@ -8,6 +8,7 @@
 #include "CCallback.h"
 
 #include <boost/chrono.hpp>
+namespace chrono = boost::chrono;
 
 
 unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
@@ -22,6 +23,7 @@ CMySQLHandle::CMySQLHandle(int id) :
 	m_ActiveResultID(0),
 	
 	m_MainConnection(NULL),
+	m_ThreadConnection(NULL),
 
 	m_QueryCounter(0),
 	m_QueryThreadRunning(true),
@@ -34,9 +36,8 @@ CMySQLHandle::~CMySQLHandle()
 {
 	for (unordered_map<int, CMySQLResult*>::iterator it = m_SavedResults.begin(), end = m_SavedResults.end(); it != end; it++)
 		delete it->second;
-
-	m_MainConnection->Destroy();
-	ExecuteOnConnectionPool(&CMySQLConnection::Destroy);
+	
+	ExecuteOnConnections(&CMySQLConnection::Destroy);
 
 	m_QueryThreadRunning = false;
 	m_QueryStashThread.join();
@@ -47,7 +48,7 @@ CMySQLHandle::~CMySQLHandle()
 void CMySQLHandle::WaitForQueryExec() 
 {
 	while (!m_QueryQueue.empty())
-		this_thread::sleep_for(boost::chrono::milliseconds(5));
+		this_thread::sleep_for(chrono::milliseconds(5));
 }
 
 CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string db, size_t port, size_t pool_size, bool reconnect) 
@@ -90,6 +91,8 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 		//init connections
 		handle->m_MainConnection = main_connection;
+		handle->m_ThreadConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+
 		for (size_t i = 0; i < pool_size; ++i)
 			handle->m_ConnectionPool.insert(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
 
@@ -106,8 +109,15 @@ void CMySQLHandle::Destroy()
 	delete this;
 }
 
-void CMySQLHandle::ExecuteOnConnectionPool(void (CMySQLConnection::*func)())
+void CMySQLHandle::ExecuteOnConnections(void (CMySQLConnection::*func)())
 {
+	if (m_MainConnection != NULL)
+		(m_MainConnection->*func)();
+	
+	if (m_ThreadConnection != NULL)
+		(m_ThreadConnection->*func)();
+	
+	
 	for(unordered_set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
 		((*c)->*func)();
 }
@@ -224,30 +234,48 @@ void CMySQLHandle::ExecThreadStashFunc()
 	{
 		while (!m_QueryQueue.empty())
 		{
-			function<CMySQLQuery(CMySQLConnection*)> QueryFunc (boost::move(m_QueryQueue.front()));
+			auto &query_data = m_QueryQueue.front();
+			bool use_pool = boost::get<1>(query_data);
+			function<CMySQLQuery(CMySQLConnection*)> QueryFunc(boost::move(boost::get<0>(query_data)));
+			
 			m_QueryQueue.pop();
-			bool func_executed = false;
+			
+			CMySQLConnection *connection = NULL;
 			do
 			{
-				for(unordered_set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
+				if (use_pool == false)
 				{
-					CMySQLConnection *connection = (*c);
-					if (connection->GetState() == false)
+					if (m_ThreadConnection->IsInUse == false)
 					{
-						connection->ToggleState(true);
-
-						shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
-						CCallback::AddQueryToQueue(boost::move(fut), this);
-						func_executed = true;
-						m_QueryCounter++;
-						break;
+						m_ThreadConnection->IsInUse = true;
+						connection = m_ThreadConnection;
 					}
 				}
-				this_thread::sleep_for(boost::chrono::milliseconds(10));
+				else
+				{
+					for (unordered_set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
+					{
+						if ((*c)->IsInUse == false)
+						{
+							(*c)->IsInUse = true;
+							connection = (*c);
+							break;
+						}
+					}
+				}
+
+				if (connection != NULL)
+				{
+					shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
+					CCallback::AddQueryToQueue(boost::move(fut), this);
+					m_QueryCounter++;
+				}
+				else
+					this_thread::sleep_for(chrono::milliseconds(10));
 			} 
-			while (func_executed == false);
+			while (connection == NULL);
 		}
-		this_thread::sleep_for(boost::chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(10));
 	}
 }
 

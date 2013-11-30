@@ -88,7 +88,8 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 	{"mysql_errno",						Native::mysql_errno},
 	{"mysql_escape_string",				Native::mysql_escape_string},
 	{"mysql_format",					Native::mysql_format},
-	{ "mysql_tquery",					Native::mysql_tquery },
+	{"mysql_pquery",					Native::mysql_pquery},
+	{"mysql_tquery",					Native::mysql_tquery},
 	{"mysql_query",						Native::mysql_query},
 	 
 	{"mysql_stat",						Native::mysql_stat},
