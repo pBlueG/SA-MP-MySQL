@@ -642,7 +642,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_content_int(AMX* amx, cell* params)
 	CMySQLHandle *Handle = active_cid == -1 ? CMySQLHandle::GetHandle(connection_id) : CMySQLHandle::ActiveHandle;
 	CMySQLResult *Result = Handle->GetActiveResult();
 	if (Result == NULL)
-		CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_content_int", "no active cache");
+		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_content_int", "no active cache");
 
 	int return_val = 0;
 	char *field_data = NULL;
