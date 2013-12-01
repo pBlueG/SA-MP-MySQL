@@ -11,6 +11,9 @@ using namespace boost::spirit;
 
 bool ConvertStrToInt(const char *src, int &dest) 
 {
+	if (src == NULL)
+		return false;
+
 	const char 
 		*first_iter = src,
 		*last_iter = first_iter+strlen(src);
@@ -20,11 +23,14 @@ bool ConvertStrToInt(const char *src, int &dest)
 
 bool ConvertStrToFloat(const char *src, float &dest) 
 {
+	if (src == NULL)
+		return false;
+
 	const char 
 		*first_iter(src),
 		*last_iter(first_iter+strlen(src));
 
-	return qi::parse(first_iter, last_iter, qi::float_, dest);
+	return qi::parse(first_iter, last_iter, qi::double_, dest);
 }
 
 
@@ -42,6 +48,9 @@ template bool ConvertIntToStr<2>(int src, char *dest);
 
 bool ConvertIntToStr(int src, char *dest) 
 {
+	if (dest == NULL)
+		return false;
+
 	bool success = karma::generate(dest, karma::int_generator<int>(), src);
 	*dest = 0;
 	return success;
@@ -49,6 +58,9 @@ bool ConvertIntToStr(int src, char *dest)
 
 bool ConvertFloatToStr(float src, char *dest) 
 {
+	if (dest == NULL)
+		return false;
+
 	bool success = karma::generate(dest, double_, src);
 	*dest = 0;
 	return success;
