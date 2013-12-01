@@ -116,7 +116,7 @@ void CCallback::ProcessCallbacks()
 				i = m_CallbackQueue.erase(i);
 			}
 			else
-				return;
+				return ;
 			
 		} while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
 	}

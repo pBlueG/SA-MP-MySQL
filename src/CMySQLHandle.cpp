@@ -264,18 +264,15 @@ void CMySQLHandle::ExecThreadStashFunc()
 					}
 				}
 
-				if (connection != NULL)
-				{
-					shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
-					CCallback::AddQueryToQueue(boost::move(fut), this);
-					m_QueryCounter++;
-				}
-				else
-					this_thread::sleep_for(chrono::milliseconds(10));
+				this_thread::sleep_for(chrono::milliseconds(5));
 			} 
 			while (connection == NULL);
+
+			shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
+			CCallback::AddQueryToQueue(boost::move(fut), this);
+			m_QueryCounter++;
 		}
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(5));
 	}
 }
 
