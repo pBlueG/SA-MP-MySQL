@@ -43,7 +43,7 @@ public:
 	static inline void AddQueryToQueue(shared_future<CMySQLQuery> fut, CMySQLHandle *handle)
 	{
 		boost::mutex::scoped_lock LockGuard(m_QueueMtx);
-		m_CallbackQueue.push_front(make_tuple(boost::move(fut), handle));
+		m_CallbackQueue.push_back(make_tuple(boost::move(fut), handle));
 	}
 
 	static void AddAmx(AMX *amx);

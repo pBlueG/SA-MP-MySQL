@@ -78,8 +78,7 @@ void COrm::ApplyActiveResult(unsigned int row)
 	{
 		SVarInfo *var = m_Vars.at(v);
 
-		char *data = NULL;
-		result->GetRowDataByName(row, var->Name.c_str(), &data);
+		char *data = result->GetRowDataByName(row, var->Name.c_str());
 
 		if(data != NULL) 
 		{
@@ -110,8 +109,7 @@ void COrm::ApplyActiveResult(unsigned int row)
 	//also check for key in result
 	if(m_KeyVar != NULL) 
 	{
-		char *key_data = NULL;
-		result->GetRowDataByName(row, m_KeyVar->Name.c_str(), &key_data);
+		char *key_data = result->GetRowDataByName(row, m_KeyVar->Name.c_str());
 		if(key_data != NULL) 
 		{
 			if(m_KeyVar->Datatype == DATATYPE_INT) 
@@ -168,8 +166,7 @@ void COrm::ApplySelectResult(CMySQLResult *result)
 		{
 			SVarInfo *var = m_Vars.at(i);
 
-			char *data = NULL;
-			result->GetRowData(0, i, &data);
+			char *data = result->GetRowData(0, i);
 
 			switch(var->Datatype) 
 			{

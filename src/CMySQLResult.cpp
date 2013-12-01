@@ -4,65 +4,68 @@
 #include "CMySQLResult.h"
 
 
-void CMySQLResult::GetFieldName(unsigned int idx, char **dest) 
+char *CMySQLResult::GetFieldName(unsigned int idx)
 {
 	if (idx < m_Fields) 
 	{
-		(*dest) = const_cast<char*>(m_FieldNames.at(idx).c_str());
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetFieldName", "index: '%d', name: \"%s\"", idx, m_FieldNames.at(idx).c_str());
 
-		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetFieldName", "index: '%d', name: \"%s\"", idx, *dest);
+		return const_cast<char*>(m_FieldNames.at(idx).c_str());
 	}
-	else 
+	else
+	{
 		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetFieldName", "invalid field index ('%d')", idx);
+		return NULL;
+	}
 }
 
-void CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx, char **dest) 
+char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
 {
 	if(row < m_Rows && fieldidx < m_Fields) 
 	{
-		(*dest) = m_Data[row][fieldidx];
-
 		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 		{
-			string ShortenDest((*dest) != NULL ? (*dest) : "NULL");
+			string ShortenDest(m_Data[row][fieldidx] != NULL ? m_Data[row][fieldidx] : "NULL");
 			if(ShortenDest.length() > 1024)
 				ShortenDest.resize(1024);
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetRowData", "row: '%d', field: '%d', data: \"%s\"", row, fieldidx, ShortenDest.c_str());
+			
 		}
+
+		return m_Data[row][fieldidx];
 	}
-	else 
+	else
+	{
 		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowData", "invalid row ('%d') or field index ('%d')", row, fieldidx);
+		return NULL;
+	}
 }
 
-void CMySQLResult::GetRowDataByName(unsigned int row, const char *field, char **dest) 
+char *CMySQLResult::GetRowDataByName(unsigned int row, const char *field) 
 {
 	if(row >= m_Rows || m_Fields == 0)
-		return (void)CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d')", row);
+		return CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d')", row), NULL;
 	
 	if(field == NULL)
-		return (void)CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "empty field name specified");
-
-	if (dest == NULL)
-		return (void)CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid destination specified");
+		return CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "empty field name specified"), NULL;
 
 	for(unsigned int i = 0; i < m_Fields; ++i) 
 	{
 		if(::strcmp(m_FieldNames.at(i).c_str(), field) == 0) 
 		{
-			(*dest) = m_Data[row][i];
-
 			if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 			{
-				string ShortenDest((*dest) != NULL ? (*dest) : "NULL");
+				string ShortenDest(m_Data[row][i] != NULL ? m_Data[row][i] : "NULL");
 				if(ShortenDest.length() > 1024)
 					ShortenDest.resize(1024);
 				CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetRowDataByName", "row: '%d', field: \"%s\", data: \"%s\"", row, field, ShortenDest.c_str());
 			}
 
-			return ;
+			return m_Data[row][i];
 		}
 	}
 	CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowDataByName", "field not found (\"%s\")", field);
+	return NULL;
 }
 
 CMySQLResult::CMySQLResult() :
@@ -80,8 +83,8 @@ CMySQLResult::CMySQLResult() :
 
 CMySQLResult::~CMySQLResult() 
 {
-	if (m_Data != NULL)
-	free(m_Data);
+	if(m_Data != NULL)
+		free(m_Data);
 
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::~CMySQLResult()", "deconstructor called");
 }

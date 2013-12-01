@@ -32,9 +32,9 @@ public:
 		return m_Fields;
 	}
 
-	void GetFieldName(unsigned int idx, char **dest);
-	void GetRowData(unsigned int row, unsigned int fieldidx, char **dest);
-	void GetRowDataByName(unsigned int row, const char *field, char **dest);
+	char *GetFieldName(unsigned int idx);
+	char *GetRowData(unsigned int row, unsigned int fieldidx);
+	char *GetRowDataByName(unsigned int row, const char *field);
 
 
 	inline my_ulonglong InsertID() const 

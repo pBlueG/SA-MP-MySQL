@@ -264,7 +264,8 @@ void CMySQLHandle::ExecThreadStashFunc()
 					}
 				}
 
-				this_thread::sleep_for(chrono::milliseconds(5));
+				if (connection == NULL)
+					this_thread::sleep_for(chrono::milliseconds(5));
 			} 
 			while (connection == NULL);
 

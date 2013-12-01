@@ -29,7 +29,7 @@ void CCallback::ProcessCallbacks()
 		{
 			shared_future<CMySQLQuery> &future_res = boost::get<0>((*i));
 
-			if(future_res.has_value())
+			if (future_res.has_value())
 			{
 				CMySQLQuery QueryObj = boost::move(future_res.get());
 				CMySQLHandle *Handle = boost::get<1>(*i);
@@ -37,23 +37,23 @@ void CCallback::ProcessCallbacks()
 				Handle->DecreaseQueryCounter();
 
 
-				if(QueryObj.Orm.Object != NULL)
+				if (QueryObj.Orm.Object != NULL)
 				{
-					switch(QueryObj.Orm.Type) 
+					switch (QueryObj.Orm.Type)
 					{
-						case ORM_QUERYTYPE_SELECT:
-							QueryObj.Orm.Object->ApplySelectResult(QueryObj.Result);
-							break;
+					case ORM_QUERYTYPE_SELECT:
+						QueryObj.Orm.Object->ApplySelectResult(QueryObj.Result);
+						break;
 
-						case ORM_QUERYTYPE_INSERT:
-							QueryObj.Orm.Object->ApplyInsertResult(QueryObj.Result);
-							break;
+					case ORM_QUERYTYPE_INSERT:
+						QueryObj.Orm.Object->ApplyInsertResult(QueryObj.Result);
+						break;
 					}
 				}
-				
-				if(!QueryObj.Callback.Name.empty())
+
+				if (!QueryObj.Callback.Name.empty())
 				{
-					
+
 					bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
 					for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 					{
@@ -62,7 +62,7 @@ void CCallback::ProcessCallbacks()
 
 						if (amx_FindPublic(amx, QueryObj.Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
 						{
-							cell amx_mem_addr = -1; 
+							cell amx_mem_addr = -1;
 							CLog::Get()->StartCallback(QueryObj.Callback.Name.c_str());
 
 							while (!QueryObj.Callback.Params.empty())
@@ -115,11 +115,12 @@ void CCallback::ProcessCallbacks()
 
 				i = m_CallbackQueue.erase(i);
 			}
-<<<<<<< HEAD
 			else
-				return;
+<<<<<<< HEAD
+				return ;
 =======
->>>>>>> 98655e8... fix awkward query execution order
+				return;
+>>>>>>> d54883c... performance improvements
 			
 		} while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
 	}
