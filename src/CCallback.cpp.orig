@@ -12,11 +12,7 @@
 #include <cstdio>
 
 
-<<<<<<< HEAD
 list< tuple<shared_future<CMySQLQuery>, CMySQLHandle*> > CCallback::m_CallbackQueue;
-=======
-list<tuple<shared_future<CMySQLQuery>, CMySQLHandle*>> CCallback::m_CallbackQueue;
->>>>>>> 9015ced... re-enabled orm system
 mutex CCallback::m_QueueMtx;
 
 list<AMX *> CCallback::m_AmxList;
@@ -39,12 +35,6 @@ void CCallback::ProcessCallbacks()
 				CMySQLHandle *Handle = boost::get<1>(*i);
 
 				Handle->DecreaseQueryCounter();
-<<<<<<< HEAD
-				
-					for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
-					{
-						AMX *amx = (*a);
-=======
 
 
 				if(QueryObj.Orm.Object != NULL)
@@ -65,9 +55,9 @@ void CCallback::ProcessCallbacks()
 				{
 					
 					bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
-					for (auto &amx : m_AmxList)
+					for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 					{
->>>>>>> 9015ced... re-enabled orm system
+						AMX *amx = (*a);
 						int amx_index;
 
 						if (amx_FindPublic(amx, QueryObj.Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
@@ -125,11 +115,11 @@ void CCallback::ProcessCallbacks()
 
 				i = m_CallbackQueue.erase(i);
 			}
+<<<<<<< HEAD
 			else
-			{
-				//if(mysql_options.execute-in-order == true)
-					//return ;
-			}
+				return;
+=======
+>>>>>>> 98655e8... fix awkward query execution order
 			
 		} while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
 	}

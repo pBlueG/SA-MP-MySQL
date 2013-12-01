@@ -160,8 +160,8 @@ CMySQLQuery CMySQLQuery::Create(
 				//forward OnQueryError(error_id, error[], callback[], query[], connectionHandle);
 				//recycle these structures, change some data
 				
-				//OrmObject = NULL;
-				//OrmQueryType = 0;
+				QueryObj.Orm.Object = NULL;
+				QueryObj.Orm.Type = 0;
 
 				while (QueryObj.Callback.Params.size() > 0)
 					QueryObj.Callback.Params.pop();
