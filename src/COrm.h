@@ -29,7 +29,7 @@ class CMySQLResult;
 class COrm 
 {
 public:
-	static int Create(char *table, CMySQLHandle *connhandle);
+	static unsigned int Create(const char *table, CMySQLHandle *connhandle);
 	void Destroy();
 
 	static inline bool IsValid(int id) 
@@ -53,8 +53,8 @@ public:
 
 	void ClearVariableValues();
 
-	void AddVariable(char *varname, cell *address, unsigned short datatype, size_t len=0);
-	void SetVariableAsKey(char *varname);
+	void AddVariable(const char *varname, cell *address, unsigned short datatype, size_t len=0);
+	void SetVariableAsKey(const char *varname);
 
 	inline CMySQLHandle *GetConnectionHandle() const 
 	{
@@ -69,7 +69,7 @@ public:
 private:
 	struct SVarInfo 
 	{
-		SVarInfo(char *name, cell *addr, unsigned short datatype, size_t len) :
+		SVarInfo(const char *name, cell *addr, unsigned short datatype, size_t len) :
 			Address(addr),
 			MaxLen(len),
 			Name(name),
@@ -82,7 +82,7 @@ private:
 		unsigned short Datatype;
 	};
 	
-	static unordered_map<int, COrm *> OrmHandle;
+	static unordered_map<unsigned int, COrm *> OrmHandle;
 
 
 	COrm() :
@@ -100,7 +100,7 @@ private:
 
 	string m_TableName;
 	CMySQLHandle *m_ConnHandle;
-	int m_MyID;
+	unsigned int m_MyID;
 
 	int m_ErrorID;
 };

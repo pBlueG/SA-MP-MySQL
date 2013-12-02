@@ -11,12 +11,12 @@
 namespace chrono = boost::chrono;
 
 
-unordered_map<int, CMySQLHandle *> CMySQLHandle::SQLHandle;
+unordered_map<unsigned int, CMySQLHandle *> CMySQLHandle::SQLHandle;
 CMySQLHandle *CMySQLHandle::ActiveHandle = NULL;
 CMySQLOptions MySQLOptions;
 
 
-CMySQLHandle::CMySQLHandle(int id) : 
+CMySQLHandle::CMySQLHandle(unsigned int id) : 
 	m_MyID(id),
 	
 	m_ActiveResult(NULL),
@@ -34,16 +34,10 @@ CMySQLHandle::CMySQLHandle(int id) :
 
 CMySQLHandle::~CMySQLHandle() 
 {
-	for (unordered_map<int, CMySQLResult*>::iterator it = m_SavedResults.begin(), end = m_SavedResults.end(); it != end; it++)
+	for (unordered_map<unsigned int, CMySQLResult*>::iterator it = m_SavedResults.begin(), end = m_SavedResults.end(); it != end; it++)
 		delete it->second;
-<<<<<<< HEAD
-
-	m_MainConnection->Destroy();
-	ExecuteOnConnectionPool(&CMySQLConnection::Destroy);
-=======
 	
 	ExecuteOnConnections(&CMySQLConnection::Destroy);
->>>>>>> a76e200... create special function for pooled/parallel queries
 
 	m_QueryThreadRunning = false;
 	m_QueryStashThread.join();
@@ -67,7 +61,7 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 	if (MySQLOptions.DuplicateConnections == false && SQLHandle.size() > 0) 
 	{
 		//code used for checking duplicate connections
-		for(unordered_map<int, CMySQLHandle*>::iterator i = SQLHandle.begin(), end = SQLHandle.end(); i != end; ++i) 
+		for(unordered_map<unsigned int, CMySQLHandle*>::iterator i = SQLHandle.begin(), end = SQLHandle.end(); i != end; ++i) 
 		{
 			CMySQLConnection *Connection = i->second->m_MainConnection;
 			if((*Connection) == (*main_connection))
@@ -81,10 +75,10 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 	if(handle == NULL) 
 	{
-		int id = 1;
+		unsigned int id = 1;
 		if(SQLHandle.size() > 0) 
 		{
-			unordered_map<int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
+			unordered_map<unsigned int, CMySQLHandle*>::iterator itHandle = SQLHandle.begin();
 			do 
 			{
 				id = itHandle->first+1;
@@ -102,7 +96,7 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 		for (size_t i = 0; i < pool_size; ++i)
 			handle->m_ConnectionPool.insert(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
 
-		SQLHandle.insert( unordered_map<int, CMySQLHandle*>::value_type(id, handle) );
+		SQLHandle.insert( unordered_map<unsigned int, CMySQLHandle*>::value_type(id, handle) );
 
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
 	}
@@ -117,10 +111,10 @@ void CMySQLHandle::Destroy()
 
 void CMySQLHandle::ExecuteOnConnections(void (CMySQLConnection::*func)())
 {
-	if (m_MainConnection != nullptr)
+	if (m_MainConnection != NULL)
 		(m_MainConnection->*func)();
 	
-	if (m_ThreadConnection != nullptr)
+	if (m_ThreadConnection != NULL)
 		(m_ThreadConnection->*func)();
 	
 	
@@ -128,7 +122,7 @@ void CMySQLHandle::ExecuteOnConnections(void (CMySQLConnection::*func)())
 		((*c)->*func)();
 }
 
-int CMySQLHandle::SaveActiveResult() 
+unsigned int CMySQLHandle::SaveActiveResult() 
 {
 	if(m_ActiveResult != NULL) 
 	{
@@ -139,10 +133,10 @@ int CMySQLHandle::SaveActiveResult()
 		}
 		else 
 		{
-			int id = 1;
+			unsigned int id = 1;
 			if(!m_SavedResults.empty()) 
 			{
-				unordered_map<int, CMySQLResult*>::iterator itHandle = m_SavedResults.begin();
+				unordered_map<unsigned int, CMySQLResult*>::iterator itHandle = m_SavedResults.begin();
 				do 
 				{
 					id = itHandle->first+1;
@@ -151,7 +145,7 @@ int CMySQLHandle::SaveActiveResult()
 			}
 
 			m_ActiveResultID = id;
-			m_SavedResults.insert( std::map<int, CMySQLResult*>::value_type(id, m_ActiveResult) );
+			m_SavedResults.insert( unordered_map<unsigned int, CMySQLResult*>::value_type(id, m_ActiveResult) );
 			
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved with id = %d", id);
 			return id; 
@@ -161,32 +155,31 @@ int CMySQLHandle::SaveActiveResult()
 	return 0;
 }
 
-bool CMySQLHandle::DeleteSavedResult(int resultid) 
+bool CMySQLHandle::DeleteSavedResult(unsigned int resultid) 
 {
-	if(resultid > 0) 
+	if (IsValidResult(resultid))
 	{
-		if(m_SavedResults.find(resultid) != m_SavedResults.end()) 
+		CMySQLResult *ResultHandle = m_SavedResults.at(resultid);
+		if(m_ActiveResult == ResultHandle) 
 		{
-			CMySQLResult *ResultHandle = m_SavedResults.at(resultid);
-			if(m_ActiveResult == ResultHandle) 
-			{
-				m_ActiveResult = NULL;
-				m_ActiveResultID = 0;
-			}
-			delete ResultHandle;
-			m_SavedResults.erase(resultid);
-			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::DeleteSavedResult", "result deleted");
-			return true;
+			m_ActiveResult = NULL;
+			m_ActiveResultID = 0;
 		}
+		delete ResultHandle;
+		m_SavedResults.erase(resultid);
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::DeleteSavedResult", "result deleted");
+		return true;
 	}
-	
-	CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::DeleteSavedResult", "invalid result id ('%d')", resultid);
-	return false;
+	else
+	{
+		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLHandle::DeleteSavedResult", "invalid result id ('%d')", resultid);
+		return false;
+	}
 }
 
-bool CMySQLHandle::SetActiveResult(int resultid) 
+bool CMySQLHandle::SetActiveResult(unsigned int resultid) 
 {
-	if(resultid > 0) 
+	if(resultid != 0) 
 	{
 		if(m_SavedResults.find(resultid) != m_SavedResults.end()) 
 		{
@@ -218,9 +211,14 @@ bool CMySQLHandle::SetActiveResult(int resultid)
 	return true;
 }
 
+bool CMySQLHandle::IsValidResult(unsigned int resultid)
+{
+	return (resultid != 0 && m_SavedResults.find(resultid) != m_SavedResults.end());
+}
+
 void CMySQLHandle::ClearAll()
 {
-	for(unordered_map<int, CMySQLHandle *>::iterator i = SQLHandle.begin(); i != SQLHandle.end(); ++i)
+	for(unordered_map<unsigned int, CMySQLHandle *>::iterator i = SQLHandle.begin(); i != SQLHandle.end(); ++i)
 		i->second->Destroy();
 	
 	SQLHandle.clear();
@@ -240,8 +238,8 @@ void CMySQLHandle::ExecThreadStashFunc()
 	{
 		while (!m_QueryQueue.empty())
 		{
-			auto &query_data = m_QueryQueue.front();
-			bool use_pool = boost::get<1>(query_data);
+			tuple< function<CMySQLQuery(CMySQLConnection*)>, bool > &query_data = m_QueryQueue.front();
+			const bool use_pool = boost::get<1>(query_data);
 			function<CMySQLQuery(CMySQLConnection*)> QueryFunc(boost::move(boost::get<0>(query_data)));
 			
 			m_QueryQueue.pop();
@@ -270,18 +268,16 @@ void CMySQLHandle::ExecThreadStashFunc()
 					}
 				}
 
-				if (connection != NULL)
-				{
-					shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
-					CCallback::AddQueryToQueue(boost::move(fut), this);
-					m_QueryCounter++;
-				}
-				else
-					this_thread::sleep_for(chrono::milliseconds(10));
+				if (connection == NULL)
+					this_thread::sleep_for(chrono::milliseconds(5));
 			} 
 			while (connection == NULL);
+
+			shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
+			CCallback::AddQueryToQueue(boost::move(fut), this);
+			m_QueryCounter++;
 		}
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(5));
 	}
 }
 
@@ -341,11 +337,19 @@ void CMySQLConnection::EscapeString(const char *src, string &dest)
 {
 	if(src != NULL && m_IsConnected) 
 	{
+<<<<<<< HEAD
 		size_t src_len = strlen(src);
 		char *escaped_str = (char *)malloc((src_len*2 + 1) * sizeof(char));
 
 		mysql_real_escape_string(m_Connection, escaped_str, src, src_len);
 		dest.assign(escaped_str);
+=======
+		const size_t src_len = strlen(src);
+		char *tmpEscapedStr = static_cast<char *>(malloc((src_len*2 + 1) * sizeof(char)));
+
+		mysql_real_escape_string(m_Connection, tmpEscapedStr, src, src_len);
+		dest.assign(tmpEscapedStr);
+>>>>>>> 2eccdff... refactoring
 
 		free(escaped_str);
 	}

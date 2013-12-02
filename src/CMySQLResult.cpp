@@ -4,13 +4,12 @@
 #include "CMySQLResult.h"
 
 
-char *CMySQLResult::GetFieldName(unsigned int idx)
+const char *CMySQLResult::GetFieldName(unsigned int idx)
 {
 	if (idx < m_Fields) 
 	{
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetFieldName", "index: '%d', name: \"%s\"", idx, m_FieldNames.at(idx).c_str());
-
-		return const_cast<char*>(m_FieldNames.at(idx).c_str());
+		return m_FieldNames.at(idx).c_str();
 	}
 	else
 	{
@@ -19,7 +18,7 @@ char *CMySQLResult::GetFieldName(unsigned int idx)
 	}
 }
 
-char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
+const char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
 {
 	if(row < m_Rows && fieldidx < m_Fields) 
 	{
@@ -41,7 +40,7 @@ char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
 	}
 }
 
-char *CMySQLResult::GetRowDataByName(unsigned int row, const char *field) 
+const char *CMySQLResult::GetRowDataByName(unsigned int row, const char *field) 
 {
 	if(row >= m_Rows || m_Fields == 0)
 		return CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d')", row), NULL;

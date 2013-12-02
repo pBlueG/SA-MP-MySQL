@@ -37,7 +37,7 @@ bool ConvertStrToFloat(const char *src, float &dest)
 template<unsigned int B> //B = base/radix
 bool ConvertIntToStr(int src, char *dest) 
 {
-	bool ReturnVal = karma::generate(dest, karma::int_generator<int, B>(), src);
+	const bool ReturnVal = karma::generate(dest, karma::int_generator<int, B>(), src);
 	*dest = 0;
 	return ReturnVal;
 }
@@ -51,7 +51,7 @@ bool ConvertIntToStr(int src, char *dest)
 	if (dest == NULL)
 		return false;
 
-	bool success = karma::generate(dest, karma::int_generator<int>(), src);
+	const bool success = karma::generate(dest, karma::int_generator<int>(), src);
 	*dest = 0;
 	return success;
 }
@@ -61,7 +61,7 @@ bool ConvertFloatToStr(float src, char *dest)
 	if (dest == NULL)
 		return false;
 
-	bool success = karma::generate(dest, double_, src);
+	const bool success = karma::generate(dest, double_, src);
 	*dest = 0;
 	return success;
 }

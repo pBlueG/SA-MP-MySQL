@@ -18,7 +18,6 @@ mutex CCallback::m_QueueMtx;
 list<AMX *> CCallback::m_AmxList;
 
 
-
 void CCallback::ProcessCallbacks() 
 {
 	if (!m_CallbackQueue.empty())
@@ -53,8 +52,7 @@ void CCallback::ProcessCallbacks()
 
 				if (!QueryObj.Callback.Name.empty())
 				{
-
-					bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
+					const bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
 					for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 					{
 						AMX *amx = (*a);
