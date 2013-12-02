@@ -171,6 +171,7 @@ public:
 	int SaveActiveResult();
 	bool DeleteSavedResult(int resultid);
 	bool SetActiveResult(int resultid);
+	bool IsValidResult(int resultid);
 	inline CMySQLResult *GetActiveResult() 
 	{
 		return m_ActiveResult;

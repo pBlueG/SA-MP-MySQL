@@ -399,6 +399,18 @@ cell AMX_NATIVE_CALL Native::cache_set_active(AMX* amx, cell* params)
 	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->SetActiveResult((int)params[1]) == true ? 1 : 0);
 }
 
+// native cache_is_valid(Cache:id, connectionHandle = 1);
+cell AMX_NATIVE_CALL Native::cache_is_valid(AMX* amx, cell* params)
+{
+	unsigned int connection_id = params[2];
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_is_valid", "cache_id: %d, connection: %d", params[1], connection_id);
+
+	if (!CMySQLHandle::IsValid(connection_id))
+		return ERROR_INVALID_CONNECTION_HANDLE("cache_is_valid", connection_id);
+
+	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->IsValidResult((int)params[1]) == true ? 1 : 0);
+}
+
 // native cache_get_row_count(connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::cache_get_row_count(AMX* amx, cell* params)
 {
