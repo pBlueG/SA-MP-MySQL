@@ -16,3 +16,4 @@
 *.vsp
 *.orig
 /src/*-old/
+*.user
