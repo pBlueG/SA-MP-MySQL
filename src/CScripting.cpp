@@ -309,14 +309,11 @@ cell AMX_NATIVE_CALL Native::cache_affected_rows(AMX* amx, cell* params)
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_affected_rows", "connection: %d", connection_id);
 
-	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("cache_affected_rows", connection_id);
-
-	CMySQLResult *Result = CMySQLHandle::GetHandle(connection_id)->GetActiveResult();
-	if(Result == NULL)
+	if(CMySQLHandle::ActiveHandle == NULL)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_affected_rows", "no active cache");
 	
-	return static_cast<cell>(Result->AffectedRows());
+
+	return static_cast<cell>(CMySQLHandle::ActiveHandle->GetActiveResult()->AffectedRows());
 }
 
 //native cache_warning_count(connectionHandle = 1);
@@ -325,14 +322,11 @@ cell AMX_NATIVE_CALL Native::cache_warning_count(AMX* amx, cell* params)
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_warning_count", "connection: %d", connection_id);
 
-	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("cache_warning_count", connection_id);
-	
-	CMySQLResult *Result = CMySQLHandle::GetHandle(connection_id)->GetActiveResult();
-	if(Result == NULL)
+	if(CMySQLHandle::ActiveHandle == NULL)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_warning_count", "no active cache");
 	
-	return static_cast<cell>(Result->WarningCount());
+
+	return static_cast<cell>(CMySQLHandle::ActiveHandle->GetActiveResult()->WarningCount());
 }
 
 //native cache_insert_id(connectionHandle = 1);
@@ -341,14 +335,11 @@ cell AMX_NATIVE_CALL Native::cache_insert_id(AMX* amx, cell* params)
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_insert_id", "connection: %d", connection_id);
 
-	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("cache_insert_id", connection_id);
-
-	CMySQLResult *Result = CMySQLHandle::GetHandle(connection_id)->GetActiveResult();
-	if(Result == NULL)
+	if(CMySQLHandle::ActiveHandle == NULL)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_insert_id", "no active cache");
 	
-	return static_cast<cell>(Result->InsertID());
+
+	return static_cast<cell>(CMySQLHandle::ActiveHandle->GetActiveResult()->InsertID());
 }
 
 
@@ -358,10 +349,8 @@ cell AMX_NATIVE_CALL Native::cache_save(AMX* amx, cell* params)
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_save", "connection: %d", connection_id);
 
-	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("cache_save", connection_id);
-	
-	int cache_id = CMySQLHandle::GetHandle(connection_id)->SaveActiveResult();
+
+	int cache_id = CMySQLHandle::ActiveHandle->SaveActiveResult();
 	if(cache_id == 0)
 		CLog::Get()->LogFunction(LOG_WARNING, "cache_save", "no active cache");
 
@@ -413,15 +402,11 @@ cell AMX_NATIVE_CALL Native::cache_get_row_count(AMX* amx, cell* params)
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_count", "connection: %d", connection_id);
 
-	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("cache_get_row_count", connection_id);
-
-	CMySQLHandle *Handle = CMySQLHandle::ActiveHandle == NULL ? CMySQLHandle::GetHandle(connection_id) : CMySQLHandle::ActiveHandle;
-	CMySQLResult *Result = Handle->GetActiveResult();
-	if(Result == NULL)
+	if(CMySQLHandle::ActiveHandle == NULL)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_row_count", "no active cache");
 
-	return static_cast<cell>(Result->GetRowCount());
+
+	return static_cast<cell>(CMySQLHandle::ActiveHandle->GetActiveResult()->GetRowCount());
 }
 
 // native cache_get_field_count(connectionHandle = 1);
@@ -430,15 +415,11 @@ cell AMX_NATIVE_CALL Native::cache_get_field_count(AMX* amx, cell* params)
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_count", "connection: %d", connection_id);
 
-	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("cache_get_field_count", connection_id);
-
-	CMySQLHandle *Handle = CMySQLHandle::ActiveHandle == NULL ? CMySQLHandle::GetHandle(connection_id) : CMySQLHandle::ActiveHandle;
-	CMySQLResult *Result = Handle->GetActiveResult();
-	if (Result == NULL)
+	if (CMySQLHandle::ActiveHandle == NULL)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_count", "no active cache");
 
-	return static_cast<cell>(Result->GetFieldCount());
+
+	return static_cast<cell>(CMySQLHandle::ActiveHandle->GetActiveResult()->GetFieldCount());
 }
 
 // native cache_get_data(&num_rows, &num_fields, connectionHandle = 1);
@@ -447,13 +428,11 @@ cell AMX_NATIVE_CALL Native::cache_get_data(AMX* amx, cell* params)
 	const unsigned int connection_id = params[3];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_data", "connection: %d", connection_id);
 
-	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("cache_get_data", connection_id);
-	
-	CMySQLHandle *Handle = CMySQLHandle::ActiveHandle == NULL ? CMySQLHandle::GetHandle(connection_id) : CMySQLHandle::ActiveHandle;
-	CMySQLResult *Result = Handle->GetActiveResult();
-	if (Result == NULL)
+	if (CMySQLHandle::ActiveHandle == NULL)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_data", "no active cache");
+
+
+	const CMySQLResult *Result = CMySQLHandle::ActiveHandle->GetActiveResult();
 
 	cell *amx_address;
 	amx_GetAddr(amx, params[1], &amx_address);
