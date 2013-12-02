@@ -19,10 +19,10 @@ using karma::lit;
 #include "misc.h"
 
 
-unordered_map<int, COrm *> COrm::OrmHandle;
+unordered_map<unsigned int, COrm *> COrm::OrmHandle;
 
 
-int COrm::Create(char *table, CMySQLHandle *connhandle) 
+unsigned int COrm::Create(const char *table, CMySQLHandle *connhandle) 
 {
 	CLog::Get()->LogFunction(LOG_DEBUG, "COrm::Create", "creating new orm object..");
 
@@ -32,10 +32,10 @@ int COrm::Create(char *table, CMySQLHandle *connhandle)
 	if(connhandle == NULL)
 		return CLog::Get()->LogFunction(LOG_ERROR, "COrm::Create", "invalid connection handle");
 
-	int id = 1;
+	unsigned int id = 1;
 	if(OrmHandle.size() > 0) 
 	{
-		unordered_map<int, COrm*>::iterator itHandle = OrmHandle.begin();
+		unordered_map<unsigned int, COrm*>::iterator itHandle = OrmHandle.begin();
 		do 
 		{
 			id = itHandle->first+1;
@@ -78,7 +78,7 @@ void COrm::ApplyActiveResult(unsigned int row)
 	{
 		SVarInfo *var = m_Vars.at(v);
 
-		char *data = result->GetRowDataByName(row, var->Name.c_str());
+		const char *data = result->GetRowDataByName(row, var->Name.c_str());
 
 		if(data != NULL) 
 		{
@@ -109,7 +109,7 @@ void COrm::ApplyActiveResult(unsigned int row)
 	//also check for key in result
 	if(m_KeyVar != NULL) 
 	{
-		char *key_data = result->GetRowDataByName(row, m_KeyVar->Name.c_str());
+		const char *key_data = result->GetRowDataByName(row, m_KeyVar->Name.c_str());
 		if(key_data != NULL) 
 		{
 			if(m_KeyVar->Datatype == DATATYPE_INT) 
@@ -134,7 +134,7 @@ void COrm::GenerateSelectQuery(string &dest)
 	VarType key_value;
 	if(m_KeyVar->Datatype == DATATYPE_STRING) 
 	{
-		char *key_value_str = (char *)alloca(sizeof(char) * (m_KeyVar->MaxLen + 1));
+		char *key_value_str = static_cast<char *>(alloca(sizeof(char) * (m_KeyVar->MaxLen + 1)));
 		amx_GetString(key_value_str, m_KeyVar->Address, 0, m_KeyVar->MaxLen);
 		if(key_value_str != NULL) 
 		{
@@ -164,9 +164,9 @@ void COrm::ApplySelectResult(CMySQLResult *result)
 		m_ErrorID = ORM_ERROR_OK;
 		for(size_t i=0; i < m_Vars.size(); ++i) 
 		{
-			SVarInfo *var = m_Vars.at(i);
+			const SVarInfo *var = m_Vars.at(i);
 
-			char *data = result->GetRowData(0, i);
+			const char *data = result->GetRowData(0, i);
 
 			switch(var->Datatype) 
 			{
@@ -210,7 +210,7 @@ void COrm::GenerateUpdateQuery(string &dest)
 				sprintf(str_buf, "%s`%s`='%f'", FirstIt == true ? "" : ",", var->Name.c_str(), static_cast<float>( amx_ctof(*(var->Address)) ));
 				break;
 			case DATATYPE_STRING:
-				char *str_val = (char *)alloca(sizeof(char) * var->MaxLen+1);
+				char *str_val = static_cast<char *>(alloca(sizeof(char) * var->MaxLen+1));
 				amx_GetString(str_val, var->Address, 0, var->MaxLen);
 				string escaped_str;
 				m_ConnHandle->GetMainConnection()->EscapeString(str_val, escaped_str);
@@ -224,7 +224,7 @@ void COrm::GenerateUpdateQuery(string &dest)
 
 	if(m_KeyVar->Datatype == DATATYPE_STRING) 
 	{
-		char *key_value_str = (char *)alloca(sizeof(char) * m_KeyVar->MaxLen+1);
+		char *key_value_str = static_cast<char *>(alloca(sizeof(char) * m_KeyVar->MaxLen+1));
 		amx_GetString(key_value_str, m_KeyVar->Address, 0, m_KeyVar->MaxLen);
 		string escaped_str;
 		m_ConnHandle->GetMainConnection()->EscapeString(key_value_str, escaped_str);
@@ -255,7 +255,7 @@ void COrm::GenerateInsertQuery(string &dest)
 				vars.push_back(static_cast<float>( amx_ctof(*((*v)->Address)) ));
 				break;
 			case DATATYPE_STRING:
-				char *val_str = (char *)alloca(sizeof(char) * (*v)->MaxLen+1);
+				char *val_str = static_cast<char *>(alloca(sizeof(char) * (*v)->MaxLen+1));
 				amx_GetString(val_str, (*v)->Address, 0, (*v)->MaxLen);
 				string escaped_str;
 				m_ConnHandle->GetMainConnection()->EscapeString(val_str, escaped_str);
@@ -296,7 +296,7 @@ void COrm::GenerateDeleteQuery(string &dest)
 		sprintf(str_buf, "DELETE FROM %s WHERE `%s`='%d' LIMIT 1", m_TableName.c_str(), m_KeyVar->Name.c_str(), static_cast<int>( *(m_KeyVar->Address) ));
 	else 
 	{
-		char *key_value_str = (char *)alloca(sizeof(char) * m_KeyVar->MaxLen+1);
+		char *key_value_str = static_cast<char *>(alloca(sizeof(char) * m_KeyVar->MaxLen+1));
 		amx_GetString(key_value_str, m_KeyVar->Address, 0, m_KeyVar->MaxLen);
 		string escaped_str;
 		m_ConnHandle->GetMainConnection()->EscapeString(key_value_str, escaped_str);
@@ -310,7 +310,7 @@ unsigned short COrm::GenerateSaveQuery(string &dest)
 	bool has_valid_key_value = false;
 	if(m_KeyVar->Datatype == DATATYPE_STRING) 
 	{
-		char *key_value_str = (char *)alloca(sizeof(char) * m_KeyVar->MaxLen+1);
+		char *key_value_str = static_cast<char *>(alloca(sizeof(char) * m_KeyVar->MaxLen+1));
 		amx_GetString(key_value_str, m_KeyVar->Address, 0, m_KeyVar->MaxLen);
 		has_valid_key_value = (strlen(key_value_str) > 0);
 	}
@@ -332,7 +332,7 @@ unsigned short COrm::GenerateSaveQuery(string &dest)
 
 
 
-void COrm::AddVariable(char *varname, cell *address, unsigned short datatype, size_t len) 
+void COrm::AddVariable(const char *varname, cell *address, unsigned short datatype, size_t len) 
 {
 	if(varname == NULL || address == NULL)
 		return ;
@@ -345,7 +345,7 @@ void COrm::AddVariable(char *varname, cell *address, unsigned short datatype, si
 	m_Vars.push_back( new SVarInfo(varname, address, datatype, len) );
 }
 
-void COrm::SetVariableAsKey(char *varname) 
+void COrm::SetVariableAsKey(const char *varname) 
 {
 	//remove key if there is one
 	if(m_KeyVar != NULL) 

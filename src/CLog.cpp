@@ -157,11 +157,10 @@ int CLog::LogFunction(unsigned int loglevel, char *funcname, char *msg, ...)
 			case LOG_TYPE_TEXT: 
 			{
 				char msg_buf[2048];
-				int real_msg_len=0;
 
 				va_list args;
 				va_start(args, msg);
-				real_msg_len = vsprintf(msg_buf, msg, args);
+				const int real_msg_len = vsprintf(msg_buf, msg, args);
 				va_end (args);
 			
 				char *log_text = (char *)malloc((strlen(funcname) + real_msg_len + 8) * sizeof(char));

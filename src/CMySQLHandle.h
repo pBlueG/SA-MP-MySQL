@@ -135,7 +135,7 @@ public:
 	
 
 	//checks if handle exists by id
-	static inline bool IsValid(int id) 
+	static inline bool IsValid(unsigned int id) 
 	{
 		return (SQLHandle.find(id) != SQLHandle.end());
 	}
@@ -146,12 +146,12 @@ public:
 	//delete function, call this instead of delete operator!
 	void Destroy();
 	//returns MySQL handle by id
-	static inline CMySQLHandle *GetHandle(int cid) 
+	static inline CMySQLHandle *GetHandle(unsigned int cid) 
 	{
 		return SQLHandle.at(cid);
 	}
 	//returns connection id
-	inline int GetID() const 
+	inline unsigned int GetID() const 
 	{
 		return m_MyID;
 	}
@@ -168,10 +168,10 @@ public:
 
 	void SetActiveResult(CMySQLResult *result);
 	
-	int SaveActiveResult();
-	bool DeleteSavedResult(int resultid);
-	bool SetActiveResult(int resultid);
-	bool IsValidResult(int resultid);
+	unsigned int SaveActiveResult();
+	bool DeleteSavedResult(unsigned int resultid);
+	bool SetActiveResult(unsigned int resultid);
+	bool IsValidResult(unsigned int resultid);
 	inline CMySQLResult *GetActiveResult() 
 	{
 		return m_ActiveResult;
@@ -188,22 +188,22 @@ public:
 
 	static CMySQLHandle *ActiveHandle;
 private:
-	CMySQLHandle(int id);
+	CMySQLHandle(unsigned int id);
 	~CMySQLHandle();
 
-	static unordered_map<int, CMySQLHandle *> SQLHandle;
+	static unordered_map<unsigned int, CMySQLHandle *> SQLHandle;
 	
 	queue< tuple< function<CMySQLQuery(CMySQLConnection*)>, bool> > m_QueryQueue;
 	thread m_QueryStashThread;
 	atomic<bool> m_QueryThreadRunning;
 	atomic<unsigned int> m_QueryCounter;
 
-	unordered_map<int, CMySQLResult*> m_SavedResults;
+	unordered_map<unsigned int, CMySQLResult*> m_SavedResults;
 
 	CMySQLResult *m_ActiveResult;
-	int m_ActiveResultID; //ID of stored result; 0 if not stored yet
+	unsigned int m_ActiveResultID; //ID of stored result; 0 if not stored yet
 
-	int m_MyID;
+	unsigned int m_MyID;
 
 	CMySQLConnection *m_MainConnection; //only used in main thread
 	CMySQLConnection *m_ThreadConnection; //for normal threaded queries
