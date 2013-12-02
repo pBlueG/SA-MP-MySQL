@@ -113,6 +113,7 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 	{"cache_save",						Native::cache_save},
 	{"cache_delete",					Native::cache_delete},
 	{"cache_set_active",				Native::cache_set_active},
+	{"cache_is_valid",					Native::cache_is_valid},
 
 	{"cache_affected_rows",				Native::cache_affected_rows},
 	{"cache_insert_id",					Native::cache_insert_id},

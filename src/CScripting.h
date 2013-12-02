@@ -66,6 +66,7 @@ namespace Native
 	cell AMX_NATIVE_CALL cache_save(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL cache_delete(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL cache_set_active(AMX* amx, cell* params);
+	cell AMX_NATIVE_CALL cache_is_valid(AMX* amx, cell* params);
 	
 	cell AMX_NATIVE_CALL cache_affected_rows(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL cache_insert_id(AMX* amx, cell* params);

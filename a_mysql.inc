@@ -164,6 +164,7 @@ native Float:cache_get_field_content_float(row, const field_name[], connectionHa
 native Cache:cache_save(connectionHandle = 1);
 native cache_delete(Cache:cache_id, connectionHandle = 1);
 native cache_set_active(Cache:cache_id, connectionHandle = 1);
+native cache_is_valid(Cache:cache_id, connectionHandle = 1);
 
 native cache_affected_rows(connectionHandle = 1);
 native cache_insert_id(connectionHandle = 1);

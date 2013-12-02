@@ -212,6 +212,11 @@ bool CMySQLHandle::SetActiveResult(int resultid)
 	return true;
 }
 
+bool CMySQLHandle::IsValidResult(int resultid)
+{
+	return (resultid > 0 && m_SavedResults.find(resultid) != m_SavedResults.end());
+}
+
 void CMySQLHandle::ClearAll()
 {
 	for(unordered_map<int, CMySQLHandle *>::iterator i = SQLHandle.begin(); i != SQLHandle.end(); ++i)
