@@ -78,10 +78,6 @@ public:
 	{
 		return m_QueryCounter;
 	}
-	inline void DecreaseQueryCounter()
-	{
-		m_QueryCounter--;
-	}
 
 	void SetActiveResult(CMySQLResult *result);
 	

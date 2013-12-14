@@ -21,18 +21,18 @@ class COrm;
 class CMySQLQuery
 {
 private:
-	void Execute(unsigned int connection_id, bool unthreaded = false);
+	void Execute(bool unthreaded = false);
 	bool StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result);
 
 public:
 	static CMySQLQuery CreateThreaded(
-		string query, CMySQLConnection *connection, unsigned int connection_id,
+		string query, CMySQLConnection *connection,
 		string cb_name, stack< boost::variant<cell, string> > cb_params);
 
 	static CMySQLQuery CreateUnthreaded(string query, CMySQLConnection *connection);
 
 	static CMySQLQuery CreateOrm(
-		string query, CMySQLConnection *connection, unsigned int connection_id,
+		string query, CMySQLConnection *connection,
 		string cbname, stack< boost::variant<cell, string> > cbparams,
 		COrm *orm_object, unsigned short orm_querytype);
 

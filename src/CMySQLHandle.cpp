@@ -48,7 +48,7 @@ CMySQLHandle::~CMySQLHandle()
 
 void CMySQLHandle::WaitForQueryExec() 
 {
-	while (!m_QueryQueue.empty())
+	while (m_QueryCounter != 0)
 		this_thread::sleep_for(chrono::milliseconds(5));
 }
 
@@ -57,7 +57,7 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
 
 	CMySQLHandle *handle = NULL;
-	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect, atomic<unsigned int>(), 0);
 
 	if (MySQLOptions.DuplicateConnections == false && SQLHandle.size() > 0) 
 	{
@@ -92,10 +92,10 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 		//init connections
 		handle->m_MainConnection = main_connection;
-		handle->m_ThreadConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+		handle->m_ThreadConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect, handle->m_QueryCounter, id);
 
 		for (size_t i = 0; i < pool_size; ++i)
-			handle->m_ConnectionPool.insert(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
+			handle->m_ConnectionPool.insert(CMySQLConnection::Create(host, user, pass, db, port, reconnect, handle->m_QueryCounter, id));
 
 		SQLHandle.insert( unordered_map<unsigned int, CMySQLHandle*>::value_type(id, handle) );
 
@@ -278,9 +278,9 @@ void CMySQLHandle::ExecThreadStashFunc()
 			} 
 			while (connection == NULL);
 
+			m_QueryCounter++;
 			shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
 			CCallback::AddQueryToQueue(boost::move(fut), this);
-			m_QueryCounter++;
 		}
 		this_thread::sleep_for(chrono::milliseconds(5));
 	}

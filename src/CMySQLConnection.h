@@ -19,7 +19,8 @@ using boost::atomic;
 class CMySQLConnection
 {
 public:
-	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect);
+	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect, 
+		atomic<unsigned int> &query_counter, const unsigned int connection_id);
 	void Destroy();
 
 	//(dis)connect to the MySQL server
@@ -44,6 +45,14 @@ public:
 	{
 		return m_IsConnected;
 	}
+	inline void DecreaseQueryCounter()
+	{
+		m_QueryCounter--;
+	}
+	inline unsigned int GetConnectionID() const
+	{
+		return m_ConnectionID;
+	}
 
 	inline bool operator==(CMySQLConnection &rhs)
 	{
@@ -51,8 +60,10 @@ public:
 	}
 
 private:
-	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect)
-		: m_Host(host),
+	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect,
+		atomic<unsigned int> &query_counter, const unsigned int connection_id)
+		: 
+		m_Host(host),
 		m_User(user),
 		m_Passw(passw),
 		m_Database(db),
@@ -60,6 +71,9 @@ private:
 
 		m_IsConnected(false),
 		m_AutoReconnect(auto_reconnect),
+
+		m_QueryCounter(query_counter),
+		m_ConnectionID(connection_id),
 
 		m_Connection(NULL),
 
@@ -85,6 +99,11 @@ private:
 
 	//internal MYSQL pointer
 	MYSQL *m_Connection;
+
+
+	//data from mysql handle
+	atomic<unsigned int> &m_QueryCounter;
+	const unsigned int m_ConnectionID;
 };
 
 

@@ -33,9 +33,6 @@ void CCallback::ProcessCallbacks()
 				CMySQLQuery QueryObj = boost::move(future_res.get());
 				CMySQLHandle *Handle = boost::get<1>(*i);
 
-				Handle->DecreaseQueryCounter();
-
-
 				if (QueryObj.Orm.Object != NULL)
 				{
 					switch (QueryObj.Orm.Type)
