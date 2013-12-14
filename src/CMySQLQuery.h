@@ -11,21 +11,30 @@ using std::string;
 using std::stack;
 
 #include "main.h"
+#include "CMySQLConnection.h"
 
 
 class CMySQLResult;
-class CMySQLConnection;
 class COrm;
 
 
 class CMySQLQuery
 {
+private:
+	void Execute(unsigned int connection_id, bool unthreaded = false);
+	bool StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result);
+
 public:
-	static CMySQLQuery Create(
+	static CMySQLQuery CreateThreaded(
 		string query, CMySQLConnection *connection, unsigned int connection_id,
-		string cbname, stack< boost::variant<cell, string> > cbparams
-		COrm *orm_object = NULL, unsigned short orm_querytype = 0
-	);
+		string cb_name, stack< boost::variant<cell, string> > cb_params);
+
+	static CMySQLQuery CreateUnthreaded(string query, CMySQLConnection *connection);
+
+	static CMySQLQuery CreateOrm(
+		string query, CMySQLConnection *connection, unsigned int connection_id,
+		string cbname, stack< boost::variant<cell, string> > cbparams,
+		COrm *orm_object, unsigned short orm_querytype);
 
 
 	string Query;
