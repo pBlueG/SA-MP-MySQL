@@ -46,11 +46,13 @@
     <IncludePath>C:\boost_1_55_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\boost_1_55_0\lib32-msvc-12.0;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mysql</TargetName>
     <IncludePath>C:\boost_1_55_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\boost_1_55_0\lib32-msvc-12.0;$(LibraryPath)</LibraryPath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
