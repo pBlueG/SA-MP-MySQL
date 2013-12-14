@@ -4,6 +4,7 @@
 #include "CMySQLHandle.h"
 #include "CMySQLResult.h"
 #include "CMySQLQuery.h"
+#include "CMySQLConnection.h"
 #include "CCallback.h"
 #include "COrm.h"
 #include "CLog.h"
@@ -12,9 +13,6 @@
 
 #include "malloc.h"
 #include <cmath>
-
-
-logprintf_t logprintf;
 
 
 //native ORM:orm_create(table[], connectionHandle = 1);
