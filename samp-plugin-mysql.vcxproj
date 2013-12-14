@@ -102,6 +102,7 @@
   <ItemGroup>
     <ClInclude Include="src\CCallback.h" />
     <ClInclude Include="src\CLog.h" />
+    <ClInclude Include="src\CMySQLConnection.h" />
     <ClInclude Include="src\CMySQLHandle.h" />
     <ClInclude Include="src\CMySQLQuery.h" />
     <ClInclude Include="src\CMySQLResult.h" />
@@ -118,6 +119,7 @@
   <ItemGroup>
     <ClCompile Include="src\CCallback.cpp" />
     <ClCompile Include="src\CLog.cpp" />
+    <ClCompile Include="src\CMySQLConnection.cpp" />
     <ClCompile Include="src\CMySQLHandle.cpp" />
     <ClCompile Include="src\CMySQLQuery.cpp" />
     <ClCompile Include="src\CMySQLResult.cpp" />

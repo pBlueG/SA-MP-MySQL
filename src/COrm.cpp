@@ -15,6 +15,7 @@ using karma::lit;
 #include "CLog.h"
 #include "CMySQLHandle.h"
 #include "CMySQLResult.h"
+#include "CMySQLConnection.h"
 
 #include "misc.h"
 

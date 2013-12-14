@@ -6,11 +6,14 @@
 #include "CCallback.h"
 #include "CLog.h"
 
-//#include <vld.h>
+#ifdef WIN32
+	#include <WinSock2.h>
+#endif
+#include "mysql_include/mysql.h"
 
 
 extern void	*pAMXFunctions;
-extern logprintf_t logprintf;
+logprintf_t logprintf;
  
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() 

@@ -5,6 +5,7 @@
 #include "CMySQLHandle.h"
 #include "CMySQLResult.h"
 #include "CMySQLQuery.h"
+#include "CMySQLConnection.h"
 #include "CLog.h"
 
 #include "misc.h"
