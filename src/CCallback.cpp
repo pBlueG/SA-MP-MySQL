@@ -90,19 +90,16 @@ void CCallback::ProcessCallbacks()
 							}
 
 							Handle->SetActiveResult(QueryObj.Result);
-							CMySQLHandle::ActiveHandle = Handle;
 
 							cell amx_ret;
 							amx_Exec(amx, &amx_ret, amx_index);
 							if (amx_mem_addr >= NULL)
 								amx_Release(amx, amx_mem_addr);
 
-							CMySQLHandle::ActiveHandle = NULL;
-
 							if (Handle->IsActiveResultSaved() == false)
 								delete Handle->GetActiveResult();
 
-							Handle->SetActiveResult((CMySQLResult*)NULL);
+							Handle->SetActiveResult(static_cast<CMySQLResult *>(NULL));
 
 							CLog::Get()->EndCallback();
 

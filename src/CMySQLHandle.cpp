@@ -106,6 +106,9 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 void CMySQLHandle::Destroy() 
 {
+	if (ActiveHandle == this)
+		ActiveHandle = NULL;
+
 	SQLHandle.erase(m_MyID);
 	delete this;
 }
@@ -165,6 +168,7 @@ bool CMySQLHandle::DeleteSavedResult(unsigned int resultid)
 		{
 			m_ActiveResult = NULL;
 			m_ActiveResultID = 0;
+			ActiveHandle = NULL;
 		}
 		delete ResultHandle;
 		m_SavedResults.erase(resultid);
@@ -229,6 +233,10 @@ void CMySQLHandle::SetActiveResult(CMySQLResult *result)
 {
 	m_ActiveResult = result;
 	m_ActiveResultID = 0;
+	if (result != NULL)
+		ActiveHandle = this;
+	else
+		ActiveHandle = NULL;
 }
 
 
