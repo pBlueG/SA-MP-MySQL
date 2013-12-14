@@ -23,13 +23,9 @@ using boost::atomic;
 namespace this_thread = boost::this_thread;
 
 
-#include "main.h"
-
-#include "CMySQLResult.h"
-
-
 class CMySQLQuery;
 class CMySQLConnection;
+class CMySQLResult;
 
 
 #define ERROR_INVALID_CONNECTION_HANDLE(function, id) \
@@ -39,8 +35,6 @@ class CMySQLConnection;
 class CMySQLHandle 
 {
 public:
-
-
 	//freezes the thread until all pending queries are executed
 	void WaitForQueryExec();
 
@@ -89,13 +83,16 @@ public:
 		m_QueryCounter--;
 	}
 
-
 	void SetActiveResult(CMySQLResult *result);
 	
+
 	unsigned int SaveActiveResult();
 	bool DeleteSavedResult(unsigned int resultid);
 	bool SetActiveResult(unsigned int resultid);
-	bool IsValidResult(unsigned int resultid);
+	inline bool IsValidResult(unsigned int resultid)
+	{
+		return (resultid != 0 && m_SavedResults.find(resultid) != m_SavedResults.end());
+	}
 	inline CMySQLResult *GetActiveResult() 
 	{
 		return m_ActiveResult;
@@ -105,8 +102,6 @@ public:
 		return m_ActiveResultID > 0 ? true : false;
 	}
 
-
-	void ExecThreadStashFunc();
 
 	static void ClearAll();
 
@@ -118,6 +113,8 @@ public:
 private:
 	CMySQLHandle(unsigned int id);
 	~CMySQLHandle();
+
+	void ExecThreadStashFunc();
 
 	static CMySQLHandle *ActiveHandle;
 	static unordered_map<unsigned int, CMySQLHandle *> SQLHandle;

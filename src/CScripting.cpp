@@ -11,9 +11,6 @@
 
 #include "misc.h"
 
-#include "malloc.h"
-#include <cmath>
-
 
 //native ORM:orm_create(table[], connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::orm_create(AMX* amx, cell* params)

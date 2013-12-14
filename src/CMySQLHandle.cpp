@@ -145,7 +145,8 @@ unsigned int CMySQLHandle::SaveActiveResult()
 				{
 					id = itHandle->first+1;
 					++itHandle;
-				} while(m_SavedResults.find(id) != m_SavedResults.end());
+				} 
+				while(m_SavedResults.find(id) != m_SavedResults.end()); //TODO: benchmark + eventually faster lookup
 			}
 
 			m_ActiveResultID = id;
@@ -214,11 +215,6 @@ bool CMySQLHandle::SetActiveResult(unsigned int resultid)
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SetActiveResult", "invalid result id specified, setting active result to zero");
 	}
 	return true;
-}
-
-bool CMySQLHandle::IsValidResult(unsigned int resultid)
-{
-	return (resultid != 0 && m_SavedResults.find(resultid) != m_SavedResults.end());
 }
 
 void CMySQLHandle::ClearAll()
