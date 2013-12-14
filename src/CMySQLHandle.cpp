@@ -285,4 +285,3 @@ void CMySQLHandle::ExecThreadStashFunc()
 		this_thread::sleep_for(chrono::milliseconds(5));
 	}
 }
-
