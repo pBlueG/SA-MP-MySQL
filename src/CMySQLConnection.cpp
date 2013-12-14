@@ -4,9 +4,10 @@
 #include "CLog.h"
 
 
-CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect)
+CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect,
+	atomic<unsigned int> &query_counter, const unsigned int connection_id)
 {
-	return new CMySQLConnection(host, user, passwd, db, port, auto_reconnect);
+	return new CMySQLConnection(host, user, passwd, db, port, auto_reconnect, query_counter, connection_id);
 }
 
 void CMySQLConnection::Destroy()

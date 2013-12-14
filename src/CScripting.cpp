@@ -103,7 +103,7 @@ cell AMX_NATIVE_CALL Native::orm_select(AMX* amx, cell* params)
 		boost::bind
 		(
 			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1, Handle->GetID(),
+			boost::move(Query), _1,
 			boost::move(CB_Name), boost::move(CB_Params),
 			OrmObject, ORM_QUERYTYPE_SELECT
 		);
@@ -132,7 +132,7 @@ cell AMX_NATIVE_CALL Native::orm_update(AMX* amx, cell* params)
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
 		boost::bind(
 			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1, Handle->GetID(),
+			boost::move(Query), _1,
 			boost::move(CB_Name), boost::move(CB_Params),
 			OrmObject, ORM_QUERYTYPE_UPDATE
 		);
@@ -175,7 +175,7 @@ cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params)
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
 		boost::bind(
 			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1, Handle->GetID(),
+			boost::move(Query), _1,
 			boost::move(CB_Name), boost::move(CB_Params),
 			OrmObject, ORM_QUERYTYPE_INSERT
 		);
@@ -205,7 +205,7 @@ cell AMX_NATIVE_CALL Native::orm_delete(AMX* amx, cell* params)
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
 		boost::bind(
 			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1, Handle->GetID(),
+			boost::move(Query), _1,
 			boost::move(CB_Name), boost::move(CB_Params),
 			OrmObject, ORM_QUERYTYPE_DELETE
 		);
@@ -251,7 +251,7 @@ cell AMX_NATIVE_CALL Native::orm_save(AMX* amx, cell* params)
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
 		boost::bind(
 			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1, Handle->GetID(),
+			boost::move(Query), _1,
 			boost::move(CB_Name), boost::move(CB_Params),
 			OrmObject, OrmQueryType
 		);
@@ -758,7 +758,7 @@ cell AMX_NATIVE_CALL Native::mysql_pquery(AMX* amx, cell* params)
 		boost::bind
 		(
 			&CMySQLQuery::CreateThreaded,
-			boost::move(Query), _1, connection_id,
+			boost::move(Query), _1,
 			boost::move(CB_Name), boost::move(CB_Params)
 		);
 	Handle->QueueQuery(boost::move(QueryFunc), true);
@@ -806,7 +806,7 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
 		boost::bind(
 			&CMySQLQuery::CreateThreaded,
-			boost::move(Query), _1, connection_id,
+			boost::move(Query), _1,
 			boost::move(CB_Name), boost::move(CB_Params)
 		);
 	Handle->QueueQuery(boost::move(QueryFunc));

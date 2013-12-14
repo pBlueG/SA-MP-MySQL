@@ -10,7 +10,7 @@
 
 
 CMySQLQuery CMySQLQuery::CreateThreaded(
-	string query, CMySQLConnection *connection, unsigned int connection_id,
+	string query, CMySQLConnection *connection,
 	string cb_name, stack< boost::variant<cell, string> > cb_params)
 {
 	CMySQLQuery QueryObj;
@@ -21,7 +21,7 @@ CMySQLQuery CMySQLQuery::CreateThreaded(
 	QueryObj.Callback.Params = boost::move(cb_params);
 
 
-	QueryObj.Execute(connection_id);
+	QueryObj.Execute();
 
 
 	return QueryObj;
@@ -36,14 +36,14 @@ CMySQLQuery CMySQLQuery::CreateUnthreaded(string query, CMySQLConnection *connec
 	QueryObj.Query = boost::move(query);
 
 
-	QueryObj.Execute(0, true);
+	QueryObj.Execute(true);
 
 
 	return QueryObj;
 }
 
 CMySQLQuery CMySQLQuery::CreateOrm(
-	string query, CMySQLConnection *connection, unsigned int connection_id,
+	string query, CMySQLConnection *connection,
 	string cbname, stack< boost::variant<cell, string> > cbparams,
 	COrm *orm_object, unsigned short orm_querytype)
 {
@@ -57,14 +57,14 @@ CMySQLQuery CMySQLQuery::CreateOrm(
 	QueryObj.Orm.Type = orm_querytype;
 
 
-	QueryObj.Execute(connection_id);
+	QueryObj.Execute();
 
 
 	return QueryObj;
 }
 
 
-void CMySQLQuery::Execute(unsigned int connection_id, bool unthreaded)
+void CMySQLQuery::Execute(bool unthreaded)
 {
 	MYSQL *mysql_connection = Connection->GetMySQLPointer();
 	if (mysql_connection != NULL)
@@ -137,7 +137,7 @@ void CMySQLQuery::Execute(unsigned int connection_id, bool unthreaded)
 				Callback.Params.push(error_str);
 				Callback.Params.push(Callback.Name);
 				Callback.Params.push(Query);
-				Callback.Params.push(static_cast<cell>(connection_id));
+				Callback.Params.push(static_cast<cell>(Connection->GetConnectionID()));
 
 				Callback.Name = "OnQueryError";
 
@@ -146,7 +146,11 @@ void CMySQLQuery::Execute(unsigned int connection_id, bool unthreaded)
 		}
 		mysql_thread_end();
 	}
-	Connection->IsInUse = false;
+	if (!unthreaded)
+	{
+		Connection->DecreaseQueryCounter();
+		Connection->IsInUse = false;
+	}
 }
 
 
