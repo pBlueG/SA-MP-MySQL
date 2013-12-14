@@ -110,12 +110,18 @@ public:
 
 	static void ClearAll();
 
-	static CMySQLHandle *ActiveHandle;
+	static inline CMySQLHandle *GetActiveHandle()
+	{
+		return ActiveHandle;
+	}
+
 private:
 	CMySQLHandle(unsigned int id);
 	~CMySQLHandle();
 
+	static CMySQLHandle *ActiveHandle;
 	static unordered_map<unsigned int, CMySQLHandle *> SQLHandle;
+
 	
 	queue< tuple< function<CMySQLQuery(CMySQLConnection*)>, bool> > m_QueryQueue;
 	thread m_QueryStashThread;
