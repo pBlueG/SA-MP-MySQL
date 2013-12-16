@@ -20,7 +20,7 @@ class CMySQLConnection
 {
 public:
 	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect, 
-		atomic<unsigned int> &query_counter, const unsigned int connection_id);
+		atomic<unsigned int> &query_counter = _dummy_QueryCounter, const unsigned int connection_id = 0);
 	void Destroy();
 
 	//(dis)connect to the MySQL server
@@ -60,6 +60,8 @@ public:
 	}
 
 private:
+	static atomic<unsigned int> _dummy_QueryCounter;
+
 	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect,
 		atomic<unsigned int> &query_counter, const unsigned int connection_id)
 		: 

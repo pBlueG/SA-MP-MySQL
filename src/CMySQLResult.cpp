@@ -43,10 +43,16 @@ const char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
 const char *CMySQLResult::GetRowDataByName(unsigned int row, const char *field) 
 {
 	if(row >= m_Rows || m_Fields == 0)
-		return CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d')", row), NULL;
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d')", row);
+		return NULL;
+	}
 	
 	if(field == NULL)
-		return CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "empty field name specified"), NULL;
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "empty field name specified");
+		return NULL;
+	}
 
 	for(unsigned int i = 0; i < m_Fields; ++i) 
 	{
