@@ -4,6 +4,9 @@
 #include "CLog.h"
 
 
+atomic<unsigned int> CMySQLConnection::_dummy_QueryCounter;
+
+
 CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect,
 	atomic<unsigned int> &query_counter, const unsigned int connection_id)
 {
