@@ -165,7 +165,7 @@ cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params)
 	string 
 		Query,
 		CB_Name(cb_name != NULL ? cb_name : "");
-	stack<boost::variant<cell, string>> CB_Params;
+	stack< boost::variant<cell, string> > CB_Params;
 
 	if (cb_format != NULL)
 		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
