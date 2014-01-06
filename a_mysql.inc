@@ -28,7 +28,9 @@ enum //log levels
 	LOG_NONE = 0,
 	LOG_ERROR = 1,
 	LOG_WARNING = 2,
-	LOG_DEBUG = 4
+	LOG_DEBUG = 4,
+	
+	LOG_ALL = LOG_ERROR | LOG_WARNING | LOG_DEBUG
 };
 
 enum //log types
