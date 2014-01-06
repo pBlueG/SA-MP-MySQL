@@ -19,7 +19,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -27,7 +27,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -43,16 +43,16 @@
     <OutDir>bin\</OutDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>mysql</TargetName>
-    <IncludePath>C:\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_55_0\lib32-msvc-12.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\boost_1_55_0;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mysql</TargetName>
-    <IncludePath>C:\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_55_0\lib32-msvc-12.0;$(LibraryPath)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <IncludePath>D:\boost_1_55_0;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -69,7 +69,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(TargetPath)" "D:\MySQL R8 Testing\plugins\"</Command>
+      <Command>COPY "$(TargetPath)" "D:\SAMP\mysql-plugin\plugins\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,7 +96,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(TargetPath)" "D:\MySQL R8 Testing\plugins\"</Command>
+      <Command>COPY "$(TargetPath)" "D:\SAMP\mysql-plugin\plugins\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
