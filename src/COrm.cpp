@@ -51,13 +51,13 @@ unsigned int COrm::Create(const char *table, CMySQLHandle *connhandle)
 	OrmObject->m_MyID = id;
 
 	OrmHandle.insert( unordered_map<int, COrm*>::value_type(id, OrmObject) );
-	CLog::Get()->LogFunction(LOG_DEBUG, "COrm::Create", "orm object created with id = %d", id);
+	CLog::Get()->LogFunction(LOG_DEBUG, "COrm::Create", "orm object created (id: %d)", id);
 	return id;
 }
 
 void COrm::Destroy() 
 {
-	CLog::Get()->LogFunction(LOG_DEBUG, "COrm::Destroy", "id: %d", m_MyID);
+	CLog::Get()->LogFunction(LOG_DEBUG, "COrm::Destroy", "orm object destroyed (id: %d)", m_MyID);
 	OrmHandle.erase(m_MyID);
 	delete this;
 }

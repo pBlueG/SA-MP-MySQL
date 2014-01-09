@@ -29,7 +29,7 @@ class CMySQLResult;
 
 
 #define ERROR_INVALID_CONNECTION_HANDLE(function, id) \
-	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid connection handle (ID = %d)", id)
+	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid connection handle (id: %d)", id)
 
 
 class CMySQLHandle 
