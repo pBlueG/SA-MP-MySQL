@@ -95,7 +95,7 @@ cell AMX_NATIVE_CALL Native::orm_select(AMX* amx, cell* params)
 	stack<boost::variant<cell, string> > CB_Params;
 
 	if (cb_format != NULL)
-		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
 	OrmObject->GenerateSelectQuery(Query);
 
@@ -168,7 +168,7 @@ cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params)
 	stack< boost::variant<cell, string> > CB_Params;
 
 	if (cb_format != NULL)
-		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
 	OrmObject->GenerateInsertQuery(Query);
 
@@ -244,7 +244,7 @@ cell AMX_NATIVE_CALL Native::orm_save(AMX* amx, cell* params)
 	stack<boost::variant<cell, string> > CB_Params;
 
 	if (cb_format != NULL)
-		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
 	unsigned short OrmQueryType = OrmObject->GenerateSaveQuery(Query);
 
@@ -752,7 +752,7 @@ cell AMX_NATIVE_CALL Native::mysql_pquery(AMX* amx, cell* params)
 
 	stack<boost::variant<cell, string> > CB_Params;
 	if (cb_format != NULL)
-		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
 		boost::bind
@@ -801,7 +801,7 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 
 	stack<boost::variant<cell, string> > CB_Params;
 	if (cb_format != NULL)
-		CCallback::FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
 
 	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
 		boost::bind(
