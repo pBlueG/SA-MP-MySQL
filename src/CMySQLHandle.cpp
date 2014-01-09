@@ -99,7 +99,7 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 		SQLHandle.insert( unordered_map<unsigned int, CMySQLHandle*>::value_type(id, handle) );
 
-		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created with id = %d", id);
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "connection created (id: %d)", id);
 	}
 	return handle;
 }
@@ -152,7 +152,7 @@ unsigned int CMySQLHandle::SaveActiveResult()
 			m_ActiveResultID = id;
 			m_SavedResults.insert( unordered_map<unsigned int, CMySQLResult*>::value_type(id, m_ActiveResult) );
 			
-			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved with id = %d", id);
+			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::SaveActiveResult", "cache saved (id: %d)", id);
 			return id; 
 		}
 	}
