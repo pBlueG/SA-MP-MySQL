@@ -42,7 +42,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 {
 	logprintf("plugin.mysql: Unloading plugin...");
 
-	CCallback::ClearAll();
+	CCallback::Get()->Destroy();
 	CMySQLHandle::ClearAll();
 	mysql_library_end();
 	CLog::Destroy(); //this has to be the last because Destroy-functions in ClearAll() are logging data
@@ -52,7 +52,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 
 PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() 
 {
-	CCallback::ProcessCallbacks();
+	CCallback::Get()->ProcessCallbacks();
 }
 
 
@@ -126,13 +126,13 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) 
 {
-	CCallback::AddAmx(amx);
+	CCallback::Get()->AddAmx(amx);
 	return amx_Register(amx, MySQLNatives, -1);
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) 
 {
-	CCallback::EraseAmx(amx);
+	CCallback::Get()->EraseAmx(amx);
 	return AMX_ERR_NONE;
 }
 

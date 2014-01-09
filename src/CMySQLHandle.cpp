@@ -280,7 +280,7 @@ void CMySQLHandle::ExecThreadStashFunc()
 
 			m_QueryCounter++;
 			shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
-			CCallback::AddQueryToQueue(boost::move(fut), this);
+			CCallback::Get()->AddQueryToQueue(boost::move(fut), this);
 		}
 		this_thread::sleep_for(chrono::milliseconds(5));
 	}

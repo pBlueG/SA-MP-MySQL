@@ -12,10 +12,7 @@
 #include <cstdio>
 
 
-list< tuple<shared_future<CMySQLQuery>, CMySQLHandle*> > CCallback::m_CallbackQueue;
-mutex CCallback::m_QueueMtx;
-
-list<AMX *> CCallback::m_AmxList;
+CCallback *CCallback::m_Instance = new CCallback;
 
 
 void CCallback::ProcessCallbacks() 
@@ -50,7 +47,7 @@ void CCallback::ProcessCallbacks()
 				if (!QueryObj.Callback.Name.empty())
 				{
 					const bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
-					for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
+					for (unordered_set<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 					{
 						AMX *amx = (*a);
 						int amx_index;
@@ -114,29 +111,6 @@ void CCallback::ProcessCallbacks()
 	}
 }
 
-
-
-void CCallback::AddAmx(AMX *amx) 
-{
-	m_AmxList.push_back(amx);
-}
-
-void CCallback::EraseAmx(AMX *amx) 
-{
-	for (list<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
-	{
-		if ( (*a) == amx) 
-		{
-			m_AmxList.erase(a);
-			break;
-		}
-	}
-}
-
-void CCallback::ClearAll() 
-{
-	m_CallbackQueue.clear();
-}
 
 void CCallback::FillCallbackParams(stack< boost::variant<cell, string> > &dest, const char *format, AMX* amx, cell* params, const int ConstParamCount)
 {
