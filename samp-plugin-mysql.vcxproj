@@ -43,16 +43,17 @@
     <OutDir>bin\</OutDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>mysql</TargetName>
-    <IncludePath>D:\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\boost_1_55_0;include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;lib;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mysql</TargetName>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
-    <IncludePath>D:\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\boost_1_55_0;include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;lib;$(LibraryPath)</LibraryPath>
+    <OutDir>bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -64,12 +65,12 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>plugin.def</ModuleDefinitionFile>
-      <AdditionalDependencies>src/mysql_lib/libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SUBSYSTEM:CONSOLE,5.01 /OSVERSION:5.1 %(AdditionalOptions)</AdditionalOptions>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(TargetPath)" "D:\SAMP\mysql-plugin\plugins\"</Command>
+      <Command>COPY "$(TargetPath)" "D:\sa-mp\mysql-plugin\plugins\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,7 +89,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>src/mysql_lib/libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>plugin.def</ModuleDefinitionFile>
       <AdditionalOptions>/SUBSYSTEM:CONSOLE,5.01 /OSVERSION:5.1 %(AdditionalOptions)</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -96,7 +97,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(TargetPath)" "D:\SAMP\mysql-plugin\plugins\"</Command>
+      <Command>COPY "$(TargetPath)" "D:\sa-mp\mysql-plugin\plugins\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -110,11 +111,6 @@
     <ClInclude Include="src\CScripting.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\misc.h" />
-    <ClInclude Include="src\SDK\amx\amx.h" />
-    <ClInclude Include="src\SDK\amx\getch.h" />
-    <ClInclude Include="src\SDK\amx\sclinux.h" />
-    <ClInclude Include="src\SDK\plugin.h" />
-    <ClInclude Include="src\SDK\plugincommon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CCallback.cpp" />
@@ -128,7 +124,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\misc.cpp" />
     <ClCompile Include="src\SDK\amxplugin.cpp" />
-    <ClCompile Include="src\SDK\amx\getch.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

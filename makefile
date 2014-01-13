@@ -2,7 +2,7 @@ GPP=g++ -m32
 GCC=gcc -m32
 
 
-COMPILE_FLAGS = -c -O3 -w -fPIC -DLINUX -Wall -Isrc/SDK/amx/ -Isrc/
+COMPILE_FLAGS = -c -O3 -w -fPIC -DLINUX -Wall -Iinclude/
 LIBRARIES = -pthread -lrt -Wl,-Bstatic -lboost_thread -lboost_chrono -lboost_date_time -lboost_system -lboost_atomic -Wl,-Bdynamic
 
 
@@ -24,7 +24,7 @@ dynamic_link:
 
 static_link:
 	@echo Linking \(static\)..
-	@ $(GPP) -O2 -fshort-wchar -shared -o "bin/mysql_static.so" *.o ./src/mysql_lib/libmysqlclient_r.a $(LIBRARIES)
+	@ $(GPP) -O2 -fshort-wchar -shared -o "bin/mysql_static.so" *.o ./lib/libmysqlclient_r.a $(LIBRARIES)
 
 clean:
 	@ rm -f *.o
