@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include "getch.h"
+#include <SDK/amx/getch.h>
 
 #ifndef STDIN_FILENO
 # define STDIN_FILENO 0

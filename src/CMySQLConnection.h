@@ -13,7 +13,7 @@ using boost::atomic;
 #ifdef WIN32
 	#include <WinSock2.h>
 #endif
-#include "mysql_include/mysql.h"
+#include <mysql/mysql.h>
 
 
 class CMySQLConnection

@@ -5,8 +5,8 @@
 //
 //----------------------------------------------------------
 
-#include "plugincommon.h"
-#include "amx/amx.h"
+#include <SDK/plugincommon.h>
+#include <SDK/amx/amx.h>
 
 //----------------------------------------------------------
 // EOF

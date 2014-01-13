@@ -4,26 +4,8 @@
     <Filter Include="SDK">
       <UniqueIdentifier>{c071e10a-a2d4-48c3-b516-edcfb19bbb05}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SDK\amx">
-      <UniqueIdentifier>{0c8fac1c-7e95-4fcd-9c0c-d9f1cde74e1c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\SDK\amx\getch.h">
-      <Filter>SDK\amx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SDK\amx\sclinux.h">
-      <Filter>SDK\amx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SDK\amx\amx.h">
-      <Filter>SDK\amx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SDK\plugin.h">
-      <Filter>SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SDK\plugincommon.h">
-      <Filter>SDK</Filter>
-    </ClInclude>
     <ClInclude Include="src\CScripting.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\misc.h" />
@@ -36,9 +18,6 @@
     <ClInclude Include="src\CMySQLConnection.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\SDK\amx\getch.c">
-      <Filter>SDK\amx</Filter>
-    </ClCompile>
     <ClCompile Include="src\SDK\amxplugin.cpp">
       <Filter>SDK</Filter>
     </ClCompile>

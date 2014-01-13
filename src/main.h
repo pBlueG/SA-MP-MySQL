@@ -5,8 +5,8 @@
 
 #pragma warning (disable: 4005 4996)
 
-#include "SDK/amx/amx.h"
-#include "SDK/plugincommon.h"
+#include <SDK/amx/amx.h>
+#include <SDK/plugincommon.h>
 
 typedef void (*logprintf_t)(char* format, ...);
 
