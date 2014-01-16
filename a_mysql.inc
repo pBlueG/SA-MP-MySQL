@@ -134,7 +134,7 @@ native mysql_option(E_MYSQL_OPTION:type, value);
 native mysql_errno(connectionHandle = 1);
 native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len = sizeof(destination));
 native mysql_format(connectionHandle, output[], len, format[], {Float,_}:...);
-native mysql_pquery(connectionHandle, query[], callback[] = "", format[] = "" {Float,_}:...);
+native mysql_pquery(connectionHandle, query[], callback[] = "", format[] = "", {Float,_}:...);
 /*
 native mysql_pquery_inline(connHandle, query[], callback:Callback, format[], {Float,_}:...); //y_inline
 */
