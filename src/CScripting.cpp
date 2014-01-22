@@ -615,7 +615,7 @@ cell AMX_NATIVE_CALL Native::mysql_connect(AMX* amx, cell* params)
 	const bool auto_reconnect = !!(params[6]);
 	const size_t pool_size = params[7];
 
-	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_connect", "host: \"%s\", user: \"%s\", database: \"%s\", password: \"****\", port: %d, autoreconnect: %s", host, user, db, port, auto_reconnect == true ? "true" : "false");
+	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_connect", "host: \"%s\", user: \"%s\", database: \"%s\", password: \"****\", port: %d, autoreconnect: %s, pool_size: %d", host, user, db, port, auto_reconnect == true ? "true" : "false", pool_size);
 
 	if(host == NULL || user == NULL || db == NULL)
 		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_connect", "empty connection data specified");
