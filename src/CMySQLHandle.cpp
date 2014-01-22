@@ -238,6 +238,8 @@ void CMySQLHandle::SetActiveResult(CMySQLResult *result)
 
 void CMySQLHandle::ExecThreadStashFunc()
 {
+	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::ExecThreadStashFunc", "started query stash thread");
+	
 	m_QueryThreadRunning = true;
 	while (m_QueryThreadRunning)
 	{
