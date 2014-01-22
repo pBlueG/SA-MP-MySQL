@@ -20,6 +20,8 @@ void CMySQLConnection::Destroy()
 
 void CMySQLConnection::Connect()
 {
+	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::Connect", "establishing connection to database...");
+
 	if (m_Connection == NULL)
 	{
 		m_Connection = mysql_init(NULL);
