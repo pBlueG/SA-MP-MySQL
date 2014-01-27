@@ -24,6 +24,7 @@ namespace Native
 	cell AMX_NATIVE_CALL orm_apply_cache(AMX* amx, cell* params);
 
 	cell AMX_NATIVE_CALL orm_addvar(AMX* amx, cell* params);
+	cell AMX_NATIVE_CALL orm_delvar(AMX* amx, cell* params);
 	cell AMX_NATIVE_CALL orm_setkey(AMX* amx, cell* params);
 
 

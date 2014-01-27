@@ -346,6 +346,30 @@ void COrm::AddVariable(const char *varname, cell *address, unsigned short dataty
 	m_Vars.push_back( new SVarInfo(varname, address, datatype, len) );
 }
 
+bool COrm::RemoveVariable(const char *varname)
+{
+	if(m_KeyVar != NULL)
+	{
+		if(m_KeyVar->Name.compare(varname) == 0)
+		{
+			delete m_KeyVar;
+			m_KeyVar = NULL;
+			return true;
+		}
+	}
+	
+	for(vector<SVarInfo *>::iterator v = m_Vars.begin(), end = m_Vars.end(); v != end; ++v)
+	{
+		if((*v)->Name.compare(varname) == 0)
+		{
+			delete (*v);
+			m_Vars.erase(v);
+			return true;
+		}
+	}
+	return false;
+}
+
 void COrm::SetVariableAsKey(const char *varname) 
 {
 	//move key if there is one

@@ -117,7 +117,7 @@ native orm_addvar_string(ORM:id, &var, var_maxlen, varname[]);
 #define orm_addvar_int(%0,%1,%2) orm_addvar(%0,%1,DATATYPE_INT,1,%2)
 #define orm_addvar_float(%0,%1,%2) orm_addvar(%0,%1,DATATYPE_FLOAT,1,%2)
 #define orm_addvar_string(%0,%1,%2,%3) orm_addvar(%0,%1,DATATYPE_STRING,%2,%3)
-
+native orm_delvar(ORM:id, varname[]);
 native orm_setkey(ORM:id, varname[]);
 
 

@@ -54,6 +54,7 @@ public:
 	void ClearVariableValues();
 
 	void AddVariable(const char *varname, cell *address, unsigned short datatype, size_t len=0);
+	bool RemoveVariable(const char *varname);
 	void SetVariableAsKey(const char *varname);
 
 	inline CMySQLHandle *GetConnectionHandle() const 
