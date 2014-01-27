@@ -348,7 +348,7 @@ void COrm::AddVariable(const char *varname, cell *address, unsigned short dataty
 
 void COrm::SetVariableAsKey(const char *varname) 
 {
-	//remove key if there is one
+	//move key if there is one
 	if(m_KeyVar != NULL) 
 	{
 		m_Vars.push_back(m_KeyVar);
