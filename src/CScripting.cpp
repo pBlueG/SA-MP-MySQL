@@ -286,6 +286,20 @@ cell AMX_NATIVE_CALL Native::orm_addvar(AMX* amx, cell* params)
 	return 1;
 }
 
+//native orm_delvar(ORM:id, varname[]);
+cell AMX_NATIVE_CALL Native::orm_delvar(AMX* amx, cell* params)
+{
+	const unsigned int orm_id = params[1];
+	const char *var_name = NULL;
+	amx_StrParam(amx, params[2], var_name);
+	CLog::Get()->LogFunction(LOG_DEBUG, "orm_delvar", "orm_id: %d, varname: \"%s\"", orm_id, var_name);
+
+	if(!COrm::IsValid(orm_id))
+		return ERROR_INVALID_ORM_ID("orm_delvar", orm_id);
+
+	return COrm::GetOrm(orm_id)->RemoveVariable(var_name);
+}
+
 //native orm_setkey(ORM:id, varname[]);
 cell AMX_NATIVE_CALL Native::orm_setkey(AMX* amx, cell* params)
 {

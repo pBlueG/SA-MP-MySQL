@@ -76,6 +76,7 @@ const AMX_NATIVE_INFO MySQLNatives[] =
 	{"orm_apply_cache",					Native::orm_apply_cache},
 
 	{"orm_addvar",						Native::orm_addvar},
+	{"orm_delvar",						Native::orm_delvar},
 	{"orm_setkey",						Native::orm_setkey},
 
 
