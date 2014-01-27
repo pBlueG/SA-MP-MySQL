@@ -362,8 +362,6 @@ void COrm::SetVariableAsKey(const char *varname)
 		if(key_var->Name.compare(varname) == 0) 
 		{
 			m_Vars.erase(m_Vars.begin()+i);
-			if(m_KeyVar != NULL)
-				delete m_KeyVar;
 			m_KeyVar = key_var;
 			break;
 		}
