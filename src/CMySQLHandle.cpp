@@ -1,10 +1,8 @@
-#include "CLog.h"
-
 #include "CMySQLHandle.h"
 #include "CMySQLResult.h"
-#include "CMySQLQuery.h"
 #include "CMySQLConnection.h"
-#include "CCallback.h"
+#include "CLog.h"
+
 
 #include <boost/chrono.hpp>
 namespace chrono = boost::chrono;

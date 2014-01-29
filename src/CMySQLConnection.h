@@ -58,6 +58,9 @@ private: //variables
 		m_QueryThread(boost::bind(&CMySQLConnection::ProcessQueries, this)),
 		m_QueryThreadRunning(true),
 
+		m_Shutdown(false),
+		m_QueueEmpty(true),
+
 		m_Host(host),
 		m_User(user),
 		m_Passw(passw),
@@ -80,6 +83,10 @@ private: //variables
 		boost::lockfree::fixed_sized<true>,
 		boost::lockfree::capacity<16876>
 	> m_QueryQueue;
+
+	atomic<bool> 
+		m_Shutdown,
+		m_QueueEmpty;
 
 
 	//MySQL server login values
