@@ -5,10 +5,12 @@
 
 #include <string>
 #include <boost/atomic.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/lockfree/spsc_queue.hpp>
 
 using std::string;
 using boost::atomic;
-
+using boost::thread;
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -16,11 +18,13 @@ using boost::atomic;
 #include <mysql/mysql.h>
 
 
+class CMySQLQuery;
+
+
 class CMySQLConnection
 {
 public:
-	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect, 
-		atomic<unsigned int> &query_counter = _dummy_QueryCounter, const unsigned int connection_id = 0);
+	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect);
 	void Destroy();
 
 	//(dis)connect to the MySQL server
@@ -30,28 +34,14 @@ public:
 	//escape a string to dest
 	void EscapeString(const char *src, string &dest);
 
-	atomic<bool> IsInUse;
-
-	inline MYSQL *GetMySQLPointer() const
+	inline MYSQL *GetMysqlPtr()
 	{
 		return m_Connection;
 	}
 
-	inline bool GetAutoReconnect() const
+	inline void QueueQuery(CMySQLQuery *query)
 	{
-		return m_AutoReconnect;
-	}
-	inline bool IsConnected() const
-	{
-		return m_IsConnected;
-	}
-	inline void DecreaseQueryCounter()
-	{
-		m_QueryCounter--;
-	}
-	inline unsigned int GetConnectionID() const
-	{
-		return m_ConnectionID;
+		m_QueryQueue.push(query);
 	}
 
 	inline bool operator==(CMySQLConnection &rhs)
@@ -59,12 +49,15 @@ public:
 		return (rhs.m_Host.compare(m_Host) == 0 && rhs.m_User.compare(m_User) == 0 && rhs.m_Database.compare(m_Database) == 0 && rhs.m_Passw.compare(m_Passw) == 0);
 	}
 
-private:
-	static atomic<unsigned int> _dummy_QueryCounter;
+private: //functions
+	void ProcessQueries();
 
-	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect,
-		atomic<unsigned int> &query_counter, const unsigned int connection_id)
+private: //variables
+	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect)
 		: 
+		m_QueryThread(boost::bind(&CMySQLConnection::ProcessQueries, this)),
+		m_QueryThreadRunning(true),
+
 		m_Host(host),
 		m_User(user),
 		m_Passw(passw),
@@ -74,15 +67,19 @@ private:
 		m_IsConnected(false),
 		m_AutoReconnect(auto_reconnect),
 
-		m_QueryCounter(query_counter),
-		m_ConnectionID(connection_id),
+		m_Connection(NULL)
+	{}
+	~CMySQLConnection();
 
-		m_Connection(NULL),
 
-		IsInUse(false)
-	{ }
-	~CMySQLConnection()
-	{ }
+	thread m_QueryThread;
+	atomic<bool> m_QueryThreadRunning;
+
+	boost::lockfree::spsc_queue<
+		CMySQLQuery *,
+		boost::lockfree::fixed_sized<true>,
+		boost::lockfree::capacity<16876>
+	> m_QueryQueue;
 
 
 	//MySQL server login values
@@ -101,11 +98,6 @@ private:
 
 	//internal MYSQL pointer
 	MYSQL *m_Connection;
-
-
-	//data from mysql handle
-	atomic<unsigned int> &m_QueryCounter;
-	const unsigned int m_ConnectionID;
 };
 
 

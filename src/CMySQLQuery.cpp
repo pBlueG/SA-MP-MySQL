@@ -1,5 +1,3 @@
-#pragma once
-
 #include "CMySQLHandle.h"
 #include "CMySQLResult.h"
 #include "CMySQLQuery.h"
@@ -9,147 +7,65 @@
 #include "misc.h"
 
 
-CMySQLQuery CMySQLQuery::CreateThreaded(
-	string query, CMySQLConnection *connection,
-	string cb_name, stack< boost::variant<cell, string> > cb_params)
+bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 {
-	CMySQLQuery QueryObj;
+	char log_funcname[64];
+	if (Unthreaded)
+		sprintf(log_funcname, "CMySQLQuery::Execute");
+	else
+		sprintf(log_funcname, "CMySQLQuery::Execute[%s]", Callback.Name.c_str());
 
-	QueryObj.Connection = connection;
-	QueryObj.Query = boost::move(query);
-	QueryObj.Callback.Name = boost::move(cb_name);
-	QueryObj.Callback.Params = boost::move(cb_params);
-
-
-	QueryObj.Execute();
+	CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "starting query execution");
 
 
-	return QueryObj;
-
-}
-
-CMySQLQuery CMySQLQuery::CreateUnthreaded(string query, CMySQLConnection *connection)
-{
-	CMySQLQuery QueryObj;
-
-	QueryObj.Connection = connection;
-	QueryObj.Query = boost::move(query);
-
-
-	QueryObj.Execute(true);
-
-
-	return QueryObj;
-}
-
-CMySQLQuery CMySQLQuery::CreateOrm(
-	string query, CMySQLConnection *connection,
-	string cbname, stack< boost::variant<cell, string> > cbparams,
-	COrm *orm_object, unsigned short orm_querytype)
-{
-	CMySQLQuery QueryObj;
-
-	QueryObj.Connection = connection;
-	QueryObj.Query = boost::move(query);
-	QueryObj.Callback.Name = boost::move(cbname);
-	QueryObj.Callback.Params = boost::move(cbparams);
-	QueryObj.Orm.Object = orm_object;
-	QueryObj.Orm.Type = orm_querytype;
-
-
-	QueryObj.Execute();
-
-
-	return QueryObj;
-}
-
-
-void CMySQLQuery::Execute(bool unthreaded)
-{
-	MYSQL *mysql_connection = Connection->GetMySQLPointer();
-	if (mysql_connection != NULL)
+	if (mysql_real_query(mysql_connection, Query.c_str(), Query.length()) == 0)
 	{
-		mysql_thread_init();
+		CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "query was successful");
 
+		MYSQL_RES *mysql_result = mysql_store_result(mysql_connection); //this has to be here
 
-		char log_funcname[64];
-		if (unthreaded)
-			sprintf(log_funcname, "CMySQLQuery::Execute");
-		else
-			sprintf(log_funcname, "CMySQLQuery::Execute[%s]", Callback.Name.c_str());
+		//why should we process the result if it won't and can't be used?
+		if (Unthreaded || Callback.Name.length() > 0)
+			if (StoreResult(mysql_connection, mysql_result) == false)
+				CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "an error occured while storing the result: (error #%d) \"%s\"", mysql_errno(mysql_connection), mysql_error(mysql_connection));
+		else  //no callback was specified
+			CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "no callback specified, skipping result saving");
 
-		CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "starting query execution");
+		if (mysql_result != NULL)
+			mysql_free_result(mysql_result);
 
-
-		if (mysql_real_query(mysql_connection, Query.c_str(), Query.length()) == 0)
-		{
-			CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "query was successful");
-
-			MYSQL_RES *mysql_result = mysql_store_result(mysql_connection); //this has to be here
-
-			//why should we process the result if it won't and can't be used?
-			if (unthreaded || Callback.Name.length() > 0)
-			{
-				if (StoreResult(mysql_connection, mysql_result) == false)
-					CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "an error occured while storing the result: (error #%d) \"%s\"", mysql_errno(mysql_connection), mysql_error(mysql_connection));
-			}
-			else  //no callback was specified
-			{
-				CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "no callback specified, skipping result saving");
-			}
-
-			if (mysql_result != NULL)
-				mysql_free_result(mysql_result);
-		}
-		else  //mysql_real_query failed
-		{
-			int error_id = mysql_errno(mysql_connection);
-			string error_str(mysql_error(mysql_connection));
-
-			CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "(error #%d) %s", error_id, error_str.c_str());
-
-
-			if (Connection->GetAutoReconnect() && error_id == 2006)
-			{
-				CLog::Get()->LogFunction(LOG_WARNING, log_funcname, "lost connection, reconnecting...");
-
-				MYSQL_RES *mysql_result;
-				if ((mysql_result = mysql_store_result(mysql_connection)) != NULL)
-					mysql_free_result(mysql_result);
-
-				Connection->Disconnect();
-				Connection->Connect();
-			}
-
-			if (Callback.Name.size() > 0)
-			{
-				//forward OnQueryError(error_id, error[], callback[], query[], connectionHandle);
-				//recycle these structures, change some data
-
-				Orm.Object = NULL;
-				Orm.Type = 0;
-
-				while (Callback.Params.size() > 0)
-					Callback.Params.pop();
-
-
-				Callback.Params.push(static_cast<cell>(error_id));
-				Callback.Params.push(error_str);
-				Callback.Params.push(Callback.Name);
-				Callback.Params.push(Query);
-				Callback.Params.push(static_cast<cell>(Connection->GetConnectionID()));
-
-				Callback.Name = "OnQueryError";
-
-				CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "error will be triggered in OnQueryError");
-			}
-		}
-		mysql_thread_end();
+		return true;
 	}
-	if (!unthreaded)
+	else  //mysql_real_query failed
 	{
-		Connection->DecreaseQueryCounter();
-		Connection->IsInUse = false;
+		int error_id = mysql_errno(mysql_connection);
+		string error_str(mysql_error(mysql_connection));
+
+		CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "(error #%d) %s", error_id, error_str.c_str());
+
+		if (Callback.Name.size() > 0 && !Unthreaded)
+		{
+			//forward OnQueryError(error_id, error[], callback[], query[], connectionHandle);
+			//recycle these structures, change some data
+
+			Orm.Object = NULL;
+			Orm.Type = 0;
+
+			while (Callback.Params.size() > 0)
+				Callback.Params.pop();
+
+
+			Callback.Params.push(static_cast<cell>(error_id));
+			Callback.Params.push(error_str);
+			Callback.Params.push(Callback.Name);
+			Callback.Params.push(Query);
+			Callback.Params.push(static_cast<cell>(Handle->GetID()));
+
+			Callback.Name = "OnQueryError";
+
+			CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "error will be triggered in OnQueryError");
+		}
+		return false;
 	}
 }
 

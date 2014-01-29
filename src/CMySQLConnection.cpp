@@ -1,21 +1,33 @@
-#pragma once
-
 #include "CMySQLConnection.h"
+#include "CMySQLQuery.h"
+#include "CCallback.h"
 #include "CLog.h"
 
+#include <boost/chrono.hpp>
+namespace chrono = boost::chrono;
+namespace this_thread = boost::this_thread;
 
-atomic<unsigned int> CMySQLConnection::_dummy_QueryCounter;
 
-
-CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect,
-	atomic<unsigned int> &query_counter, const unsigned int connection_id)
+CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect)
 {
-	return new CMySQLConnection(host, user, passwd, db, port, auto_reconnect, query_counter, connection_id);
+	return new CMySQLConnection(host, user, passwd, db, port, auto_reconnect);
 }
 
 void CMySQLConnection::Destroy()
 {
+	if(m_IsConnected)
+		Disconnect();
 	delete this;
+}
+
+CMySQLConnection::~CMySQLConnection()
+{
+	m_QueryThreadRunning = false;
+	m_QueryThread.join();
+	
+	CMySQLQuery *query = NULL;
+	while(m_QueryQueue.pop(query))
+		delete query;
 }
 
 void CMySQLConnection::Connect()
@@ -53,6 +65,10 @@ void CMySQLConnection::Disconnect()
 		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLConnection::Disconnect", "no connection available");
 	else
 	{
+		if(this_thread::get_id() != m_QueryThread.get_id())
+			while(!m_QueryQueue.empty())
+				this_thread::sleep_for(chrono::milliseconds(10));
+
 		mysql_close(m_Connection);
 		m_Connection = NULL;
 		m_IsConnected = false;
@@ -72,4 +88,36 @@ void CMySQLConnection::EscapeString(const char *src, string &dest)
 
 		free(tmpEscapedStr);
 	}
+}
+
+void CMySQLConnection::ProcessQueries()
+{
+	m_QueryThreadRunning = true;
+	
+	mysql_thread_init();
+	while(m_QueryThreadRunning)
+	{
+		CMySQLQuery *query;
+		while(m_QueryQueue.pop(query))
+		{
+			if(query->Execute(m_Connection) == true)
+				CCallback::Get()->QueueQuery(query);
+			else
+			{
+				if (m_AutoReconnect && mysql_errno(m_Connection) == 2006)
+				{
+					CLog::Get()->LogFunction(LOG_WARNING, "CMySQLConnection::ProcessQueries", "lost connection, reconnecting...");
+
+					MYSQL_RES *mysql_result;
+					if ((mysql_result = mysql_store_result(m_Connection)) != NULL)
+						mysql_free_result(mysql_result);
+
+					Disconnect();
+					Connect();
+				}
+			}
+		}
+		this_thread::sleep_for(chrono::milliseconds(10));
+	}
+	mysql_thread_end();
 }
