@@ -1,5 +1,3 @@
-#pragma once
-
 #include "main.h"
 #include "CCallback.h"
 #include "CMySQLHandle.h"
@@ -9,8 +7,8 @@
 #include "CLog.h"
 
 #include "misc.h"
-#include <cstdio>
 
+#include <queue>
 
 CCallback *CCallback::m_Instance = new CCallback;
 
@@ -128,4 +126,26 @@ void CCallback::FillCallbackParams(stack< boost::variant<cell, string> > &dest, 
 		}
 		ParamIdx++;
 	} while (*(++format));
+}
+
+void CCallback::ClearByHandle(CMySQLHandle *handle)
+{
+	std::queue<CMySQLQuery *> tmp_queue;
+	CMySQLQuery *query = NULL;
+	while(m_CallbackQueue.pop(query))
+	{
+		if(query->Handle != handle)
+			tmp_queue.push(query);
+		else
+		{
+			delete query->Result;
+			delete query;
+		}
+	}
+
+	while(!tmp_queue.empty())
+	{
+		m_CallbackQueue.push(tmp_queue.front());
+		tmp_queue.pop();
+	}
 }

@@ -619,6 +619,8 @@ cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
 	
 	Handle->ExecuteOnConnections(&CMySQLConnection::Disconnect);
 	Handle->Destroy();
+
+	CCallback::Get()->ClearByHandle(Handle);
 	return 1;
 }
 

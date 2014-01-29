@@ -14,10 +14,10 @@ using std::string;
 using std::set;
 
 #include "main.h"
-#include "CMySQLQuery.h"
 
 
 class CMySQLHandle;
+class CMySQLQuery;
 
 
 class CCallback 
@@ -66,6 +66,7 @@ public:
 		m_AmxList.erase(amx);
 	}
 
+	void ClearByHandle(CMySQLHandle *handle);
 
 	void ProcessCallbacks();
 };

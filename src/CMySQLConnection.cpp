@@ -1,5 +1,6 @@
 #include "CMySQLConnection.h"
 #include "CMySQLQuery.h"
+#include "CMySQLResult.h"
 #include "CCallback.h"
 #include "CLog.h"
 
@@ -51,6 +52,8 @@ void CMySQLConnection::Connect()
 	{
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::Connect", "connection was successful");
 
+		m_Shutdown = false;
+
 		my_bool reconnect = m_AutoReconnect;
 		mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
 		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::Connect", "auto-reconnect has been %s", m_AutoReconnect == true ? "enabled" : "disabled");
@@ -61,12 +64,14 @@ void CMySQLConnection::Connect()
 
 void CMySQLConnection::Disconnect()
 {
-	if (m_Connection == NULL)
+	if (m_Connection == NULL || !m_IsConnected)
 		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLConnection::Disconnect", "no connection available");
 	else
 	{
+		m_Shutdown = true;
+		
 		if(this_thread::get_id() != m_QueryThread.get_id())
-			while(!m_QueryQueue.empty())
+			while(!m_QueryQueue.empty() || !m_QueueEmpty)
 				this_thread::sleep_for(chrono::milliseconds(10));
 
 		mysql_close(m_Connection);
@@ -98,11 +103,11 @@ void CMySQLConnection::ProcessQueries()
 	while(m_QueryThreadRunning)
 	{
 		CMySQLQuery *query;
+		m_QueueEmpty = false;
 		while(m_QueryQueue.pop(query))
 		{
-			if(query->Execute(m_Connection) == true)
-				CCallback::Get()->QueueQuery(query);
-			else
+			bool success = query->Execute(m_Connection);
+			if(success == false && m_Shutdown == false)
 			{
 				if (m_AutoReconnect && mysql_errno(m_Connection) == 2006)
 				{
@@ -116,7 +121,15 @@ void CMySQLConnection::ProcessQueries()
 					Connect();
 				}
 			}
+			else if(success == true && m_Shutdown == true)
+			{
+				delete query->Result;
+				delete query;
+			}
+			else if(m_Shutdown == false)
+				CCallback::Get()->QueueQuery(query);
 		}
+		m_QueueEmpty = true;
 		this_thread::sleep_for(chrono::milliseconds(10));
 	}
 	mysql_thread_end();
