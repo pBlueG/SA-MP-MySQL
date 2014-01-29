@@ -4,23 +4,12 @@
 
 
 #include <string>
-#include <boost/thread/thread.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/function.hpp>
-#include <queue>
-#include <boost/atomic.hpp>
+#include <set>
 
 using std::string;
 using boost::unordered_map;
-using boost::unordered_set;
-using boost::thread;
-using boost::tuple;
-using boost::function;
-using std::queue;
-using boost::atomic;
-namespace this_thread = boost::this_thread;
+using std::set;
 
 
 class CMySQLQuery;
@@ -35,29 +24,20 @@ class CMySQLResult;
 class CMySQLHandle 
 {
 public:
-	//freezes the thread until all pending queries are executed
-	void WaitForQueryExec();
-
 	//returns main MySQL connection
 	inline CMySQLConnection *GetMainConnection() const 
 	{
 		return m_MainConnection;
 	}
-
 	void ExecuteOnConnections(void (CMySQLConnection::*func)());
+	void QueueQuery(CMySQLQuery *query, bool use_pool = false);
 
-	inline void QueueQuery(function< CMySQLQuery (CMySQLConnection*) > func, bool use_pool = false)
-	{
-		m_QueryQueue.push(boost::move(boost::make_tuple(boost::move(func), use_pool)));
-	}
-	
 
 	//checks if handle exists by id
 	static inline bool IsValid(unsigned int id) 
 	{
 		return (SQLHandle.find(id) != SQLHandle.end());
 	}
-
 
 	//fabric function
 	static CMySQLHandle *Create(string host, string user, string pass, string db, size_t port, size_t pool_size, bool reconnect);
@@ -98,6 +78,10 @@ public:
 		return m_ActiveResultID > 0 ? true : false;
 	}
 
+	inline void DecreaseQueryCounter()
+	{
+		m_QueryCounter--;
+	}
 
 	static void ClearAll();
 
@@ -110,16 +94,12 @@ private:
 	CMySQLHandle(unsigned int id);
 	~CMySQLHandle();
 
-	void ExecThreadStashFunc();
 
 	static CMySQLHandle *ActiveHandle;
 	static unordered_map<unsigned int, CMySQLHandle *> SQLHandle;
 
-	
-	queue< tuple< function<CMySQLQuery(CMySQLConnection*)>, bool> > m_QueryQueue;
-	thread m_QueryStashThread;
-	atomic<bool> m_QueryThreadRunning;
-	atomic<unsigned int> m_QueryCounter;
+
+	unsigned int m_QueryCounter;
 
 	unordered_map<unsigned int, CMySQLResult*> m_SavedResults;
 
@@ -130,7 +110,8 @@ private:
 
 	CMySQLConnection *m_MainConnection; //only used in main thread
 	CMySQLConnection *m_ThreadConnection; //for normal threaded queries
-	unordered_set<CMySQLConnection*> m_ConnectionPool;
+	set<CMySQLConnection *> m_ConnectionPool;
+	set<CMySQLConnection *>::iterator m_CurrentConPoolPos;
 };
 
 

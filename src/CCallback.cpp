@@ -17,97 +17,84 @@ CCallback *CCallback::m_Instance = new CCallback;
 
 void CCallback::ProcessCallbacks() 
 {
-	if (!m_CallbackQueue.empty())
+	CMySQLQuery *query = NULL;
+	while(m_CallbackQueue.pop(query))
 	{
-		boost::mutex::scoped_lock LockGuard(m_QueueMtx);
-		list< tuple<shared_future<CMySQLQuery>, CMySQLHandle*> >::iterator i = m_CallbackQueue.begin();
-		do
+		if (query->Orm.Object != NULL)
 		{
-			shared_future<CMySQLQuery> &future_res = boost::get<0>((*i));
-
-			if (future_res.has_value())
+			switch (query->Orm.Type)
 			{
-				CMySQLQuery QueryObj = boost::move(future_res.get());
-				CMySQLHandle *Handle = boost::get<1>(*i);
+			case ORM_QUERYTYPE_SELECT:
+				query->Orm.Object->ApplySelectResult(query->Result);
+				break;
 
-				if (QueryObj.Orm.Object != NULL)
-				{
-					switch (QueryObj.Orm.Type)
-					{
-					case ORM_QUERYTYPE_SELECT:
-						QueryObj.Orm.Object->ApplySelectResult(QueryObj.Result);
-						break;
-
-					case ORM_QUERYTYPE_INSERT:
-						QueryObj.Orm.Object->ApplyInsertResult(QueryObj.Result);
-						break;
-					}
-				}
-
-				if (!QueryObj.Callback.Name.empty())
-				{
-					const bool pass_by_ref = (QueryObj.Callback.Name.find("FJ37DH3JG") != string::npos);
-					for (unordered_set<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
-					{
-						AMX *amx = (*a);
-						int amx_index;
-
-						if (amx_FindPublic(amx, QueryObj.Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
-						{
-							cell amx_mem_addr = -1;
-							CLog::Get()->StartCallback(QueryObj.Callback.Name.c_str());
-
-							while (!QueryObj.Callback.Params.empty())
-							{
-								boost::variant<cell, string> value = boost::move(QueryObj.Callback.Params.top());
-								if (value.type() == typeid(cell))
-								{
-									if (pass_by_ref)
-									{
-										cell tmp_addr;
-										amx_PushArray(amx, &tmp_addr, NULL, (cell*)&boost::get<cell>(value), 1);
-										if (amx_mem_addr < NULL)
-											amx_mem_addr = tmp_addr;
-									}
-									else
-										amx_Push(amx, boost::get<cell>(value));
-								}
-								else
-								{
-									cell tmp_addr;
-									amx_PushString(amx, &tmp_addr, NULL, boost::get<string>(value).c_str(), 0, 0);
-									if (amx_mem_addr < NULL)
-										amx_mem_addr = tmp_addr;
-								}
-
-								QueryObj.Callback.Params.pop();
-							}
-
-							Handle->SetActiveResult(QueryObj.Result);
-
-							cell amx_ret;
-							amx_Exec(amx, &amx_ret, amx_index);
-							if (amx_mem_addr >= NULL)
-								amx_Release(amx, amx_mem_addr);
-
-							if (Handle->IsActiveResultSaved() == false)
-								delete Handle->GetActiveResult();
-
-							Handle->SetActiveResult(static_cast<CMySQLResult *>(NULL));
-
-							CLog::Get()->EndCallback();
-
-							break; //we have found our callback, exit loop
-						}
-					}
-				}
-
-				i = m_CallbackQueue.erase(i);
+			case ORM_QUERYTYPE_INSERT:
+				query->Orm.Object->ApplyInsertResult(query->Result);
+				break;
 			}
-			else
-				return ;
-			
-		} while (!m_CallbackQueue.empty() && i != m_CallbackQueue.end() && ++i != m_CallbackQueue.end());
+		}
+
+		if (!query->Callback.Name.empty())
+		{
+			const bool pass_by_ref = (query->Callback.Name.find("FJ37DH3JG") != string::npos);
+			for (set<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
+			{
+				AMX *amx = (*a);
+				int amx_index;
+
+				if (amx_FindPublic(amx, query->Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
+				{
+					cell amx_mem_addr = -1;
+					CLog::Get()->StartCallback(query->Callback.Name.c_str());
+
+					while (!query->Callback.Params.empty())
+					{
+						boost::variant<cell, string> value = boost::move(query->Callback.Params.top());
+						if (value.type() == typeid(cell))
+						{
+							if (pass_by_ref)
+							{
+								cell tmp_addr;
+								amx_PushArray(amx, &tmp_addr, NULL, (cell*)&boost::get<cell>(value), 1);
+								if (amx_mem_addr < NULL)
+									amx_mem_addr = tmp_addr;
+							}
+							else
+								amx_Push(amx, boost::get<cell>(value));
+						}
+						else
+						{
+							cell tmp_addr;
+							amx_PushString(amx, &tmp_addr, NULL, boost::get<string>(value).c_str(), 0, 0);
+							if (amx_mem_addr < NULL)
+								amx_mem_addr = tmp_addr;
+						}
+
+						query->Callback.Params.pop();
+					}
+
+					query->Handle->DecreaseQueryCounter();
+					query->Handle->SetActiveResult(query->Result);
+
+					cell amx_ret;
+					amx_Exec(amx, &amx_ret, amx_index);
+					if (amx_mem_addr >= NULL)
+						amx_Release(amx, amx_mem_addr);
+
+					if (query->Handle->IsActiveResultSaved() == false)
+						delete query->Handle->GetActiveResult();
+
+					query->Handle->SetActiveResult(static_cast<CMySQLResult *>(NULL));
+
+					CLog::Get()->EndCallback();
+
+					break; //we have found our callback, exit loop
+				}
+			}
+		}
+
+		delete query;
+		query = NULL;
 	}
 }
 

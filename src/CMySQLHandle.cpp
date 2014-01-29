@@ -1,5 +1,3 @@
-#pragma once
-
 #include "CLog.h"
 
 #include "CMySQLHandle.h"
@@ -26,9 +24,7 @@ CMySQLHandle::CMySQLHandle(unsigned int id) :
 	m_MainConnection(NULL),
 	m_ThreadConnection(NULL),
 
-	m_QueryCounter(0),
-	m_QueryThreadRunning(true),
-	m_QueryStashThread(boost::bind(&CMySQLHandle::ExecThreadStashFunc, this))
+	m_QueryCounter(0)
 {
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::CMySQLHandle", "constructor called");
 }
@@ -40,16 +36,7 @@ CMySQLHandle::~CMySQLHandle()
 	
 	ExecuteOnConnections(&CMySQLConnection::Destroy);
 
-	m_QueryThreadRunning = false;
-	m_QueryStashThread.join();
-
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::~CMySQLHandle", "deconstructor called");
-}
-
-void CMySQLHandle::WaitForQueryExec() 
-{
-	while (m_QueryCounter != 0)
-		this_thread::sleep_for(chrono::milliseconds(5));
 }
 
 CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string db, size_t port, size_t pool_size, bool reconnect) 
@@ -92,10 +79,11 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 
 		//init connections
 		handle->m_MainConnection = main_connection;
-		handle->m_ThreadConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect, handle->m_QueryCounter, id);
+		handle->m_ThreadConnection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
 
 		for (size_t i = 0; i < pool_size; ++i)
-			handle->m_ConnectionPool.insert(CMySQLConnection::Create(host, user, pass, db, port, reconnect, handle->m_QueryCounter, id));
+			handle->m_ConnectionPool.insert(CMySQLConnection::Create(host, user, pass, db, port, reconnect));
+		handle->m_CurrentConPoolPos = handle->m_ConnectionPool.begin();
 
 		SQLHandle.insert( unordered_map<unsigned int, CMySQLHandle*>::value_type(id, handle) );
 
@@ -122,8 +110,25 @@ void CMySQLHandle::ExecuteOnConnections(void (CMySQLConnection::*func)())
 		(m_ThreadConnection->*func)();
 	
 	
-	for(unordered_set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
+	for(set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
 		((*c)->*func)();
+}
+
+void CMySQLHandle::QueueQuery(CMySQLQuery *query, bool use_pool /*= false*/)
+{
+	if(use_pool == false)
+	{
+		m_ThreadConnection->QueueQuery(query);
+		m_QueryCounter++;
+	}
+	else if(use_pool == true && m_ConnectionPool.size() > 0)
+	{
+		(*m_CurrentConPoolPos++)->QueueQuery(query);
+		m_QueryCounter++;
+
+		if(m_CurrentConPoolPos == m_ConnectionPool.end())
+			m_CurrentConPoolPos = m_ConnectionPool.begin();
+	}
 }
 
 unsigned int CMySQLHandle::SaveActiveResult() 
@@ -233,57 +238,4 @@ void CMySQLHandle::SetActiveResult(CMySQLResult *result)
 		ActiveHandle = this;
 	else
 		ActiveHandle = NULL;
-}
-
-
-void CMySQLHandle::ExecThreadStashFunc()
-{
-	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::ExecThreadStashFunc", "started query stash thread");
-	
-	m_QueryThreadRunning = true;
-	while (m_QueryThreadRunning)
-	{
-		while (!m_QueryQueue.empty())
-		{
-			tuple< function<CMySQLQuery(CMySQLConnection*)>, bool > &query_data = m_QueryQueue.front();
-			const bool use_pool = boost::get<1>(query_data);
-			function<CMySQLQuery(CMySQLConnection*)> QueryFunc(boost::move(boost::get<0>(query_data)));
-			
-			m_QueryQueue.pop();
-			
-			CMySQLConnection *connection = NULL;
-			do
-			{
-				if (use_pool == false)
-				{
-					if (m_ThreadConnection->IsInUse == false)
-					{
-						m_ThreadConnection->IsInUse = true;
-						connection = m_ThreadConnection;
-					}
-				}
-				else
-				{
-					for (unordered_set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
-					{
-						if ((*c)->IsInUse == false)
-						{
-							(*c)->IsInUse = true;
-							connection = (*c);
-							break;
-						}
-					}
-				}
-
-				if (connection == NULL)
-					this_thread::sleep_for(chrono::milliseconds(5));
-			} 
-			while (connection == NULL);
-
-			m_QueryCounter++;
-			shared_future<CMySQLQuery> fut = boost::async(boost::launch::async, boost::bind(QueryFunc, connection));
-			CCallback::Get()->AddQueryToQueue(boost::move(fut), this);
-		}
-		this_thread::sleep_for(chrono::milliseconds(5));
-	}
 }

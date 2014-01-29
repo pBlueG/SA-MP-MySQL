@@ -88,26 +88,18 @@ cell AMX_NATIVE_CALL Native::orm_select(AMX* amx, cell* params)
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
-	
-	string 
-		Query,
-		CB_Name(cb_name != NULL ? cb_name : "");
-	stack<boost::variant<cell, string> > CB_Params;
+	CMySQLQuery *query = new CMySQLQuery;
 
+	query->Callback.Name = (cb_name != NULL ? cb_name : string());
 	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
-	OrmObject->GenerateSelectQuery(Query);
+	OrmObject->GenerateSelectQuery(query->Query);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
-		boost::bind
-		(
-			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1,
-			boost::move(CB_Name), boost::move(CB_Params),
-			OrmObject, ORM_QUERYTYPE_SELECT
-		);
-	Handle->QueueQuery(boost::move(QueryFunc));
+	query->Orm.Object = OrmObject;
+	query->Orm.Type = ORM_QUERYTYPE_SELECT;
+	
+	Handle->QueueQuery(query);
 	return 1;
 }
 
@@ -123,20 +115,14 @@ cell AMX_NATIVE_CALL Native::orm_update(AMX* amx, cell* params)
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
-	
-	string Query, CB_Name;
-	stack<boost::variant<cell, string> > CB_Params;
+	CMySQLQuery *query = new CMySQLQuery;
 
-	OrmObject->GenerateUpdateQuery(Query);
+	OrmObject->GenerateUpdateQuery(query->Query);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
-		boost::bind(
-			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1,
-			boost::move(CB_Name), boost::move(CB_Params),
-			OrmObject, ORM_QUERYTYPE_UPDATE
-		);
-	Handle->QueueQuery(boost::move(QueryFunc));
+	query->Orm.Object = OrmObject;
+	query->Orm.Type = ORM_QUERYTYPE_UPDATE;
+
+	Handle->QueueQuery(query);
 	return 1;
 }
 
@@ -161,25 +147,18 @@ cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params)
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
-	
-	string 
-		Query,
-		CB_Name(cb_name != NULL ? cb_name : "");
-	stack< boost::variant<cell, string> > CB_Params;
+	CMySQLQuery *query = new CMySQLQuery;
 
+	query->Callback.Name = (cb_name != NULL ? cb_name : string());
 	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
-	OrmObject->GenerateInsertQuery(Query);
+	OrmObject->GenerateInsertQuery(query->Query);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
-		boost::bind(
-			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1,
-			boost::move(CB_Name), boost::move(CB_Params),
-			OrmObject, ORM_QUERYTYPE_INSERT
-		);
-	Handle->QueueQuery(boost::move(QueryFunc));
+	query->Orm.Object = OrmObject;
+	query->Orm.Type = ORM_QUERYTYPE_INSERT;
+
+	Handle->QueueQuery(query);
 	return 1;
 }
 
@@ -196,20 +175,14 @@ cell AMX_NATIVE_CALL Native::orm_delete(AMX* amx, cell* params)
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
-	
-	string Query, CB_Name;
-	stack<boost::variant<cell, string> > CB_Params;
+	CMySQLQuery *query = new CMySQLQuery;
 
-	OrmObject->GenerateDeleteQuery(Query);
+	OrmObject->GenerateDeleteQuery(query->Query);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
-		boost::bind(
-			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1,
-			boost::move(CB_Name), boost::move(CB_Params),
-			OrmObject, ORM_QUERYTYPE_DELETE
-		);
-	Handle->QueueQuery(boost::move(QueryFunc));
+	query->Orm.Object = OrmObject;
+	query->Orm.Type = ORM_QUERYTYPE_DELETE;
+
+	Handle->QueueQuery(query);
 
 	if(clear_vars == true)
 		OrmObject->ClearVariableValues();
@@ -237,25 +210,16 @@ cell AMX_NATIVE_CALL Native::orm_save(AMX* amx, cell* params)
 
 	COrm *OrmObject = COrm::GetOrm(orm_id);
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
-	
-	string 
-		Query,
-		CB_Name(cb_name != NULL ? cb_name : "");
-	stack<boost::variant<cell, string> > CB_Params;
+	CMySQLQuery *query = new CMySQLQuery;
 
+	query->Callback.Name = (cb_name != NULL ? cb_name : string());
 	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
-	unsigned short OrmQueryType = OrmObject->GenerateSaveQuery(Query);
+	query->Orm.Object = OrmObject;
+	query->Orm.Type = OrmObject->GenerateSaveQuery(query->Query);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
-		boost::bind(
-			&CMySQLQuery::CreateOrm,
-			boost::move(Query), _1,
-			boost::move(CB_Name), boost::move(CB_Params),
-			OrmObject, OrmQueryType
-		);
-	Handle->QueueQuery(boost::move(QueryFunc));
+	Handle->QueueQuery(query);
 	return 1;
 }
 
@@ -641,12 +605,11 @@ cell AMX_NATIVE_CALL Native::mysql_connect(AMX* amx, cell* params)
 	return static_cast<cell>(Handle->GetID());
 }
 
-//native mysql_close(connectionHandle = 1, bool:wait = true);
+//native mysql_close(connectionHandle = 1);
 cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
 {
 	const unsigned int connection_id = params[1];
-	const bool wait = (params[2] != 0);
-	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_close", "connection: %d, wait: %s", connection_id, wait == true ? "true" : "false");
+	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_close", "connection: %d", connection_id);
 
 	if(!CMySQLHandle::IsValid(connection_id))
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_close", connection_id);
@@ -654,9 +617,6 @@ cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
 	
-	if(wait == true)
-		Handle->WaitForQueryExec();
-
 	Handle->ExecuteOnConnections(&CMySQLConnection::Disconnect);
 	Handle->Destroy();
 	return 1;
@@ -674,12 +634,8 @@ cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params)
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
 
-	//wait until all threaded queries are executed, then reconnect query connection
-	Handle->WaitForQueryExec();
-
 	Handle->ExecuteOnConnections(&CMySQLConnection::Disconnect);
 	Handle->ExecuteOnConnections(&CMySQLConnection::Connect);
-
 	return 1;
 }
 
@@ -759,23 +715,16 @@ cell AMX_NATIVE_CALL Native::mysql_pquery(AMX* amx, cell* params)
 
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
+	CMySQLQuery *query = new CMySQLQuery;
 
-	string
-		Query(query_str != NULL ? query_str : ""),
-		CB_Name(cb_name != NULL ? cb_name : "");
-
-	stack<boost::variant<cell, string> > CB_Params;
+	query->Query = (query_str != NULL ? query_str : string());
+	query->Callback.Name = (cb_name != NULL ? cb_name : string());
 	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
-		boost::bind
-		(
-			&CMySQLQuery::CreateThreaded,
-			boost::move(Query), _1,
-			boost::move(CB_Name), boost::move(CB_Params)
-		);
-	Handle->QueueQuery(boost::move(QueryFunc), true);
+	query->Handle = Handle;
+	
+	Handle->QueueQuery(query, true);
 	return 1;
 }
 
@@ -808,22 +757,16 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
-	
-	string
-		Query(query_str != NULL ? query_str : ""),
-		CB_Name(cb_name != NULL ? cb_name : "");
+	CMySQLQuery *query = new CMySQLQuery;
 
-	stack<boost::variant<cell, string> > CB_Params;
+	query->Query = (query_str != NULL ? query_str : string());
+	query->Callback.Name = (cb_name != NULL ? cb_name : string());
 	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(CB_Params, cb_format, amx, params, ConstParamCount);
+		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
-	function<CMySQLQuery(CMySQLConnection*)> QueryFunc = 
-		boost::bind(
-			&CMySQLQuery::CreateThreaded,
-			boost::move(Query), _1,
-			boost::move(CB_Name), boost::move(CB_Params)
-		);
-	Handle->QueueQuery(boost::move(QueryFunc));
+	query->Handle = Handle;
+	
+	Handle->QueueQuery(query);
 	return 1;
 }
 
@@ -847,20 +790,24 @@ cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params)
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_query", connection_id);
 
 
-	string query(query_str != NULL ? query_str : string());
 	int stored_result_id = 0;
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
-	CMySQLQuery QueryObj (CMySQLQuery::CreateUnthreaded(boost::move(query), Handle->GetMainConnection()));
+	CMySQLQuery query;
+	query.Query = (query_str != NULL ? query_str : string());
+	query.Handle = Handle;
+	query.Unthreaded = true;
+
+	query.Execute(Handle->GetMainConnection()->GetMysqlPtr());
 
 	if(use_cache == true)
 	{
 		//first we set this result as active
-		Handle->SetActiveResult(QueryObj.Result);
+		Handle->SetActiveResult(query.Result);
 		//now we can save the result
 		stored_result_id = Handle->SaveActiveResult();
-		QueryObj.Result = NULL;
+		query.Result = NULL;
 	}
-	delete QueryObj.Result;
+	delete query.Result;
 
 	return static_cast<cell>(stored_result_id);
 }
@@ -1131,7 +1078,7 @@ cell AMX_NATIVE_CALL Native::mysql_set_charset(AMX* amx, cell* params)
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_set_charset", connection_id);
 
 
-	mysql_set_character_set(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMySQLPointer(), charset);
+	mysql_set_character_set(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMysqlPtr(), charset);
 	return 1;
 }
 
@@ -1146,7 +1093,7 @@ cell AMX_NATIVE_CALL Native::mysql_get_charset(AMX* amx, cell* params)
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_get_charset", connection_id);
 
 
-	const char *charset = mysql_character_set_name(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMySQLPointer());
+	const char *charset = mysql_character_set_name(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMysqlPtr());
 	amx_SetCString(amx, params[1], charset == NULL ? "NULL" : charset, max_size);
 	return 1;
 }
@@ -1199,7 +1146,7 @@ cell AMX_NATIVE_CALL Native::mysql_stat(AMX* amx, cell* params)
 	
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
-	const char *stat_str = mysql_stat(Handle->GetMainConnection()->GetMySQLPointer());
+	const char *stat_str = mysql_stat(Handle->GetMainConnection()->GetMysqlPtr());
 
 	amx_SetCString(amx, params[1], stat_str == NULL ? "NULL" : stat_str, max_size);
 	return 1;
@@ -1215,7 +1162,7 @@ cell AMX_NATIVE_CALL Native::mysql_errno(AMX* amx, cell* params)
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_errno", connection_id);
 
 
-	return static_cast<cell>(mysql_errno(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMySQLPointer()));
+	return static_cast<cell>(mysql_errno(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMysqlPtr()));
 }
 
 //native mysql_log(loglevel, logtype);
