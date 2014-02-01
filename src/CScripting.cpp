@@ -13,7 +13,7 @@
 
 
 //native ORM:orm_create(table[], connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::orm_create(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_create)
 {
 	const unsigned int connection_id = params[2];
 	const char *table_name = NULL;
@@ -28,7 +28,7 @@ cell AMX_NATIVE_CALL Native::orm_create(AMX* amx, cell* params)
 }
 
 //native orm_destroy(ORM:id);
-cell AMX_NATIVE_CALL Native::orm_destroy(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_destroy)
 {
 	const unsigned int orm_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "orm_destroy", "orm_id: %d", orm_id);
@@ -42,7 +42,7 @@ cell AMX_NATIVE_CALL Native::orm_destroy(AMX* amx, cell* params)
 }
 
 //native ORM_Error:orm_errno(ORM:id);
-cell AMX_NATIVE_CALL Native::orm_errno(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_errno)
 {
 	const unsigned int orm_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "orm_errno", "orm_id: %d", orm_id);
@@ -54,7 +54,7 @@ cell AMX_NATIVE_CALL Native::orm_errno(AMX* amx, cell* params)
 }
 
 // native orm_apply_cache(ORM:id, row);
-cell AMX_NATIVE_CALL Native::orm_apply_cache(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 {
 	const unsigned int orm_id = params[1];
 	const unsigned int row_idx = params[2];
@@ -68,7 +68,7 @@ cell AMX_NATIVE_CALL Native::orm_apply_cache(AMX* amx, cell* params)
 }
 
 //native orm_select(ORM:id, callback[], format[], {Float, _}:...);
-cell AMX_NATIVE_CALL Native::orm_select(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_select)
 {
 	const int ConstParamCount = 3;
 	const unsigned int orm_id = params[1];
@@ -104,7 +104,7 @@ cell AMX_NATIVE_CALL Native::orm_select(AMX* amx, cell* params)
 }
 
 //native orm_update(ORM:id);
-cell AMX_NATIVE_CALL Native::orm_update(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_update)
 {
 	const unsigned int orm_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "orm_update", "orm_id: %d", orm_id);
@@ -127,7 +127,7 @@ cell AMX_NATIVE_CALL Native::orm_update(AMX* amx, cell* params)
 }
 
 //native orm_insert(ORM:id, callback[]="", format[]="", {Float, _}:...);
-cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_insert)
 {
 	static const int ConstParamCount = 3;
 	const unsigned int orm_id = params[1];
@@ -163,7 +163,7 @@ cell AMX_NATIVE_CALL Native::orm_insert(AMX* amx, cell* params)
 }
 
 //native orm_delete(ORM:id, bool:clearvars=true);
-cell AMX_NATIVE_CALL Native::orm_delete(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_delete)
 {
 	const unsigned int orm_id = params[1];
 	const bool clear_vars = (params[2] != 0);
@@ -190,7 +190,7 @@ cell AMX_NATIVE_CALL Native::orm_delete(AMX* amx, cell* params)
 }
 
 //native orm_save(ORM:id, callback[]="", format[]="", {Float, _}:...);
-cell AMX_NATIVE_CALL Native::orm_save(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_save)
 {
 	static const int ConstParamCount = 3;
 	const unsigned int orm_id = params[1];
@@ -224,7 +224,7 @@ cell AMX_NATIVE_CALL Native::orm_save(AMX* amx, cell* params)
 }
 
 //native orm_addvar(ORM:id, &{Float, _}:var, var_datatype:datatype, var_maxlen, varname[]);
-cell AMX_NATIVE_CALL Native::orm_addvar(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_addvar)
 {
 	const char *var_name = NULL;
 	cell *var_address = NULL;
@@ -251,7 +251,7 @@ cell AMX_NATIVE_CALL Native::orm_addvar(AMX* amx, cell* params)
 }
 
 //native orm_delvar(ORM:id, varname[]);
-cell AMX_NATIVE_CALL Native::orm_delvar(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_delvar)
 {
 	const unsigned int orm_id = params[1];
 	const char *var_name = NULL;
@@ -265,7 +265,7 @@ cell AMX_NATIVE_CALL Native::orm_delvar(AMX* amx, cell* params)
 }
 
 //native orm_setkey(ORM:id, varname[]);
-cell AMX_NATIVE_CALL Native::orm_setkey(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::orm_setkey)
 {
 	const unsigned int orm_id = params[1];
 	const char *var_name = NULL;
@@ -285,7 +285,7 @@ cell AMX_NATIVE_CALL Native::orm_setkey(AMX* amx, cell* params)
 
 
 //native cache_affected_rows(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_affected_rows(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_affected_rows", "connection: %d", connection_id);
@@ -298,7 +298,7 @@ cell AMX_NATIVE_CALL Native::cache_affected_rows(AMX* amx, cell* params)
 }
 
 //native cache_warning_count(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_warning_count(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_warning_count)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_warning_count", "connection: %d", connection_id);
@@ -311,7 +311,7 @@ cell AMX_NATIVE_CALL Native::cache_warning_count(AMX* amx, cell* params)
 }
 
 //native cache_insert_id(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_insert_id(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_insert_id)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_insert_id", "connection: %d", connection_id);
@@ -325,7 +325,7 @@ cell AMX_NATIVE_CALL Native::cache_insert_id(AMX* amx, cell* params)
 
 
 // native Cache:cache_save(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_save(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_save)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_save", "connection: %d", connection_id);
@@ -342,7 +342,7 @@ cell AMX_NATIVE_CALL Native::cache_save(AMX* amx, cell* params)
 }
 
 // native cache_delete(Cache:id, connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_delete(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_delete)
 {
 	const unsigned int connection_id = params[2];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_delete", "cache_id: %d, connection: %d", params[1], connection_id);
@@ -355,7 +355,7 @@ cell AMX_NATIVE_CALL Native::cache_delete(AMX* amx, cell* params)
 }
 
 // native cache_set_active(Cache:id, connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_set_active(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_set_active)
 {
 	const unsigned int connection_id = params[2];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_set_active", "cache_id: %d, connection: %d", params[1], connection_id);
@@ -368,7 +368,7 @@ cell AMX_NATIVE_CALL Native::cache_set_active(AMX* amx, cell* params)
 }
 
 // native cache_is_valid(Cache:id, connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_is_valid(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_is_valid)
 {
 	const unsigned int connection_id = params[2];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_is_valid", "cache_id: %d, connection: %d", params[1], connection_id);
@@ -381,7 +381,7 @@ cell AMX_NATIVE_CALL Native::cache_is_valid(AMX* amx, cell* params)
 }
 
 // native cache_get_row_count(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_get_row_count(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_count", "connection: %d", connection_id);
@@ -394,7 +394,7 @@ cell AMX_NATIVE_CALL Native::cache_get_row_count(AMX* amx, cell* params)
 }
 
 // native cache_get_field_count(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_get_field_count(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_count", "connection: %d", connection_id);
@@ -407,7 +407,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_count(AMX* amx, cell* params)
 }
 
 // native cache_get_data(&num_rows, &num_fields, connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_get_data(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_data)
 {
 	const unsigned int connection_id = params[3];
 	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_data", "connection: %d", connection_id);
@@ -427,7 +427,7 @@ cell AMX_NATIVE_CALL Native::cache_get_data(AMX* amx, cell* params)
 }
 
 // native cache_get_field_name(field_index, dest[], connectionHandle = 1, max_len = sizeof(destination))
-cell AMX_NATIVE_CALL Native::cache_get_field_name(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 {
 	const unsigned int connection_id = params[3];
 	const unsigned int
@@ -445,7 +445,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_name(AMX* amx, cell* params)
 }
 
 // native cache_get_row(row, field_idx, destination[], connectionHandle = 1, max_len=sizeof(destination));
-cell AMX_NATIVE_CALL Native::cache_get_row(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_row)
 {
 	const unsigned int connection_id = params[4];
 	const unsigned int 
@@ -464,7 +464,7 @@ cell AMX_NATIVE_CALL Native::cache_get_row(AMX* amx, cell* params)
 }
 
 // native cache_get_row_int(row, field_idx, connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_get_row_int(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 {
 	const unsigned int connection_id = params[3];
 	const unsigned int
@@ -487,7 +487,7 @@ cell AMX_NATIVE_CALL Native::cache_get_row_int(AMX* amx, cell* params)
 }
 
 // native Float:cache_get_row_float(row, field_idx, connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_get_row_float(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 {
 	const unsigned int connection_id = params[3];
 	const unsigned int
@@ -510,7 +510,7 @@ cell AMX_NATIVE_CALL Native::cache_get_row_float(AMX* amx, cell* params)
 }
 
 // native cache_get_field_content(row, const field_name[], destination[], connectionHandle = 1, max_len=sizeof(destination));
-cell AMX_NATIVE_CALL Native::cache_get_field_content(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 {
 	const unsigned int connection_id = params[4];
 	const unsigned int 
@@ -530,7 +530,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_content(AMX* amx, cell* params)
 }
 
 // native cache_get_field_content_int(row, const field_name[], connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_get_field_content_int(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 {
 	const unsigned int connection_id = params[3];
 	const unsigned int row_idx = params[1];
@@ -553,7 +553,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_content_int(AMX* amx, cell* params)
 }
 
 // native Float:cache_get_field_content_float(row, const field_name[], connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::cache_get_field_content_float(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 {
 	const unsigned int connection_id = params[3];
 	const unsigned int row_idx = params[1];
@@ -576,7 +576,7 @@ cell AMX_NATIVE_CALL Native::cache_get_field_content_float(AMX* amx, cell* param
 }
 
 //native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
-cell AMX_NATIVE_CALL Native::mysql_connect(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_connect)
 {
 	const char
 		*host = NULL, 
@@ -606,7 +606,7 @@ cell AMX_NATIVE_CALL Native::mysql_connect(AMX* amx, cell* params)
 }
 
 //native mysql_close(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_close)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_close", "connection: %d", connection_id);
@@ -625,7 +625,7 @@ cell AMX_NATIVE_CALL Native::mysql_close(AMX* amx, cell* params)
 }
 
 //native mysql_reconnect(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_reconnect)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_reconnect", "connection: %d", connection_id);
@@ -642,7 +642,7 @@ cell AMX_NATIVE_CALL Native::mysql_reconnect(AMX* amx, cell* params)
 }
 
 //native mysql_option(E_MYSQL_OPTION:type, value);
-cell AMX_NATIVE_CALL Native::mysql_option(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_option)
 {
 	const unsigned short option_type = params[1];
 	const int option_value = params[2];
@@ -662,7 +662,7 @@ cell AMX_NATIVE_CALL Native::mysql_option(AMX* amx, cell* params)
 }
 
 //native mysql_current_handle();
-cell AMX_NATIVE_CALL Native::mysql_current_handle(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_current_handle)
 {
 	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_current_handle", "");
 
@@ -675,7 +675,7 @@ cell AMX_NATIVE_CALL Native::mysql_current_handle(AMX* amx, cell* params)
 }
 
 //native mysql_unprocessed_queries(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::mysql_unprocessed_queries(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_unprocessed_queries", "connection: %d", connection_id);
@@ -689,7 +689,7 @@ cell AMX_NATIVE_CALL Native::mysql_unprocessed_queries(AMX* amx, cell* params)
 
 
 //native mysql_pquery(conhandle, query[], callback[], format[], {Float,_}:...);
-cell AMX_NATIVE_CALL Native::mysql_pquery(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_pquery)
 {
 	static const int ConstParamCount = 4;
 	const unsigned int connection_id = params[1];
@@ -731,7 +731,7 @@ cell AMX_NATIVE_CALL Native::mysql_pquery(AMX* amx, cell* params)
 }
 
 //native mysql_tquery(conhandle, query[], callback[], format[], {Float,_}:...);
-cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
 	static const int ConstParamCount = 4;
 	const unsigned int connection_id = params[1];
@@ -774,7 +774,7 @@ cell AMX_NATIVE_CALL Native::mysql_tquery(AMX* amx, cell* params)
 
 
 //native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
-cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_query)
 {
 	const unsigned int connection_id = params[1];
 	const char *query_str = NULL;
@@ -816,7 +816,7 @@ cell AMX_NATIVE_CALL Native::mysql_query(AMX* amx, cell* params)
 
 
 // native mysql_format(connectionHandle, output[], len, format[], {Float,_}:...);
-cell AMX_NATIVE_CALL Native::mysql_format(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_format)
 {
 	const unsigned int connection_id = params[1];
 	const size_t dest_len = (size_t)params[3];
@@ -1066,7 +1066,7 @@ cell AMX_NATIVE_CALL Native::mysql_format(AMX* amx, cell* params)
 }
 
 //native mysql_set_charset(charset[], connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::mysql_set_charset(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 {
 	const unsigned int connection_id = params[2];
 	const char *charset = NULL;
@@ -1085,7 +1085,7 @@ cell AMX_NATIVE_CALL Native::mysql_set_charset(AMX* amx, cell* params)
 }
 
 //native mysql_get_charset(destination[], connectionHandle = 1, max_len=sizeof(destination));
-cell AMX_NATIVE_CALL Native::mysql_get_charset(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 {
 	const unsigned int connection_id = params[2];
 	const unsigned int max_size = params[3];
@@ -1101,7 +1101,7 @@ cell AMX_NATIVE_CALL Native::mysql_get_charset(AMX* amx, cell* params)
 }
 
 //native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len=sizeof(destination));
-cell AMX_NATIVE_CALL Native::mysql_escape_string(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 {
 	const unsigned int connection_id = params[3];
 	const char *source_str = NULL;
@@ -1137,7 +1137,7 @@ cell AMX_NATIVE_CALL Native::mysql_escape_string(AMX* amx, cell* params)
 }
 
 //native mysql_stat(destination[], connectionHandle = 1, max_len=sizeof(destination));
-cell AMX_NATIVE_CALL Native::mysql_stat(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_stat)
 {
 	const unsigned int connection_id = params[2];
 	const unsigned int max_size = params[3];
@@ -1155,7 +1155,7 @@ cell AMX_NATIVE_CALL Native::mysql_stat(AMX* amx, cell* params)
 }
 
 //native mysql_errno(connectionHandle = 1);
-cell AMX_NATIVE_CALL Native::mysql_errno(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_errno)
 {
 	const unsigned int connection_id = params[1];
 	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_errno", "connection: %d", connection_id);
@@ -1168,7 +1168,7 @@ cell AMX_NATIVE_CALL Native::mysql_errno(AMX* amx, cell* params)
 }
 
 //native mysql_log(loglevel, logtype);
-cell AMX_NATIVE_CALL Native::mysql_log(AMX* amx, cell* params)
+AMX_DECLARE_NATIVE(Native::mysql_log)
 {
 	if(params[1] < 0)
 		return 0;
