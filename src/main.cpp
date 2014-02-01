@@ -56,79 +56,76 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 }
 
 
-#if defined __cplusplus
-extern "C"
-#endif
-const AMX_NATIVE_INFO MySQLNatives[] = 
+extern "C" const AMX_NATIVE_INFO native_list[] = 
 {
-	{"orm_create",						Native::orm_create},
-	{"orm_destroy",						Native::orm_destroy},
+	AMX_DEFINE_NATIVE(orm_create)
+	AMX_DEFINE_NATIVE(orm_destroy)
 
-	{"orm_errno",						Native::orm_errno},
+	AMX_DEFINE_NATIVE(orm_errno)
 	
-	{"orm_select",						Native::orm_select},
-	{"orm_update",						Native::orm_update},
-	{"orm_insert",						Native::orm_insert},
-	{"orm_delete",						Native::orm_delete},
+	AMX_DEFINE_NATIVE(orm_select)
+	AMX_DEFINE_NATIVE(orm_update)
+	AMX_DEFINE_NATIVE(orm_insert)
+	AMX_DEFINE_NATIVE(orm_delete)
 	
-	{"orm_save",						Native::orm_save},
+	AMX_DEFINE_NATIVE(orm_save)
 	
-	{"orm_apply_cache",					Native::orm_apply_cache},
+	AMX_DEFINE_NATIVE(orm_apply_cache)
 
-	{"orm_addvar",						Native::orm_addvar},
-	{"orm_delvar",						Native::orm_delvar},
-	{"orm_setkey",						Native::orm_setkey},
+	AMX_DEFINE_NATIVE(orm_addvar)
+	AMX_DEFINE_NATIVE(orm_delvar)
+	AMX_DEFINE_NATIVE(orm_setkey)
 
 
-	{"mysql_log",						Native::mysql_log}, 
-	{"mysql_connect",					Native::mysql_connect},
-	{"mysql_close",						Native::mysql_close},
-	{"mysql_reconnect",					Native::mysql_reconnect},
+	AMX_DEFINE_NATIVE(mysql_log)
+	AMX_DEFINE_NATIVE(mysql_connect)
+	AMX_DEFINE_NATIVE(mysql_close)
+	AMX_DEFINE_NATIVE(mysql_reconnect)
 	
-	{"mysql_unprocessed_queries",		Native::mysql_unprocessed_queries},
-	{"mysql_current_handle",			Native::mysql_current_handle},
-	{"mysql_option",					Native::mysql_option},
+	AMX_DEFINE_NATIVE(mysql_unprocessed_queries)
+	AMX_DEFINE_NATIVE(mysql_current_handle)
+	AMX_DEFINE_NATIVE(mysql_option)
 	
-	{"mysql_errno",						Native::mysql_errno},
-	{"mysql_escape_string",				Native::mysql_escape_string},
-	{"mysql_format",					Native::mysql_format},
-	{"mysql_pquery",					Native::mysql_pquery},
-	{"mysql_tquery",					Native::mysql_tquery},
-	{"mysql_query",						Native::mysql_query},
+	AMX_DEFINE_NATIVE(mysql_errno)
+	AMX_DEFINE_NATIVE(mysql_escape_string)
+	AMX_DEFINE_NATIVE(mysql_format)
+	AMX_DEFINE_NATIVE(mysql_pquery)
+	AMX_DEFINE_NATIVE(mysql_tquery)
+	AMX_DEFINE_NATIVE(mysql_query)
 	 
-	{"mysql_stat",						Native::mysql_stat},
-	{"mysql_get_charset",				Native::mysql_get_charset},
-	{"mysql_set_charset",				Native::mysql_set_charset},
+	AMX_DEFINE_NATIVE(mysql_stat)
+	AMX_DEFINE_NATIVE(mysql_get_charset)
+	AMX_DEFINE_NATIVE(mysql_set_charset)
 
 
-	{"cache_get_data",					Native::cache_get_data},
-	{"cache_get_row_count",				Native::cache_get_row_count},
-	{"cache_get_field_count",			Native::cache_get_field_count},
-	{"cache_get_field_name",			Native::cache_get_field_name},
+	AMX_DEFINE_NATIVE(cache_get_data)
+	AMX_DEFINE_NATIVE(cache_get_row_count)
+	AMX_DEFINE_NATIVE(cache_get_field_count)
+	AMX_DEFINE_NATIVE(cache_get_field_name)
 
-	{"cache_get_row",					Native::cache_get_row},
-	{"cache_get_row_int",				Native::cache_get_row_int},
-	{"cache_get_row_float",				Native::cache_get_row_float},
+	AMX_DEFINE_NATIVE(cache_get_row)
+	AMX_DEFINE_NATIVE(cache_get_row_int)
+	AMX_DEFINE_NATIVE(cache_get_row_float)
 
-	{"cache_get_field_content",			Native::cache_get_field_content},
-	{"cache_get_field_content_int",		Native::cache_get_field_content_int},
-	{"cache_get_field_content_float",	Native::cache_get_field_content_float},
+	AMX_DEFINE_NATIVE(cache_get_field_content)
+	AMX_DEFINE_NATIVE(cache_get_field_content_int)
+	AMX_DEFINE_NATIVE(cache_get_field_content_float)
 
-	{"cache_save",						Native::cache_save},
-	{"cache_delete",					Native::cache_delete},
-	{"cache_set_active",				Native::cache_set_active},
-	{"cache_is_valid",					Native::cache_is_valid},
+	AMX_DEFINE_NATIVE(cache_save)
+	AMX_DEFINE_NATIVE(cache_delete)
+	AMX_DEFINE_NATIVE(cache_set_active)
+	AMX_DEFINE_NATIVE(cache_is_valid)
 
-	{"cache_affected_rows",				Native::cache_affected_rows},
-	{"cache_insert_id",					Native::cache_insert_id},
-	{"cache_warning_count",				Native::cache_warning_count},
-	{0, 0}
+	AMX_DEFINE_NATIVE(cache_affected_rows)
+	AMX_DEFINE_NATIVE(cache_insert_id)
+	AMX_DEFINE_NATIVE(cache_warning_count)
+	{NULL, NULL}
 };
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) 
 {
 	CCallback::Get()->AddAmx(amx);
-	return amx_Register(amx, MySQLNatives, -1);
+	return amx_Register(amx, native_list, -1);
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) 
