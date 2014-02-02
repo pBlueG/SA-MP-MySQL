@@ -117,17 +117,28 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 			memcpy(mem_data[r], mysql_row, mem_row_size);
 
 			char *mem_row_offset = reinterpret_cast<char*>(mem_data[r] + static_cast<size_t>(num_fields + 1));
+			size_t last_valid_len = 0;
 			for (size_t f = 0; f != num_fields; ++f)
 			{
 				//correct the pointers of the copied mysql result data
-				if (mem_data[r][f] != NULL) //don't touch NULL values
+				if (&mem_data[r][f][0] != NULL) //don't touch NULL values
 				{
 					if (f != 0)
 					{
-						mem_row_offset += static_cast<size_t>(mysql_lengths[f - 1]);
-						if (mem_data[r][f - 1] != NULL) //if the row value isn't NULL
-							mem_row_offset += 1; //add length for '\0' delimiter
+						if(mem_data[r][f][0] != '\0')
+						{
+							mem_row_offset += static_cast<size_t>(mysql_lengths[f - 1] == 0 ? last_valid_len : mysql_lengths[f - 1]);
+							if(&mem_data[r][f - 1][0] == NULL || mem_data[r][f - 1][0] == '\0' || mysql_lengths[f - 1] != 0)
+								if((mem_row_offset+1)[0] != '\0')
+									mem_row_offset += 1;
+						}
+						else
+							mem_row_offset += last_valid_len;
 					}
+					if(mysql_lengths[f] != 0)
+						last_valid_len = mysql_lengths[f];
+					else if(mem_data[r][f][0] == '\0')
+						last_valid_len = 1;
 
 					mem_data[r][f] = mem_row_offset;
 				}
