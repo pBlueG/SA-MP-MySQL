@@ -38,6 +38,9 @@ public:
 	//escape a string to dest
 	void EscapeString(const char *src, string &dest);
 
+	//set character set
+	void SetCharset(const char *charset);
+
 	inline MYSQL *GetMysqlPtr()
 	{
 		return m_Connection;
