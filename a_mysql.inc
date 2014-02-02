@@ -23,7 +23,7 @@
 #define CR_COMMAND_OUT_OF_SYNC 			2014
 #define CR_SERVER_LOST_EXTENDED 		2055
 
-enum //log levels
+enum E_LOGLEVEL//log levels
 {
 	LOG_NONE = 0,
 	LOG_ERROR = 1,
@@ -33,19 +33,19 @@ enum //log levels
 	LOG_ALL = LOG_ERROR | LOG_WARNING | LOG_DEBUG
 };
 
-enum //log types
+enum E_LOGTYPE//log types
 {
 	LOG_TYPE_TEXT = 1,
 	LOG_TYPE_HTML = 2
 };
 
-enum ORM_Error 
+enum ORM_Error
 {
 	ERROR_OK,
 	ERROR_NO_DATA
 };
 
-enum VarDatatype 
+enum E_VAR_DATATYPE 
 {
 	DATATYPE_INT,
 	DATATYPE_FLOAT,
@@ -114,7 +114,7 @@ native orm_delete(ORM:id, bool:clearvars=true);
 native orm_load(ORM:id, callback[] = "", format[] = "", {Float, _}:...) = orm_select;
 native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 
-native orm_addvar(ORM:id, &{Float, _}:var, VarDatatype:datatype, var_maxlen, varname[]);
+native orm_addvar(ORM:id, &{Float, _}:var, E_VAR_DATATYPE:datatype, var_maxlen, varname[]);
 /*
 native orm_addvar_int(ORM:id, &var, varname[]);
 native orm_addvar_float(ORM:id, &Float:var, varname[]);
@@ -128,7 +128,7 @@ native orm_setkey(ORM:id, varname[]);
 
 
 // MySQL natives
-native mysql_log(loglevel = LOG_ERROR | LOG_WARNING, logtype = LOG_TYPE_TEXT);
+native mysql_log(E_LOGLEVEL:loglevel = LOG_ERROR | LOG_WARNING, E_LOGTYPE:logtype = LOG_TYPE_TEXT);
 native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
 native mysql_close(connectionHandle = 1);
 native mysql_reconnect(connectionHandle = 1);
