@@ -575,6 +575,36 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 	return amx_ftoc(return_val);
 }
 
+// native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = UNIT_MICROSECONDS);
+AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
+{
+	const int time_unit = params[1];
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_query_exec_time", "unit: %d", time_unit);
+
+	if (CMySQLHandle::GetActiveHandle() == NULL)
+		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_query_exec_time", "no active cache");
+
+	if(time_unit != UNIT_MILLISECONDS && time_unit != UNIT_MICROSECONDS)
+		return CLog::Get()->LogFunction(LOG_ERROR, "cache_get_query_exec_time", "invalid unit");
+
+
+	return static_cast<cell>(CMySQLHandle::GetActiveHandle()->GetActiveResult()->GetQueryExecutionTime(time_unit));
+}
+
+// native cache_get_query_string(destination[], max_len = sizeof(destination));
+AMX_DECLARE_NATIVE(Native::cache_get_query_string)
+{
+	const int max_len = static_cast<int>(params[2]);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_query_string", "max_len: %d", max_len);
+
+	if (CMySQLHandle::GetActiveHandle() == NULL)
+		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_query_string", "no active cache");
+
+
+	amx_SetCString(amx, params[1], CMySQLHandle::GetActiveHandle()->GetActiveResult()->GetQueryString().c_str(), max_len);
+	return 1;
+}
+
 //native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
 AMX_DECLARE_NATIVE(Native::mysql_connect)
 {

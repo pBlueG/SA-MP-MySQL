@@ -78,6 +78,9 @@ namespace Native
 	AMX_DECLARE_NATIVE(cache_affected_rows);
 	AMX_DECLARE_NATIVE(cache_insert_id);
 	AMX_DECLARE_NATIVE(cache_warning_count);
+
+	AMX_DECLARE_NATIVE(cache_get_query_exec_time);
+	AMX_DECLARE_NATIVE(cache_get_query_string);
 };
 
 

@@ -117,6 +117,9 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(cache_affected_rows)
 	AMX_DEFINE_NATIVE(cache_insert_id)
 	AMX_DEFINE_NATIVE(cache_warning_count)
+
+	AMX_DEFINE_NATIVE(cache_get_query_exec_time)
+	AMX_DEFINE_NATIVE(cache_get_query_string)
 	{NULL, NULL}
 };
 
