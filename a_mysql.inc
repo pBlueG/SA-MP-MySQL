@@ -57,6 +57,12 @@ enum E_MYSQL_OPTION
 	DUPLICATE_CONNECTIONS
 };
 
+enum E_EXECTIME_UNIT
+{
+	UNIT_MILLISECONDS,
+	UNIT_MICROSECONDS
+};
+
 #define mysql_insert_id cache_insert_id
 #define mysql_affected_rows cache_affected_rows
 #define mysql_warning_count cache_warning_count
@@ -171,6 +177,9 @@ native cache_is_valid(Cache:cache_id, connectionHandle = 1);
 native cache_affected_rows(connectionHandle = 1);
 native cache_insert_id(connectionHandle = 1);
 native cache_warning_count(connectionHandle = 1);
+
+native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = UNIT_MICROSECONDS);
+native cache_get_query_string(destination[], max_len = sizeof(destination));
 
 
 // Forward declarations.

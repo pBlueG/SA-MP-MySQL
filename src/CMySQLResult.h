@@ -52,6 +52,18 @@ public:
 		return m_WarningCount;
 	}
 
+
+	inline unsigned int GetQueryExecutionTime(unsigned int unit) const
+	{
+		return m_ExecTime[unit];
+	}
+
+	inline const string &GetQueryString() const
+	{
+		return m_Query;
+	}
+
+
 	CMySQLResult();
 	~CMySQLResult();
 private:
@@ -67,6 +79,15 @@ private:
 		m_AffectedRows;
 
 	unsigned int m_WarningCount;
+
+	string m_Query;
+	unsigned int m_ExecTime[2];
+};
+
+enum E_EXECTIME_UNIT
+{
+	UNIT_MILLISECONDS,
+	UNIT_MICROSECONDS
 };
 
 

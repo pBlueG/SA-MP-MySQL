@@ -5,9 +5,13 @@
 
 #include "misc.h"
 
+#include <boost/chrono.hpp>
+namespace chrono = boost::chrono;
+
 
 bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 {
+	bool ret_val = false;
 	char log_funcname[64];
 	if (Unthreaded)
 		sprintf(log_funcname, "CMySQLQuery::Execute");
@@ -16,24 +20,39 @@ bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 
 	CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "starting query execution");
 
-
-	if (mysql_real_query(mysql_connection, Query.c_str(), Query.length()) == 0)
+	chrono::steady_clock::time_point query_exec = chrono::steady_clock::now();
+	int query_error = mysql_real_query(mysql_connection, Query.c_str(), Query.length());
+	chrono::steady_clock::duration query_exec_duration = chrono::steady_clock::now() - query_exec;
+	
+	if (query_error == 0)
 	{
-		CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "query was successful");
+		unsigned int 
+			query_exec_time_milli = static_cast<unsigned int>(chrono::duration_cast<chrono::milliseconds>(query_exec_duration).count()),
+			query_exec_time_micro = static_cast<unsigned int>(chrono::duration_cast<chrono::microseconds>(query_exec_duration).count());
+
+		CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "query was successfully executed within %d.%d milliseconds", query_exec_time_milli, query_exec_time_micro-(query_exec_time_milli*1000));
 
 		MYSQL_RES *mysql_result = mysql_store_result(mysql_connection); //this has to be here
 
 		//why should we process the result if it won't and can't be used?
 		if (Unthreaded || Callback.Name.length() > 0)
+		{
 			if (StoreResult(mysql_connection, mysql_result) == false)
 				CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "an error occured while storing the result: (error #%d) \"%s\"", mysql_errno(mysql_connection), mysql_error(mysql_connection));
+			else
+			{
+				Result->m_Query = Query;
+				Result->m_ExecTime[UNIT_MILLISECONDS] = query_exec_time_milli;
+				Result->m_ExecTime[UNIT_MICROSECONDS] = query_exec_time_micro;
+			}
+		}
 		else  //no callback was specified
 			CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "no callback specified, skipping result saving");
 
 		if (mysql_result != NULL)
 			mysql_free_result(mysql_result);
 
-		return true;
+		ret_val = true;
 	}
 	else  //mysql_real_query failed
 	{
@@ -64,8 +83,10 @@ bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 
 			CLog::Get()->LogFunction(LOG_DEBUG, log_funcname, "error will be triggered in OnQueryError");
 		}
-		return false;
+		ret_val = false;
 	}
+
+	return ret_val;
 }
 
 
