@@ -7,10 +7,14 @@
 #include <boost/atomic.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
+#include <boost/function.hpp>
+#include <boost/thread/mutex.hpp>
+#include <queue>
 
 using std::string;
 using boost::atomic;
 using boost::thread;
+using boost::function;
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -24,7 +28,7 @@ class CMySQLQuery;
 class CMySQLConnection
 {
 public:
-	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect);
+	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect, bool unthreaded = false);
 	void Destroy();
 
 	//(dis)connect to the MySQL server
@@ -51,32 +55,21 @@ public:
 
 private: //functions
 	void ProcessQueries();
+	inline void CloseThread()
+	{
+		m_QueryThreadRunning = false;
+		m_QueryThread.join();
+	}
 
 private: //variables
-	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect)
-		: 
-		m_QueryThread(boost::bind(&CMySQLConnection::ProcessQueries, this)),
-		m_QueryThreadRunning(true),
-
-		m_Shutdown(false),
-		m_QueueEmpty(true),
-
-		m_Host(host),
-		m_User(user),
-		m_Passw(passw),
-		m_Database(db),
-		m_Port(port),
-
-		m_IsConnected(false),
-		m_AutoReconnect(auto_reconnect),
-
-		m_Connection(NULL)
-	{}
+	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect, bool unthreaded);
 	~CMySQLConnection();
 
 
 	thread m_QueryThread;
 	atomic<bool> m_QueryThreadRunning;
+
+	atomic<bool> m_IsUnthreaded;
 
 	boost::lockfree::spsc_queue<
 		CMySQLQuery *,
@@ -84,9 +77,8 @@ private: //variables
 		boost::lockfree::capacity<16876>
 	> m_QueryQueue;
 
-	atomic<bool> 
-		m_Shutdown,
-		m_QueueEmpty;
+	boost::mutex m_FuncQueueMtx;
+	std::queue<function<void()> > m_FuncQueue;
 
 
 	//MySQL server login values

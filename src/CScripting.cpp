@@ -600,7 +600,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 	
 
 	CMySQLHandle *Handle = CMySQLHandle::Create(host, user, pass != NULL ? pass : "", db, port, pool_size, auto_reconnect);
-	Handle->ExecuteOnConnections(&CMySQLConnection::Connect);
+	Handle->ExecuteOnConnections(boost::bind(&CMySQLConnection::Connect, _1));
 
 	return static_cast<cell>(Handle->GetID());
 }
@@ -617,7 +617,7 @@ AMX_DECLARE_NATIVE(Native::mysql_close)
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
 	
-	Handle->ExecuteOnConnections(&CMySQLConnection::Disconnect);
+	Handle->ExecuteOnConnections(boost::bind(&CMySQLConnection::Disconnect, _1));
 	Handle->Destroy();
 
 	CCallback::Get()->ClearByHandle(Handle);
@@ -636,8 +636,8 @@ AMX_DECLARE_NATIVE(Native::mysql_reconnect)
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
 
-	Handle->ExecuteOnConnections(&CMySQLConnection::Disconnect);
-	Handle->ExecuteOnConnections(&CMySQLConnection::Connect);
+	Handle->ExecuteOnConnections(boost::bind(&CMySQLConnection::Disconnect, _1));
+	Handle->ExecuteOnConnections(boost::bind(&CMySQLConnection::Connect, _1));
 	return 1;
 }
 

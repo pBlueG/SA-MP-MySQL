@@ -6,10 +6,12 @@
 #include <string>
 #include <boost/unordered_map.hpp>
 #include <set>
+#include <boost/function.hpp>
 
 using std::string;
 using boost::unordered_map;
 using std::set;
+using boost::function;
 
 
 class CMySQLQuery;
@@ -29,7 +31,7 @@ public:
 	{
 		return m_MainConnection;
 	}
-	void ExecuteOnConnections(void (CMySQLConnection::*func)());
+	void ExecuteOnConnections(function<void (CMySQLConnection *)> func);
 	void QueueQuery(CMySQLQuery *query, bool use_pool = false);
 
 
