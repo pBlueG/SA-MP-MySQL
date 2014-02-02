@@ -109,13 +109,13 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 		for (size_t r = 0; r != num_rows; ++r)
 		{
 			mysql_row = mysql_fetch_row(mysql_result);
-			unsigned long *mysql_lengths = mysql_fetch_lengths(mysql_result);
 
 			//copy mysql result data to our location
 			mem_data[r] = mem_offset;
 			mem_offset += mem_row_size / sizeof(char**);
 			memcpy(mem_data[r], mysql_row, mem_row_size);
 
+			//correct the pointers of the copied mysql result data
 			for (size_t f = 0; f != num_fields; ++f)
 			{
 				if(mysql_row[f] == NULL)
