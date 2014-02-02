@@ -5,10 +5,10 @@
 #include "CMySQLResult.h"
 #include "COrm.h"
 #include "CLog.h"
-
 #include "misc.h"
 
 #include <queue>
+
 
 CCallback *CCallback::m_Instance = new CCallback;
 

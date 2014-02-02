@@ -1,5 +1,3 @@
-#pragma once
-
 #include "main.h"
 #include "CScripting.h"
 #include "CMySQLHandle.h"

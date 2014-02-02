@@ -32,7 +32,7 @@ CMySQLHandle::~CMySQLHandle()
 	for (unordered_map<unsigned int, CMySQLResult*>::iterator it = m_SavedResults.begin(), end = m_SavedResults.end(); it != end; it++)
 		delete it->second;
 	
-	ExecuteOnConnections(&CMySQLConnection::Destroy);
+	ExecuteOnConnections(boost::bind(&CMySQLConnection::Destroy, _1));
 
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::~CMySQLHandle", "deconstructor called");
 }
@@ -42,7 +42,7 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
 
 	CMySQLHandle *handle = NULL;
-	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect);
+	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect, true);
 
 	if (MySQLOptions.DuplicateConnections == false && SQLHandle.size() > 0) 
 	{
@@ -99,17 +99,17 @@ void CMySQLHandle::Destroy()
 	delete this;
 }
 
-void CMySQLHandle::ExecuteOnConnections(void (CMySQLConnection::*func)())
+void CMySQLHandle::ExecuteOnConnections(function<void (CMySQLConnection *)> func)
 {
 	if (m_MainConnection != NULL)
-		(m_MainConnection->*func)();
+		func(m_MainConnection);
 	
 	if (m_ThreadConnection != NULL)
-		(m_ThreadConnection->*func)();
+		func(m_ThreadConnection);
 	
 	
-	for(set<CMySQLConnection*>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
-		((*c)->*func)();
+	for(set<CMySQLConnection *>::iterator c = m_ConnectionPool.begin(), end = m_ConnectionPool.end(); c != end; ++c)
+		func(*c);
 }
 
 void CMySQLHandle::QueueQuery(CMySQLQuery *query, bool use_pool /*= false*/)
