@@ -116,16 +116,16 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 
 
 		size_t
-			mem_head_size = sizeof(char**)* static_cast<size_t>(num_rows),
-			mem_row_size = (sizeof(char*)* (num_fields + 1)) + ((row_data_size)* sizeof(char));
+			mem_head_size = sizeof(char **) * static_cast<size_t>(num_rows),
+			mem_row_size = (sizeof(char *) * (num_fields + 1)) + ((row_data_size) * sizeof(char));
 		//+1 because there is another value in memory pointing to somewhere
 		//mem_row_size has to be a multiple of 8
 		while (mem_row_size % 8 != 0)
 			mem_row_size++;
 
-		const size_t mem_size = mem_head_size + static_cast<size_t>(num_rows)* mem_row_size;
-		char ***mem_data = result_ptr->m_Data = static_cast<char***>(malloc(mem_size));
-		char **mem_offset = reinterpret_cast<char**>(&mem_data[num_rows]);
+		const size_t mem_size = mem_head_size + static_cast<size_t>(num_rows) * mem_row_size;
+		char ***mem_data = result_ptr->m_Data = static_cast<char ***>(malloc(mem_size));
+		char **mem_offset = reinterpret_cast<char **>(&mem_data[num_rows]);
 
 		for (size_t r = 0; r != num_rows; ++r)
 		{
@@ -133,7 +133,7 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 
 			//copy mysql result data to our location
 			mem_data[r] = mem_offset;
-			mem_offset += mem_row_size / sizeof(char**);
+			mem_offset += mem_row_size / sizeof(char **);
 			memcpy(mem_data[r], mysql_row, mem_row_size);
 
 			//correct the pointers of the copied mysql result data
@@ -141,8 +141,8 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 			{
 				if(mysql_row[f] == NULL)
 					continue;
-				size_t dist = mysql_row[f] - reinterpret_cast<char*>(mysql_row);
-				mem_data[r][f] = reinterpret_cast<char*>(mem_data[r]) + dist;
+				size_t dist = mysql_row[f] - reinterpret_cast<char *>(mysql_row);
+				mem_data[r][f] = reinterpret_cast<char *>(mem_data[r]) + dist;
 			}
 		}
 		return true;
@@ -162,5 +162,4 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 		Callback.Name.clear();
 		return false;
 	}
-
 }
