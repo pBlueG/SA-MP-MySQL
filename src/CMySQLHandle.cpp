@@ -42,7 +42,7 @@ CMySQLHandle *CMySQLHandle::Create(string host, string user, string pass, string
 	CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLHandle::Create", "creating new connection..");
 
 	CMySQLHandle *handle = NULL;
-	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect, true);
+	CMySQLConnection *main_connection = CMySQLConnection::Create(host, user, pass, db, port, reconnect, false);
 
 	if (MySQLOptions.DuplicateConnections == false && SQLHandle.size() > 0) 
 	{

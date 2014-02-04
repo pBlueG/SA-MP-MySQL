@@ -15,6 +15,7 @@ using std::string;
 using boost::atomic;
 using boost::thread;
 using boost::function;
+using std::queue;
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -28,7 +29,7 @@ class CMySQLQuery;
 class CMySQLConnection
 {
 public:
-	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect, bool unthreaded = false);
+	static CMySQLConnection *Create(string &host, string &user, string &passwd, string &db, size_t port, bool auto_reconnect, bool threaded = true);
 	void Destroy();
 
 	//(dis)connect to the MySQL server
@@ -58,21 +59,14 @@ public:
 
 private: //functions
 	void ProcessQueries();
-	inline void CloseThread()
-	{
-		m_QueryThreadRunning = false;
-		m_QueryThread.join();
-	}
 
 private: //variables
-	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect, bool unthreaded);
+	CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect, bool threaded);
 	~CMySQLConnection();
 
 
-	thread m_QueryThread;
+	thread *m_QueryThread;
 	atomic<bool> m_QueryThreadRunning;
-
-	atomic<bool> m_IsUnthreaded;
 
 	boost::lockfree::spsc_queue<
 		CMySQLQuery *,
@@ -81,7 +75,7 @@ private: //variables
 	> m_QueryQueue;
 
 	boost::mutex m_FuncQueueMtx;
-	std::queue<function<void()> > m_FuncQueue;
+	queue<function<void()> > m_FuncQueue;
 
 
 	//MySQL server login values
