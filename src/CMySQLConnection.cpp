@@ -9,9 +9,9 @@ namespace chrono = boost::chrono;
 namespace this_thread = boost::this_thread;
 
 
-CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect, bool unthreaded /*= false*/)
+CMySQLConnection *CMySQLConnection::Create(string &host, string &user, string &passwd, string &db, unsigned int port, bool auto_reconnect, bool threaded /*= true*/)
 {
-	return new CMySQLConnection(host, user, passwd, db, port, auto_reconnect, unthreaded);
+	return new CMySQLConnection(host, user, passwd, db, port, auto_reconnect, threaded);
 }
 
 void CMySQLConnection::Destroy()
@@ -21,12 +21,10 @@ void CMySQLConnection::Destroy()
 	delete this;
 }
 
-CMySQLConnection::CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect, bool unthreaded)
+CMySQLConnection::CMySQLConnection(string &host, string &user, string &passw, string &db, size_t port, bool auto_reconnect, bool threaded)
 	: 
 	m_QueryThreadRunning(true),
-	m_QueryThread(boost::bind(&CMySQLConnection::ProcessQueries, this)),
-		
-	m_IsUnthreaded(unthreaded),
+	m_QueryThread(NULL),
 
 	m_Host(host),
 	m_User(user),
@@ -39,15 +37,17 @@ CMySQLConnection::CMySQLConnection(string &host, string &user, string &passw, st
 
 	m_Connection(NULL)
 {
-	if(unthreaded)
-		CloseThread();
+	if(threaded)
+		m_QueryThread = new thread(boost::bind(&CMySQLConnection::ProcessQueries, this));
 }
 
 CMySQLConnection::~CMySQLConnection()
 {
-	if(!m_IsUnthreaded)
+	if(m_QueryThread != NULL)
 	{
-		CloseThread();
+		m_QueryThreadRunning = false;
+		m_QueryThread->join();
+		delete m_QueryThread;
 	
 		CMySQLQuery *query = NULL;
 		while(m_QueryQueue.pop(query))
@@ -57,7 +57,7 @@ CMySQLConnection::~CMySQLConnection()
 
 void CMySQLConnection::Connect()
 {
-	if(!m_IsUnthreaded && this_thread::get_id() != m_QueryThread.get_id()) //not in query thread and threaded: queue
+	if(m_QueryThread != NULL && this_thread::get_id() != m_QueryThread->get_id()) //not in query thread and threaded: queue
 	{
 		boost::lock_guard<boost::mutex> lockguard(m_FuncQueueMtx);
 		m_FuncQueue.push(boost::bind(&CMySQLConnection::Connect, this));
@@ -94,7 +94,7 @@ void CMySQLConnection::Connect()
 
 void CMySQLConnection::Disconnect()
 {
-	if(!m_IsUnthreaded && this_thread::get_id() != m_QueryThread.get_id()) //not in query thread and threaded: queue
+	if(m_QueryThread != NULL && this_thread::get_id() != m_QueryThread->get_id()) //not in query thread and threaded: queue
 	{
 		boost::lock_guard<boost::mutex> lockguard(m_FuncQueueMtx);
 		m_FuncQueue.push(boost::bind(&CMySQLConnection::Disconnect, this));
@@ -129,7 +129,7 @@ void CMySQLConnection::EscapeString(const char *src, string &dest)
 
 void CMySQLConnection::SetCharset(const char *charset)
 {
-	if(!m_IsUnthreaded && this_thread::get_id() != m_QueryThread.get_id()) //not in query thread and threaded: queue
+	if(m_QueryThread != NULL && this_thread::get_id() != m_QueryThread->get_id()) //not in query thread and threaded: queue
 	{
 		boost::lock_guard<boost::mutex> lockguard(m_FuncQueueMtx);
 		m_FuncQueue.push(boost::bind(&CMySQLConnection::SetCharset, this, charset));
