@@ -1,5 +1,5 @@
 /**
- * MySQL plugin R36
+ * MySQL plugin R36-2
  */
 
 #if defined mysql_included
