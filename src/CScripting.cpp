@@ -95,7 +95,8 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
 	OrmObject->GenerateSelectQuery(query->Query);
-
+	
+	query->Handle = Handle;
 	query->Orm.Object = OrmObject;
 	query->Orm.Type = ORM_QUERYTYPE_SELECT;
 	
@@ -118,7 +119,8 @@ AMX_DECLARE_NATIVE(Native::orm_update)
 	CMySQLQuery *query = new CMySQLQuery;
 
 	OrmObject->GenerateUpdateQuery(query->Query);
-
+	
+	query->Handle = Handle;
 	query->Orm.Object = OrmObject;
 	query->Orm.Type = ORM_QUERYTYPE_UPDATE;
 
@@ -154,7 +156,8 @@ AMX_DECLARE_NATIVE(Native::orm_insert)
 		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
 	OrmObject->GenerateInsertQuery(query->Query);
-
+	
+	query->Handle = Handle;
 	query->Orm.Object = OrmObject;
 	query->Orm.Type = ORM_QUERYTYPE_INSERT;
 
@@ -178,7 +181,8 @@ AMX_DECLARE_NATIVE(Native::orm_delete)
 	CMySQLQuery *query = new CMySQLQuery;
 
 	OrmObject->GenerateDeleteQuery(query->Query);
-
+	
+	query->Handle = Handle;
 	query->Orm.Object = OrmObject;
 	query->Orm.Type = ORM_QUERYTYPE_DELETE;
 
@@ -215,7 +219,8 @@ AMX_DECLARE_NATIVE(Native::orm_save)
 	query->Callback.Name = (cb_name != NULL ? cb_name : string());
 	if (cb_format != NULL)
 		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
-
+	
+	query->Handle = Handle;
 	query->Orm.Object = OrmObject;
 	query->Orm.Type = OrmObject->GenerateSaveQuery(query->Query);
 
