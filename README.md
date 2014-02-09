@@ -28,6 +28,9 @@ A: That likely means that you are using a 64bit system and thus a 64bit libmysql
 Q: *The plugin just fails to load on Windows, how can I fix this?*  
 A: You have to install the Microsoft C++ redistributables ([2010 (x86)](http://www.microsoft.com/en-us/download/details.aspx?id=5555), [2010 SP1 (x86)](http://www.microsoft.com/en-us/download/details.aspx?id=8328) and [2012 (x86)](http://www.microsoft.com/en-us/download/details.aspx?id=30679)).
 
+Q: *I get a ton of debug messages regarding connections even though I'm calling* `mysql_connect` *only once, why is that so?*  
+A: That's because the plugin uses multiple direct database connections per connection handle. The number of direct connections (and thus the number of those log messages) is 2+pool_size.  
+
 Compiling notes
 ---------------
 #### Windows
