@@ -101,15 +101,15 @@ void CMySQLConnection::Disconnect()
 	}
 	else //in query thread or unthreaded: execute
 	{
-		if (m_Connection != NULL && !m_IsConnected)
+		if (m_Connection == NULL || m_IsConnected == false)
+			CLog::Get()->LogFunction(LOG_WARNING, "CMySQLConnection::Disconnect", "no connection available");
+		else
 		{
 			mysql_close(m_Connection);
 			m_Connection = NULL;
 			m_IsConnected = false;
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::Disconnect", "connection was closed");
 		}
-		else
-			CLog::Get()->LogFunction(LOG_WARNING, "CMySQLConnection::Disconnect", "no connection available");
 	}
 }
 
