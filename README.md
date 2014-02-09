@@ -14,6 +14,10 @@ You'll have to edit the server configuration (*server.cfg*) as follows:
 #### Linux
 <pre>plugins mysql.so</pre>
 
+
+mysql.so is library for MySQL version 5.1 and that version is the minimum supported version on all Linux distributions. The libmysqlclient18 is for version 5.5 and there is also a precompiled plugin binary for that: mysql_5.5.so
+
+
 Compiling notes
 ---------------
 #### Windows
