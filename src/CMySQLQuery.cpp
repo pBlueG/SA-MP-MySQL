@@ -86,6 +86,7 @@ bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 		ret_val = false;
 	}
 
+	Handle->DecreaseQueryCounter();
 	return ret_val;
 }
 

@@ -7,11 +7,13 @@
 #include <boost/unordered_map.hpp>
 #include <set>
 #include <boost/function.hpp>
+#include <boost/atomic.hpp>
 
 using std::string;
 using boost::unordered_map;
 using std::set;
 using boost::function;
+using boost::atomic;
 
 
 class CMySQLQuery;
@@ -101,7 +103,7 @@ private:
 	static unordered_map<unsigned int, CMySQLHandle *> SQLHandle;
 
 
-	unsigned int m_QueryCounter;
+	atomic<unsigned int> m_QueryCounter;
 
 	unordered_map<unsigned int, CMySQLResult*> m_SavedResults;
 
