@@ -32,7 +32,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	
 	CLog::Get()->Initialize("mysql_log.txt"); 
 
-	logprintf(" >> plugin.mysql: R36-2 successfully loaded.");
+	logprintf(" >> plugin.mysql: R37 successfully loaded.");
 	return true;
 }
 
