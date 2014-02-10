@@ -71,7 +71,6 @@ void CCallback::ProcessCallbacks()
 						query->Callback.Params.pop();
 					}
 
-					query->Handle->DecreaseQueryCounter();
 					query->Handle->SetActiveResult(query->Result);
 
 					cell amx_ret;
