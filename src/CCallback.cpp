@@ -72,6 +72,7 @@ void CCallback::ProcessCallbacks()
 					}
 
 					query->Handle->SetActiveResult(query->Result);
+					query->Result = NULL;
 
 					cell amx_ret;
 					amx_Exec(amx, &amx_ret, amx_index);
