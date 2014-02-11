@@ -163,8 +163,7 @@ void CMySQLConnection::ProcessQueries()
 						Connect();
 					}
 				}
-				else
-					CCallback::Get()->QueueQuery(query);
+				CCallback::Get()->QueueQuery(query);
 			}
 		}
 		
