@@ -63,8 +63,7 @@ AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 	if(!COrm::IsValid(orm_id))
 		return ERROR_INVALID_ORM_ID("orm_apply_cache", orm_id);
 
-	COrm::GetOrm(orm_id)->ApplyActiveResult(row_idx);
-	return 1;
+	return COrm::GetOrm(orm_id)->ApplyActiveResult(row_idx) ? 1 : 0;
 }
 
 //native orm_select(ORM:id, callback[], format[], {Float, _}:...);
@@ -90,18 +89,24 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
 	CMySQLQuery *query = new CMySQLQuery;
 
-	query->Callback.Name = (cb_name != NULL ? cb_name : string());
-	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
+	if(OrmObject->GenerateSelectQuery(query->Query))
+	{
+		query->Callback.Name = (cb_name != NULL ? cb_name : string());
+		if (cb_format != NULL)
+			CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
 
-	OrmObject->GenerateSelectQuery(query->Query);
+		query->Handle = Handle;
+		query->Orm.Object = OrmObject;
+		query->Orm.Type = ORM_QUERYTYPE_SELECT;
 	
-	query->Handle = Handle;
-	query->Orm.Object = OrmObject;
-	query->Orm.Type = ORM_QUERYTYPE_SELECT;
-	
-	Handle->QueueQuery(query);
-	return 1;
+		Handle->QueueQuery(query);
+		return 1;
+	}
+	else
+	{
+		delete query;
+		return 0;
+	}
 }
 
 //native orm_update(ORM:id);
@@ -118,14 +123,20 @@ AMX_DECLARE_NATIVE(Native::orm_update)
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
 	CMySQLQuery *query = new CMySQLQuery;
 
-	OrmObject->GenerateUpdateQuery(query->Query);
-	
-	query->Handle = Handle;
-	query->Orm.Object = OrmObject;
-	query->Orm.Type = ORM_QUERYTYPE_UPDATE;
+	if(OrmObject->GenerateUpdateQuery(query->Query))
+	{
+		query->Handle = Handle;
+		query->Orm.Object = OrmObject;
+		query->Orm.Type = ORM_QUERYTYPE_UPDATE;
 
-	Handle->QueueQuery(query);
-	return 1;
+		Handle->QueueQuery(query);
+		return 1;
+	}
+	else
+	{
+		delete query;
+		return 0;
+	}
 }
 
 //native orm_insert(ORM:id, callback[]="", format[]="", {Float, _}:...);
@@ -151,18 +162,24 @@ AMX_DECLARE_NATIVE(Native::orm_insert)
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
 	CMySQLQuery *query = new CMySQLQuery;
 
-	query->Callback.Name = (cb_name != NULL ? cb_name : string());
-	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
+	if(OrmObject->GenerateInsertQuery(query->Query))
+	{
+		query->Callback.Name = (cb_name != NULL ? cb_name : string());
+		if (cb_format != NULL)
+			CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
+		
+		query->Handle = Handle;
+		query->Orm.Object = OrmObject;
+		query->Orm.Type = ORM_QUERYTYPE_INSERT;
 
-	OrmObject->GenerateInsertQuery(query->Query);
-	
-	query->Handle = Handle;
-	query->Orm.Object = OrmObject;
-	query->Orm.Type = ORM_QUERYTYPE_INSERT;
-
-	Handle->QueueQuery(query);
-	return 1;
+		Handle->QueueQuery(query);
+		return 1;
+	}
+	else
+	{
+		delete query;
+		return 0;
+	}
 }
 
 //native orm_delete(ORM:id, bool:clearvars=true);
@@ -180,17 +197,24 @@ AMX_DECLARE_NATIVE(Native::orm_delete)
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
 	CMySQLQuery *query = new CMySQLQuery;
 
-	OrmObject->GenerateDeleteQuery(query->Query);
+	if(OrmObject->GenerateDeleteQuery(query->Query))
+	{
+		query->Handle = Handle;
+		query->Orm.Object = OrmObject;
+		query->Orm.Type = ORM_QUERYTYPE_DELETE;
+
+		Handle->QueueQuery(query);
+
+		if(clear_vars == true)
+			OrmObject->ClearVariableValues();
 	
-	query->Handle = Handle;
-	query->Orm.Object = OrmObject;
-	query->Orm.Type = ORM_QUERYTYPE_DELETE;
-
-	Handle->QueueQuery(query);
-
-	if(clear_vars == true)
-		OrmObject->ClearVariableValues();
-	return 1;
+		return 1;
+	}
+	else
+	{
+		delete query;
+		return 0;
+	}
 }
 
 //native orm_save(ORM:id, callback[]="", format[]="", {Float, _}:...);
@@ -216,16 +240,25 @@ AMX_DECLARE_NATIVE(Native::orm_save)
 	CMySQLHandle *Handle = OrmObject->GetConnectionHandle();
 	CMySQLQuery *query = new CMySQLQuery;
 
-	query->Callback.Name = (cb_name != NULL ? cb_name : string());
-	if (cb_format != NULL)
-		CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
-	
-	query->Handle = Handle;
-	query->Orm.Object = OrmObject;
-	query->Orm.Type = OrmObject->GenerateSaveQuery(query->Query);
 
-	Handle->QueueQuery(query);
-	return 1;
+	query->Orm.Type = OrmObject->GenerateSaveQuery(query->Query);
+	if(query->Orm.Type != ORM_QUERYTYPE_INVALID)
+	{
+		query->Callback.Name = (cb_name != NULL ? cb_name : string());
+		if (cb_format != NULL)
+			CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
+	
+		query->Handle = Handle;
+		query->Orm.Object = OrmObject;
+
+		Handle->QueueQuery(query);
+		return 1;
+	}
+	else
+	{
+		delete query;
+		return 0;
+	}
 }
 
 //native orm_addvar(ORM:id, &{Float, _}:var, var_datatype:datatype, var_maxlen, varname[]);
@@ -251,8 +284,7 @@ AMX_DECLARE_NATIVE(Native::orm_addvar)
 		return CLog::Get()->LogFunction(LOG_ERROR, "orm_addvar", "invalid variable length specified");
 
 
-	COrm::GetOrm(orm_id)->AddVariable(var_name, var_address, var_datatype, var_maxlen);
-	return 1;
+	return COrm::GetOrm(orm_id)->AddVariable(var_name, var_address, var_datatype, var_maxlen) ? 1 : 0;
 }
 
 //native orm_delvar(ORM:id, varname[]);
@@ -266,7 +298,8 @@ AMX_DECLARE_NATIVE(Native::orm_delvar)
 	if(!COrm::IsValid(orm_id))
 		return ERROR_INVALID_ORM_ID("orm_delvar", orm_id);
 
-	return COrm::GetOrm(orm_id)->RemoveVariable(var_name);
+
+	return COrm::GetOrm(orm_id)->RemoveVariable(var_name) ? 1 : 0;
 }
 
 //native orm_setkey(ORM:id, varname[]);
@@ -280,12 +313,11 @@ AMX_DECLARE_NATIVE(Native::orm_setkey)
 	if(!COrm::IsValid(orm_id))
 		return ERROR_INVALID_ORM_ID("orm_setkey", orm_id);
 
+	if(var_name == NULL)
+		return CLog::Get()->LogFunction(LOG_ERROR, "orm_setkey", "empty variable name specified");
+	
 
-	if(var_name != NULL)
-		COrm::GetOrm(orm_id)->SetVariableAsKey(var_name);
-	else
-		CLog::Get()->LogFunction(LOG_ERROR, "orm_setkey", "empty variable name specified");
-	return 1;
+	return COrm::GetOrm(orm_id)->SetVariableAsKey(var_name) ? 1 : 0;
 }
 
 

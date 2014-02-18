@@ -41,21 +41,21 @@ public:
 		return OrmHandle.at(id);
 	}
 
-	void ApplyActiveResult(unsigned int row);
+	bool ApplyActiveResult(unsigned int row);
 
-	void GenerateSelectQuery(string &dest);
+	bool GenerateSelectQuery(string &dest);
 	void ApplySelectResult(CMySQLResult *result);
-	void GenerateUpdateQuery(string &dest);
-	void GenerateInsertQuery(string &dest);
+	bool GenerateUpdateQuery(string &dest);
+	bool GenerateInsertQuery(string &dest);
 	void ApplyInsertResult(CMySQLResult *result);
-	void GenerateDeleteQuery(string &dest);
+	bool GenerateDeleteQuery(string &dest);
 	unsigned short GenerateSaveQuery(string &dest);
 
 	void ClearVariableValues();
 
-	void AddVariable(const char *varname, cell *address, unsigned short datatype, size_t len=0);
+	bool AddVariable(const char *varname, cell *address, unsigned short datatype, size_t len=0);
 	bool RemoveVariable(const char *varname);
-	void SetVariableAsKey(const char *varname);
+	bool SetVariableAsKey(const char *varname);
 
 	inline CMySQLHandle *GetConnectionHandle() const 
 	{
@@ -114,7 +114,9 @@ enum ORM_ERROR
 
 enum ORM_QUERYTYPE 
 {
-	ORM_QUERYTYPE_SELECT=1,
+	ORM_QUERYTYPE_INVALID,
+
+	ORM_QUERYTYPE_SELECT,
 	ORM_QUERYTYPE_UPDATE,
 	ORM_QUERYTYPE_INSERT,
 	ORM_QUERYTYPE_DELETE,
