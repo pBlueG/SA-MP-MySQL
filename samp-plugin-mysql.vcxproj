@@ -46,11 +46,9 @@
     <IncludePath>D:\boost_1_55_0;include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;lib;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mysql</TargetName>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <IncludePath>D:\boost_1_55_0;include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\</OutDir>
@@ -70,7 +68,6 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(TargetPath)" "D:\sa-mp\mysql-plugin\plugins\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,7 +94,6 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(TargetPath)" "D:\sa-mp\mysql-plugin\plugins\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
