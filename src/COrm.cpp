@@ -63,16 +63,28 @@ void COrm::Destroy()
 }
 
 
-void COrm::ApplyActiveResult(unsigned int row) 
+bool COrm::ApplyActiveResult(unsigned int row) 
 {
+	if(m_ConnHandle == NULL)
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::ApplyActiveResult", "invalid connection handle");
+		return false;
+	}
+
 	CMySQLResult *result = m_ConnHandle->GetActiveResult();
 	
 	m_ErrorID = ORM_ERROR_NO_DATA;
 	if(result == NULL)
-		return (void)CLog::Get()->LogFunction(LOG_ERROR, "COrm::ApplyActiveResult", "no active result");
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::ApplyActiveResult", "no active result");
+		return false;
+	}
 
 	if(row >= result->GetRowCount())
-		return (void)CLog::Get()->LogFunction(LOG_ERROR, "COrm::ApplyActiveResult", "invalid row specified");
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::ApplyActiveResult", "invalid row specified");
+		return false;
+	}
 
 	m_ErrorID = ORM_ERROR_OK;
 	for(size_t v=0; v < m_Vars.size(); ++v) 
@@ -123,11 +135,18 @@ void COrm::ApplyActiveResult(unsigned int row)
 				amx_SetString(m_KeyVar->Address, key_data, 0, 0, m_KeyVar->MaxLen);
 		}
 	}
-
+	return true;
 }
 
-void COrm::GenerateSelectQuery(string &dest) 
+bool COrm::GenerateSelectQuery(string &dest) 
 {
+	if(m_ConnHandle == NULL || m_KeyVar == NULL)
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::GenerateSelectQuery", "invalid key or connection handle");
+		return false;
+	}
+	
+
 	vector<const char*> field_names;
 	for(vector<SVarInfo *>::iterator v = m_Vars.begin(), end = m_Vars.end(); v != end; ++v)
 		field_names.push_back( (*v)->Name.c_str() );
@@ -154,6 +173,7 @@ void COrm::GenerateSelectQuery(string &dest)
 		lit("SELECT `") << karma::string % "`,`" << lit("` FROM `") << lit(m_TableName) << lit("` WHERE `") << lit(m_KeyVar->Name) << lit("`='") << auto_ << lit("' LIMIT 1"), 
 		field_names, key_value
 	);
+	return true;
 }
 
 void COrm::ApplySelectResult(CMySQLResult *result) 
@@ -189,8 +209,15 @@ void COrm::ApplySelectResult(CMySQLResult *result)
 	}
 }
 
-void COrm::GenerateUpdateQuery(string &dest) 
+bool COrm::GenerateUpdateQuery(string &dest) 
 {
+	if(m_ConnHandle == NULL || m_KeyVar == NULL)
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::GenerateUpdateQuery", "invalid key or connection handle");
+		return false;
+	}
+	
+
 	ostringstream str_format;
 	char str_buf[4096];
 
@@ -236,11 +263,19 @@ void COrm::GenerateUpdateQuery(string &dest)
 
 	str_format << str_buf;
 	dest = str_format.str();
+	return true;
 }
 
 
-void COrm::GenerateInsertQuery(string &dest) 
+bool COrm::GenerateInsertQuery(string &dest) 
 {
+	if(m_ConnHandle == NULL)
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::GenerateInsertQuery", "invalid connection handle");
+		return false;
+	}
+	
+	
 	vector<const char*> field_names;
 	vector<VarType> vars;
 	for(vector<SVarInfo *>::iterator v = m_Vars.begin(), end = m_Vars.end(); v != end; ++v) 
@@ -270,10 +305,11 @@ void COrm::GenerateInsertQuery(string &dest)
 		lit("INSERT INTO `") << lit(m_TableName) << lit("` (`") <<  karma::string % "`,`" << lit("`) VALUES ('") << auto_ % "','" << lit("')"),
 		field_names, vars
 	);
+	return true;
 }
 
 void COrm::ApplyInsertResult(CMySQLResult *result) 
-{
+{	
 	if(result == NULL || result->InsertID() == 0)
 		m_ErrorID = ORM_ERROR_NO_DATA;
 	else 
@@ -289,8 +325,15 @@ void COrm::ApplyInsertResult(CMySQLResult *result)
 	}
 }
 
-void COrm::GenerateDeleteQuery(string &dest) 
+bool COrm::GenerateDeleteQuery(string &dest) 
 {
+	if(m_ConnHandle == NULL || m_KeyVar == NULL)
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::GenerateDeleteQuery", "invalid key or connection handle");
+		return false;
+	}
+	
+	
 	char str_buf[512];
 	
 	if(m_KeyVar->Datatype == DATATYPE_INT)
@@ -304,10 +347,18 @@ void COrm::GenerateDeleteQuery(string &dest)
 		sprintf(str_buf, "DELETE FROM `%s` WHERE `%s`='%s' LIMIT 1", m_TableName.c_str(), m_KeyVar->Name.c_str(), escaped_str.c_str());
 	}
 	dest = str_buf;
+	return true;
 }
 
 unsigned short COrm::GenerateSaveQuery(string &dest) 
 {
+	if(m_ConnHandle == NULL || m_KeyVar == NULL)
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::GenerateSaveQuery", "invalid key or connection handle");
+		return ORM_QUERYTYPE_INVALID;
+	}
+	
+	
 	bool has_valid_key_value = false;
 	if(m_KeyVar->Datatype == DATATYPE_STRING) 
 	{
@@ -333,17 +384,26 @@ unsigned short COrm::GenerateSaveQuery(string &dest)
 
 
 
-void COrm::AddVariable(const char *varname, cell *address, unsigned short datatype, size_t len) 
+bool COrm::AddVariable(const char *varname, cell *address, unsigned short datatype, size_t len) 
 {
 	if(varname == NULL || address == NULL)
-		return ;
+	{
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::AddVariable", "invalid variable name or address");
+		return false;
+	}
 
 	//abort variable saving if there is already one with same name
 	for(vector<SVarInfo *>::iterator v = m_Vars.begin(), end = m_Vars.end(); v != end; ++v)
+	{
 		if((*v)->Name.compare(varname) == 0)
-			return ;
+		{
+			CLog::Get()->LogFunction(LOG_ERROR, "COrm::AddVariable", "variable has already been saved");
+			return false;
+		}
+	}
 	
 	m_Vars.push_back( new SVarInfo(varname, address, datatype, len) );
+	return true;
 }
 
 bool COrm::RemoveVariable(const char *varname)
@@ -370,13 +430,12 @@ bool COrm::RemoveVariable(const char *varname)
 	return false;
 }
 
-void COrm::SetVariableAsKey(const char *varname) 
+bool COrm::SetVariableAsKey(const char *varname) 
 {
-	//move key if there is one
-	if(m_KeyVar != NULL) 
+	if(m_KeyVar != NULL && m_KeyVar->Name.compare(varname) == 0)
 	{
-		m_Vars.push_back(m_KeyVar);
-		m_KeyVar = NULL;
+		CLog::Get()->LogFunction(LOG_ERROR, "COrm::SetVariableAsKey", "variable is already set as key");
+		return false;
 	}
 
 	//set new key
@@ -386,10 +445,15 @@ void COrm::SetVariableAsKey(const char *varname)
 		if(key_var->Name.compare(varname) == 0) 
 		{
 			m_Vars.erase(m_Vars.begin()+i);
+			if(m_KeyVar != NULL)  //move key if there is one
+				m_Vars.push_back(m_KeyVar);
 			m_KeyVar = key_var;
-			break;
+			return true;
 		}
 	}
+
+	CLog::Get()->LogFunction(LOG_ERROR, "COrm::SetVariableAsKey", "variable not found");
+	return false;
 }
 
 COrm::~COrm() 
@@ -420,8 +484,11 @@ void COrm::ClearVariableValues()
 		}
 	}
 	//also clear key variable
-	if(m_KeyVar->Datatype == DATATYPE_STRING)
-		amx_SetString(m_KeyVar->Address, "", 0, 0, m_KeyVar->MaxLen);
-	else //DATATYPE_INT
-		(*(m_KeyVar->Address)) = 0;
+	if(m_KeyVar != NULL)
+	{
+		if(m_KeyVar->Datatype == DATATYPE_STRING)
+			amx_SetString(m_KeyVar->Address, "", 0, 0, m_KeyVar->MaxLen);
+		else //DATATYPE_INT
+			(*(m_KeyVar->Address)) = 0;
+	}
 }
