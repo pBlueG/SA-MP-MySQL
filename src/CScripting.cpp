@@ -1196,7 +1196,10 @@ AMX_DECLARE_NATIVE(Native::mysql_errno)
 	CLog::Get()->LogFunction(LOG_DEBUG, "mysql_errno", "connection: %d", connection_id);
 
 	if(!CMySQLHandle::IsValid(connection_id))
-		return ERROR_INVALID_CONNECTION_HANDLE("mysql_errno", connection_id);
+	{
+		ERROR_INVALID_CONNECTION_HANDLE("mysql_errno", connection_id);
+		return -1; //don't return 0 since it means that there are no errors
+	}
 
 
 	return static_cast<cell>(mysql_errno(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMysqlPtr()));
