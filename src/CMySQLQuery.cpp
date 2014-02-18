@@ -86,7 +86,8 @@ bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 		ret_val = false;
 	}
 
-	Handle->DecreaseQueryCounter();
+	if(Unthreaded == false) //decrease counter only if threaded query
+		Handle->DecreaseQueryCounter();
 	return ret_val;
 }
 
