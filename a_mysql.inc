@@ -191,18 +191,11 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 			g_MySQL_LazyInit = false;
 		}
 		
-		new InlineData[E_CALLBACK_DATA];
-		if (Callback_Get(CB, InlineData))
-		{
-			for(new i=0; i < sizeof(g_MySQL_InlineData); ++i) 
-			{
-				if(g_MySQL_InlineData[i][E_CALLBACK_DATA_POINTER] == 0) 
-				{
-					g_MySQL_InlineData[i] = InlineData;
+		for(new i=0; i < sizeof(g_MySQL_InlineData); ++i)
+			if(g_MySQL_InlineData[i][E_CALLBACK_DATA_POINTER] == 0)
+				if (Callback_Get(CB, g_MySQL_InlineData[i]))
 					return i;
-				}
-			}
-		}
+					
 		return -1;
 	}
 	
