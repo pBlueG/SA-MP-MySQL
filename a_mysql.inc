@@ -192,7 +192,7 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 		}
 		
 		for(new i=0; i < sizeof(g_MySQL_InlineData); ++i)
-			if(g_MySQL_InlineData[i][E_CALLBACK_DATA_POINTER] == 0)
+			if(_:g_MySQL_InlineData[i][E_CALLBACK_DATA_POINTER] == 0)
 				if (Callback_Get(CB, g_MySQL_InlineData[i]))
 					return i;
 					
