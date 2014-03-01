@@ -55,7 +55,7 @@ CMySQLConnection::~CMySQLConnection()
 	}
 }
 
-void CMySQLConnection::Connect()
+bool CMySQLConnection::Connect()
 {
 	if(m_QueryThread != NULL && this_thread::get_id() != m_QueryThread->get_id()) //not in query thread and threaded: queue
 	{
@@ -90,9 +90,10 @@ void CMySQLConnection::Connect()
 			m_IsConnected = true;
 		}
 	}
+	return true;
 }
 
-void CMySQLConnection::Disconnect()
+bool CMySQLConnection::Disconnect()
 {
 	if(m_QueryThread != NULL && this_thread::get_id() != m_QueryThread->get_id()) //not in query thread and threaded: queue
 	{
@@ -101,6 +102,9 @@ void CMySQLConnection::Disconnect()
 	}
 	else //in query thread or unthreaded: execute
 	{
+		if (!m_QueryQueue.empty())
+			return false;
+		
 		if (m_Connection == NULL || m_IsConnected == false)
 			CLog::Get()->LogFunction(LOG_WARNING, "CMySQLConnection::Disconnect", "no connection available");
 		else
@@ -111,9 +115,10 @@ void CMySQLConnection::Disconnect()
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::Disconnect", "connection was closed");
 		}
 	}
+	return true;
 }
 
-void CMySQLConnection::EscapeString(const char *src, string &dest)
+bool CMySQLConnection::EscapeString(const char *src, string &dest)
 {
 	if (src != NULL && m_IsConnected)
 	{
@@ -125,9 +130,10 @@ void CMySQLConnection::EscapeString(const char *src, string &dest)
 
 		free(tmpEscapedStr);
 	}
+	return true;
 }
 
-void CMySQLConnection::SetCharset(string charset)
+bool CMySQLConnection::SetCharset(string charset)
 {
 	if(m_QueryThread != NULL && this_thread::get_id() != m_QueryThread->get_id()) //not in query thread and threaded: queue
 	{
@@ -148,6 +154,7 @@ void CMySQLConnection::SetCharset(string charset)
 		else
 			CLog::Get()->LogFunction(LOG_ERROR, "CMySQLConnection::SetCharset", "invalid charset (\"%s\") or not connected", charset.c_str());
 	}
+	return true;
 }
 
 void CMySQLConnection::ProcessQueries()
@@ -155,6 +162,16 @@ void CMySQLConnection::ProcessQueries()
 	mysql_thread_init();
 	while(m_QueryThreadRunning)
 	{
+		vector<function<bool()> > tmp_queue;
+		m_FuncQueueMtx.lock();
+		while (m_FuncQueue.size() > 0)
+		{
+			if (m_FuncQueue.front()() == false)
+				tmp_queue.push_back(m_FuncQueue.front());
+			m_FuncQueue.pop();
+		}
+		m_FuncQueueMtx.unlock();
+
 		if(m_IsConnected)
 		{
 			CMySQLQuery *query;
@@ -177,13 +194,10 @@ void CMySQLConnection::ProcessQueries()
 				CCallback::Get()->QueueQuery(query);
 			}
 		}
-		
+
 		m_FuncQueueMtx.lock();
-		while(m_FuncQueue.size() > 0)
-		{
-			m_FuncQueue.front()();
-			m_FuncQueue.pop();
-		}
+		for (size_t i = 0; i < tmp_queue.size(); ++i)
+			m_FuncQueue.push(tmp_queue.at(i));
 		m_FuncQueueMtx.unlock();
 
 		this_thread::sleep_for(chrono::milliseconds(10));

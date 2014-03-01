@@ -33,14 +33,14 @@ public:
 	void Destroy();
 
 	//(dis)connect to the MySQL server
-	void Connect();
-	void Disconnect();
+	bool Connect();
+	bool Disconnect();
 
 	//escape a string to dest
-	void EscapeString(const char *src, string &dest);
+	bool EscapeString(const char *src, string &dest);
 
 	//set character set
-	void SetCharset(string charset);
+	bool SetCharset(string charset);
 
 	inline MYSQL *GetMysqlPtr()
 	{
@@ -75,7 +75,7 @@ private: //variables
 	> m_QueryQueue;
 
 	boost::mutex m_FuncQueueMtx;
-	queue<function<void()> > m_FuncQueue;
+	queue<function<bool()> > m_FuncQueue;
 
 
 	//MySQL server login values
