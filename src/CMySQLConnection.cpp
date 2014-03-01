@@ -136,10 +136,17 @@ void CMySQLConnection::SetCharset(string charset)
 	}
 	else //in query thread or unthreaded: execute
 	{
+		CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::SetCharset", "setting charset \"%s\"", charset.c_str());
 		if (m_IsConnected && !charset.empty())
 		{
 			int error = mysql_set_character_set(m_Connection, charset.c_str());
+			if (error == 0)
+				CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::SetCharset", "charset \"%s\" has been set", charset.c_str());
+			else
+				CLog::Get()->LogFunction(LOG_ERROR, "CMySQLConnection::SetCharset", "error %d: %s", error, mysql_error(m_Connection));
 		}
+		else
+			CLog::Get()->LogFunction(LOG_ERROR, "CMySQLConnection::SetCharset", "invalid charset (\"%s\") or not connected", charset.c_str());
 	}
 }
 
