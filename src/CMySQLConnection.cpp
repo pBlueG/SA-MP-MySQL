@@ -127,7 +127,7 @@ void CMySQLConnection::EscapeString(const char *src, string &dest)
 	}
 }
 
-void CMySQLConnection::SetCharset(const char *charset)
+void CMySQLConnection::SetCharset(string charset)
 {
 	if(m_QueryThread != NULL && this_thread::get_id() != m_QueryThread->get_id()) //not in query thread and threaded: queue
 	{
@@ -135,8 +135,12 @@ void CMySQLConnection::SetCharset(const char *charset)
 		m_FuncQueue.push(boost::bind(&CMySQLConnection::SetCharset, this, charset));
 	}
 	else //in query thread or unthreaded: execute
-		if(m_IsConnected && charset != NULL)
-			mysql_set_character_set(m_Connection, charset);
+	{
+		if (m_IsConnected && !charset.empty())
+		{
+			int error = mysql_set_character_set(m_Connection, charset.c_str());
+		}
+	}
 }
 
 void CMySQLConnection::ProcessQueries()
