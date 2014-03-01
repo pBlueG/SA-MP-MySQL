@@ -1147,7 +1147,7 @@ AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_set_charset", connection_id);
 
 
-	CMySQLHandle::GetHandle(connection_id)->ExecuteOnConnections(boost::bind(&CMySQLConnection::SetCharset, _1, charset));
+	CMySQLHandle::GetHandle(connection_id)->ExecuteOnConnections(boost::bind(&CMySQLConnection::SetCharset, _1, string(charset)));
 	return 1;
 }
 

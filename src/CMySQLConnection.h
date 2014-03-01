@@ -40,7 +40,7 @@ public:
 	void EscapeString(const char *src, string &dest);
 
 	//set character set
-	void SetCharset(const char *charset);
+	void SetCharset(string charset);
 
 	inline MYSQL *GetMysqlPtr()
 	{
