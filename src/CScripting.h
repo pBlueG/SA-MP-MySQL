@@ -29,7 +29,9 @@ namespace Native
 	
 	AMX_DECLARE_NATIVE(orm_apply_cache);
 
-	AMX_DECLARE_NATIVE(orm_addvar);
+	AMX_DECLARE_NATIVE(orm_addvar_int);
+	AMX_DECLARE_NATIVE(orm_addvar_float);
+	AMX_DECLARE_NATIVE(orm_addvar_string);
 	AMX_DECLARE_NATIVE(orm_delvar);
 	AMX_DECLARE_NATIVE(orm_setkey);
 

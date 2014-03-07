@@ -261,30 +261,62 @@ AMX_DECLARE_NATIVE(Native::orm_save)
 	}
 }
 
-//native orm_addvar(ORM:id, &{Float, _}:var, var_datatype:datatype, var_maxlen, varname[]);
-AMX_DECLARE_NATIVE(Native::orm_addvar)
+//native orm_addvar_int(ORM:id, &var, varname[]);
+AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 {
 	const char *var_name = NULL;
 	cell *var_address = NULL;
 
 	const unsigned int orm_id = params[1];
 	amx_GetAddr(amx, params[2], &var_address);
-	const unsigned short var_datatype = static_cast<unsigned short>(params[3]);
-	const unsigned int var_maxlen = params[4];
-	amx_StrParam(amx, params[5], var_name);
-	CLog::Get()->LogFunction(LOG_DEBUG, "orm_addvar", "orm_id: %d, var: %p, datatype: %d, varname: \"%s\", var_maxlen: %d", orm_id, var_address, var_datatype, var_name, var_maxlen);
+	amx_StrParam(amx, params[3], var_name);
+	CLog::Get()->LogFunction(LOG_DEBUG, "orm_addvar_int", "orm_id: %d, var: %p, varname: \"%s\"", orm_id, var_address, var_name);
 
-	if(!COrm::IsValid(orm_id))
-		return ERROR_INVALID_ORM_ID("orm_addvar", orm_id);
-
-	if(var_datatype != DATATYPE_INT && var_datatype != DATATYPE_FLOAT && var_datatype != DATATYPE_STRING)
-		return CLog::Get()->LogFunction(LOG_ERROR, "orm_addvar", "unknown datatype specified");
-
-	if(var_maxlen <= 0)
-		return CLog::Get()->LogFunction(LOG_ERROR, "orm_addvar", "invalid variable length specified");
+	if (!COrm::IsValid(orm_id))
+		return ERROR_INVALID_ORM_ID("orm_addvar_int", orm_id);
 
 
-	return COrm::GetOrm(orm_id)->AddVariable(var_name, var_address, var_datatype, var_maxlen) ? 1 : 0;
+	return COrm::GetOrm(orm_id)->AddVariable(var_name, var_address, DATATYPE_INT) ? 1 : 0;
+}
+
+//native orm_addvar_float(ORM:id, &Float:var, varname[]);
+AMX_DECLARE_NATIVE(Native::orm_addvar_float)
+{
+	const char *var_name = NULL;
+	cell *var_address = NULL;
+
+	const unsigned int orm_id = params[1];
+	amx_GetAddr(amx, params[2], &var_address);
+	amx_StrParam(amx, params[3], var_name);
+	CLog::Get()->LogFunction(LOG_DEBUG, "orm_addvar_float", "orm_id: %d, var: %p, varname: \"%s\"", orm_id, var_address, var_name);
+
+	if (!COrm::IsValid(orm_id))
+		return ERROR_INVALID_ORM_ID("orm_addvar_float", orm_id);
+
+
+	return COrm::GetOrm(orm_id)->AddVariable(var_name, var_address, DATATYPE_FLOAT) ? 1 : 0;
+}
+
+//native orm_addvar_string(ORM:id, var[], var_maxlen, varname[]);
+AMX_DECLARE_NATIVE(Native::orm_addvar_string)
+{
+	const char *var_name = NULL;
+	cell *var_address = NULL;
+
+	const unsigned int orm_id = params[1];
+	amx_GetAddr(amx, params[2], &var_address);
+	const int var_maxlen = params[3];
+	amx_StrParam(amx, params[4], var_name);
+	CLog::Get()->LogFunction(LOG_DEBUG, "orm_addvar_string", "orm_id: %d, var: %p, var_maxlen: %d, varname: \"%s\"", orm_id, var_address, var_maxlen, var_name);
+
+	if (!COrm::IsValid(orm_id))
+		return ERROR_INVALID_ORM_ID("orm_addvar_string", orm_id);
+
+	if (var_maxlen <= 0)
+		return CLog::Get()->LogFunction(LOG_ERROR, "orm_addvar_string", "invalid variable length specified");
+
+
+	return COrm::GetOrm(orm_id)->AddVariable(var_name, var_address, DATATYPE_STRING, static_cast<size_t>(var_maxlen)) ? 1 : 0;
 }
 
 //native orm_delvar(ORM:id, varname[]);

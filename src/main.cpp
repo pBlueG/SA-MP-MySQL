@@ -70,7 +70,9 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	
 	AMX_DEFINE_NATIVE(orm_apply_cache)
 
-	AMX_DEFINE_NATIVE(orm_addvar)
+	AMX_DEFINE_NATIVE(orm_addvar_int)
+	AMX_DEFINE_NATIVE(orm_addvar_float)
+	AMX_DEFINE_NATIVE(orm_addvar_string)
 	AMX_DEFINE_NATIVE(orm_delvar)
 	AMX_DEFINE_NATIVE(orm_setkey)
 
