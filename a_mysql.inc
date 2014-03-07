@@ -97,15 +97,10 @@ native orm_delete(ORM:id, bool:clearvars=true);
 native orm_load(ORM:id, callback[] = "", format[] = "", {Float, _}:...) = orm_select;
 native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 
-native orm_addvar(ORM:id, &{Float, _}:var, E_VAR_DATATYPE:datatype, var_maxlen, varname[]);
-/*
 native orm_addvar_int(ORM:id, &var, varname[]);
 native orm_addvar_float(ORM:id, &Float:var, varname[]);
-native orm_addvar_string(ORM:id, &var, var_maxlen, varname[]);
-*/
-#define orm_addvar_int(%0,%1,%2) orm_addvar(%0,%1,DATATYPE_INT,1,%2)
-#define orm_addvar_float(%0,%1,%2) orm_addvar(%0,%1,DATATYPE_FLOAT,1,%2)
-#define orm_addvar_string(%0,%1,%2,%3) orm_addvar(%0,%1,DATATYPE_STRING,%2,%3)
+native orm_addvar_string(ORM:id, var[], var_maxlen, varname[]);
+
 native orm_delvar(ORM:id, varname[]);
 native orm_setkey(ORM:id, varname[]);
 
