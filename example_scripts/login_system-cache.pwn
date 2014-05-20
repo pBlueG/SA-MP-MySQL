@@ -26,7 +26,7 @@ forward OnPlayerRegister(playerid);
 #define SQL_PASS "password"
 
 //MySQL connection handle
-new SQL = -1;
+new g_SQL = -1;
 
 //player data
 enum E_PLAYERS
@@ -42,20 +42,28 @@ enum E_PLAYERS
 	LoginTimer
 };
 new Player[MAX_PLAYERS][E_PLAYERS];
-new MysqlRaceCheck[MAX_PLAYERS];
+
+new g_MysqlRaceCheck[MAX_PLAYERS];
 
 //dialog data
-enum {
+enum 
+{
+	DIALOG_INVALID,
 	DIALOG_UNUSED,
 	
 	DIALOG_LOGIN,
 	DIALOG_REGISTER,
 };
 
+
+/*
+ * SA-MP callbacks
+ */
+
 public OnGameModeInit()
 {
 	mysql_log(LOG_ERROR | LOG_WARNING, LOG_TYPE_HTML); //logs errors and warnings into a nice .html log file
-	SQL = mysql_connect(SQL_HOST, SQL_USER, SQL_DB, SQL_PASS);
+	g_SQL = mysql_connect(SQL_HOST, SQL_USER, SQL_DB, SQL_PASS);
 	
 	SetupPlayerTable();
 	return 1;
@@ -74,7 +82,7 @@ public OnGameModeExit()
 
 public OnPlayerConnect(playerid)
 {
-	MysqlRaceCheck[playerid]++;
+	g_MysqlRaceCheck[playerid]++;
 	//reset player data
 	for(new E_PLAYERS:e; e < E_PLAYERS; ++e)
 	    Player[playerid][e] = 0;
@@ -83,8 +91,8 @@ public OnPlayerConnect(playerid)
 	GetPlayerName(playerid, Player[playerid][Name], MAX_PLAYER_NAME);
 
 	//send a query to recieve all the stored player data from the table
-	mysql_format(SQL, query, sizeof(query), "SELECT * FROM `players` WHERE `username` = '%e' LIMIT 1", Player[playerid][Name]);
-	mysql_tquery(SQL, query, "OnPlayerDataLoaded", "dd", playerid, MysqlRaceCheck[playerid]);
+	mysql_format(g_SQL, query, sizeof(query), "SELECT * FROM `players` WHERE `username` = '%e' LIMIT 1", Player[playerid][Name]);
+	mysql_tquery(g_SQL, query, "OnPlayerDataLoaded", "dd", playerid, g_MysqlRaceCheck[playerid]);
 	return 1;
 }
 
@@ -101,7 +109,7 @@ public OnPlayerDataLoaded(playerid, race_check)
 		then we check if current connection count is the same as connection count we passed to the callback
 		if yes, everything is okay, if not, we just kick the player
 	*/
-	if(race_check != MysqlRaceCheck[playerid])
+	if(race_check != g_MysqlRaceCheck[playerid])
 	    return Kick(playerid);
 	
 	
@@ -125,6 +133,9 @@ public OnPlayerDataLoaded(playerid, race_check)
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 {
+	if(dialogid == DIALOG_INVALID || dialogid == DIALOG_UNUSED)
+		return 1;
+
 	switch(dialogid)
 	{
 	    case DIALOG_LOGIN:
@@ -174,8 +185,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					
 			new query[256];
 			WP_Hash(Player[playerid][Password], 129, inputtext);
-			mysql_format(SQL, query, sizeof(query), "INSERT INTO `players` (`username`, `password`) VALUES ('%e', '%s')", Player[playerid][Name], Player[playerid][Password]);
-			mysql_tquery(SQL, query, "OnPlayerRegister", "d", playerid);
+			mysql_format(g_SQL, query, sizeof(query), "INSERT INTO `players` (`username`, `password`) VALUES ('%e', '%s')", Player[playerid][Name], Player[playerid][Password]);
+			mysql_tquery(g_SQL, query, "OnPlayerRegister", "d", playerid);
 	    }
 	    
 	    default:
@@ -201,45 +212,48 @@ public OnPlayerSpawn(playerid)
 {
 	ResetPlayerMoney(playerid);
 	GivePlayerMoney(playerid, Player[playerid][Money]);
-	
 	return 1;
 }
 
 public OnPlayerDisconnect(playerid,reason)
 {
-    MysqlRaceCheck[playerid]++;
+    g_MysqlRaceCheck[playerid]++;
 	UpdatePlayerData(playerid);
 	return 1;
 }
 
 
-stock AssignPlayerData(playerid)
+/*
+ * functions
+ */
+
+AssignPlayerData(playerid)
 {
 	Player[playerid][ID] = cache_get_field_content_int(0, "id");
-	cache_get_field_content(0, "password", Player[playerid][Password], SQL, 129);
+	cache_get_field_content(0, "password", Player[playerid][Password], g_SQL, 129);
 	Player[playerid][Money] = cache_get_field_content_int(0, "money");
 	return 1;
 }
 
-stock UpdatePlayerData(playerid)
+UpdatePlayerData(playerid)
 {
 	if(Player[playerid][IsLoggedIn] == false)
 	    return 0;
 	    
-	new query[256];
-	mysql_format(SQL, query, sizeof(query), "UPDATE `players` SET `money` = '%d' WHERE `id` = '%d' LIMIT 1", Player[playerid][Money], Player[playerid][ID]);
-	mysql_tquery(SQL, query, "", "");
+	new query[128];
+	mysql_format(g_SQL, query, sizeof(query), "UPDATE `players` SET `money` = '%d' WHERE `id` = '%d' LIMIT 1", Player[playerid][Money], Player[playerid][ID]);
+	mysql_tquery(g_SQL, query);
 	return 1;
 }
 
-stock SetupPlayerTable()
+SetupPlayerTable()
 {
-	mysql_query(SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL auto_increment PRIMARY KEY,`username` varchar(30) NOT NULL,`password` varchar(130) NOT NULL,`money` int(10) NOT NULL default '0')", false);
+	mysql_query(g_SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL auto_increment PRIMARY KEY,`username` varchar(30) NOT NULL,`password` varchar(130) NOT NULL,`money` int(10) NOT NULL default '0')", false);
 	return 1;
 }
 
 
-stock DelayedKick(playerid, time=500)
+DelayedKick(playerid, time=500)
 {
 	SetTimerEx("_KickPlayerDelayed", time, false, "d", playerid);
 	return 1;
@@ -253,4 +267,3 @@ public _KickPlayerDelayed(playerid)
 }
 
 main() {}
-
