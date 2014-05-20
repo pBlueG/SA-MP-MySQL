@@ -753,7 +753,7 @@ AMX_DECLARE_NATIVE(Native::mysql_option)
 		case DUPLICATE_CONNECTIONS:
 			MySQLOptions.DuplicateConnections = (option_value != 0);
 			break;
-		case LOG_TRUNCATE_QUERIES:
+		case LOG_TRUNCATE_DATA:
 			MySQLOptions.Log_TruncateData = (option_value != 0);
 			break;
 		default:
