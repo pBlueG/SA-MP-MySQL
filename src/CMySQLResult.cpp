@@ -2,6 +2,7 @@
 
 #include "CLog.h"
 #include "CMySQLResult.h"
+#include "CMySQLHandle.h"
 
 
 const char *CMySQLResult::GetFieldName(unsigned int idx)
@@ -25,7 +26,7 @@ const char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
 		if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 		{
 			string ShortenDest(m_Data[row][fieldidx] != NULL ? m_Data[row][fieldidx] : "NULL");
-			if(ShortenDest.length() > 1024)
+			if (MySQLOptions.Log_TruncateData && ShortenDest.length() > 1024)
 				ShortenDest.resize(1024);
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetRowData", "row: '%d', field: '%d', data: \"%s\"", row, fieldidx, ShortenDest.c_str());
 			
@@ -61,7 +62,7 @@ const char *CMySQLResult::GetRowDataByName(unsigned int row, const char *field)
 			if(CLog::Get()->IsLogLevel(LOG_DEBUG)) 
 			{
 				string ShortenDest(m_Data[row][i] != NULL ? m_Data[row][i] : "NULL");
-				if(ShortenDest.length() > 1024)
+				if (MySQLOptions.Log_TruncateData && ShortenDest.length() > 1024)
 					ShortenDest.resize(1024);
 				CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLResult::GetRowDataByName", "row: '%d', field: \"%s\", data: \"%s\"", row, field, ShortenDest.c_str());
 			}

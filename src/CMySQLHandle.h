@@ -122,9 +122,11 @@ private:
 struct CMySQLOptions
 {
 	CMySQLOptions() :
-		DuplicateConnections(false)
+		DuplicateConnections(false),
+		Log_TruncateData(true)
 	{}
 	bool DuplicateConnections;
+	bool Log_TruncateData;
 };
 extern struct CMySQLOptions MySQLOptions;
 
@@ -138,7 +140,8 @@ enum E_DATATYPE
 
 enum E_MYSQL_OPTION	
 {
-	DUPLICATE_CONNECTIONS
+	DUPLICATE_CONNECTIONS,
+	LOG_TRUNCATE_DATA
 };
 
 
