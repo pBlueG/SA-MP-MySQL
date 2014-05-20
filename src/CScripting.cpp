@@ -753,6 +753,9 @@ AMX_DECLARE_NATIVE(Native::mysql_option)
 		case DUPLICATE_CONNECTIONS:
 			MySQLOptions.DuplicateConnections = (option_value != 0);
 			break;
+		case LOG_TRUNCATE_QUERIES:
+			MySQLOptions.Log_TruncateData = (option_value != 0);
+			break;
 		default:
 			return CLog::Get()->LogFunction(LOG_ERROR, "mysql_option", "invalid option");
 	}
@@ -804,7 +807,8 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 	if (CLog::Get()->IsLogLevel(LOG_DEBUG))
 	{
 		string short_query(query_str == NULL ? "" : query_str);
-		short_query.resize(64);
+		if (MySQLOptions.Log_TruncateData)
+			short_query.resize(64);
 		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_pquery", "connection: %d, query: \"%s\", callback: \"%s\", format: \"%s\"", connection_id, short_query.c_str(), cb_name, cb_format);
 	}
 
@@ -846,7 +850,8 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	if(CLog::Get()->IsLogLevel(LOG_DEBUG))
 	{
 		string short_query(query_str == NULL ? "" : query_str);
-		short_query.resize(64);
+		if (MySQLOptions.Log_TruncateData)
+			short_query.resize(64);
 		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_tquery", "connection: %d, query: \"%s\", callback: \"%s\", format: \"%s\"", connection_id, short_query.c_str(), cb_name, cb_format);
 	}
 
@@ -883,7 +888,8 @@ AMX_DECLARE_NATIVE(Native::mysql_query)
 	if(CLog::Get()->IsLogLevel(LOG_DEBUG))
 	{
 		string short_query(query_str == NULL ? "" : query_str);
-		short_query.resize(64);
+		if (MySQLOptions.Log_TruncateData)
+			short_query.resize(64);
 		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_query", "connection: %d, query: \"%s\", use_cache: %s", connection_id, short_query.c_str(), use_cache == true ? "true" : "false");
 	}
 
