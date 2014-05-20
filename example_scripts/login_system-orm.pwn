@@ -26,7 +26,7 @@ forward OnPlayerRegister(playerid);
 #define SQL_PASS "password"
 
 //MySQL connection handle
-new SQL = -1;
+new g_SQL = -1;
 
 //player data
 enum E_PLAYERS
@@ -45,20 +45,27 @@ enum E_PLAYERS
 };
 new Player[MAX_PLAYERS][E_PLAYERS];
 
-new MysqlRaceCheck[MAX_PLAYERS];
+new g_MysqlRaceCheck[MAX_PLAYERS];
 
 //dialog data
-enum {
+enum 
+{
+	DIALOG_INVALID,
 	DIALOG_UNUSED,
 	
 	DIALOG_LOGIN,
 	DIALOG_REGISTER,
 };
 
+
+/*
+ * SA-MP callbacks
+ */
+
 public OnGameModeInit()
 {
 	mysql_log(LOG_ERROR | LOG_WARNING, LOG_TYPE_HTML); //logs errors and warnings into a nice .html log file
-	SQL = mysql_connect(SQL_HOST, SQL_USER,SQL_DB, SQL_PASS);
+	g_SQL = mysql_connect(SQL_HOST, SQL_USER,SQL_DB, SQL_PASS);
 	
 	SetupPlayerTable();
 	return 1;
@@ -77,7 +84,7 @@ public OnGameModeExit()
 
 public OnPlayerConnect(playerid)
 {
-	MysqlRaceCheck[playerid]++;
+	g_MysqlRaceCheck[playerid]++;
 	//reset player data
 	for(new E_PLAYERS:e; e < E_PLAYERS; ++e)
 	    Player[playerid][e] = 0;
@@ -85,7 +92,7 @@ public OnPlayerConnect(playerid)
 	GetPlayerName(playerid, Player[playerid][Name], MAX_PLAYER_NAME);
 	
 	//create orm instance and register all needed variables
-	new ORM:ormid = Player[playerid][ORM_ID] = orm_create("players", SQL);
+	new ORM:ormid = Player[playerid][ORM_ID] = orm_create("players", g_SQL);
 
 	orm_addvar_int(ormid, Player[playerid][ID], "id");
 	orm_addvar_string(ormid, Player[playerid][Name], MAX_PLAYER_NAME, "username");
@@ -94,7 +101,7 @@ public OnPlayerConnect(playerid)
 	orm_setkey(ormid, "username");
 	
 	//tell the orm system to load all data, assign it to our variables and call our callback when ready
-	orm_load(ormid, "OnPlayerDataLoaded", "dd", playerid, MysqlRaceCheck[playerid]);
+	orm_load(ormid, "OnPlayerDataLoaded", "dd", playerid, g_MysqlRaceCheck[playerid]);
 	return 1;
 }
 
@@ -111,7 +118,7 @@ public OnPlayerDataLoaded(playerid, race_check)
 		then we check if current connection count is the same as connection count we passed to the callback
 		if yes, everything is okay, if not, we just kick the player
 	*/
-	if(race_check != MysqlRaceCheck[playerid])
+	if(race_check != g_MysqlRaceCheck[playerid])
 	    return Kick(playerid);
 	    
 	orm_setkey(Player[playerid][ORM_ID], "id");
@@ -137,6 +144,10 @@ public OnPlayerDataLoaded(playerid, race_check)
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 {
+	if(dialogid == DIALOG_INVALID || dialogid == DIALOG_UNUSED)
+		return 1;
+
+	
 	switch(dialogid)
 	{
 	    case DIALOG_LOGIN:
@@ -209,26 +220,30 @@ public OnPlayerSpawn(playerid)
 {
 	ResetPlayerMoney(playerid);
 	GivePlayerMoney(playerid, Player[playerid][Money]);
-	
 	return 1;
 }
 
 public OnPlayerDisconnect(playerid,reason)
 {
-    MysqlRaceCheck[playerid]++;
+    g_MysqlRaceCheck[playerid]++;
 	if(Player[playerid][IsLoggedIn] && Player[playerid][ID] > 0)
 	    orm_save(Player[playerid][ORM_ID]); //if Player[playerid][ID] has a valid value, orm_save sends an UPDATE query, else an INSERT query
 	return 1;
 }
 
-stock SetupPlayerTable()
+
+/*
+ * functions
+ */
+
+SetupPlayerTable()
 {
-	mysql_query(SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL auto_increment PRIMARY KEY,`username` varchar(30) NOT NULL,`password` varchar(130) NOT NULL,`money` int(10) NOT NULL default '0')", false);
+	mysql_query(g_SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL auto_increment PRIMARY KEY,`username` varchar(30) NOT NULL,`password` varchar(130) NOT NULL,`money` int(10) NOT NULL default '0')", false);
 	return 1;
 }
 
 
-stock DelayedKick(playerid, time=500)
+DelayedKick(playerid, time=500)
 {
 	SetTimerEx("_KickPlayerDelayed", time, false, "d", playerid);
 	return 1;
