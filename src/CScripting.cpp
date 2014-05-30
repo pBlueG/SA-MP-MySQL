@@ -924,14 +924,14 @@ AMX_DECLARE_NATIVE(Native::mysql_query)
 AMX_DECLARE_NATIVE(Native::mysql_format)
 {
 	const unsigned int connection_id = params[1];
-	const size_t dest_len = (size_t)params[3];
+	const int dest_len = params[3];
 	const char *format_str = NULL;
 	amx_StrParam(amx, params[4], format_str);
 
 	if(CLog::Get()->IsLogLevel(LOG_DEBUG))
 	{
 		string short_format(format_str == NULL ? "" : format_str);
-		if(short_format.length() > 128)
+		if(MySQLOptions.Log_TruncateData == true && short_format.length() > 128)
 		{
 			short_format.erase(128, short_format.length());
 			short_format.append("...");
@@ -939,7 +939,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 		CLog::Get()->LogFunction(LOG_DEBUG, "mysql_format", "connection: %d, len: %d, format: \"%s\"", connection_id, dest_len, short_format.c_str());
 	}
 
-	if(format_str == NULL)
+	if (format_str == NULL || dest_len < 0)
 		return 0;
 
 	if(!CMySQLHandle::IsValid(connection_id))
@@ -959,8 +959,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 
 	for( ; *format_str != '\0'; ++format_str)
 	{
-		
-		if(strlen(org_output_str) >= dest_len)
+		if ((output_str - org_output_str + 1) >= dest_len)
 		{
 			CLog::Get()->LogFunction(LOG_ERROR, "mysql_format", "destination size is too small");
 			break;
@@ -1023,19 +1022,18 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 					char int_str[13];
 					ConvertIntToStr<10>(*amx_address, int_str);
 					size_t int_str_len = strlen(int_str);
-					for(int len = (int)int_str_len; Width > len; ++len)
+					int complete_len = Width > static_cast<int>(int_str_len) ? Width : static_cast<int>(int_str_len);
+
+					if ((complete_len + output_str - org_output_str) < dest_len)
 					{
-						if(SpaceWidth == true)
-							*output_str = ' ';
-						else
-							*output_str = '0';
-						++output_str;
-					}
-					
-					for(size_t c=0; c < int_str_len; ++c)
-					{
-						*output_str = int_str[c];
-						++output_str;
+						for (int len = static_cast<int>(int_str_len); Width > len; ++len)
+						{
+							*output_str = SpaceWidth ? ' ' : '0';
+							++output_str;
+						}
+
+						memcpy(output_str, int_str, int_str_len);
+						output_str += int_str_len;
 					}
 					break;
 				}
@@ -1048,13 +1046,13 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 					amx_StrParam(amx, params[first_param_idx + param_counter], str_buf);
 					if(str_buf != NULL)
 					{
-						for(size_t c=0, len = strlen(str_buf); c < len; ++c)
+						size_t str_buf_len = strlen(str_buf);
+						if ((str_buf_len + output_str - org_output_str) < dest_len)
 						{
-							*output_str = str_buf[c];
-							++output_str;
+							memcpy(output_str, str_buf, str_buf_len);
+							output_str += str_buf_len;
 						}
 					}
-					
 					break;
 				}
 				case 'f':
@@ -1062,30 +1060,50 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 				{
 					float float_val = amx_ctof(*amx_address);
 					char 
-						float_str[84+1], 
+						float_str[84 + 1],
 						spec_buf[13];
 
-					ConvertIntToStr<10>((int)floor(float_val), float_str);
-					for(int len = (int)strlen(float_str); Width > len; ++len)
+					ConvertFloatToStr(float_val, float_str);
+					ConvertIntToStr<10>(static_cast<int>(floor(float_val)), spec_buf);
+
+					size_t
+						float_str_len = strlen(float_str),
+						spec_buf_len = strlen(spec_buf);
+					int	complete_len = float_str_len;
+
+					if (Width > static_cast<int>(spec_buf_len))
+						complete_len += (Width - static_cast<int>(spec_buf_len));
+
+					if ((complete_len + output_str - org_output_str) < dest_len)
 					{
-						if(SpaceWidth == true)
-							*output_str = ' ';
+
+						for (int len = spec_buf_len; Width > len; ++len)
+						{
+							*output_str = SpaceWidth ? ' ' : '0';
+							++output_str;
+						}
+
+						if (Precision <= 6 && Precision >= 0)
+						{
+							memcpy(output_str, float_str, spec_buf_len);
+							output_str += spec_buf_len;
+
+							for (size_t c = 0; c < static_cast<size_t>(Precision); ++c)
+							{
+								if (c == 0)
+								{
+									*output_str = '.';
+									++output_str;
+								}
+								*output_str = float_str[spec_buf_len + c + 1];
+								++output_str;
+							}
+						}
 						else
-							*output_str = '0';
-						++output_str;
-					}
-
-					if(Precision <= 6 && Precision >= 0)
-						sprintf(spec_buf, "%%.%df", Precision);
-					else
-						sprintf(spec_buf, "%%f");
-					
-					sprintf(float_str, spec_buf, float_val);
-
-					for(size_t c=0, len = strlen(float_str); c < len; ++c)
-					{
-						*output_str = float_str[c];
-						++output_str;
+						{
+							memcpy(output_str, float_str, float_str_len);
+							output_str += float_str_len;
+						}
 					}
 					break;
 				}
@@ -1099,10 +1117,10 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 						string escaped_str;
 						Handle->GetMainConnection()->EscapeString(str_buf, escaped_str);
 
-						for(size_t c=0, len = escaped_str.length(); c < len; ++c)
+						if ((escaped_str.length() + output_str - org_output_str) < dest_len)
 						{
-							*output_str = escaped_str.at(c);
-							++output_str;
+							memcpy(output_str, escaped_str.c_str(), escaped_str.length());
+							output_str += escaped_str.length();
 						}
 					}
 					break;
@@ -1113,15 +1131,18 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 					memset(hex_str, 0, 17);
 					ConvertIntToStr<16>(*amx_address, hex_str);
 
-					for(size_t c=0, len = strlen(hex_str); c < len; ++c)
+					size_t hex_str_len = strlen(hex_str);
+					if ((hex_str_len + output_str - org_output_str) < dest_len)
 					{
-						if(hex_str[c] >= 'a' && hex_str[c] <= 'f')
-							hex_str[c] = toupper(hex_str[c]);
+						for (size_t c = 0; c < hex_str_len; ++c)
+						{
+							if (hex_str[c] >= 'a' && hex_str[c] <= 'f')
+								hex_str[c] = toupper(hex_str[c]);
 
-						*output_str = hex_str[c];
-						++output_str;
+							*output_str = hex_str[c];
+							++output_str;
+						}
 					}
-
 					break;
 				}
 				case 'x':
@@ -1130,10 +1151,11 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 					memset(hex_str, 0, 17);
 					ConvertIntToStr<16>(*amx_address, hex_str);
 
-					for(size_t c=0, len = strlen(hex_str); c < len; ++c)
+					size_t hex_str_len = strlen(hex_str);
+					if ((hex_str_len + output_str - org_output_str) < dest_len)
 					{
-						*output_str = hex_str[c];
-						++output_str;
+						memcpy(output_str, hex_str, hex_str_len);
+						output_str += hex_str_len;
 					}
 					break;
 				}
@@ -1143,11 +1165,12 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 					char bin_str[33];
 					memset(bin_str, 0, 33);
 					ConvertIntToStr<2>(*amx_address, bin_str);
-
-					for(size_t c=0, len = strlen(bin_str); c < len; ++c)
+					
+					size_t bin_str_len = strlen(bin_str);
+					if ((bin_str_len + output_str - org_output_str) < dest_len)
 					{
-						*output_str = bin_str[c];
-						++output_str;
+						memcpy(output_str, bin_str, bin_str_len);
+						output_str += bin_str_len;
 					}
 					break;
 				}
