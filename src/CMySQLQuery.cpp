@@ -61,7 +61,7 @@ bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 
 		CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "(error #%d) %s", error_id, error_str.c_str());
 
-		if (Callback.Name.size() > 0 && !Unthreaded)
+		if (!Unthreaded)
 		{
 			//forward OnQueryError(error_id, error[], callback[], query[], connectionHandle);
 			//recycle these structures, change some data
