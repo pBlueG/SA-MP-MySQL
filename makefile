@@ -2,7 +2,7 @@ GPP=g++ -m32
 GCC=gcc -m32
 
 
-COMPILE_FLAGS = -c -O3 -w -fPIC -DLINUX -Wall -I libs/
+COMPILE_FLAGS = -c -O3 -w -fPIC -DLINUX -Wall -I libs/ -I libs/sdk/amx/
 LIBRARIES = -pthread -lrt -Wl,-Bstatic -lboost_thread -lboost_chrono -lboost_date_time -lboost_system -lboost_atomic -Wl,-Bdynamic
 
 
