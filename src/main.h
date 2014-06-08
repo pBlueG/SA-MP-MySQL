@@ -3,8 +3,7 @@
 #define INC_MAIN_H
 
 
-#pragma warning (disable: 4005 4996)
-
+#include <malloc.h>
 #include <sdk/amx/amx.h>
 #include <sdk/plugincommon.h>
 
