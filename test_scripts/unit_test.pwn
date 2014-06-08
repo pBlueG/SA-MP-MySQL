@@ -116,7 +116,7 @@ forward QueryErrorCallbackTest();
 public QueryErrorCallbackTest()
 {
 	mysql_tquery(sql, "SELECT `banana_invalid` FROM `data`", "ValidCallback", "sdf", "str1", 22, 3.14);
-	mysql_tquery(sql, "XSELECT `null` FROM `data`", "ValidCallback", "sdf", "str1", 22, 3.14);
+	mysql_tquery(sql, "XSELECT `null` FROM `data`");
 	return 1;
 }
 
@@ -386,9 +386,9 @@ Check_mysql_reconnect(handle)
 
 public OnGameModeExit()
 {
+	Check_mysql_close(sql);
 	return 1;
 }
 
 
 main() {}
-
