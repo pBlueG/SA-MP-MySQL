@@ -43,14 +43,14 @@
     <OutDir>bin\</OutDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>mysql</TargetName>
-    <IncludePath>D:\boost_1_55_0;include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\boost_1_55_0;libs;D:\mysql-c-connector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;D:\mysql-c-connector\lib;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mysql</TargetName>
-    <IncludePath>D:\boost_1_55_0;include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\boost_1_55_0;libs;D:\mysql-c-connector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0;D:\mysql-c-connector\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -106,6 +106,8 @@
     <ClInclude Include="src\misc.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="libs\sdk\amxplugin.cpp" />
+    <ClCompile Include="libs\sdk\amxplugin2.cpp" />
     <ClCompile Include="src\CCallback.cpp" />
     <ClCompile Include="src\CLog.cpp" />
     <ClCompile Include="src\CMySQLConnection.cpp" />
@@ -116,7 +118,6 @@
     <ClCompile Include="src\CScripting.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\misc.cpp" />
-    <ClCompile Include="src\SDK\amxplugin.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

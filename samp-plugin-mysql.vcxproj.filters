@@ -18,9 +18,6 @@
     <ClInclude Include="src\CMySQLConnection.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\SDK\amxplugin.cpp">
-      <Filter>SDK</Filter>
-    </ClCompile>
     <ClCompile Include="src\CScripting.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\misc.cpp" />
@@ -31,5 +28,11 @@
     <ClCompile Include="src\CLog.cpp" />
     <ClCompile Include="src\COrm.cpp" />
     <ClCompile Include="src\CMySQLConnection.cpp" />
+    <ClCompile Include="libs\sdk\amxplugin.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="libs\sdk\amxplugin2.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

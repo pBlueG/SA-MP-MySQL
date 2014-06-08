@@ -2,7 +2,7 @@ GPP=g++ -m32
 GCC=gcc -m32
 
 
-COMPILE_FLAGS = -c -O3 -w -fPIC -DLINUX -Wall -Iinclude/
+COMPILE_FLAGS = -c -O3 -w -fPIC -DLINUX -Wall -I libs/
 LIBRARIES = -pthread -lrt -Wl,-Bstatic -lboost_thread -lboost_chrono -lboost_date_time -lboost_system -lboost_atomic -Wl,-Bdynamic
 
 
@@ -15,8 +15,8 @@ compile:
 	@echo Compiling plugin..
 	@ $(GPP) $(COMPILE_FLAGS) -std=c++0x src/*.cpp
 	@echo Compiling plugin SDK..
-	@ $(GPP) $(COMPILE_FLAGS) src/SDK/*.cpp
-	@ $(GCC) $(COMPILE_FLAGS) src/SDK/amx/*.c
+	@ $(GPP) $(COMPILE_FLAGS) libs/sdk/*.cpp
+	@ $(GCC) $(COMPILE_FLAGS) libs/sdk/amx/*.c
 
 dynamic_link:
 	@echo Linking \(dynamic\)..
@@ -24,7 +24,7 @@ dynamic_link:
 
 static_link:
 	@echo Linking \(static\)..
-	@ $(GPP) -O2 -fshort-wchar -shared -o "bin/mysql_static.so" *.o ./lib/libmysqlclient_r.a $(LIBRARIES)
+	@ $(GPP) -O2 -fshort-wchar -shared -o "bin/mysql_static.so" *.o -Wl,-Bstatic -lmysqlclient_r -Wl,-Bdynamic $(LIBRARIES)
 
 clean:
 	@ rm -f *.o
