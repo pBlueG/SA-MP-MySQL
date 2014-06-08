@@ -31,13 +31,18 @@ A: You have to install the Microsoft C++ redistributables ([2010 (x86)](http://w
 Q: *I get a ton of debug messages regarding connections even though I'm calling* `mysql_connect` *only once, why is that so?*  
 A: That's because the plugin uses multiple direct database connections per connection handle. The number of direct connections (and thus the number of those log messages) is 2+pool_size.  
 
-Compiling notes
+Build instruction
 ---------------
 #### Windows
-You'll need Microsoft Visual C++ and the boost libraries to compile the plugin. Open the project file, adjust the include and library paths (for the boost library), select *Release* at the top and compile the project solution.
+1. Install Microsoft Visual Studio C++ (2012 or newer, the Express version also works) and the [MySQL C Connector (32-bit)](http://dev.mysql.com/downloads/connector/c/)
+2. Install the [boost libraries (version 1.55 or higher)](http://www.boost.org/users/download/)
+3. Open the solution file with Visual Studio -> right click on the project -> Properties -> VC++ Directories, use *Release* as configuration and adjust the paths to the previously installed libraries
+4. Build the solution with *Release* as configuration
 
 #### Linux
-You'll need *g++-multilib*, *mysql-client* and the *boost* libraries. Once you have all the required libraries, navigate to the project's folder and type `make`.
+1. Install these packages (names may vary throughout the distributions): `g++-multilib mysql-client libmysqlclient libmysqlclient-dev`
+2. Install the [boost libraries (version 1.55 or higher)](http://www.boost.org/users/download/)
+3. Navigate to the project root directory and execute `make`
 
 Thanks to
 ---------
