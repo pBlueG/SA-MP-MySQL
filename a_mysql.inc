@@ -42,7 +42,7 @@ enum E_LOGTYPE
 	LOG_TYPE_HTML = 2
 };
 
-enum ORM_Error
+enum E_ORM_ERROR
 {
 	ERROR_OK,
 	ERROR_NO_DATA
@@ -76,7 +76,7 @@ enum E_EXECTIME_UNIT
 native ORM:orm_create(const table[], connectionHandle = 1);
 native orm_destroy(ORM:id);
 
-native ORM_Error:orm_errno(ORM:id);
+native E_ORM_ERROR:orm_errno(ORM:id);
 
 native orm_apply_cache(ORM:id, row);
 native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
