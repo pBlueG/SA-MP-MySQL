@@ -68,13 +68,8 @@ enum E_EXECTIME_UNIT
 };
 
 
-#define mysql_real_escape_string 					mysql_escape_string
-#define cache_num_fields 							cache_get_field_count
-#define cache_num_rows 								cache_get_row_count
-#define mysql_function_query(%0,%1,%2,%3,"%4"%5) 	mysql_tquery(%0,%1,%3,#%4%5)
-#define mysql_reload(%0) 							mysql_tquery(%0,"FLUSH PRIVILEGES")
-#define mysql_debug(%0)								(%0?mysql_log(LOG_ALL):mysql_log())
-#define ismysqlnull(%0) 							(strcmp(%0,"NULL",false)==0)
+#define cache_num_fields 	cache_get_field_count
+#define cache_num_rows 		cache_get_row_count
 
 
 // ORM functions
