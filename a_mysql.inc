@@ -130,27 +130,27 @@ native mysql_set_charset(charset[], connectionHandle = 1);
 
 
 // Cache functions
-native cache_get_data(&num_rows, &num_fields, connectionHandle = 1);
-native cache_get_row_count(connectionHandle = 1);
-native cache_get_field_count(connectionHandle = 1);
-native cache_get_field_name(field_index, destination[], connectionHandle = 1, max_len = sizeof(destination));
+native cache_get_data(&num_rows, &num_fields);
+native cache_get_row_count();
+native cache_get_field_count();
+native cache_get_field_name(field_index, destination[], max_len = sizeof(destination));
 
-native cache_get_row(row, field_idx, destination[], connectionHandle = 1, max_len = sizeof(destination));
-native cache_get_row_int(row, field_idx, connectionHandle = 1);
-native Float:cache_get_row_float(row, field_idx, connectionHandle = 1);
+native cache_get_row(row_idx, field_idx, destination[], max_len = sizeof(destination));
+native cache_get_row_int(row_idx, field_idx);
+native Float:cache_get_row_float(row_idx, field_idx);
 
-native cache_get_field_content(row, const field_name[], destination[], connectionHandle = 1, max_len = sizeof(destination));
-native cache_get_field_content_int(row, const field_name[], connectionHandle = 1);
-native Float:cache_get_field_content_float(row, const field_name[], connectionHandle = 1);
+native cache_get_field_content(row_idx, const field_name[], destination[], max_len = sizeof(destination));
+native cache_get_field_content_int(row_idx, const field_name[]);
+native Float:cache_get_field_content_float(row_idx, const field_name[]);
 
-native Cache:cache_save(connectionHandle = 1);
+native Cache:cache_save();
 native cache_delete(Cache:cache_id, connectionHandle = 1);
 native cache_set_active(Cache:cache_id, connectionHandle = 1);
 native cache_is_valid(Cache:cache_id, connectionHandle = 1);
 
-native cache_affected_rows(connectionHandle = 1);
-native cache_insert_id(connectionHandle = 1);
-native cache_warning_count(connectionHandle = 1);
+native cache_affected_rows();
+native cache_warning_count();
+native cache_insert_id();
 
 native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = UNIT_MICROSECONDS);
 native cache_get_query_string(destination[], max_len = sizeof(destination));
