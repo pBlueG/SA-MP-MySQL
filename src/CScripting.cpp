@@ -353,39 +353,39 @@ AMX_DECLARE_NATIVE(Native::orm_setkey)
 }
 
 
-//native cache_affected_rows(connectionHandle = 1);
+//native cache_affected_rows();
 AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 {
-	const unsigned int connection_id = params[1];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_affected_rows", "connection: %d", connection_id);
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_affected_rows", "connection: %d", active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if(CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_affected_rows", "no active cache");
 	
 
 	return static_cast<cell>(CMySQLHandle::GetActiveHandle()->GetActiveResult()->AffectedRows());
 }
 
-//native cache_warning_count(connectionHandle = 1);
+//native cache_warning_count();
 AMX_DECLARE_NATIVE(Native::cache_warning_count)
 {
-	const unsigned int connection_id = params[1];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_warning_count", "connection: %d", connection_id);
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_warning_count", "connection: %d", active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_warning_count", "no active cache");
 	
 
 	return static_cast<cell>(CMySQLHandle::GetActiveHandle()->GetActiveResult()->WarningCount());
 }
 
-//native cache_insert_id(connectionHandle = 1);
+//native cache_insert_id();
 AMX_DECLARE_NATIVE(Native::cache_insert_id)
 {
-	const unsigned int connection_id = params[1];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_insert_id", "connection: %d", connection_id);
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_insert_id", "connection: %d", active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_insert_id", "no active cache");
 	
 
@@ -393,13 +393,13 @@ AMX_DECLARE_NATIVE(Native::cache_insert_id)
 }
 
 
-// native Cache:cache_save(connectionHandle = 1);
+// native Cache:cache_save();
 AMX_DECLARE_NATIVE(Native::cache_save)
 {
-	const unsigned int connection_id = params[1];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_save", "connection: %d", connection_id);
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_save", "connection: %d", active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_save", "no active cache");
 
 
@@ -413,75 +413,81 @@ AMX_DECLARE_NATIVE(Native::cache_save)
 // native cache_delete(Cache:id, connectionHandle = 1);
 AMX_DECLARE_NATIVE(Native::cache_delete)
 {
-	const unsigned int connection_id = params[2];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_delete", "cache_id: %d, connection: %d", params[1], connection_id);
+	const unsigned int
+		cache_id = params[1],
+		connection_id = params[2];
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_delete", "cache_id: %d, connection: %d", cache_id, connection_id);
 
 	if(!CMySQLHandle::IsValid(connection_id))
 		return ERROR_INVALID_CONNECTION_HANDLE("cache_delete", connection_id);
 
 
-	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->DeleteSavedResult(params[1]));
+	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->DeleteSavedResult(cache_id));
 }
 
 // native cache_set_active(Cache:id, connectionHandle = 1);
 AMX_DECLARE_NATIVE(Native::cache_set_active)
 {
-	const unsigned int connection_id = params[2];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_set_active", "cache_id: %d, connection: %d", params[1], connection_id);
+	const unsigned int
+		cache_id = params[1],
+		connection_id = params[2];
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_set_active", "cache_id: %d, connection: %d", cache_id, connection_id);
 
 	if(!CMySQLHandle::IsValid(connection_id))
 		return ERROR_INVALID_CONNECTION_HANDLE("cache_set_active", connection_id);
 
 
-	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->SetActiveResult((int)params[1]) == true ? 1 : 0);
+	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->SetActiveResult(cache_id) == true ? 1 : 0);
 }
 
 // native cache_is_valid(Cache:id, connectionHandle = 1);
 AMX_DECLARE_NATIVE(Native::cache_is_valid)
 {
-	const unsigned int connection_id = params[2];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_is_valid", "cache_id: %d, connection: %d", params[1], connection_id);
+	const unsigned int
+		cache_id = params[1],
+		connection_id = params[2];
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_is_valid", "cache_id: %d, connection: %d", cache_id, connection_id);
 
 	if (!CMySQLHandle::IsValid(connection_id))
 		return ERROR_INVALID_CONNECTION_HANDLE("cache_is_valid", connection_id);
 
 
-	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->IsValidResult((int)params[1]) == true ? 1 : 0);
+	return static_cast<cell>(CMySQLHandle::GetHandle(connection_id)->IsValidResult(cache_id) == true ? 1 : 0);
 }
 
-// native cache_get_row_count(connectionHandle = 1);
+// native cache_get_row_count();
 AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 {
-	const unsigned int connection_id = params[1];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_count", "connection: %d", connection_id);
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_count", "connection: %d", active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_row_count", "no active cache");
 
 
 	return static_cast<cell>(CMySQLHandle::GetActiveHandle()->GetActiveResult()->GetRowCount());
 }
 
-// native cache_get_field_count(connectionHandle = 1);
+// native cache_get_field_count();
 AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 {
-	const unsigned int connection_id = params[1];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_count", "connection: %d", connection_id);
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_count", "connection: %d", active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_count", "no active cache");
 
 
 	return static_cast<cell>(CMySQLHandle::GetActiveHandle()->GetActiveResult()->GetFieldCount());
 }
 
-// native cache_get_data(&num_rows, &num_fields, connectionHandle = 1);
+// native cache_get_data(&num_rows, &num_fields);
 AMX_DECLARE_NATIVE(Native::cache_get_data)
 {
-	const unsigned int connection_id = params[3];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_data", "connection: %d", connection_id);
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_data", "connection: %d", active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_data", "no active cache");
 
 
@@ -495,35 +501,35 @@ AMX_DECLARE_NATIVE(Native::cache_get_data)
 	return 1;
 }
 
-// native cache_get_field_name(field_index, dest[], connectionHandle = 1, max_len = sizeof(destination))
+// native cache_get_field_name(field_index, destination[], max_len = sizeof(destination))
 AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 {
-	const unsigned int connection_id = params[3];
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const unsigned int
 		field_idx = params[1],
-		max_len = params[4];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_name", "field_index: %d, connection: %d, max_len: %d", field_idx, connection_id, max_len);
+		max_len = params[3];
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_name", "field_index: %d, connection: %d, max_len: %d", field_idx, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0, max_len);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_name", "no active cache");
 
 	
 	const char *field_name = CMySQLHandle::GetActiveHandle()->GetActiveResult()->GetFieldName(field_idx);
-	amx_SetCString(amx, params[2], field_name == NULL ? "NULL" : field_name, params[4]);
+	amx_SetCString(amx, params[2], field_name == NULL ? "NULL" : field_name, max_len);
 	return 1;
 }
 
-// native cache_get_row(row, field_idx, destination[], connectionHandle = 1, max_len=sizeof(destination));
+// native cache_get_row(row_idx, field_idx, destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_row)
 {
-	const unsigned int connection_id = params[4];
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const unsigned int 
 		row_idx = params[1],
 		field_idx = params[2],
-		max_len = params[5];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row", "row: %d, field_idx: %d, connection: %d, max_len: %d", row_idx, field_idx, connection_id, max_len);
+		max_len = params[4];
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row", "row: %d, field_idx: %d, connection: %d, max_len: %d", row_idx, field_idx, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0, max_len);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_row", "no active cache");
 
 	
@@ -532,16 +538,16 @@ AMX_DECLARE_NATIVE(Native::cache_get_row)
 	return 1;
 }
 
-// native cache_get_row_int(row, field_idx, connectionHandle = 1);
+// native cache_get_row_int(row_idx, field_idx);
 AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 {
-	const unsigned int connection_id = params[3];
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const unsigned int
 		row_idx = params[1],
 		field_idx = params[2];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_int", "row: %d, field_idx: %d, connection: %d", row_idx, field_idx, connection_id);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_int", "row: %d, field_idx: %d, connection: %d", row_idx, field_idx, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 	
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_row_int", "no active cache");
 
 	
@@ -555,16 +561,16 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 	return static_cast<cell>(return_val);
 }
 
-// native Float:cache_get_row_float(row, field_idx, connectionHandle = 1);
+// native Float:cache_get_row_float(row_idx, field_idx);
 AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 {
-	const unsigned int connection_id = params[3];
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const unsigned int
 		row_idx = params[1],
 		field_idx = params[2];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_float", "row: %d, field_idx: %d, connection: %d", row_idx, field_idx, connection_id);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_row_float", "row: %d, field_idx: %d, connection: %d", row_idx, field_idx, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 	
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_row_float", "no active cache");
 
 	
@@ -578,18 +584,19 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 	return amx_ftoc(return_val);
 }
 
-// native cache_get_field_content(row, const field_name[], destination[], connectionHandle = 1, max_len=sizeof(destination));
+// native cache_get_field_content(row_idx, const field_name[], destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 {
-	const unsigned int connection_id = params[4];
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const unsigned int 
 		row_idx = params[1],
-		max_len = params[5];
+		max_len = params[4];
 	const char *field_name = NULL;
 	amx_StrParam(amx, params[2], field_name);
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_content", "row: %d, field_name: \"%s\", connection: %d, max_len: %d", row_idx, field_name, connection_id, max_len);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_content", "row: %d, field_name: \"%s\", connection: %d, max_len: %d", row_idx, field_name, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0, max_len);
+
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_content", "no active cache");
 
 
@@ -598,16 +605,17 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 	return 1;
 }
 
-// native cache_get_field_content_int(row, const field_name[], connectionHandle = 1);
+// native cache_get_field_content_int(row, const field_name[]);
 AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 {
-	const unsigned int connection_id = params[3];
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const unsigned int row_idx = params[1];
 	const char *field_name = NULL;
 	amx_StrParam(amx, params[2], field_name);
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_content_int", "row: %d, field_name: \"%s\", connection: %d", row_idx, field_name, connection_id);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_content_int", "row: %d, field_name: \"%s\", connection: %d", row_idx, field_name, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
+
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_content_int", "no active cache");
 
 
@@ -621,16 +629,17 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 	return static_cast<cell>(return_val);
 }
 
-// native Float:cache_get_field_content_float(row, const field_name[], connectionHandle = 1);
+// native Float:cache_get_field_content_float(row, const field_name[]);
 AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 {
-	const unsigned int connection_id = params[3];
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const unsigned int row_idx = params[1];
 	const char *field_name = NULL;
 	amx_StrParam(amx, params[2], field_name);
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_content_float", "row: %d, field_name: \"%s\", connection: %d", row_idx, field_name, connection_id);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_field_content_float", "row: %d, field_name: \"%s\", connection: %d", row_idx, field_name, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
+
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_field_content_float", "no active cache");
 
 
@@ -647,10 +656,11 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 // native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = UNIT_MICROSECONDS);
 AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
 {
+	bool active_handle_available = (CMySQLHandle::GetActiveHandle() == NULL);
 	const int time_unit = params[1];
-	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_query_exec_time", "unit: %d", time_unit);
+	CLog::Get()->LogFunction(LOG_DEBUG, "cache_get_query_exec_time", "unit: %d, connection: %d", time_unit, active_handle_available ? CMySQLHandle::GetActiveHandle()->GetID() : 0);
 
-	if (CMySQLHandle::GetActiveHandle() == NULL)
+	if (active_handle_available)
 		return CLog::Get()->LogFunction(LOG_WARNING, "cache_get_query_exec_time", "no active cache");
 
 	if(time_unit != UNIT_MILLISECONDS && time_unit != UNIT_MICROSECONDS)
