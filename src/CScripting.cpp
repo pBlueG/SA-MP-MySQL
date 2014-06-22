@@ -1083,7 +1083,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 							++output_str;
 						}
 
-						if (Precision <= 6 && Precision >= 0)
+						if (Precision <= 9 && Precision >= 0)
 						{
 							memcpy(output_str, float_str, spec_buf_len);
 							output_str += spec_buf_len;
