@@ -1095,7 +1095,11 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 									*output_str = '.';
 									++output_str;
 								}
-								*output_str = float_str[spec_buf_len + c + 1];
+
+								if ((spec_buf_len + c + 1) >= float_str_len)
+									*output_str = '0';
+								else
+									*output_str = float_str[spec_buf_len + c + 1];
 								++output_str;
 							}
 						}
