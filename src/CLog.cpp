@@ -175,10 +175,10 @@ int CLog::LogFunction(unsigned int loglevel, char *funcname, char *msg, ...)
 
 int CLog::LogText(unsigned int loglevel, char* text) 
 {
-    if (m_LogLevel & loglevel) 
+	if (m_LogLevel & loglevel) 
 	{
-        char prefix[16];
-        switch(loglevel) {
+		char prefix[16];
+		switch(loglevel) {
 			case LOG_ERROR:
 				sprintf(prefix, "ERROR");
 				break;
@@ -188,22 +188,22 @@ int CLog::LogText(unsigned int loglevel, char* text)
 			case LOG_DEBUG:
 				sprintf(prefix, "DEBUG");
 				break;
-        }
-        char timeform[16];
-        time_t rawtime;
-        time(&rawtime);
-        struct tm * timeinfo;
-        timeinfo = localtime(&rawtime);
-        strftime(timeform, sizeof(timeform), "%X", timeinfo);
+		}
+		char timeform[16];
+		time_t rawtime;
+		time(&rawtime);
+		struct tm * timeinfo;
+		timeinfo = localtime(&rawtime);
+		strftime(timeform, sizeof(timeform), "%X", timeinfo);
 
-        FILE *log_file = fopen(m_LogFileName, "a");
-        if(log_file != NULL) 
+		FILE *log_file = fopen(m_LogFileName, "a");
+		if(log_file != NULL) 
 		{
-            fprintf(log_file, "[%s] [%s] %s\n", timeform, prefix, text);
-            fclose(log_file);
-        }
-                
-    }
+			fprintf(log_file, "[%s] [%s] %s\n", timeform, prefix, text);
+			fclose(log_file);
+		}
+				
+	}
 	return 0;
 }
 
