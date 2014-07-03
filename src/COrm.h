@@ -19,7 +19,7 @@ typedef boost::variant<int, double, string> VarType;
 
 
 #define ERROR_INVALID_ORM_ID(function, id) \
-	CLog::Get()->LogFunction(LOG_ERROR, #function, "invalid orm id (id: %d)", id)
+	CLog::Get()->LogFunction(LOG_ERROR, function, "invalid orm id (id: %d)", id)
 
 
 class CMySQLHandle;
