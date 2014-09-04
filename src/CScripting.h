@@ -1,9 +1,6 @@
 #pragma once
-#ifndef INC_CSCRIPTING_H
-#define INC_CSCRIPTING_H
 
-
-#include "main.h"
+#include "sdk.h"
 
 #define AMX_DECLARE_NATIVE(native) \
 	cell AMX_NATIVE_CALL native(AMX *amx, cell *params)
@@ -84,6 +81,3 @@ namespace Native
 	AMX_DECLARE_NATIVE(cache_get_query_exec_time);
 	AMX_DECLARE_NATIVE(cache_get_query_string);
 };
-
-
-#endif // INC_CSCRIPTING_H

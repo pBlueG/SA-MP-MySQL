@@ -96,13 +96,14 @@
   <ItemGroup>
     <ClInclude Include="src\CCallback.h" />
     <ClInclude Include="src\CLog.h" />
-    <ClInclude Include="src\CMySQLConnection.h" />
-    <ClInclude Include="src\CMySQLHandle.h" />
-    <ClInclude Include="src\CMySQLQuery.h" />
-    <ClInclude Include="src\CMySQLResult.h" />
+    <ClInclude Include="src\CConnection.h" />
+    <ClInclude Include="src\CHandle.h" />
+    <ClInclude Include="src\CQuery.h" />
+    <ClInclude Include="src\CResult.h" />
     <ClInclude Include="src\COrm.h" />
     <ClInclude Include="src\CScripting.h" />
-    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\CSingleton.h" />
+    <ClInclude Include="src\sdk.h" />
     <ClInclude Include="src\misc.h" />
   </ItemGroup>
   <ItemGroup>
@@ -110,10 +111,10 @@
     <ClCompile Include="libs\sdk\amxplugin2.cpp" />
     <ClCompile Include="src\CCallback.cpp" />
     <ClCompile Include="src\CLog.cpp" />
-    <ClCompile Include="src\CMySQLConnection.cpp" />
-    <ClCompile Include="src\CMySQLHandle.cpp" />
-    <ClCompile Include="src\CMySQLQuery.cpp" />
-    <ClCompile Include="src\CMySQLResult.cpp" />
+    <ClCompile Include="src\CConnection.cpp" />
+    <ClCompile Include="src\CHandle.cpp" />
+    <ClCompile Include="src\CQuery.cpp" />
+    <ClCompile Include="src\CResult.cpp" />
     <ClCompile Include="src\COrm.cpp" />
     <ClCompile Include="src\CScripting.cpp" />
     <ClCompile Include="src\main.cpp" />

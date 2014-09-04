@@ -1,8 +1,5 @@
-#include "main.h"
+#include "sdk.h"
 #include "CScripting.h"
-#include "CMySQLHandle.h"
-#include "CCallback.h"
-#include "CLog.h"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -32,8 +29,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 		return false;
 	}
 	
-	CLog::Get()->Initialize("mysql_log.txt"); 
-
+	
 	logprintf(" >> plugin.mysql: R40 successfully loaded.");
 	return true;
 }
@@ -42,17 +38,14 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 {
 	logprintf("plugin.mysql: Unloading plugin...");
 
-	CCallback::Get()->Destroy();
-	CMySQLHandle::ClearAll();
 	mysql_library_end();
-	CLog::Destroy(); //this has to be the last because Destroy-functions in ClearAll() are logging data
 
 	logprintf("plugin.mysql: Plugin unloaded."); 
 }
 
 PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() 
 {
-	CCallback::Get()->ProcessCallbacks();
+	
 }
 
 
@@ -129,13 +122,11 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) 
 {
-	CCallback::Get()->AddAmx(amx);
 	return amx_Register(amx, native_list, -1);
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) 
 {
-	CCallback::Get()->EraseAmx(amx);
 	return AMX_ERR_NONE;
 }
 
