@@ -19,7 +19,7 @@ bool CQuery::Execute(MYSQL *connection)
 
 	m_Result = StoreResult(connection, raw_result);
 	bool ret_val = m_Result != nullptr;
-			
+	
 	if (raw_result != NULL)
 		mysql_free_result(raw_result);
 

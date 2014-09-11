@@ -12,7 +12,9 @@ typedef struct st_mysql_res MYSQL_RES;
 class CQuery
 {
 private: //constructor / deconstructor
-	CQuery() = default;
+	CQuery(string &&query) :
+		m_Query(query)
+	{ }
 	~CQuery() = default;
 
 
@@ -28,5 +30,17 @@ private: //functions
 
 public:
 	bool Execute(MYSQL *connection);
+
+	const CResult *GetResult() const
+	{
+		return m_Result;
+	}
+
+
+public: //factory function
+	static CQuery *Create(string &&query)
+	{
+		return new CQuery(std::move(query));
+	}
 
 };

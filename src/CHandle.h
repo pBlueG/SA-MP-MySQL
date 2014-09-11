@@ -8,12 +8,23 @@
 using std::string;
 using std::unordered_map;
 
+class CQuery;
+class CCallback;
+
 
 class CHandle
 {
-	friend class CHandleFactory;
+	friend class CHandleManager;
 public: //type definitions
 	using Id_t = unsigned int;
+
+	enum class ExecutionType
+	{
+		INVALID,
+		THREADED,
+		PARALLEL,
+		UNTHREADED
+	};
 
 
 private: //constructor / deconstructor
@@ -24,10 +35,13 @@ private: //constructor / deconstructor
 
 
 private: //variables
-	Id_t m_Id;
+	const Id_t m_Id;
 
 
 public: //functions
+	bool Execute(ExecutionType type, CQuery *query, CCallback *callback = nullptr);
+
+
 	inline Id_t GetId() const
 	{
 		return m_Id;
@@ -35,12 +49,12 @@ public: //functions
 
 };
 
-class CHandleFactory : public CSingleton<CHandleFactory>
+class CHandleManager : public CSingleton<CHandleManager>
 {
-	friend class CSingleton<CHandleFactory>;
+	friend class CSingleton<CHandleManager>;
 private: //constructor / deconstructor
-	CHandleFactory() = default;
-	~CHandleFactory() = default;
+	CHandleManager() = default;
+	~CHandleManager() = default;
 
 
 private: //variables
@@ -49,6 +63,15 @@ private: //variables
 
 public: //functions
 	CHandle *Create(string host, string user, string pass, string db, 
-		size_t port, size_t pool_size, bool reconnect);
+		size_t port, size_t pool_size);
 	bool Destroy(CHandle * handle);
+
+	inline bool IsValidHandle(const CHandle::Id_t id)
+	{
+		return m_Handles.find(id) != m_Handles.end();
+	}
+	inline CHandle *GetHandle(const CHandle::Id_t id)
+	{
+		return IsValidHandle(id) ? m_Handles.at(id) : nullptr;
+	}
 };

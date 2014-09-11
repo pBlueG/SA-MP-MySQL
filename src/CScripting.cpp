@@ -1,4 +1,8 @@
 #include "CScripting.h"
+#include "CHandle.h"
+#include "CQuery.h"
+#include "CCallback.h"
+#include "CResult.h"
 
 
 //native ORM:orm_create(table[], connectionHandle = 1);
@@ -84,6 +88,8 @@ AMX_DECLARE_NATIVE(Native::orm_setkey)
 {
 	return 0;
 }
+
+
 
 
 //native cache_affected_rows();
@@ -201,7 +207,10 @@ AMX_DECLARE_NATIVE(Native::cache_get_query_string)
 	return 0;
 }
 
-//native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
+
+
+
+//native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, pool_size = 2);
 AMX_DECLARE_NATIVE(Native::mysql_connect)
 {
 	return 0;
@@ -219,6 +228,7 @@ AMX_DECLARE_NATIVE(Native::mysql_reconnect)
 	return 0;
 }
 
+//TODO: add auto reconnect option to mysql_option
 //native mysql_option(E_MYSQL_OPTION:type, value);
 AMX_DECLARE_NATIVE(Native::mysql_option)
 {
@@ -237,28 +247,38 @@ AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 	return 0;
 }
 
-
-//native mysql_pquery(conhandle, query[], callback[], format[], {Float,_}:...);
+//native mysql_pquery(MySQL:handle, const query[], const callback[], const format[], {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_pquery)
 {
 	return 0;
 }
 
-//native mysql_tquery(conhandle, query[], callback[], format[], {Float,_}:...);
+//native mysql_tquery(MySQL:handle, const query[], const callback[], const format[], {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
-	return 0;
+	const CHandle::Id_t handle_id = static_cast<CHandle::Id_t>(params[1]);
+	CHandle *handle = CHandleManager::Get()->GetHandle(handle_id);
+
+	if (handle == nullptr)
+		return 0;
+
+	CCallback *callback = CCallbackManager::Get()->Create(
+		amx, 
+		amx_GetCppString(amx, params[3]),
+		amx_GetCppString(amx, params[4]),
+		params, 5);
+
+	CQuery *query = CQuery::Create(amx_GetCppString(amx, params[2]));
+	return handle->Execute(CHandle::ExecutionType::THREADED, query, callback);
 }
 
-
-//native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
+//native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
 AMX_DECLARE_NATIVE(Native::mysql_query)
 {
 	return 0;
 }
 
-
-// native mysql_format(connectionHandle, output[], len, format[], {Float,_}:...);
+//native mysql_format(MySQL:handle, output[], len, const format[], {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_format)
 {
 	return 0;

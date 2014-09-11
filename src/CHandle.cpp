@@ -1,8 +1,33 @@
 #include "CHandle.h"
+#include "CQuery.h"
 
 
-CHandle *CHandleFactory::Create(string host, string user, string pass, string db, 
-	size_t port, size_t pool_size, bool reconnect)
+bool CHandle::Execute(ExecutionType type, CQuery *query, CCallback *callback /*= nullptr*/)
+{
+	if (type == ExecutionType::INVALID || query == nullptr)
+		return false;
+
+	switch (type)
+	{
+	case ExecutionType::THREADED:
+		//TODO:
+		break;
+
+	case ExecutionType::PARALLEL:
+		//TODO:
+		break;
+
+	case ExecutionType::UNTHREADED:
+		//TODO:
+		break;
+	}
+
+	return true;
+}
+
+
+CHandle *CHandleManager::Create(string host, string user, string pass, string db,
+	size_t port, size_t pool_size)
 {
 	CHandle::Id_t id = 1;
 
@@ -17,7 +42,7 @@ CHandle *CHandleFactory::Create(string host, string user, string pass, string db
 	return handle;
 }
 
-bool CHandleFactory::Destroy(CHandle *handle)
+bool CHandleManager::Destroy(CHandle *handle)
 {
 	if (handle == nullptr)
 		return false;
@@ -29,4 +54,3 @@ bool CHandleFactory::Destroy(CHandle *handle)
 	delete handle;
 	return true;
 }
-
