@@ -34,7 +34,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	
 	CLog::Get()->Initialize("mysql_log.txt"); 
 
-	logprintf(" >> plugin.mysql: R40 successfully loaded.");
+	logprintf(" >> plugin.mysql: " PluginVersion " successfully loaded.");
 	return true;
 }
 

@@ -1312,13 +1312,13 @@ AMX_DECLARE_NATIVE(Native::mysql_errno)
 	return static_cast<cell>(mysql_errno(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMysqlPtr()));
 }
 
-//native mysql_log(loglevel, logtype);
+//native mysql_log(loglevel, logtype, logtemplate);
 AMX_DECLARE_NATIVE(Native::mysql_log)
 {
 	if(params[1] < 0)
 		return 0;
 
 	CLog::Get()->SetLogLevel(params[1]);
-	CLog::Get()->SetLogType(params[2]);
+	CLog::Get()->SetLogType(params[2], params[3]);
 	return 1;
 }

@@ -42,6 +42,12 @@ enum E_LOGTYPE
 	LOG_TYPE_HTML = 2
 };
 
+enum E_LOGTEMPLATE
+{
+	LOG_TEMPLATE_ORIGINAL = 1,
+	LOG_TEMPLATE_NEW = 2
+};
+
 enum E_ORM_ERROR
 {
 	ERROR_OK,
@@ -102,7 +108,7 @@ native orm_setkey(ORM:id, varname[]);
 
 
 // MySQL functions
-native mysql_log(E_LOGLEVEL:loglevel = LOG_ERROR | LOG_WARNING, E_LOGTYPE:logtype = LOG_TYPE_TEXT);
+native mysql_log(E_LOGLEVEL:loglevel = LOG_ERROR | LOG_WARNING, E_LOGTYPE:logtype = LOG_TYPE_TEXT, E_LOGTEMPLATE:logtemplate = LOG_TEMPLATE_ORIGINAL);
 native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
 native mysql_close(connectionHandle = 1);
 native mysql_reconnect(connectionHandle = 1);

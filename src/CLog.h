@@ -2,6 +2,7 @@
 #ifndef INC_CLOG_H
 #define INC_CLOG_H
 
+#define PluginVersion "R40"
 
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
@@ -19,10 +20,16 @@ enum e_LogLevel
 	LOG_DEBUG = 4
 };
 
-enum e_LogType 
+enum e_LogType
 {
 	LOG_TYPE_TEXT = 1,
 	LOG_TYPE_HTML = 2
+};
+
+enum e_LogTemplate
+{
+	LOG_TEMPLATE_ORIGINAL = 1,
+	LOG_TEMPLATE_NEW = 2
 };
 
 enum e_LogInfo
@@ -63,7 +70,7 @@ public:
 	{
 		return !!(m_LogLevel & loglevel);
 	}
-	void SetLogType(unsigned int logtype);
+	void SetLogType(unsigned int logtype, unsigned int LogTemplate);
 	
 private:
 	static CLog *m_Instance;
@@ -93,7 +100,8 @@ private:
 		m_LogLevel(LOG_ERROR | LOG_WARNING), 
 		m_LogThread(NULL), 
 		m_LogThreadAlive(true),
-		m_LogType(LOG_TYPE_TEXT)
+		m_LogType(LOG_TYPE_TEXT),
+		m_LogTemplate(LOG_TEMPLATE_ORIGINAL)
 	{}
 	~CLog();
 
@@ -102,6 +110,7 @@ private:
 	
 	char m_LogFileName[32];
 	unsigned int m_LogType;
+	unsigned int m_LogTemplate;
 	unsigned int m_LogLevel;
 
 	thread *m_LogThread;
