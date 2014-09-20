@@ -12,7 +12,7 @@ namespace std
 	}
 }
 
-CCallback *CCallbackManager::Create(AMX *amx, string name, string format, cell *params, cell param_offset,
+CCallback::Type_t CCallbackManager::Create(AMX *amx, string name, string format, cell *params, cell param_offset,
 	error_condition &error)
 {
 	if (amx == nullptr)
@@ -80,7 +80,7 @@ CCallback *CCallbackManager::Create(AMX *amx, string name, string format, cell *
 		}
 	}
 
-	return new CCallback(amx, cb_idx, std::move(param_list));
+	return std::make_shared<CCallback>(amx, cb_idx, std::move(param_list));
 }
 
 
@@ -128,12 +128,10 @@ void CCallbackManager::Process()
 {
 	while (m_Callbacks.empty() == false)
 	{
-		CCallback *callback = m_Callbacks.front();
+		CCallback::Type_t callback = m_Callbacks.front();
 		m_Callbacks.pop();
 
 		callback->Execute();
-
-		delete callback;
 	}
 }
 

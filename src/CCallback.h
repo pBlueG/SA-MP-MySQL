@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <boost/variant.hpp>
 #include <system_error> //TODO: maybe selfmade error class?
+#include <memory>
 
 using std::string;
 using std::queue;
@@ -18,11 +19,13 @@ using std::stack;
 using std::unordered_set;
 using boost::variant;
 using std::error_condition;
+using std::shared_ptr;
 
 
 class CCallback 
 {
 public: //type definitions
+	using Type_t = shared_ptr<CCallback>;
 	using ParamList_t = stack<variant<cell, string>>;
 
 
@@ -94,12 +97,12 @@ private: //constructor / destructor
 
 
 private: //variables
-	queue<CCallback *> m_Callbacks;
+	queue<CCallback::Type_t> m_Callbacks;
 	unordered_set<const AMX *> m_AmxInstances;
 
 
 public: //functions
-	CCallback *Create(AMX *amx, string name, string format, cell *params, cell param_offset,
+	CCallback::Type_t Create(AMX *amx, string name, string format, cell *params, cell param_offset,
 		error_condition &error);
 	inline bool IsValidAmx(const AMX *amx)
 	{
