@@ -39,7 +39,7 @@ private: //variables
 
 
 public: //functions
-	bool Execute(ExecutionType type, CQuery *query, CCallback *callback = nullptr);
+	bool Execute(ExecutionType type, CQuery *query);
 
 
 	inline Id_t GetId() const

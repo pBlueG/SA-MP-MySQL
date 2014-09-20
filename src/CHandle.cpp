@@ -2,7 +2,7 @@
 #include "CQuery.h"
 
 
-bool CHandle::Execute(ExecutionType type, CQuery *query, CCallback *callback /*= nullptr*/)
+bool CHandle::Execute(ExecutionType type, CQuery *query)
 {
 	if (type == ExecutionType::INVALID || query == nullptr)
 		return false;

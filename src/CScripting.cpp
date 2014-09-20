@@ -258,6 +258,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
 	const CHandle::Id_t handle_id = static_cast<CHandle::Id_t>(params[1]);
 	CHandle *handle = CHandleManager::Get()->GetHandle(handle_id);
+	error_condition callback_error;
 
 	if (handle == nullptr)
 		return 0;
@@ -266,7 +267,12 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		amx, 
 		amx_GetCppString(amx, params[3]),
 		amx_GetCppString(amx, params[4]),
-		params, 5);
+		params, 5,
+		callback_error);
+
+	if (callback_error) //TODO: ignore 'EMPTY_NAME' error
+		return 0;
+	
 
 	CQuery *query = CQuery::Create(amx_GetCppString(amx, params[2]));
 	if (callback != nullptr)
