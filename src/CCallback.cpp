@@ -89,6 +89,9 @@ bool CCallback::Execute()
 	if (CCallbackManager::Get()->IsValidAmx(m_AmxInstance) == false)
 		return false;
 
+	if (m_Executed == true)
+		return false; //can't execute the same callback more than once because m_Params is emptied
+
 
 	cell amx_address = -1;
 	while (m_Params.empty() == false)
@@ -120,6 +123,7 @@ bool CCallback::Execute()
 	if (m_PostExecute)
 		m_PostExecute();
 
+	m_Executed = true;
 	return true;
 }
 

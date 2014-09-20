@@ -71,6 +71,7 @@ private: //variables
 	int m_AmxCallbackIndex = -1;
 
 	ParamList_t m_Params;
+	bool m_Executed = false;
 
 	
 public: //functions
