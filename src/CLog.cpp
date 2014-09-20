@@ -28,7 +28,7 @@ void CLog::ProcessLog()
 	time_t StartLogTimeRaw;
 	time(&StartLogTimeRaw);
 	const tm * StartLogTimeInfo = localtime(&StartLogTimeRaw);
-	strftime(StartLogTime, sizeof(StartLogTime), "%H:%M, %d.%m.%Y", StartLogTimeInfo);
+	strftime(StartLogTime, sizeof(StartLogTime), "%H:%M:%S, %d.%m.%Y", StartLogTimeInfo);
 
 	if (m_LogTemplate == LOG_TEMPLATE_ORIGINAL)
 		fprintf(LogFile, "<html><head><title>MySQL Plugin log</title><style>table {border: 1px solid black; border-collapse: collapse; line-height: 23px; table-layout: fixed; width: 863px;}th, td {border: 1px solid black; word-wrap: break-word;}thead {background-color: #C0C0C0;}		tbody {text-align: center;}		table.left1 {position: relative; left: 36px;}		table.left2 {position: relative; left: 72px;}		.time {width: 80px;}		.func {width: 200px;}		.stat {width: 75px;}		.msg {width: 400px;}	</style>	<script>		var 			LOG_ERROR = 1,			LOG_WARNING = 2,			LOG_DEBUG = 4;				var			FirstRun = true,			IsCallbackActive = false,			IsTableOpen = false,			IsThreadActive = false;				function StartCB(cbname) {			StartTable(1, 0, cbname);		}		function EndCB() {			EndTable();			IsCallbackActive = false;		}		function StartTable(iscallback, isthreaded, cbname) {			if(IsTableOpen == true || isthreaded != IsThreadActive)				EndTable();						if(iscallback == true) {				document.write(					\"<table class=left2>\" +						\"<th bgcolor=#C0C0C0 >In callback \\\"\"+cbname+\"\\\"</th>\" +					\"</table>\"				);			}						document.write(\"<table\");			if(iscallback == true || (isthreaded != IsThreadActive && isthreaded == false && IsCallbackActive == true) ) {				document.write(\" class=left2\");				IsCallbackActive = true;			}			else if(isthreaded == true) 				document.write(\" class=left1\");						IsThreadActive = isthreaded;			document.write(\">\");						if(FirstRun == true) {				FirstRun = false;				document.write(\"<thead><th class=time>Time</th><th class=func>Function</th><th class=stat>Status</th><th class=msg>Message</th></thead>\");			}			document.write(\"<tbody>\");			IsTableOpen = true;		}				function EndTable() {			document.write(\"</tbody></table>\");			IsTableOpen = false;		}						function Log(time, func, status, msg, isthreaded) {			isthreaded = typeof isthreaded !== 'undefined' ? isthreaded : 0;			if(IsTableOpen == false || isthreaded != IsThreadActive)				StartTable(false, isthreaded, \"\");			var StatColor, StatText;			switch(status) {			case LOG_ERROR:				StatColor = \"RED\";				StatText = \"ERROR\";				break;			case LOG_WARNING:				StatColor = \"#FF9900\";				StatText = \"WARNING\";				break;			case LOG_DEBUG:				StatColor = \"#00DD00\";				StatText = \"OK\";				break;			}			document.write(				\"<tr bgcolor=\"+StatColor+\">\" + 					\"<td class=time>\"+time+\"</td>\" + 					\"<td class=func>\"+func+\"</td>\" + 					\"<td class=stat>\"+StatText+\"</td>\" + 					\"<td class=msg>\"+msg+\"</td>\" + 				\"</tr>\"			);		}	</script></head><body bgcolor=grey>	<h2>Logging started at %s</h2><script>\n", StartLogTime);
@@ -91,9 +91,13 @@ void CLog::ProcessLog()
 			}
 			else
 			{
+				time(&StartLogTimeRaw);
+				StartLogTimeInfo = localtime(&StartLogTimeRaw);
+				strftime(StartLogTime, sizeof(StartLogTime), "%H:%M:%S, %d.%m.%Y", StartLogTimeInfo);
+
 				fprintf(LogFile, "FinishTime(\"%s\");</script><br /><br /><br /><br /><br />", StartLogTime); //append FinishTime because it won't be appended when the user close console without command "exit" and this tag, or else the JS functions won't work
 				fflush(LogFile);
-				fseek(LogFile, ftell(LogFile) - 71, SEEK_SET); //set position before FinishTime(\"%s\");</script>-tag to overwrite it next time
+				fseek(LogFile, ftell(LogFile) - 74, SEEK_SET); //set position before FinishTime(\"%s\");</script>-tag to overwrite it next time
 			}
 
 			delete LogData;
