@@ -1,8 +1,10 @@
 #pragma once
 
 #include <string>
+#include <functional>
 
 using std::string;
+using std::function;
 
 class CResult;
 typedef struct st_mysql MYSQL;
@@ -20,7 +22,7 @@ private: //constructor / deconstructor
 
 private: //variables
 	string m_Query;
-
+	function<void(const CResult *result)> m_Callback;
 	CResult *m_Result = nullptr;
 
 
@@ -30,10 +32,9 @@ private: //functions
 
 public:
 	bool Execute(MYSQL *connection);
-
-	const CResult *GetResult() const
+	inline void OnExecutionFinished(decltype(m_Callback) && cb)
 	{
-		return m_Result;
+		m_Callback = cb;
 	}
 
 

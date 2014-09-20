@@ -269,7 +269,16 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		params, 5);
 
 	CQuery *query = CQuery::Create(amx_GetCppString(amx, params[2]));
-	return handle->Execute(CHandle::ExecutionType::THREADED, query, callback);
+	if (callback != nullptr)
+	{
+		query->OnExecutionFinished([=](const CResult *result)
+		{
+			//TODO: post-execute, pre-execute
+			callback->Execute();
+		});
+	}
+
+	return handle->Execute(CHandle::ExecutionType::THREADED, query);
 }
 
 //native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
