@@ -52,6 +52,10 @@ bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 		if (mysql_result != NULL)
 			mysql_free_result(mysql_result);
 
+		//process all further result sets - just free them all to avoid desync
+		while (mysql_next_result(mysql_connection) == 0)
+			mysql_free_result(mysql_store_result(mysql_connection));
+
 		ret_val = true;
 	}
 	else  //mysql_real_query failed
