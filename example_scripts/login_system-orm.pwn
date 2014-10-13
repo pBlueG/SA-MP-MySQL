@@ -75,8 +75,14 @@ public OnGameModeExit()
 {
 	//save all player data before closing connection
 	for(new p=0; p < MAX_PLAYERS; ++p)
+	{
 		if(IsPlayerConnected(p) && Player[p][IsLoggedIn] && Player[p][ID] > 0)
-		    orm_save(Player[p][ORM_ID]);
+		{
+			orm_save(Player[p][ORM_ID]);
+			orm_destroy(Player[p][ORM_ID]);
+			Player[p][IsLoggedIn] = false;
+		}
+	}
 
 	mysql_close();
 	return 1;
@@ -169,16 +175,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				ShowPlayerDialog(playerid, DIALOG_UNUSED, DIALOG_STYLE_MSGBOX, "Login", "You have been successfully logged in.", "Okay", "");
 				Player[playerid][IsLoggedIn] = true;
 				
-			    SetSpawnInfo(playerid, 0, 0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
+				SetSpawnInfo(playerid, 0, 0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
 				SpawnPlayer(playerid);
 			}
 			else
 			{
-			    Player[playerid][LoginAttempts]++;
-			    if(Player[playerid][LoginAttempts] >= 3)
-			    {
+				Player[playerid][LoginAttempts]++;
+				if(Player[playerid][LoginAttempts] >= 3)
+				{
 					ShowPlayerDialog(playerid, DIALOG_UNUSED, DIALOG_STYLE_MSGBOX, "Login", CHAT_RED "You have mistyped your password too often (3 times).", "Okay", "");
-			        DelayedKick(playerid);
+					DelayedKick(playerid);
 				}
 				else
 				    ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, "Login", CHAT_RED "Wrong password!\n" CHAT_WHITE "Please enter your password in the field below:", "Login", "Abort");
@@ -211,7 +217,7 @@ public OnPlayerRegister(playerid)
 	Player[playerid][IsLoggedIn] = true;
 	Player[playerid][IsRegistered] = true;
 	
-    SetSpawnInfo(playerid, 0, 0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
+	SetSpawnInfo(playerid, 0, 0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
 	SpawnPlayer(playerid);
 	return 1;
 }
@@ -225,9 +231,10 @@ public OnPlayerSpawn(playerid)
 
 public OnPlayerDisconnect(playerid,reason)
 {
-    g_MysqlRaceCheck[playerid]++;
+	g_MysqlRaceCheck[playerid]++;
 	if(Player[playerid][IsLoggedIn] && Player[playerid][ID] > 0)
 	    orm_save(Player[playerid][ORM_ID]); //if Player[playerid][ID] has a valid value, orm_save sends an UPDATE query, else an INSERT query
+	orm_destroy(Player[playerid][ORM_ID]);
 	return 1;
 }
 
