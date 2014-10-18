@@ -14,13 +14,13 @@ CConnection::CConnection(string &host, string &user, string &passw, string &db,
 {
 	m_Connection = mysql_init(NULL);
 	if (m_Connection == NULL)
-		throw("MySQL initialization failed");
+		return; //TODO: error "MySQL initialization failed"
 	
 	auto *result = mysql_real_connect(m_Connection, host.c_str(),
 		user.c_str(), passw.c_str(), db.c_str(), port, NULL, NULL);
 
 	if (result == NULL)
-		throw("connection failed");
+		return; //TODO: error "connection failed"
 	
 
 	my_bool reconnect = auto_reconnect;
