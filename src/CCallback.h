@@ -9,7 +9,7 @@
 #include <stack>
 #include <unordered_set>
 #include <boost/variant.hpp>
-#include <system_error> //TODO: maybe selfmade error class?
+
 #include <memory>
 
 using std::string;
@@ -18,7 +18,7 @@ using std::function;
 using std::stack;
 using std::unordered_set;
 using boost::variant;
-using std::error_condition;
+
 using std::shared_ptr;
 
 
@@ -28,7 +28,7 @@ public: //type definitions
 	using Type_t = shared_ptr<CCallback>;
 	using ParamList_t = stack<variant<cell, string>>;
 
-
+	//TODO: errors!!!
 	enum class Errors
 	{
 		EMPTY_NAME,
@@ -36,20 +36,9 @@ public: //type definitions
 		INVALID_AMX,
 		NOT_FOUND,
 		INVALID_PARAM_OFFSET,
-		INVALID_FORMAT_SPECIFIER,
-
-		_NUM_ERRORS
+		INVALID_FORMAT_SPECIFIER
 	};
 
-	class error_category : public std::error_category
-	{
-	public:
-		const char* name() const
-		{
-			return "Callback";
-		}
-		string message(int ev) const;
-	};
 
 public: //constructor / destructor
 	CCallback(AMX *amx, int cb_idx, ParamList_t &&params) :
@@ -121,10 +110,3 @@ public: //functions
 	}
 
 };
-
-
-namespace std
-{
-	template<>
-	struct is_error_condition_enum<CCallback::Errors> : public true_type {};
-}

@@ -1,35 +1,24 @@
 #include "CCallback.h"
 
-#include <array>
-
-
-namespace std
-{
-	std::error_condition make_error_condition(CCallback::Errors e)
-	{
-		static const CCallback::error_category category;
-		return std::error_condition(static_cast<int>(e), category);
-	}
-}
 
 CCallback::Type_t CCallback::Create(AMX *amx, string name, string format, cell *params, cell param_offset
 	/*error_condition &error*/)
 {
 	if (amx == nullptr)
 	{
-		error = std::make_error_condition(CCallback::Errors::INVALID_AMX);
+		//error = CCallback::Errors::INVALID_AMX
 		return nullptr;
 	}
 
 	if (params == nullptr)
 	{
-		error = std::make_error_condition(CCallback::Errors::EMPTY_PARAMETERS);
+		//error = (CCallback::Errors::EMPTY_PARAMETERS);
 		return nullptr;
 	}
 
 	if (name.empty())
 	{
-		error = std::make_error_condition(CCallback::Errors::EMPTY_NAME);
+		//error = (CCallback::Errors::EMPTY_NAME);
 		return nullptr;
 	}
 
@@ -37,7 +26,7 @@ CCallback::Type_t CCallback::Create(AMX *amx, string name, string format, cell *
 	int cb_idx = -1;
 	if (amx_FindPublic(amx, name.c_str(), &cb_idx) != AMX_ERR_NONE)
 	{
-		error = std::make_error_condition(CCallback::Errors::NOT_FOUND);
+		//error = (CCallback::Errors::NOT_FOUND);
 		return nullptr;
 	}
 
@@ -47,7 +36,7 @@ CCallback::Type_t CCallback::Create(AMX *amx, string name, string format, cell *
 	{
 		if (static_cast<cell>(params[0] / sizeof(cell)) < param_offset)
 		{
-			error = std::make_error_condition(CCallback::Errors::INVALID_PARAM_OFFSET);
+			//error = (CCallback::Errors::INVALID_PARAM_OFFSET);
 			return nullptr;
 		}
 
@@ -73,7 +62,7 @@ CCallback::Type_t CCallback::Create(AMX *amx, string name, string format, cell *
 				//TODO: support for arrays
 				break;
 			default:
-				error = std::make_error_condition(CCallback::Errors::INVALID_FORMAT_SPECIFIER);
+				//error = (CCallback::Errors::INVALID_FORMAT_SPECIFIER);
 				return nullptr;
 			}
 			param_idx++;
@@ -125,22 +114,4 @@ bool CCallback::Execute()
 
 	m_Executed = true;
 	return true;
-}
-
-
-string CCallback::error_category::message(int ev) const
-{
-	static const std::array<std::string, static_cast<size_t>(Errors::_NUM_ERRORS)> error_messages{
-		"No name specified",
-		"No parameters specified",
-		"Invalid AMX",
-		"Not found",
-		"Invalid parameter offset",
-		"Invalid format specifier"
-	};
-
-	if (ev < 0 || ev >= static_cast<int>(error_messages.size()))
-		return "Unknown error";
-
-	return error_messages.at(ev);
 }
