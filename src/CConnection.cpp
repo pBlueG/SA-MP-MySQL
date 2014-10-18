@@ -9,7 +9,7 @@
 #endif
 
 
-CConnection::CConnection(string &host, string &user, string &passw, string &db, 
+CConnection::CConnection(const string &host, const string &user, const string &passw, const string &db,
 	size_t port, bool auto_reconnect)
 {
 	m_Connection = mysql_init(NULL);

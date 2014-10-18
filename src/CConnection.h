@@ -10,8 +10,8 @@ typedef struct st_mysql MYSQL;
 
 class CConnection
 {
-private: //constructor / deconstructor
-	CConnection(string &host, string &user, string &passw, string &db,
+public: //constructor / deconstructor
+	CConnection(const string &host, const string &user, const string &passw, const string &db,
 		size_t port, bool auto_reconnect);
 	~CConnection();
 

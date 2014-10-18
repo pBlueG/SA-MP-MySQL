@@ -32,7 +32,7 @@ private: //functions
 
 public:
 	bool Execute(MYSQL *connection);
-	inline void OnExecutionFinished(decltype(m_Callback) && cb)
+	inline void OnExecutionFinished(decltype(m_Callback) &&cb)
 	{
 		m_Callback = cb;
 	}

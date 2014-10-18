@@ -87,11 +87,11 @@ public: //functions
 		return m_AmxInstances.count(amx) == 1;
 	}
 
-	void AddAmx(const AMX *amx)
+	inline void AddAmx(const AMX *amx)
 	{
 		m_AmxInstances.insert(amx);
 	}
-	void RemoveAmx(const AMX *amx)
+	inline void RemoveAmx(const AMX *amx)
 	{
 		m_AmxInstances.erase(amx);
 	}
