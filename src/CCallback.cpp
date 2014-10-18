@@ -102,15 +102,9 @@ bool CCallback::Execute()
 		m_Params.pop();
 	}
 
-	if (m_PreExecute)
-		m_PreExecute();
-
 	amx_Exec(m_AmxInstance, nullptr, m_AmxCallbackIndex);
 	if (amx_address >= NULL)
 		amx_Release(m_AmxInstance, amx_address);
-
-	if (m_PostExecute)
-		m_PostExecute();
 
 	m_Executed = true;
 	return true;

@@ -52,10 +52,6 @@ public: //constructor / destructor
 
 
 private: //variables
-	function<void()>
-		m_PreExecute,
-		m_PostExecute;
-
 	AMX *m_AmxInstance = nullptr;
 	int m_AmxCallbackIndex = -1;
 
@@ -64,15 +60,6 @@ private: //variables
 
 	
 public: //functions
-	inline void OnPreExecute(decltype(m_PreExecute) &&func)
-	{
-		m_PreExecute = func;
-	}
-	inline void OnPostExecute(decltype(m_PostExecute) &&func)
-	{
-		m_PostExecute = func;
-	}
-
 	bool Execute();
 	
 

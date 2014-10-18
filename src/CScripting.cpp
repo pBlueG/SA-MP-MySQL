@@ -279,8 +279,9 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	{
 		query->OnExecutionFinished([=](const CResult *result)
 		{
-			//TODO: post-execute, pre-execute
+			//TODO: pre-execute: set active handle & result(cache)
 			callback->Execute();
+			//TODO: post-execute: unset active handle & result(cache) + delete result
 		});
 	}
 
