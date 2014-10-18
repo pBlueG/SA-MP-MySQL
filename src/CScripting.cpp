@@ -263,7 +263,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	if (handle == nullptr)
 		return 0;
 
-	CCallback::Type_t callback = CCallbackManager::Get()->Create(
+	CCallback::Type_t callback = CCallback::Create(
 		amx, 
 		amx_GetCppString(amx, params[3]),
 		amx_GetCppString(amx, params[4]),

@@ -1,4 +1,5 @@
 #include "CConnection.h"
+#include "CQuery.h"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -64,9 +65,7 @@ bool CConnection::SetCharset(string charset)
 	return true;
 }
 
-void CConnection::ProcessQueries()
+bool CConnection::Execute(CQuery *query)
 {
-	mysql_thread_init();
-	
-	mysql_thread_end();
+	return IsConnected() && query->Execute(m_Connection);
 }

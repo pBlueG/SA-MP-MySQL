@@ -31,13 +31,5 @@ public: //functions
 
 	bool SetCharset(string charset);
 
-	inline bool QueueQuery(CQuery *query)
-	{
-		
-	}
-
-
-private: //functions
-	void ProcessQueries();
-
+	bool Execute(CQuery *query);
 };

@@ -86,6 +86,10 @@ public: //functions
 
 	bool Execute();
 	
+
+public: //factory function
+	static Type_t Create(AMX *amx, string name, string format, cell *params, cell param_offset
+		/*error_condition &error*/);
 };
 
 
@@ -98,13 +102,10 @@ private: //constructor / destructor
 
 
 private: //variables
-	queue<CCallback::Type_t> m_Callbacks;
 	unordered_set<const AMX *> m_AmxInstances;
 
 
 public: //functions
-	CCallback::Type_t Create(AMX *amx, string name, string format, cell *params, cell param_offset,
-		error_condition &error);
 	inline bool IsValidAmx(const AMX *amx)
 	{
 		return m_AmxInstances.count(amx) == 1;
@@ -118,7 +119,6 @@ public: //functions
 	{
 		m_AmxInstances.erase(amx);
 	}
-	void Process();
 
 };
 

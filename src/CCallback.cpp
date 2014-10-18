@@ -12,8 +12,8 @@ namespace std
 	}
 }
 
-CCallback::Type_t CCallbackManager::Create(AMX *amx, string name, string format, cell *params, cell param_offset,
-	error_condition &error)
+CCallback::Type_t CCallback::Create(AMX *amx, string name, string format, cell *params, cell param_offset
+	/*error_condition &error*/)
 {
 	if (amx == nullptr)
 	{
@@ -127,17 +127,6 @@ bool CCallback::Execute()
 	return true;
 }
 
-
-void CCallbackManager::Process()
-{
-	while (m_Callbacks.empty() == false)
-	{
-		CCallback::Type_t callback = m_Callbacks.front();
-		m_Callbacks.pop();
-
-		callback->Execute();
-	}
-}
 
 string CCallback::error_category::message(int ev) const
 {
