@@ -36,6 +36,11 @@ public:
 	{
 		m_Callback = cb;
 	}
+	inline void CallCallback()
+	{
+		if (m_Callback)
+			m_Callback(m_Result);
+	}
 
 
 public: //factory function

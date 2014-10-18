@@ -4,10 +4,15 @@
 
 #include <string>
 #include <unordered_map>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/sync_bounded_queue.hpp>
+#include <boost/atomic.hpp>
 
 using std::string;
 using std::unordered_map;
+using boost::atomic;
 
+class CConnection;
 class CQuery;
 class CCallback;
 
@@ -29,13 +34,29 @@ public: //type definitions
 
 private: //constructor / deconstructor
 	CHandle(Id_t id) :
-		m_Id(id)
+		m_Id(id),
+		m_ThreadsRunning(true),
+		m_QueryQueue(32768),
+		m_ParallelQueue(32768)
 	{ }
 	~CHandle() = default;
 
 
 private: //variables
 	const Id_t m_Id;
+
+	boost::thread *m_QueryThread = nullptr;
+	boost::thread_group m_ParallelThreads;
+	atomic<bool> m_ThreadsRunning;
+
+	//query queues
+	boost::sync_bounded_queue<CQuery *> m_QueryQueue;
+	boost::sync_bounded_queue<CQuery *> m_ParallelQueue;
+
+	CConnection
+		*m_MainConnection = nullptr,
+		*m_ThreadConnection = nullptr;
+
 
 
 public: //functions
