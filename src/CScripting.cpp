@@ -101,13 +101,32 @@ AMX_DECLARE_NATIVE(Native::mysql_log)
 // native MySQL:mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
 AMX_DECLARE_NATIVE(Native::mysql_connect)
 {
-	return 0;
+	CHandle::Error handle_error;
+	CHandle *handle = CHandleManager::Get()->Create(
+		amx_GetCppString(amx, params[1]),
+		amx_GetCppString(amx, params[2]),
+		amx_GetCppString(amx, params[3]),
+		amx_GetCppString(amx, params[4]),
+		params[5],
+		params[7],
+		handle_error);
+
+	if (handle_error != CHandle::Error::NONE)
+		return 0; //TODO: error message
+
+	assert(handle != nullptr); //should never happen
+
+	return handle->GetId();
 }
 
 // native mysql_close(MySQL:handle = DEFAULT_MYSQL_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_close)
 {
-	return 0;
+	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<CHandle::Id_t>(params[1]));
+	if (handle == nullptr)
+		return 0;
+
+	return CHandleManager::Get()->Destroy(handle);
 }
 
 // native mysql_reconnect(MySQL:handle = DEFAULT_MYSQL_HANDLE);
