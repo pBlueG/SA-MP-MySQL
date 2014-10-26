@@ -12,8 +12,8 @@
 /**
  * Common error codes
  *
- * Client: http://dev.mysql.com/doc/refman/5.1/en/error-messages-client.html
- * Server: http://dev.mysql.com/doc/refman/5.1/en/error-messages-server.html
+ * Client: http://dev.mysql.com/doc/refman/5.5/en/error-messages-client.html
+ * Server: http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
  */
 
 #define ER_DBACCESS_DENIED_ERROR 		1044
@@ -28,31 +28,25 @@
 
 enum E_LOGLEVEL
 {
-	LOG_NONE = 0,
-	LOG_ERROR = 1,
-	LOG_WARNING = 2,
-	LOG_DEBUG = 4,
+	NONE = 0,
+	ERROR = 1,
+	WARNING = 2,
+	DEBUG = 4,
 	
-	LOG_ALL = LOG_ERROR | LOG_WARNING | LOG_DEBUG
+	ALL = ERROR | WARNING | DEBUG
 };
 
 enum E_LOGTYPE
 {
-	LOG_TYPE_TEXT = 1,
-	LOG_TYPE_HTML = 2
+	INVALID,
+	TEXT,
+	HTML
 };
 
 enum E_ORM_ERROR
 {
 	ERROR_OK,
 	ERROR_NO_DATA
-};
-
-enum E_VAR_DATATYPE 
-{
-	DATATYPE_INT,
-	DATATYPE_FLOAT,
-	DATATYPE_STRING
 };
 
 enum E_MYSQL_OPTION
@@ -63,17 +57,18 @@ enum E_MYSQL_OPTION
 
 enum E_EXECTIME_UNIT
 {
-	UNIT_MILLISECONDS,
-	UNIT_MICROSECONDS
+	MILLISECONDS,
+	MICROSECONDS
 };
 
+#define DEFAULT_MYSQL_HANDLE MySQL:1
 
 #define cache_num_fields 	cache_get_field_count
 #define cache_num_rows 		cache_get_row_count
 
 
 // ORM functions
-native ORM:orm_create(const table[], connectionHandle = 1);
+native ORM:orm_create(const table[], MySQL:handle = DEFAULT_MYSQL_HANDLE);
 native orm_destroy(ORM:id);
 
 native E_ORM_ERROR:orm_errno(ORM:id);
@@ -102,31 +97,32 @@ native orm_setkey(ORM:id, varname[]);
 
 
 // MySQL functions
-native mysql_log(E_LOGLEVEL:loglevel = LOG_ERROR | LOG_WARNING, E_LOGTYPE:logtype = LOG_TYPE_TEXT);
-native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
-native mysql_close(connectionHandle = 1);
-native mysql_reconnect(connectionHandle = 1);
+native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
+native MySQL:mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
+native mysql_close(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_reconnect(MySQL:handle = DEFAULT_MYSQL_HANDLE);
 
-native mysql_unprocessed_queries(connectionHandle = 1);
+native mysql_unprocessed_queries(MySQL:handle = DEFAULT_MYSQL_HANDLE);
 native mysql_current_handle();
 native mysql_option(E_MYSQL_OPTION:type, value);
 
-native mysql_errno(connectionHandle = 1);
-native mysql_escape_string(const source[], destination[], connectionHandle = 1, max_len = sizeof(destination));
-native mysql_format(connectionHandle, output[], len, format[], {Float,_}:...);
-native mysql_pquery(connectionHandle, query[], callback[] = "", format[] = "", {Float,_}:...);
+native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 /*
-native mysql_pquery_inline(connHandle, query[], callback:Callback, format[], {Float,_}:...); //y_inline
+native mysql_pquery_inline(MySQL:handle, const query[], callback:Callback, const format[], {Float,_}:...); //y_inline
 */
-native mysql_tquery(connectionHandle, query[], callback[] = "", format[] = "", {Float,_}:...);
+native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 /*
-native mysql_tquery_inline(connHandle, query[], callback:Callback, format[], {Float,_}:...); //y_inline
+native mysql_tquery_inline(MySQL:handle, const query[], callback:Callback, const format[], {Float,_}:...); //y_inline
 */
-native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
+native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
 
-native mysql_stat(destination[], connectionHandle = 1, max_len = sizeof(destination));
-native mysql_get_charset(destination[], connectionHandle = 1, max_len = sizeof(destination));
-native mysql_set_charset(charset[], connectionHandle = 1);
+native mysql_errno(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_format(MySQL:handle, output[], len, const format[], {Float,_}:...);
+native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_set_charset(const charset[], MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
+
 
 
 // Cache functions
@@ -144,20 +140,20 @@ native cache_get_field_content_int(row_idx, const field_name[]);
 native Float:cache_get_field_content_float(row_idx, const field_name[]);
 
 native Cache:cache_save();
-native cache_delete(Cache:cache_id, connectionHandle = 1);
-native cache_set_active(Cache:cache_id, connectionHandle = 1);
-native cache_is_valid(Cache:cache_id, connectionHandle = 1);
+native cache_delete(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native cache_set_active(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native cache_is_valid(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
 
 native cache_affected_rows();
 native cache_warning_count();
 native cache_insert_id();
 
-native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = UNIT_MICROSECONDS);
+native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = MICROSECONDS);
 native cache_get_query_string(destination[], max_len = sizeof(destination));
 
 
 // Forward declarations
-forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
+forward OnQueryError(errorid, const error[], const callback[], const query[], MySQL:handle);
 
 
 #if defined MYSQL_USE_YINLINE || defined E_CALLBACK_DATA
