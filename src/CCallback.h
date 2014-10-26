@@ -30,13 +30,13 @@ public: //type definitions
 
 	enum class Error
 	{
+		NONE,
 		INVALID_AMX,
 		INVALID_PARAMETERS,
 		INVALID_PARAM_OFFSET,
 		INVALID_FORMAT_SPECIFIER,
 		EMPTY_NAME,
 		NOT_FOUND,
-		NONE
 	};
 
 

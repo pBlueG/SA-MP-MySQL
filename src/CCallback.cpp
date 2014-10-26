@@ -6,6 +6,7 @@
 CCallback::Type_t CCallback::Create(
 	AMX *amx, string name, string format, cell *params, cell param_offset, CCallback::Error &error)
 {
+	error = CCallback::Error::NONE;
 	if (amx == nullptr)
 	{
 		error = CCallback::Error::INVALID_AMX;
