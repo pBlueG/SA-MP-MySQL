@@ -3,6 +3,7 @@
 #include "CConnection.h"
 
 #ifdef WIN32
+	#define NOMINMAX //goddamnit Microsoft
 	#include <WinSock2.h>
 	#include <mysql.h>
 #else
@@ -33,19 +34,53 @@ bool CHandle::Execute(ExecutionType type, CQuery *query)
 
 
 CHandle *CHandleManager::Create(string host, string user, string pass, string db,
-	size_t port, size_t pool_size)
+	size_t port, size_t pool_size, CHandle::Error &error)
 {
+	error = CHandle::Error::NONE;
+	if (host.empty())
+	{
+		error = CHandle::Error::EMPTY_HOST;
+		return nullptr;
+	}
+
+	if (user.empty())
+	{
+		error = CHandle::Error::EMPTY_USER;
+		return nullptr;
+	}
+
+	if (pass.empty())
+		;//TODO: warning
+
+	if (db.empty())
+	{
+		error = CHandle::Error::EMPTY_DATABASE;
+		return nullptr;
+	}
+
+	if (port > std::numeric_limits<unsigned short>::max())
+	{
+		error = CHandle::Error::INVALID_PORT;
+		return nullptr;
+	}
+
+	if (pool_size > 32)
+	{
+		error = CHandle::Error::INVALID_POOL_SIZE;
+		return nullptr;
+	}
+
+
 	CHandle::Id_t id = 1;
 
 	while (m_Handles.find(id) != m_Handles.end())
 		id++;
 
-
 	CHandle *handle = new CHandle(id);
 	
 	handle->m_MainConnection = new CConnection(host, user, pass, db, port, true);
 	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, port);
-	if (pool_size > 0 && pool_size < 32)
+	if (pool_size != 0)
 		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, port);
 
 	m_Handles.emplace(id, handle);

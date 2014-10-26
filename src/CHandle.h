@@ -29,6 +29,16 @@ public: //type definitions
 		UNTHREADED
 	};
 
+	enum class Error
+	{
+		NONE,
+		EMPTY_HOST,
+		EMPTY_USER,
+		EMPTY_DATABASE,
+		INVALID_PORT,
+		INVALID_POOL_SIZE,
+	};
+
 private: //constructor / deconstructor
 	CHandle(Id_t id) :
 		m_Id(id)
@@ -64,8 +74,8 @@ private: //variables
 
 public: //functions
 	CHandle *Create(string host, string user, string pass, string db, 
-		size_t port, size_t pool_size);
-	bool Destroy(CHandle * handle);
+		size_t port, size_t pool_size, CHandle::Error &error);
+	bool Destroy(CHandle *handle);
 
 	inline bool IsValidHandle(const CHandle::Id_t id)
 	{
