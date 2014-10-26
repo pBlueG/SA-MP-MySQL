@@ -19,13 +19,13 @@ bool CHandle::Execute(ExecutionType type, CQuery *query)
 	switch (type)
 	{
 	case ExecutionType::THREADED:
-		return m_QueryQueue.nonblocking_push_back(query) == boost::queue_op_status::success;
+		return m_ThreadedConnection != nullptr ? m_ThreadedConnection->Queue(query) : false;
 
 	case ExecutionType::PARALLEL:
-		return m_ParallelQueue.nonblocking_push_back(query) == boost::queue_op_status::success;
+		return m_ConnectionPool != nullptr ? m_ConnectionPool->Queue(query) : false;
 
 	case ExecutionType::UNTHREADED:
-		return m_MainConnection->Execute(query);
+		return m_MainConnection != nullptr ? m_MainConnection->Execute(query) : false;
 	}
 
 	return false;
@@ -42,39 +42,11 @@ CHandle *CHandleManager::Create(string host, string user, string pass, string db
 
 
 	CHandle *handle = new CHandle(id);
-	auto query_thread_func = [=](boost::sync_bounded_queue<CQuery *> &query_queue) mutable
-	{
-		mysql_thread_init();
-
-		CConnection connection(host, user, pass, db, port, true);
-		host.clear();
-		user.clear();
-		pass.clear();
-		db.clear();
-		
-		while (handle->m_ThreadsRunning)
-		{
-			while (query_queue.empty() == false)
-			{
-				CQuery *query = nullptr;
-				if (query_queue.nonblocking_pull_front(query) == boost::queue_op_status::success)
-				{
-					if (connection.Execute(query))
-					{
-						//CFunctionDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
-					}
-				}
-			}
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
-		}
-
-		mysql_thread_end();
-	};
-
-	handle->m_QueryThread = new boost::thread(std::bind(query_thread_func, std::ref(handle->m_QueryQueue)));
-	for (size_t i = 0; i != pool_size; ++i)
-		handle->m_ParallelThreads.create_thread(std::bind(query_thread_func, std::ref(handle->m_ParallelQueue)));
 	
+	handle->m_MainConnection = new CConnection(host, user, pass, db, port, true);
+	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, port);
+	if (pool_size > 0 && pool_size < 32)
+		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, port);
 
 	m_Handles.emplace(id, handle);
 	return handle;

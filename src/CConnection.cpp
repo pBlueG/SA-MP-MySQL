@@ -69,3 +69,79 @@ bool CConnection::Execute(CQuery *query)
 {
 	return IsConnected() && query->Execute(m_Connection);
 }
+
+
+
+CThreadedConnection::CThreadedConnection(
+	const string &host, const string &user, const string &passw, const string &db, size_t port)
+	:
+	m_Connection(host, user, passw, db, port, true),
+	m_WorkerThreadActive(true),
+	m_WorkerThread([this]()
+	{
+		mysql_thread_init();
+
+		while (m_WorkerThreadActive)
+		{
+			CQuery *query = nullptr;
+			while (m_Queue.pop(query))
+			{
+				if (m_Connection.Execute(query))
+				{
+					//CFunctionDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
+				}
+			}
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+		}
+
+		mysql_thread_end();
+	})
+{
+
+}
+
+CThreadedConnection::~CThreadedConnection()
+{
+	m_WorkerThreadActive = false;
+	m_WorkerThread.join();
+	assert(m_Queue.empty());
+}
+
+
+
+CConnectionPool::CConnectionPool(
+	const size_t size, const string &host, const string &user, const string &passw, const string &db, size_t port)
+{
+	for (size_t i = 0; i < size; ++i)
+		m_Pool.push_front(new CThreadedConnection(host, user, passw, db, port));
+	m_PoolPos = m_Pool.begin();
+}
+
+bool CConnectionPool::Queue(CQuery *query)
+{
+	if (m_PoolPos == m_Pool.end())
+		m_PoolPos = m_Pool.begin();
+
+	auto *connection = *m_PoolPos;
+	if (connection != nullptr)
+	{
+		m_PoolPos++;
+		return connection->Queue(query);
+	}
+	return false;
+}
+
+bool CConnectionPool::SetCharset(string charset)
+{
+	for (auto *c : m_Pool)
+		if (c == nullptr || c->SetCharset(charset) == false)
+			return false;
+
+	return true;
+}
+
+CConnectionPool::~CConnectionPool()
+{
+	for (auto *c : m_Pool)
+		delete c;
+}
