@@ -11,6 +11,17 @@
 #endif
 
 
+CHandle::~CHandle()
+{
+	if (m_MainConnection != nullptr)
+		delete m_MainConnection;
+
+	if (m_ThreadedConnection != nullptr)
+		delete m_ThreadedConnection;
+
+	if (m_ConnectionPool != nullptr)
+		delete m_ConnectionPool;
+}
 
 bool CHandle::Execute(ExecutionType type, CQuery *query)
 {

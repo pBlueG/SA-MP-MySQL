@@ -43,7 +43,7 @@ private: //constructor / deconstructor
 	CHandle(Id_t id) :
 		m_Id(id)
 	{ }
-	~CHandle() = default;
+	~CHandle();
 
 private: //variables
 	const Id_t m_Id;
