@@ -28,15 +28,15 @@ public: //type definitions
 	using Type_t = shared_ptr<CCallback>;
 	using ParamList_t = stack<variant<cell, string>>;
 
-	//TODO: errors!!!
-	enum class Errors
+	enum class Error
 	{
-		EMPTY_NAME,
-		EMPTY_PARAMETERS,
 		INVALID_AMX,
-		NOT_FOUND,
+		INVALID_PARAMETERS,
 		INVALID_PARAM_OFFSET,
-		INVALID_FORMAT_SPECIFIER
+		INVALID_FORMAT_SPECIFIER,
+		EMPTY_NAME,
+		NOT_FOUND,
+		NONE
 	};
 
 
@@ -64,8 +64,8 @@ public: //functions
 	
 
 public: //factory function
-	static Type_t Create(AMX *amx, string name, string format, cell *params, cell param_offset
-		/*error_condition &error*/);
+	static Type_t Create(AMX *amx, string name, string format, cell *params, cell param_offset,
+		CCallback::Error &error);
 };
 
 
@@ -82,6 +82,8 @@ private: //variables
 
 
 public: //functions
+	bool GetErrorString(CCallback::Error error, string &dest);
+
 	inline bool IsValidAmx(const AMX *amx)
 	{
 		return m_AmxInstances.count(amx) == 1;
