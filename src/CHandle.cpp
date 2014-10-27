@@ -1,5 +1,5 @@
-#include "CHandle.h"
 #include "CQuery.h"
+#include "CHandle.h"
 #include "CConnection.h"
 
 #ifdef WIN32
@@ -23,7 +23,7 @@ CHandle::~CHandle()
 		delete m_ConnectionPool;
 }
 
-bool CHandle::Execute(ExecutionType type, CQuery *query)
+bool CHandle::Execute(ExecutionType type, CQuery::Type_t query)
 {
 	if (type == ExecutionType::INVALID || query == nullptr)
 		return false;

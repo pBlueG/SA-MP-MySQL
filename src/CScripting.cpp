@@ -1,6 +1,6 @@
 #include "CScripting.h"
-#include "CHandle.h"
 #include "CQuery.h"
+#include "CHandle.h"
 #include "CCallback.h"
 #include "CResult.h"
 
@@ -182,7 +182,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		return 0; // TODO: log error with CCallbackManager::GetErrorString
 	
 
-	CQuery *query = CQuery::Create(amx_GetCppString(amx, params[2]));
+	CQuery::Type_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
 	if (callback != nullptr)
 	{
 		query->OnExecutionFinished([=](const CResult *result)

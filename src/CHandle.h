@@ -9,7 +9,6 @@ using std::string;
 using std::unordered_map;
 
 class CCallback;
-class CQuery;
 class CConnection;
 class CThreadedConnection;
 class CConnectionPool;
@@ -53,7 +52,7 @@ private: //variables
 	CConnectionPool *m_ConnectionPool = nullptr;
 
 public: //functions
-	bool Execute(ExecutionType type, CQuery *query);
+	bool Execute(ExecutionType type, CQuery::Type_t query);
 
 	inline Id_t GetId() const
 	{

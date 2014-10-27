@@ -33,7 +33,7 @@ public: //functions
 	}
 	bool EscapeString(const char *src, string &dest);
 	bool SetCharset(string charset);
-	bool Execute(CQuery *query);
+	bool Execute(CQuery::Type_t query);
 
 };
 
@@ -51,12 +51,12 @@ private:
 	boost::thread m_WorkerThread;
 	boost::atomic<bool> m_WorkerThreadActive;
 
-	boost::lockfree::spsc_queue < CQuery *,
+	boost::lockfree::spsc_queue < CQuery::Type_t,
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 32768 >> m_Queue;
 
 public:
-	inline bool Queue(CQuery *query)
+	inline bool Queue(CQuery::Type_t query)
 	{
 		return m_Queue.push(query);
 	}
@@ -82,7 +82,7 @@ private:
 	Pool_t::iterator m_PoolPos;
 
 public:
-	bool Queue(CQuery *query);
+	bool Queue(CQuery::Type_t query);
 	bool SetCharset(string charset);
 
 };

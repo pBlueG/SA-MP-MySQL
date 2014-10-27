@@ -1,5 +1,5 @@
-#include "CConnection.h"
 #include "CQuery.h"
+#include "CConnection.h"
 #include "CDispatcher.h"
 
 #ifdef WIN32
@@ -66,7 +66,7 @@ bool CConnection::SetCharset(string charset)
 	return true;
 }
 
-bool CConnection::Execute(CQuery *query)
+bool CConnection::Execute(CQuery::Type_t query)
 {
 	return IsConnected() && query->Execute(m_Connection);
 }
@@ -84,7 +84,7 @@ CThreadedConnection::CThreadedConnection(
 
 		while (m_WorkerThreadActive)
 		{
-			CQuery *query = nullptr;
+			CQuery::Type_t query;
 			while (m_Queue.pop(query))
 			{
 				if (m_Connection.Execute(query))
@@ -118,7 +118,7 @@ CConnectionPool::CConnectionPool(
 	m_PoolPos = m_Pool.begin();
 }
 
-bool CConnectionPool::Queue(CQuery *query)
+bool CConnectionPool::Queue(CQuery::Type_t query)
 {
 	if (m_PoolPos == m_Pool.end())
 		m_PoolPos = m_Pool.begin();
