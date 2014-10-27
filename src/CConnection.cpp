@@ -1,5 +1,6 @@
 #include "CConnection.h"
 #include "CQuery.h"
+#include "CDispatcher.h"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -88,7 +89,7 @@ CThreadedConnection::CThreadedConnection(
 			{
 				if (m_Connection.Execute(query))
 				{
-					//CFunctionDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
+					CDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
 				}
 			}
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));

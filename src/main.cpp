@@ -1,6 +1,7 @@
 #include "sdk.h"
 #include "CScripting.h"
 #include "CCallback.h"
+#include "CDispatcher.h"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -46,7 +47,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 
 PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() 
 {
-	
+	CDispatcher::Get()->Process();
 }
 
 

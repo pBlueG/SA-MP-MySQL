@@ -95,6 +95,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\CCallback.h" />
+    <ClInclude Include="src\CDispatcher.h" />
     <ClInclude Include="src\CLog.h" />
     <ClInclude Include="src\CConnection.h" />
     <ClInclude Include="src\CHandle.h" />
@@ -110,6 +111,7 @@
     <ClCompile Include="libs\sdk\amxplugin.cpp" />
     <ClCompile Include="libs\sdk\amxplugin2.cpp" />
     <ClCompile Include="src\CCallback.cpp" />
+    <ClCompile Include="src\CDispatcher.cpp" />
     <ClCompile Include="src\CLog.cpp" />
     <ClCompile Include="src\CConnection.cpp" />
     <ClCompile Include="src\CHandle.cpp" />

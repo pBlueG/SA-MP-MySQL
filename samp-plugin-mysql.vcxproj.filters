@@ -17,6 +17,7 @@
     <ClInclude Include="src\CConnection.h" />
     <ClInclude Include="src\CQuery.h" />
     <ClInclude Include="src\CResult.h" />
+    <ClInclude Include="src\CDispatcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CScripting.cpp" />
@@ -35,5 +36,6 @@
     <ClCompile Include="src\CQuery.cpp" />
     <ClCompile Include="src\CHandle.cpp" />
     <ClCompile Include="src\CConnection.cpp" />
+    <ClCompile Include="src\CDispatcher.cpp" />
   </ItemGroup>
 </Project>
