@@ -105,8 +105,8 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 	CHandle *handle = CHandleManager::Get()->Create(
 		amx_GetCppString(amx, params[1]),
 		amx_GetCppString(amx, params[2]),
-		amx_GetCppString(amx, params[3]),
 		amx_GetCppString(amx, params[4]),
+		amx_GetCppString(amx, params[3]),
 		params[5],
 		params[7],
 		handle_error);
