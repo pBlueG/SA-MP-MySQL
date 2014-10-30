@@ -69,7 +69,7 @@ public: //factory function
 };
 
 
-class CCallbackManager : public CSingleton<CCallbackManager>
+class DLL_API CCallbackManager : public CSingleton<CCallbackManager>
 {
 	friend class CSingleton<CCallbackManager>;
 private: //constructor / destructor

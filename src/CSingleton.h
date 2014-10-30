@@ -1,5 +1,15 @@
 #pragma once
 
+#ifdef WIN32
+	#pragma warning (disable: 4251)
+	#if defined(DLL_EXPORTS)
+		#define DLL_API __declspec(dllexport)
+	#else
+		#define DLL_API __declspec(dllimport)
+	#endif
+#else
+	#define DLL_API
+#endif
 
 template<class T>
 class CSingleton

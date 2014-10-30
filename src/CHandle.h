@@ -61,7 +61,7 @@ public: //functions
 
 };
 
-class CHandleManager : public CSingleton<CHandleManager>
+class DLL_API CHandleManager : public CSingleton<CHandleManager>
 {
 	friend class CSingleton<CHandleManager>;
 private: //constructor / deconstructor
