@@ -43,11 +43,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\libs;C:\Libraries\boost_1_56_0;C:\Libraries\mysql-connector-c-6.1.5\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Libraries\boost_1_56_0\lib32-msvc-12.0;..\bin;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\libs;C:\Libraries\boost_1_56_0;C:\Libraries\mysql-connector-c-6.1.5\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Libraries\boost_1_56_0\lib32-msvc-12.0;..\bin;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
