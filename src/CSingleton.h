@@ -1,6 +1,4 @@
 #pragma once
-#ifndef INC_CSINGLETON_H
-#define INC_CSINGLETON_H
 
 
 template<class T>
@@ -10,8 +8,8 @@ protected:
 	static T *m_Instance;
 
 public:
-	CSingleton() { }
-	virtual ~CSingleton() { }
+	CSingleton() = default;
+	virtual ~CSingleton() = default;
 
 	inline static T *Get()
 	{
@@ -32,6 +30,3 @@ public:
 
 template <class T>
 T* CSingleton<T>::m_Instance = nullptr;
-
-
-#endif // INC_CSINGLETON_H
