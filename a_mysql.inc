@@ -148,7 +148,7 @@ native cache_delete(Cache:cache_id, connectionHandle = 1);
 native cache_set_active(Cache:cache_id, connectionHandle = 1);
 native cache_is_valid(Cache:cache_id, connectionHandle = 1);
 
-native cache_affected_rows();
+native cache_affected_rows(connectionHandle = 1);
 native cache_warning_count();
 native cache_insert_id();
 
