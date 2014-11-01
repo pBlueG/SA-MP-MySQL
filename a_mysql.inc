@@ -150,7 +150,7 @@ native cache_is_valid(Cache:cache_id, connectionHandle = 1);
 
 native cache_affected_rows();
 native cache_warning_count();
-native cache_insert_id();
+native cache_insert_id(connectionHandle = 1);
 
 native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = UNIT_MICROSECONDS);
 native cache_get_query_string(destination[], max_len = sizeof(destination));
