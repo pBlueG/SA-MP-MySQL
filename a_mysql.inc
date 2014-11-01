@@ -135,7 +135,7 @@ native cache_get_row_count();
 native cache_get_field_count();
 native cache_get_field_name(field_index, destination[], max_len = sizeof(destination));
 
-native cache_get_row(row_idx, field_idx, destination[], max_len = sizeof(destination));
+native cache_get_row(row_idx, field_idx, destination[], connectionHandle = 1, max_len = sizeof(destination));
 native cache_get_row_int(row_idx, field_idx);
 native Float:cache_get_row_float(row_idx, field_idx);
 
