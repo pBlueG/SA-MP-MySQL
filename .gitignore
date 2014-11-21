@@ -3,8 +3,8 @@
 *.so
 *~
 /archive/
-/Release/
-/Debug/
+Release/
+Debug/
 *.html
 *.sdf
 *.opensdf
