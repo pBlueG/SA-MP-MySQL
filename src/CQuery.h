@@ -9,6 +9,7 @@ using std::function;
 using std::shared_ptr;
 
 class CResult;
+class CHandle;
 typedef struct st_mysql MYSQL;
 typedef struct st_mysql_res MYSQL_RES;
 
@@ -26,7 +27,7 @@ public: //constructor / deconstructor
 
 private: //variables
 	string m_Query;
-	function<void(const CResult *result)> m_Callback;
+	function<void(CResult *result, CHandle *)> m_Callback;
 	CResult *m_Result = nullptr;
 
 private: //functions
@@ -38,10 +39,10 @@ public: //functions
 	{
 		m_Callback = cb;
 	}
-	inline void CallCallback()
+	inline void CallCallback(CHandle *handle)
 	{
 		if (m_Callback)
-			m_Callback(m_Result);
+			m_Callback(m_Result, handle);
 	}
 
 public: //factory function

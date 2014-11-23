@@ -1,53 +1,56 @@
 #pragma once
 
+#include "CSingleton.h"
 
-#include <vector>
 #include <string>
+#include <unordered_map>
+#include <boost/bimap.hpp>
 
-using std::vector;
 using std::string;
+using std::unordered_map;
+using boost::bimap;
+
+typedef struct st_mysql MYSQL;
+typedef struct st_mysql_res MYSQL_RES;
+typedef unsigned long long my_ulonglong;
+typedef char** MYSQL_ROW;
 
 
 class CResult 
 {
 	friend class CQuery;
 public: //constructor / destructor
-	CResult() = default;
-	~CResult()
-	{
-		if (m_Data != nullptr)
-			free(m_Data);
-	}
-
+	CResult(MYSQL_RES *result, my_ulonglong insert_id, my_ulonglong aff_rows, 
+		unsigned int warning_count) :
+		m_Result(result), m_InsertId(insert_id), m_AffectedRows(aff_rows),
+		m_WarningCount(warning_count)
+	{ }
+	~CResult();
 
 private: //variables
-	unsigned int m_Fields = 0;
-	my_ulonglong m_Rows = 0;
-
-	char ***m_Data = nullptr;
-	vector<string> m_FieldNames;
+	MYSQL_RES *m_Result = nullptr;
 
 	my_ulonglong
 		m_InsertId = 0,
 		m_AffectedRows = 0;
-
 	unsigned int m_WarningCount = 0;
 
+	unsigned int m_Fields = 0;
+	my_ulonglong m_Rows = 0;
+
+	bimap<unsigned int, string> m_FieldNames;
+
+	//<Row_Index, Row>
+	unordered_map<unsigned int, MYSQL_ROW> m_RowData;
+	unsigned int m_LastRowPos = 0;
 
 public: //functions
-	inline my_ulonglong GetRowCount() const 
-	{
-		return m_Rows;
-	}
+	my_ulonglong GetRowCount() const;
+	unsigned int GetFieldCount() const;
 
-	inline unsigned int GetFieldCount() const 
-	{
-		return m_Fields;
-	}
-
-	const char *GetFieldName(unsigned int idx);
-	const char *GetRowData(unsigned int row, unsigned int fieldidx);
-	const char *GetRowDataByName(unsigned int row, const char *field);
+	const string GetFieldName(unsigned int idx);
+	const string GetRowData(unsigned int row_idx, unsigned int field_idx);
+	const string GetRowDataByName(unsigned int row_idx, const string &field);
 
 
 	inline my_ulonglong InsertId() const 
@@ -63,6 +66,31 @@ public: //functions
 	inline unsigned int WarningCount() const 
 	{
 		return m_WarningCount;
+	}
+
+public: //factory function
+	static CResult *Create(MYSQL *connection);
+
+};
+
+class CResultManager : public CSingleton<CResultManager>
+{
+	friend class CSingleton<CResultManager>;
+private:
+	CResultManager() = default;
+	~CResultManager() = default;
+
+private:
+	CResult *m_ActiveResult;
+
+public:
+	inline void SetActiveResult(CResult *result)
+	{
+		m_ActiveResult = result;
+	}
+	inline CResult *GetActiveResult()
+	{
+		return m_ActiveResult;
 	}
 
 };

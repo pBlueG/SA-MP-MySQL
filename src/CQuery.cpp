@@ -13,20 +13,12 @@ bool CQuery::Execute(MYSQL *connection)
 {
 	if (mysql_real_query(connection, m_Query.c_str(), m_Query.length()) != 0)
 		return false;
-	
 
-	MYSQL_RES *raw_result = mysql_store_result(connection);
-
-	m_Result = StoreResult(connection, raw_result);
-	bool ret_val = m_Result != nullptr;
-	
-	if (raw_result != NULL)
-		mysql_free_result(raw_result);
-
-	return ret_val;
+	m_Result = CResult::Create(connection);
+	return m_Result != nullptr;
 }
 
-
+/*
 CResult *CQuery::StoreResult(MYSQL *connection, MYSQL_RES *raw_result)
 {
 	CResult *result = nullptr;
@@ -89,8 +81,9 @@ CResult *CQuery::StoreResult(MYSQL *connection, MYSQL_RES *raw_result)
 		result = new CResult;
 		result->m_WarningCount = mysql_warning_count(connection);
 		result->m_AffectedRows = mysql_affected_rows(connection);
-		result->m_InsertId = mysql_insert_id(connection);
+		result->m_InsertId =	 mysql_insert_id(connection);
 	}
 	
 	return result;
 }
+*/

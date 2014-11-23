@@ -185,11 +185,17 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	CQuery::Type_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
 	if (callback != nullptr)
 	{
-		query->OnExecutionFinished([=](const CResult *result)
+		query->OnExecutionFinished([=](CResult *result, CHandle *handle)
 		{
 			// TODO: pre-execute: set active handle & result(cache)
+			CResultManager::Get()->SetActiveResult(result);
+
+			//execute: call actual PAWN callback
 			callback->Execute();
+
 			// TODO: post-execute: unset active handle & result(cache) + delete result
+			CResultManager::Get()->SetActiveResult(nullptr);
+			delete result;
 		});
 	}
 
@@ -261,13 +267,25 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 // native cache_get_field_name(field_index, destination[], max_len = sizeof(destination))
 AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 {
-	return 0;
+	auto *result = CResultManager::Get()->GetActiveResult();
+	if (result == nullptr)
+		return 0;
+
+	string field_name = result->GetFieldName(params[1]);
+	amx_SetCppString(amx, params[2], field_name, params[3]);
+	return field_name.empty() == false;
 }
 
 // native cache_get_row(row_idx, field_idx, destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_row)
 {
-	return 0;
+	auto *result = CResultManager::Get()->GetActiveResult();
+	if (result == nullptr)
+		return 0;
+
+	string data = result->GetRowData(params[1], params[2]);
+	amx_SetCppString(amx, params[3], data, params[4]);
+	return data.empty() == false;
 }
 
 // native cache_get_row_int(row_idx, field_idx);
