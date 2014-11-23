@@ -25,19 +25,19 @@ CHandle::~CHandle()
 
 bool CHandle::Execute(ExecutionType type, CQuery::Type_t query)
 {
-	if (type == ExecutionType::INVALID || query == nullptr)
-		return false;
-
-	switch (type)
+	if (query)
 	{
-	case ExecutionType::THREADED:
-		return m_ThreadedConnection != nullptr ? m_ThreadedConnection->Queue(query) : false;
+		switch (type)
+		{
+		case ExecutionType::THREADED:
+			return m_ThreadedConnection != nullptr ? m_ThreadedConnection->Queue(query) : false;
 
-	case ExecutionType::PARALLEL:
-		return m_ConnectionPool != nullptr ? m_ConnectionPool->Queue(query) : false;
+		case ExecutionType::PARALLEL:
+			return m_ConnectionPool != nullptr ? m_ConnectionPool->Queue(query) : false;
 
-	case ExecutionType::UNTHREADED:
-		return m_MainConnection != nullptr ? m_MainConnection->Execute(query) : false;
+		case ExecutionType::UNTHREADED:
+			return m_MainConnection != nullptr ? m_MainConnection->Execute(query) : false;
+		}
 	}
 
 	return false;

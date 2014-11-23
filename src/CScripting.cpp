@@ -114,7 +114,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 	if (handle_error != CHandle::Error::NONE)
 		return 0; //TODO: error message
 
-	assert(handle != nullptr); //should never happen
+	assert(handle != nullptr);
 
 	return handle->GetId();
 }

@@ -1,6 +1,14 @@
 #define BOOST_TEST_MODULE Default
 #include <boost/test/unit_test.hpp>
 
+#ifdef WIN32
+	#define NOMINMAX
+	#include <WinSock2.h>
+	#include <mysql.h>
+#else
+	#include <mysql/mysql.h>
+#endif
+
 #include "../../src/CQuery.h"
 #include "../../src/CConnection.h"
 #include "../../src/CHandle.h"
@@ -55,38 +63,38 @@ BOOST_AUTO_TEST_SUITE(Handle)
 	{
 		//empty username -> fail
 		handle = CHandleManager::Get()->Create(host, "", password, database, port, pool_size, handle_error);
-		BOOST_CHECK(handle_error == CHandle::Error::EMPTY_USER);// , L"wrong handle-error");
-		BOOST_CHECK(handle == nullptr);// , L"handle pointer not null");
+		BOOST_CHECK(handle_error == CHandle::Error::EMPTY_USER);
+		BOOST_CHECK(handle == nullptr);
 	}
 	BOOST_FIXTURE_TEST_CASE(EmptyPassword, HandleData)
 	{
 		//empty password -> pass
 		handle = CHandleManager::Get()->Create(host, user, "", database, port, pool_size, handle_error);
-		BOOST_CHECK(handle_error == CHandle::Error::NONE);//, L"wrong handle-error");
-		BOOST_CHECK(handle != nullptr);// , L"handle pointer is null");
+		BOOST_CHECK(handle_error == CHandle::Error::NONE);
+		BOOST_CHECK(handle != nullptr);
 		BOOST_CHECK_MESSAGE(handle->GetId() == 1, L"wrong handle id");
-		BOOST_CHECK(CHandleManager::Get()->Destroy(handle));// , L"error while destroying handle");
+		BOOST_CHECK(CHandleManager::Get()->Destroy(handle));
 	}
 	BOOST_FIXTURE_TEST_CASE(EmptyDatabase, HandleData)
 	{
 		//empty database -> fail
 		handle = CHandleManager::Get()->Create(host, user, password, "", port, pool_size, handle_error);
-		BOOST_CHECK(handle_error == CHandle::Error::EMPTY_DATABASE);//, L"wrong handle-error");
-		BOOST_CHECK(handle == nullptr);//, L"handle pointer not null");
+		BOOST_CHECK(handle_error == CHandle::Error::EMPTY_DATABASE);
+		BOOST_CHECK(handle == nullptr);
 	}
 	BOOST_FIXTURE_TEST_CASE(InvalidPort, HandleData)
 	{
 		//invalid port -> fail
 		handle = CHandleManager::Get()->Create(host, user, password, database, 543214, pool_size, handle_error);
-		BOOST_CHECK(handle_error == CHandle::Error::INVALID_PORT);//, L"wrong handle-error");
-		BOOST_CHECK(handle == nullptr);//, L"handle pointer not null");
+		BOOST_CHECK(handle_error == CHandle::Error::INVALID_PORT);
+		BOOST_CHECK(handle == nullptr);
 	}
 	BOOST_FIXTURE_TEST_CASE(InvalidPoolSize, HandleData)
 	{
 		//invalid pool size (> 32) -> fail
 		handle = CHandleManager::Get()->Create(host, user, password, database, port, 33, handle_error);
-		BOOST_CHECK(handle_error == CHandle::Error::INVALID_POOL_SIZE);//, L"wrong handle-error");
-		BOOST_CHECK(handle == nullptr);//, L"handle pointer not null");
+		BOOST_CHECK(handle_error == CHandle::Error::INVALID_POOL_SIZE);
+		BOOST_CHECK(handle == nullptr);
 	}
 	BOOST_FIXTURE_TEST_CASE(IdEnumeration, HandleData)
 	{
