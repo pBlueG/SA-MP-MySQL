@@ -73,10 +73,9 @@ bool CConnection::Execute(CQuery::Type_t query)
 
 
 
-CThreadedConnection::CThreadedConnection(CHandle *parent_handle,
+CThreadedConnection::CThreadedConnection(
 	const string &host, const string &user, const string &passw, const string &db, size_t port)
 	:
-	m_ParentHandle(parent_handle),
 	m_Connection(host, user, passw, db, port, true),
 	m_WorkerThreadActive(true),
 	m_WorkerThread([this]()
@@ -90,7 +89,7 @@ CThreadedConnection::CThreadedConnection(CHandle *parent_handle,
 			{
 				if (m_Connection.Execute(query))
 				{
-					CDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query, m_ParentHandle));
+					CDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
 				}
 			}
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
@@ -111,11 +110,11 @@ CThreadedConnection::~CThreadedConnection()
 
 
 
-CConnectionPool::CConnectionPool(CHandle *parent_handle, const size_t size,
-	const string &host, const string &user, const string &passw, const string &db, size_t port)
+CConnectionPool::CConnectionPool(
+	const size_t size, const string &host, const string &user, const string &passw, const string &db, size_t port)
 {
 	for (size_t i = 0; i < size; ++i)
-		m_Pool.push_front(new CThreadedConnection(parent_handle, host, user, passw, db, port));
+		m_Pool.push_front(new CThreadedConnection(host, user, passw, db, port));
 	m_PoolPos = m_Pool.begin();
 }
 

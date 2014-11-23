@@ -2,95 +2,119 @@
 
 #include "CSingleton.h"
 
+#include <vector>
 #include <string>
-#include <unordered_map>
-#include <boost/bimap.hpp>
 
+using std::vector;
 using std::string;
-using std::unordered_map;
-using boost::bimap;
 
 typedef struct st_mysql MYSQL;
-typedef struct st_mysql_res MYSQL_RES;
 typedef unsigned long long my_ulonglong;
-typedef char** MYSQL_ROW;
 
 
 class CResult 
 {
-	friend class CQuery;
-public: //constructor / destructor
-	CResult(MYSQL_RES *result, my_ulonglong insert_id, my_ulonglong aff_rows, 
-		unsigned int warning_count) :
-		m_Result(result), m_InsertId(insert_id), m_AffectedRows(aff_rows),
-		m_WarningCount(warning_count)
-	{ }
+	friend class CResultSet;
+private: //constructor / destructor
+	CResult() = default;
 	~CResult();
 
 private: //variables
-	MYSQL_RES *m_Result = nullptr;
+	unsigned int m_Fields = 0;
+	my_ulonglong m_Rows = 0;
+
+	char ***m_Data = nullptr;
+	vector<string> m_FieldNames;
+
+public: //functions
+	inline my_ulonglong GetRowCount() const 
+	{
+		return m_Rows;
+	}
+	inline unsigned int GetFieldCount() const 
+	{
+		return m_Fields;
+	}
+
+	bool GetFieldName(unsigned int idx, string &dest) const;
+	bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest);
+	bool GetRowDataByName(unsigned int row, const char *field, string &dest);
+
+};
+
+class CResultSet
+{
+private:
+	CResultSet() = default;
+	~CResultSet();
+
+private:
+	vector<CResult *> m_Results;
+	CResult *m_ActiveResult = nullptr;
 
 	my_ulonglong
 		m_InsertId = 0,
 		m_AffectedRows = 0;
+
 	unsigned int m_WarningCount = 0;
 
-	unsigned int m_Fields = 0;
-	my_ulonglong m_Rows = 0;
+public:
+	inline const CResult *GetActiveResult()
+	{
+		if (m_ActiveResult == nullptr)
+			m_ActiveResult = m_Results.front();
+		return m_ActiveResult;
+	}
+	bool SetActiveResult(size_t result_idx)
+	{
+		if (result_idx < GetResultCount())
+		{
+			m_ActiveResult = m_Results.at(result_idx);
+			return true;
+		}
+		return false;
+	}
+	inline size_t GetResultCount()
+	{
+		return m_Results.size();
+	}
 
-	bimap<unsigned int, string> m_FieldNames;
-
-	//<Row_Index, Row>
-	unordered_map<unsigned int, MYSQL_ROW> m_RowData;
-	unsigned int m_LastRowPos = 0;
-
-public: //functions
-	my_ulonglong GetRowCount() const;
-	unsigned int GetFieldCount() const;
-
-	const string GetFieldName(unsigned int idx);
-	const string GetRowData(unsigned int row_idx, unsigned int field_idx);
-	const string GetRowDataByName(unsigned int row_idx, const string &field);
-
-
-	inline my_ulonglong InsertId() const 
+	inline my_ulonglong InsertId() const
 	{
 		return m_InsertId;
 	}
-
-	inline my_ulonglong AffectedRows() const 
+	inline my_ulonglong AffectedRows() const
 	{
 		return m_AffectedRows;
 	}
-
-	inline unsigned int WarningCount() const 
+	inline unsigned int WarningCount() const
 	{
 		return m_WarningCount;
 	}
 
 public: //factory function
-	static CResult *Create(MYSQL *connection);
+	static CResultSet *Create(MYSQL *connection);
 
 };
 
-class CResultManager : public CSingleton<CResultManager>
+class CResultSetManager : public CSingleton< CResultSetManager >
 {
-	friend class CSingleton<CResultManager>;
+	friend class CSingleton< CResultSetManager >;
 private:
-	CResultManager() = default;
-	~CResultManager() = default;
+	CResultSetManager() = default;
+	~CResultSetManager() = default;
 
 private:
-	CResult *m_ActiveResult;
+	CResultSet *m_ActiveResultSet;
 
 public:
-	inline void SetActiveResult(CResult *result)
+	inline void SetActiveResultSet(CResultSet *resultset)
 	{
-		m_ActiveResult = result;
+		m_ActiveResultSet = resultset;
 	}
-	inline CResult *GetActiveResult()
+	inline CResultSet *GetActiveResultSet()
 	{
-		return m_ActiveResult;
+		return m_ActiveResultSet;
 	}
 
 };

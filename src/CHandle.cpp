@@ -90,9 +90,9 @@ CHandle *CHandleManager::Create(string host, string user, string pass, string db
 	CHandle *handle = new CHandle(id);
 	
 	handle->m_MainConnection = new CConnection(host, user, pass, db, port, true);
-	handle->m_ThreadedConnection = new CThreadedConnection(handle, host, user, pass, db, port);
+	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, port);
 	if (pool_size != 0)
-		handle->m_ConnectionPool = new CConnectionPool(handle, pool_size, host, user, pass, db, port);
+		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, port);
 
 	m_Handles.emplace(id, handle);
 	return handle;

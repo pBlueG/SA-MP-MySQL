@@ -11,7 +11,6 @@ using std::string;
 using std::forward_list;
 
 class CQuery;
-class CHandle;
 typedef struct st_mysql MYSQL;
 
 
@@ -41,15 +40,13 @@ public: //functions
 class CThreadedConnection
 {
 public:
-	CThreadedConnection(CHandle *parent_handle,
+	CThreadedConnection(
 		const string &host, const string &user, const string &passw, const string &db, size_t port);
 	~CThreadedConnection();
 	CThreadedConnection(const CThreadedConnection &rhs) = delete;
 
 private:
 	CConnection m_Connection;
-
-	CHandle *m_ParentHandle;
 
 	boost::thread m_WorkerThread;
 	boost::atomic<bool> m_WorkerThreadActive;
@@ -73,8 +70,8 @@ public:
 class CConnectionPool
 {
 public:
-	CConnectionPool(CHandle *parent_handle, const size_t size,
-		const string &host, const string &user, const string &passw, const string &db, size_t port);
+	CConnectionPool(
+		const size_t size, const string &host, const string &user, const string &passw, const string &db, size_t port);
 	~CConnectionPool();
 	CConnectionPool(const CConnectionPool &rhs) = delete;
 

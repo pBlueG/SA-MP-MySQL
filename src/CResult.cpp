@@ -8,67 +8,144 @@
 #endif
 
 
-CResult *CResult::Create(MYSQL *connection)
+CResult::~CResult()
+{
+	if (m_Data != nullptr)
+		free(m_Data);
+}
+
+bool CResult::GetFieldName(unsigned int idx, string &dest) const
+{
+	if (idx < m_Fields)
+	{
+		dest = m_FieldNames.at(idx);
+		return true;
+	}
+	return false;
+}
+
+bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, string &dest)
+{
+	if (row < m_Rows && fieldidx < m_Fields)
+	{
+		dest = m_Data[row][fieldidx];
+		return true;
+	}
+	return false;
+}
+
+bool CResult::GetRowDataByName(unsigned int row, const char *field, string &dest)
+{
+	if(row >= m_Rows || m_Fields == 0)
+		return false;
+	
+	if (field == nullptr)
+		return false;
+	
+
+	for (unsigned int i = 0; i < m_Fields; ++i)
+	{
+		if (strcmp(m_FieldNames.at(i).c_str(), field) == 0)
+		{
+			dest = m_Data[row][i];
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+CResultSet::~CResultSet()
+{
+	for (auto *r : m_Results)
+		delete r;
+}
+
+CResultSet *CResultSet::Create(MYSQL *connection)
 {
 	if (connection == nullptr)
 		return nullptr;
 
-	//TODO: mysql_error
-	return new CResult(mysql_store_result(connection), 
-		mysql_insert_id(connection),
-		mysql_affected_rows(connection),
-		mysql_warning_count(connection));
-}
 
-CResult::~CResult()
-{
-	if (m_Result != nullptr)
-		mysql_free_result(m_Result);
-}
+	CResultSet *resultset = nullptr;
+	MYSQL_RES *raw_result = mysql_store_result(connection);
 
-
-my_ulonglong CResult::GetRowCount() const
-{
-	return mysql_num_rows(m_Result);
-}
-
-unsigned int CResult::GetFieldCount() const
-{
-	return mysql_num_fields(m_Result);
-}
-
-const string CResult::GetFieldName(unsigned int idx)
-{
-	auto it = m_FieldNames.left.find(idx);
-	if (it == m_FieldNames.left.end())
+	if (raw_result == nullptr)
 	{
-		string field_name(mysql_fetch_field_direct(m_Result, idx)->name);
-		m_FieldNames.insert(bimap<unsigned int, string>::value_type(idx, field_name));
-		return field_name;
+		if (mysql_field_count(connection) == 0) //query is non-SELECT query
+		{
+			resultset = new CResultSet;
+
+			resultset->m_WarningCount = mysql_warning_count(connection);
+			resultset->m_AffectedRows = mysql_affected_rows(connection);
+			resultset->m_InsertId = mysql_insert_id(connection);
+		}
+		else
+		{
+			//TODO: mysql_errno
+		}
 	}
 	else
-		return it->second;
-}
-
-const string CResult::GetRowData(unsigned int row_idx, unsigned int field_idx)
-{
-	if (row_idx < GetRowCount() && field_idx < GetFieldCount())
 	{
-		auto it_row = m_RowData.find(row_idx);
-		if (it_row == m_RowData.end())
-		{
-			if ((row_idx - m_LastRowPos) != 1)
-				mysql_data_seek(m_Result, row_idx);
-			it_row = m_RowData.emplace(row_idx, mysql_fetch_row(m_Result)).first;
-			m_LastRowPos = row_idx;
-		}
-		return it_row->second[field_idx];
-	}
-	return string();
-	//return (row < m_Rows && fieldidx < m_Fields) ? m_Data[row][fieldidx] : nullptr;
-}
+		resultset = new CResultSet;
+		resultset->m_WarningCount = mysql_warning_count(connection);
 
-const string CResult::GetRowDataByName(unsigned int row_idx, const string &field)
-{
-	return string();
+		do
+		{
+			CResult *result = new CResult;
+
+			resultset->m_Results.push_back(result);
+
+			MYSQL_FIELD *mysql_field;
+			MYSQL_ROW mysql_row;
+
+			const my_ulonglong num_rows = result->m_Rows = mysql_num_rows(raw_result);
+			const unsigned int num_fields = result->m_Fields = mysql_num_fields(raw_result);
+
+			result->m_FieldNames.reserve(num_fields + 1);
+
+
+			size_t row_data_size = 0;
+			while (mysql_field = mysql_fetch_field(raw_result))
+			{
+				result->m_FieldNames.push_back(mysql_field->name);
+				row_data_size += mysql_field->max_length + 1;
+			}
+
+
+			size_t
+				mem_head_size = sizeof(char **) * static_cast<size_t>(num_rows),
+				mem_row_size = (sizeof(char *) * (num_fields + 1)) + ((row_data_size)* sizeof(char));
+			//+1 because there is another value in memory pointing to somewhere
+			//mem_row_size has to be a multiple of 8
+			while (mem_row_size % 8 != 0)
+				mem_row_size++;
+
+			const size_t mem_size = mem_head_size + static_cast<size_t>(num_rows)* mem_row_size;
+			char ***mem_data = result->m_Data = static_cast<char ***>(malloc(mem_size));
+			char **mem_offset = reinterpret_cast<char **>(&mem_data[num_rows]);
+
+			for (size_t r = 0; r != num_rows; ++r)
+			{
+				mysql_row = mysql_fetch_row(raw_result);
+
+				//copy mysql result data to our location
+				mem_data[r] = mem_offset;
+				mem_offset += mem_row_size / sizeof(char **);
+				memcpy(mem_data[r], mysql_row, mem_row_size);
+
+				//correct the pointers of the copied mysql result data
+				for (size_t f = 0; f != num_fields; ++f)
+				{
+					if (mysql_row[f] == NULL)
+						continue;
+					size_t dist = mysql_row[f] - reinterpret_cast<char *>(mysql_row);
+					mem_data[r][f] = reinterpret_cast<char *>(mem_data[r]) + dist;
+				}
+			}
+
+			mysql_free_result(raw_result);
+		} while (mysql_next_result(connection) == 0 && (raw_result = mysql_store_result(connection)));
+	}
+	return resultset;
 }
