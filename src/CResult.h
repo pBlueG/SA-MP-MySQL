@@ -37,8 +37,8 @@ public: //functions
 	}
 
 	bool GetFieldName(unsigned int idx, string &dest) const;
-	bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest);
-	bool GetRowDataByName(unsigned int row, const char *field, string &dest);
+	bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const;
+	bool GetRowDataByName(unsigned int row, const string &field, string &dest) const;
 
 };
 

@@ -10,13 +10,9 @@ using namespace boost::spirit;
 
 
 template<typename T>
-bool ConvertStrToData(const char *src, T &dest)
+bool ConvertStrToData(const string &src, T &dest)
 {
-	const char
-		*first_it = src,
-		*last_it = first_it + strlen(src);
-
-	return qi::parse(first_it, last_it, 
+	return qi::parse(src.begin(), src.end(),
 		typename std::conditional<
 			std::is_floating_point<T>::value, 
 				qi::real_parser<T>, 
@@ -25,16 +21,16 @@ bool ConvertStrToData(const char *src, T &dest)
 		dest);
 }
 
-template bool ConvertStrToData(const char *src, int &dest);
-template bool ConvertStrToData(const char *src, unsigned int &dest);
-template bool ConvertStrToData(const char *src, short &dest);
-template bool ConvertStrToData(const char *src, unsigned short &dest);
-template bool ConvertStrToData(const char *src, char &dest);
-template bool ConvertStrToData(const char *src, unsigned char &dest);
-template bool ConvertStrToData(const char *src, long long &dest);
-template bool ConvertStrToData(const char *src, unsigned long long &dest);
-template bool ConvertStrToData(const char *src, float &dest);
-template bool ConvertStrToData(const char *src, double &dest);
+template bool ConvertStrToData(const string &src, int &dest);
+template bool ConvertStrToData(const string &src, unsigned int &dest);
+template bool ConvertStrToData(const string &src, short &dest);
+template bool ConvertStrToData(const string &src, unsigned short &dest);
+template bool ConvertStrToData(const string &src, char &dest);
+template bool ConvertStrToData(const string &src, unsigned char &dest);
+template bool ConvertStrToData(const string &src, long long &dest);
+template bool ConvertStrToData(const string &src, unsigned long long &dest);
+template bool ConvertStrToData(const string &src, float &dest);
+template bool ConvertStrToData(const string &src, double &dest);
 
 
 

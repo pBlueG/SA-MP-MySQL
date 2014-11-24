@@ -24,7 +24,7 @@ bool CResult::GetFieldName(unsigned int idx, string &dest) const
 	return false;
 }
 
-bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, string &dest)
+bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const
 {
 	if (row < m_Rows && fieldidx < m_Fields)
 	{
@@ -34,18 +34,18 @@ bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, string &dest)
 	return false;
 }
 
-bool CResult::GetRowDataByName(unsigned int row, const char *field, string &dest)
+bool CResult::GetRowDataByName(unsigned int row, const string &field, string &dest) const
 {
 	if(row >= m_Rows || m_Fields == 0)
 		return false;
 	
-	if (field == nullptr)
+	if (field.empty())
 		return false;
 	
 
 	for (unsigned int i = 0; i < m_Fields; ++i)
 	{
-		if (strcmp(m_FieldNames.at(i).c_str(), field) == 0)
+		if (m_FieldNames.at(i).compare(field) == 0)
 		{
 			dest = m_Data[row][i];
 			return true;
