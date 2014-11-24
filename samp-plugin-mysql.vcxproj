@@ -58,6 +58,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>DLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;WIN32;DEBUG;_WINDOWS;_USRDLL;WINVER=0x0501;_WIN32_WINNT=0x0501;HAVE_STDINT_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -79,6 +80,7 @@
       </UndefinePreprocessorDefinitions>
       <PreprocessorDefinitions>DLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;WINVER=0x0501;_WIN32_WINNT=0x0501;HAVE_STDINT_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
