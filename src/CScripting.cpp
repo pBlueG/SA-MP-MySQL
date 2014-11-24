@@ -3,6 +3,7 @@
 #include "CHandle.h"
 #include "CCallback.h"
 #include "CResult.h"
+#include "misc.h"
 
 
 // native ORM:orm_create(const table[], MySQL:handle = DEFAULT_MYSQL_HANDLE);
@@ -248,8 +249,21 @@ AMX_DECLARE_NATIVE(Native::mysql_stat)
 // native cache_get_data(&num_rows, &num_fields);
 AMX_DECLARE_NATIVE(Native::cache_get_data)
 {
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	if (result == nullptr)
+		return 0;
 
-	return 0;
+	cell
+		*num_rows_dest = nullptr,
+		*num_fields_dest = nullptr;
+	amx_GetAddr(amx, params[1], &num_rows_dest);
+	amx_GetAddr(amx, params[2], &num_fields_dest);
+	if (num_rows_dest == nullptr || num_fields_dest == nullptr)
+		return 0;
+
+	(*num_rows_dest) = static_cast<cell>(result->GetActiveResult()->GetRowCount());
+	(*num_fields_dest) = result->GetActiveResult()->GetFieldCount();
+	return 1;
 }
 
 // native cache_get_row_count();
@@ -284,37 +298,103 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 // native cache_get_row(row_idx, field_idx, destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_row)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	if (result == nullptr)
+		return 0;
+
+	string data;
+	if (result->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+		return 0;
+
+	amx_SetCppString(amx, params[3], data, params[4]);
+	return 1;
 }
 
 // native cache_get_row_int(row_idx, field_idx);
 AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	if (result == nullptr)
+		return 0;
+
+	string data;
+	if (result->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+		return 0;
+
+	cell data_int = 0;
+	if (ConvertStrToData<cell>(data, data_int) == false)
+		return 0;
+
+	return data_int;
 }
 
 // native Float:cache_get_row_float(row_idx, field_idx);
 AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	if (result == nullptr)
+		return 0;
+
+	string data;
+	if (result->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+		return 0;
+
+	float data_float = 0.0f;
+	if (ConvertStrToData<float>(data, data_float) == false)
+		return 0;
+
+	return amx_ftoc(data_float);
 }
 
 // native cache_get_field_content(row_idx, const field_name[], destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	if (result == nullptr)
+		return 0;
+
+	string data;
+	if (result->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
+		return 0;
+
+	amx_SetCppString(amx, params[3], data, params[4]);
+	return 1;
 }
 
 // native cache_get_field_content_int(row_idx, const field_name[]);
 AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	if (result == nullptr)
+		return 0;
+
+	string data;
+	if (result->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
+		return 0;
+
+	cell data_int = 0;
+	if (ConvertStrToData<cell>(data, data_int) == false)
+		return 0;
+
+	return data_int;
 }
 
 // native Float:cache_get_field_content_float(row_idx, const field_name[]);
 AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	if (result == nullptr)
+		return 0;
+
+	string data;
+	if (result->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
+		return 0;
+
+	float data_float = 0.0f;
+	if (ConvertStrToData<float>(data, data_float) == false)
+		return 0;
+
+	return amx_ftoc(data_float);
 }
 
 // native Cache:cache_save();
@@ -344,19 +424,22 @@ AMX_DECLARE_NATIVE(Native::cache_is_valid)
 // native cache_affected_rows();
 AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	return result != nullptr ? static_cast<cell>(result->AffectedRows()) : -1;
 }
 
 // native cache_warning_count();
 AMX_DECLARE_NATIVE(Native::cache_warning_count)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	return result != nullptr ? result->WarningCount() : -1;
 }
 
 // native cache_insert_id();
 AMX_DECLARE_NATIVE(Native::cache_insert_id)
 {
-	return 0;
+	auto *result = CResultSetManager::Get()->GetActiveResultSet();
+	return result != nullptr ? static_cast<cell>(result->InsertId()) : -1;
 }
 
 // native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = MICROSECONDS);
