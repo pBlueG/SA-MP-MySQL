@@ -125,6 +125,8 @@ CResultSet *CResultSet::Create(MYSQL *connection)
 			char ***mem_data = result->m_Data = static_cast<char ***>(malloc(mem_size));
 			char **mem_offset = reinterpret_cast<char **>(&mem_data[num_rows]);
 
+			//TODO: check if mem_data == nullptr
+
 			for (size_t r = 0; r != num_rows; ++r)
 			{
 				mysql_row = mysql_fetch_row(raw_result);

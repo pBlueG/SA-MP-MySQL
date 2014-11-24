@@ -196,6 +196,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 
 			// TODO: post-execute: unset active handle & result(cache) + delete result
 			CResultSetManager::Get()->SetActiveResultSet(nullptr);
+			delete result;
 		});
 	}
 

@@ -46,6 +46,8 @@ class CResultSet
 {
 private:
 	CResultSet() = default;
+
+public:
 	~CResultSet();
 
 private:
