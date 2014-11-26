@@ -41,7 +41,7 @@ bool ConvertDataToStr(T src, string &dest)
 		typename std::conditional<
 			std::is_floating_point<T>::value,
 				karma::real_generator<T>,
-				std::conditional<
+				typename std::conditional<
 					std::is_signed<T>::value,
 						karma::int_generator<T>, 
 						karma::uint_generator<T>

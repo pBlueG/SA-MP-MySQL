@@ -1,6 +1,6 @@
 #include "CCallback.h"
 
-#include <unordered_map>
+#include <map>
 
 
 CCallback::Type_t CCallback::Create(
@@ -115,7 +115,7 @@ bool CCallback::Execute()
 
 bool CCallbackManager::GetErrorString(CCallback::Error error, string &dest)
 {
-	static const std::unordered_map<CCallback::Error, string> error_list{
+	static const std::map<CCallback::Error, string> error_list{
 			{ CCallback::Error::INVALID_AMX, "Invalid AMX" },
 			{ CCallback::Error::INVALID_PARAMETERS, "Invalid parameters" },
 			{ CCallback::Error::INVALID_PARAM_OFFSET, "Parameter count does not match format specifier length" },
