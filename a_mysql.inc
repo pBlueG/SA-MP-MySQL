@@ -98,7 +98,7 @@ native orm_setkey(ORM:id, varname[]);
 
 // MySQL functions
 native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
-native MySQL:mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
+native MySQL:mysql_connect(const host[], const user[], const password[], const database[], port = 3306, bool:autoreconnect = true, pool_size = 2);
 native mysql_close(MySQL:handle = DEFAULT_MYSQL_HANDLE);
 native mysql_reconnect(MySQL:handle = DEFAULT_MYSQL_HANDLE);
 

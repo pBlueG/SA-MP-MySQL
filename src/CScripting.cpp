@@ -99,15 +99,15 @@ AMX_DECLARE_NATIVE(Native::mysql_log)
 }
 
 // TODO: remove auto-reconnect option (moved to mysql_option)
-// native MySQL:mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
+// native MySQL:mysql_connect(const host[], const user[], const password[], const database[], port = 3306, bool:autoreconnect = true, pool_size = 2);
 AMX_DECLARE_NATIVE(Native::mysql_connect)
 {
 	CHandle::Error handle_error;
 	CHandle *handle = CHandleManager::Get()->Create(
 		amx_GetCppString(amx, params[1]),
 		amx_GetCppString(amx, params[2]),
-		amx_GetCppString(amx, params[4]),
 		amx_GetCppString(amx, params[3]),
+		amx_GetCppString(amx, params[4]),
 		params[5],
 		params[7],
 		handle_error);
