@@ -4,6 +4,7 @@
 #include <forward_list>
 #include <boost/atomic/atomic.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 
@@ -27,6 +28,8 @@ public: //constructor / deconstructor
 private: //variables
 	bool m_IsConnected = false;
 	MYSQL *m_Connection = nullptr;
+
+	boost::mutex m_Mutex; //protect every MySQL C API call
 
 private:
 	void OnOptionUpdate(COptions::EOption option, bool value) override;

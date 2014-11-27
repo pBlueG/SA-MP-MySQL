@@ -13,6 +13,8 @@
 CConnection::CConnection(const string &host, const string &user, const string &passw, const string &db,
 	size_t port)
 {
+	//boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+
 	m_Connection = mysql_init(NULL);
 	if (m_Connection == NULL)
 		return; //TODO: error "MySQL initialization failed"
@@ -59,6 +61,7 @@ bool CConnection::SetCharset(string charset)
 		return false;
 	
 
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	int error = mysql_set_character_set(m_Connection, charset.c_str());
 	if (error != 0)
 		return false;
@@ -68,11 +71,13 @@ bool CConnection::SetCharset(string charset)
 
 bool CConnection::Execute(CQuery::Type_t query)
 {
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	return IsConnected() && query->Execute(m_Connection);
 }
 
 void CConnection::OnOptionUpdate(COptions::EOption option, bool value)
 {
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	if (option == COptions::EOption::AUTO_RECONNECT)
 	{
 		my_bool reconnect = value;
