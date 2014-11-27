@@ -10,6 +10,7 @@
 #include "CLog.h"
 
 #include "misc.h"
+#include <fstream>
 
 
 //native ORM:orm_create(table[], connectionHandle = 1);
@@ -886,6 +887,61 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	return 1;
 }
 
+// native mysql_query_file(conHandle, const file[])
+
+AMX_DECLARE_NATIVE(Native::mysql_query_file)
+{
+	const char
+		*dir = NULL;
+
+	const unsigned int connection_handle = params[1];
+	amx_StrParam(amx, params[2], dir);
+
+	if (!CMySQLHandle::IsValid(connection_handle))
+		return ERROR_INVALID_CONNECTION_HANDLE("mysql_query_file", connection_handle);
+
+	std::ifstream file(dir);
+	if ((!file) && (CLog::Get()->IsLogLevel(LOG_DEBUG)))
+		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_query_file", "cannot open directory \"%s\"", dir);
+
+	string line;
+	bool done = false;
+
+	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_handle);
+	CMySQLQuery query;
+	query.Handle = Handle;
+
+	while (getline(file, line))
+	{
+		for (unsigned int i(0); i < line.length(); ++i)
+		{
+			if (line[i] == ';')
+			{
+				string toAssign(line.substr(0, i));
+				query.Query += toAssign;
+				query.Unthreaded = true;
+				query.Execute(Handle->GetMainConnection()->GetMysqlPtr());
+				query.Query.clear();
+				done = true;
+				if (CLog::Get()->IsLogLevel(LOG_DEBUG))
+				{
+					string short_query(query.Query);
+					if (MySQLOptions.Log_TruncateData)
+						short_query.resize(64);
+					CLog::Get()->LogFunction(LOG_DEBUG, "mysql_query_file", "connection: %d, query: \"%s\"", connection_handle, short_query.c_str());
+				}
+				break;
+			}
+		}
+		if (done)
+		{
+			done = false;
+			continue;
+		}
+		query.Query += line;
+	}
+	return 1;
+}
 
 //native Cache:mysql_query(conhandle, query[], bool:use_cache = true);
 AMX_DECLARE_NATIVE(Native::mysql_query)
