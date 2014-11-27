@@ -71,6 +71,10 @@ bool CConnection::Execute(CQuery::Type_t query)
 	return IsConnected() && query->Execute(m_Connection);
 }
 
+void CConnection::OnOptionUpdate(COptions::EOption option, bool value)
+{
+}
+
 
 
 CThreadedConnection::CThreadedConnection(

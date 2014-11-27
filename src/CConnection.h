@@ -10,11 +10,13 @@
 using std::string;
 using std::forward_list;
 
+#include "COptions.h"
+
 class CQuery;
 typedef struct st_mysql MYSQL;
 
 
-class CConnection
+class CConnection : public IOptionActor
 {
 public: //constructor / deconstructor
 	CConnection(const string &host, const string &user, const string &passw, const string &db,
@@ -25,6 +27,9 @@ public: //constructor / deconstructor
 private: //variables
 	bool m_IsConnected = false;
 	MYSQL *m_Connection = nullptr;
+
+private:
+	void OnOptionUpdate(COptions::EOption option, bool value) override;
 
 public: //functions
 	inline bool IsConnected() const

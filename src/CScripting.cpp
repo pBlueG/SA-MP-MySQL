@@ -3,6 +3,7 @@
 #include "CHandle.h"
 #include "CCallback.h"
 #include "CResult.h"
+#include "COptions.h"
 #include "misc.h"
 
 
@@ -152,7 +153,8 @@ AMX_DECLARE_NATIVE(Native::mysql_current_handle)
 // native mysql_option(E_MYSQL_OPTION:type, value);
 AMX_DECLARE_NATIVE(Native::mysql_option)
 {
-	return 0;
+	COptions::Get()->SetOption(static_cast<COptions::EOption>(params[1]), params[2] != 0);
+	return 1; //TODO: check if passed enum value really is correct
 }
 
 // native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
