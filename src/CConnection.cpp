@@ -11,7 +11,7 @@
 
 
 CConnection::CConnection(const string &host, const string &user, const string &passw, const string &db,
-	size_t port, bool auto_reconnect)
+	size_t port)
 {
 	m_Connection = mysql_init(NULL);
 	if (m_Connection == NULL)
@@ -24,9 +24,9 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 		return; //TODO: error "connection failed"
 	
 
-	my_bool reconnect = auto_reconnect;
+	my_bool reconnect = COptions::Get()->GetOption(COptions::EOption::AUTO_RECONNECT);
 	mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
-		
+	
 	m_IsConnected = true;
 }
 
@@ -73,6 +73,11 @@ bool CConnection::Execute(CQuery::Type_t query)
 
 void CConnection::OnOptionUpdate(COptions::EOption option, bool value)
 {
+	if (option == COptions::EOption::AUTO_RECONNECT)
+	{
+		my_bool reconnect = value;
+		mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
+	}
 }
 
 
@@ -80,7 +85,7 @@ void CConnection::OnOptionUpdate(COptions::EOption option, bool value)
 CThreadedConnection::CThreadedConnection(
 	const string &host, const string &user, const string &passw, const string &db, size_t port)
 	:
-	m_Connection(host, user, passw, db, port, true),
+	m_Connection(host, user, passw, db, port),
 	m_WorkerThreadActive(true),
 	m_WorkerThread([this]()
 	{

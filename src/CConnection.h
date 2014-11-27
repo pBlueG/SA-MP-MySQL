@@ -20,7 +20,7 @@ class CConnection : public IOptionActor
 {
 public: //constructor / deconstructor
 	CConnection(const string &host, const string &user, const string &passw, const string &db,
-		size_t port, bool auto_reconnect);
+		size_t port);
 	~CConnection();
 	CConnection(const CConnection &rhs) = delete;
 
