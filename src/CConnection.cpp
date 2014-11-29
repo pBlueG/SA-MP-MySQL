@@ -34,6 +34,7 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 
 CConnection::~CConnection()
 {
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	if (IsConnected())
 		mysql_close(m_Connection);
 }
