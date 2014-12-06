@@ -3,27 +3,33 @@
 
 COptions::COptions()
 {
-	m_Options[EOption::DUPLICATE_CONNECTIONS] = false;
-	m_Options[EOption::AUTO_RECONNECT] = true;
-
-}
-
-void COptions::SetOption(EOption option, bool value)
-{
-	m_Options.at(option) = value;
-
-	//broadcast update to all connections
-	for (auto &i : m_Interfaces)
-		i->OnOptionUpdate(option, value);
+	m_Options[Type::AUTO_RECONNECT] = true;
+	m_Options[Type::MULTI_STATEMENTS] = false;
+	m_Options[Type::POOL_SIZE] = 2u;
+	m_Options[Type::SERVER_PORT] = 3306u;
 }
 
 
-IOptionActor::IOptionActor()
+COptionManager::COptionManager()
 {
-	COptions::Get()->RegisterInterface(this);
+	m_GlobalOptions[EGlobalOption::DUPLICATE_CONNECTIONS] = false;
+
+	//create default options instance with id = 0
+	m_Options.emplace(0, new COptions);
 }
 
-IOptionActor::~IOptionActor()
+COptionManager::~COptionManager()
 {
-	COptions::Get()->EraseInterface(this);
+	for (auto o : m_Options)
+		delete o.second;
+}
+
+COptions::Id_t COptionManager::Create()
+{
+	COptions::Id_t id = 1;
+	while (m_Options.find(id) != m_Options.end())
+		id++;
+
+	m_Options.emplace(id, new COptions);
+	return id;
 }

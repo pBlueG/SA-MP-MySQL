@@ -12,6 +12,7 @@ class CCallback;
 class CConnection;
 class CThreadedConnection;
 class CConnectionPool;
+class COptions;
 
 
 class CHandle
@@ -34,8 +35,7 @@ public: //type definitions
 		EMPTY_HOST,
 		EMPTY_USER,
 		EMPTY_DATABASE,
-		INVALID_PORT,
-		INVALID_POOL_SIZE,
+		INVALID_OPTIONS,
 	};
 
 private: //constructor / deconstructor
@@ -73,7 +73,7 @@ private: //variables
 
 public: //functions
 	CHandle *Create(string host, string user, string pass, string db, 
-		size_t port, size_t pool_size, CHandle::Error &error);
+		const COptions *options, CHandle::Error &error);
 	bool Destroy(CHandle *handle);
 
 	inline bool IsValidHandle(const CHandle::Id_t id)

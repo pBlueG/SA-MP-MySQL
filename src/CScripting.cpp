@@ -99,17 +99,20 @@ AMX_DECLARE_NATIVE(Native::mysql_log)
 	return 0;
 }
 
-// native MySQL:mysql_connect(const host[], const user[], const password[], const database[], port = 3306, pool_size = 2);
+// native MySQL:mysql_connect(const host[], const user[], const password[], const database[], MySQLOpt:option_id = MySQLOpt:0);
 AMX_DECLARE_NATIVE(Native::mysql_connect)
 {
+	auto *options = COptionManager::Get()->GetOptionHandle(params[5]);
+	if (options == nullptr)
+		return 0;
+
 	CHandle::Error handle_error;
 	CHandle *handle = CHandleManager::Get()->Create(
 		amx_GetCppString(amx, params[1]),
 		amx_GetCppString(amx, params[2]),
 		amx_GetCppString(amx, params[3]),
 		amx_GetCppString(amx, params[4]),
-		params[5],
-		params[6],
+		options,
 		handle_error);
 
 	if (handle_error != CHandle::Error::NONE)
@@ -148,11 +151,56 @@ AMX_DECLARE_NATIVE(Native::mysql_current_handle)
 	return 0;
 }
 
-// native mysql_option(E_MYSQL_OPTION:type, value);
+// native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
 AMX_DECLARE_NATIVE(Native::mysql_option)
 {
-	COptions::Get()->SetOption(static_cast<COptions::EOption>(params[1]), params[2] != 0);
+	COptionManager::Get()->SetGlobalOption(static_cast<COptionManager::EGlobalOption>(params[1]), params[2] != 0);
 	return 1; //TODO: check if passed enum value really is correct
+}
+
+// native MySQLOpt:mysql_init_options();
+AMX_DECLARE_NATIVE(Native::mysql_init_options)
+{
+	return COptionManager::Get()->Create();
+}
+
+// native mysql_set_option(MySQLOpt:option_id, E_MYSQL_OPTION:type, ...);
+AMX_DECLARE_NATIVE(Native::mysql_set_option)
+{
+	auto *options = COptionManager::Get()->GetOptionHandle(params[1]);
+	if (options == nullptr)
+		return 0;
+
+	cell *param_addr = nullptr;
+	amx_GetAddr(amx, params[3], &param_addr);
+	if (param_addr == nullptr)
+		return 0;
+
+	cell value = *param_addr;
+	bool ret_val = false;
+	
+	switch (static_cast<COptions::Type>(params[2]))
+	{
+	case COptions::Type::AUTO_RECONNECT:
+		ret_val = options->SetOption(COptions::Type::AUTO_RECONNECT, static_cast<bool>(value != 0));
+		break;
+	case COptions::Type::MULTI_STATEMENTS:
+		ret_val = options->SetOption(COptions::Type::MULTI_STATEMENTS, static_cast<bool>(value != 0));
+		break;
+	case COptions::Type::POOL_SIZE:
+		if (params[3] >= 32)
+			ret_val = options->SetOption(COptions::Type::POOL_SIZE, static_cast<unsigned int>(value));
+		else
+			; //TODO: error
+		break;
+	case COptions::Type::SERVER_PORT:
+		if (params[3] <= std::numeric_limits<unsigned short>::max())
+			ret_val = options->SetOption(COptions::Type::SERVER_PORT, static_cast<unsigned int>(value));
+		else
+			; //TODO: error
+		break;
+	}
+	return ret_val;
 }
 
 // native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);

@@ -11,17 +11,17 @@
 using std::string;
 using std::forward_list;
 
-#include "COptions.h"
-
 class CQuery;
 typedef struct st_mysql MYSQL;
+class COptions;
 
 
-class CConnection : public IOptionActor
+class CConnection
 {
 public: //constructor / deconstructor
-	CConnection(const string &host, const string &user, const string &passw, const string &db,
-		size_t port);
+	CConnection(
+		const string &host, const string &user, const string &passw, const string &db,
+		const COptions *options);
 	~CConnection();
 	CConnection(const CConnection &rhs) = delete;
 
@@ -30,9 +30,6 @@ private: //variables
 	MYSQL *m_Connection = nullptr;
 
 	boost::mutex m_Mutex; //protect every MySQL C API call
-
-private:
-	void OnOptionUpdate(COptions::EOption option, bool value) override;
 
 public: //functions
 	inline bool IsConnected() const
@@ -49,7 +46,8 @@ class CThreadedConnection
 {
 public:
 	CThreadedConnection(
-		const string &host, const string &user, const string &passw, const string &db, size_t port);
+		const string &host, const string &user, const string &passw, const string &db,
+		const COptions *options);
 	~CThreadedConnection();
 	CThreadedConnection(const CThreadedConnection &rhs) = delete;
 
@@ -79,7 +77,8 @@ class CConnectionPool
 {
 public:
 	CConnectionPool(
-		const size_t size, const string &host, const string &user, const string &passw, const string &db, size_t port);
+		const size_t size, const string &host, const string &user, const string &passw, const string &db,
+		const COptions *options);
 	~CConnectionPool();
 	CConnectionPool(const CConnectionPool &rhs) = delete;
 

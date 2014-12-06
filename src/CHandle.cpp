@@ -1,6 +1,7 @@
 #include "CQuery.h"
 #include "CHandle.h"
 #include "CConnection.h"
+#include "COptions.h"
 
 #ifdef WIN32
 	#define NOMINMAX //goddamnit Microsoft
@@ -45,7 +46,7 @@ bool CHandle::Execute(ExecutionType type, CQuery::Type_t query)
 
 
 CHandle *CHandleManager::Create(string host, string user, string pass, string db,
-	size_t port, size_t pool_size, CHandle::Error &error)
+	const COptions *options, CHandle::Error &error)
 {
 	error = CHandle::Error::NONE;
 	if (host.empty())
@@ -69,30 +70,25 @@ CHandle *CHandleManager::Create(string host, string user, string pass, string db
 		return nullptr;
 	}
 
-	if (port > std::numeric_limits<unsigned short>::max())
+	if (options == nullptr)
 	{
-		error = CHandle::Error::INVALID_PORT;
-		return nullptr;
-	}
-
-	if (pool_size > 32)
-	{
-		error = CHandle::Error::INVALID_POOL_SIZE;
+		error = CHandle::Error::INVALID_OPTIONS;
 		return nullptr;
 	}
 
 
 	CHandle::Id_t id = 1;
-
 	while (m_Handles.find(id) != m_Handles.end())
 		id++;
 
 	CHandle *handle = new CHandle(id);
 	
-	handle->m_MainConnection = new CConnection(host, user, pass, db, port);
-	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, port);
+	handle->m_MainConnection = new CConnection(host, user, pass, db, options);
+	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, options);
+
+	auto pool_size = options->GetOption<unsigned int>(COptions::Type::POOL_SIZE);
 	if (pool_size != 0)
-		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, port);
+		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, options);
 
 	m_Handles.emplace(id, handle);
 	return handle;

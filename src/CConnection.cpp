@@ -1,6 +1,7 @@
 #include "CQuery.h"
 #include "CConnection.h"
 #include "CDispatcher.h"
+#include "COptions.h"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -11,22 +12,25 @@
 
 
 CConnection::CConnection(const string &host, const string &user, const string &passw, const string &db,
-	size_t port)
+	const COptions *options)
 {
 	//boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	assert(options != nullptr);
 
 	m_Connection = mysql_init(NULL);
 	if (m_Connection == NULL)
 		return; //TODO: error "MySQL initialization failed"
 	
 	auto *result = mysql_real_connect(m_Connection, host.c_str(),
-		user.c_str(), passw.c_str(), db.c_str(), port, NULL, NULL);
+		user.c_str(), passw.c_str(), db.c_str(), 
+		options->GetOption<unsigned int>(COptions::Type::SERVER_PORT), 
+		NULL, NULL); //TODO: option "MULTI_STATEMENTS"
 
 	if (result == NULL)
 		return; //TODO: error "connection failed"
 	
 
-	my_bool reconnect = COptions::Get()->GetOption(COptions::EOption::AUTO_RECONNECT);
+	my_bool reconnect = options->GetOption<bool>(COptions::Type::AUTO_RECONNECT);
 	mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
 	
 	m_IsConnected = true;
@@ -76,22 +80,13 @@ bool CConnection::Execute(CQuery::Type_t query)
 	return IsConnected() && query->Execute(m_Connection);
 }
 
-void CConnection::OnOptionUpdate(COptions::EOption option, bool value)
-{
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
-	if (option == COptions::EOption::AUTO_RECONNECT)
-	{
-		my_bool reconnect = value;
-		mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
-	}
-}
-
 
 
 CThreadedConnection::CThreadedConnection(
-	const string &host, const string &user, const string &passw, const string &db, size_t port)
+	const string &host, const string &user, const string &passw, const string &db, 
+	const COptions *options)
 	:
-	m_Connection(host, user, passw, db, port),
+	m_Connection(host, user, passw, db, options),
 	m_WorkerThreadActive(true),
 	m_WorkerThread([this]()
 	{
@@ -126,10 +121,11 @@ CThreadedConnection::~CThreadedConnection()
 
 
 CConnectionPool::CConnectionPool(
-	const size_t size, const string &host, const string &user, const string &passw, const string &db, size_t port)
+	const size_t size, const string &host, const string &user, const string &passw, const string &db, 
+	const COptions *options)
 {
 	for (size_t i = 0; i < size; ++i)
-		m_Pool.push_front(new CThreadedConnection(host, user, passw, db, port));
+		m_Pool.push_front(new CThreadedConnection(host, user, passw, db, options));
 	m_PoolPos = m_Pool.begin();
 }
 

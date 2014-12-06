@@ -49,11 +49,19 @@ enum E_ORM_ERROR
 	ERROR_NO_DATA
 };
 
+enum E_MYSQL_GLOBAL_OPTION
+{
+	DUPLICATE_CONNECTIONS
+	//LOG_TRUNCATE_DATA //TODO: do we really need this?
+};
+
 enum E_MYSQL_OPTION
 {
-	DUPLICATE_CONNECTIONS,
-	AUTO_RECONNECT
-	//LOG_TRUNCATE_DATA //TODO: do we really need this?
+	AUTO_RECONNECT,
+	MULTI_STATEMENTS,
+	POOL_SIZE,
+	SERVER_PORT
+	//TODO: SSL stuff
 };
 
 enum E_EXECTIME_UNIT
@@ -99,13 +107,16 @@ native orm_setkey(ORM:id, varname[]);
 
 // MySQL functions
 native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
-native MySQL:mysql_connect(const host[], const user[], const password[], const database[], port = 3306, pool_size = 2);
+native MySQL:mysql_connect(const host[], const user[], const password[], const database[], MySQLOpt:option_id = MySQLOpt:0);
 native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_reconnect(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 
 native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_current_handle();
-native mysql_option(E_MYSQL_OPTION:type, value);
+native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
+
+native MySQLOpt:mysql_init_options();
+native mysql_set_option(MySQLOpt:option_id, E_MYSQL_OPTION:type, ...);
 
 native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 /*

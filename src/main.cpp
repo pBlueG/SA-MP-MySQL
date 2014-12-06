@@ -82,6 +82,9 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(mysql_unprocessed_queries)
 	AMX_DEFINE_NATIVE(mysql_current_handle)
 	AMX_DEFINE_NATIVE(mysql_option)
+
+	AMX_DEFINE_NATIVE(mysql_init_options)
+	AMX_DEFINE_NATIVE(mysql_set_option)
 	
 	AMX_DEFINE_NATIVE(mysql_errno)
 	AMX_DEFINE_NATIVE(mysql_escape_string)
