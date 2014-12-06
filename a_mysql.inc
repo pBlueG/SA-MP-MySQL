@@ -62,14 +62,14 @@ enum E_EXECTIME_UNIT
 	MICROSECONDS
 };
 
-#define DEFAULT_MYSQL_HANDLE MySQL:1
+#define MYSQL_DEFAULT_HANDLE MySQL:1
 
 #define cache_num_fields 	cache_get_field_count
 #define cache_num_rows 		cache_get_row_count
 
 
 // ORM functions
-native ORM:orm_create(const table[], MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native orm_destroy(ORM:id);
 
 native E_ORM_ERROR:orm_errno(ORM:id);
@@ -100,10 +100,10 @@ native orm_setkey(ORM:id, varname[]);
 // MySQL functions
 native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
 native MySQL:mysql_connect(const host[], const user[], const password[], const database[], port = 3306, pool_size = 2);
-native mysql_close(MySQL:handle = DEFAULT_MYSQL_HANDLE);
-native mysql_reconnect(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
+native mysql_reconnect(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 
-native mysql_unprocessed_queries(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_current_handle();
 native mysql_option(E_MYSQL_OPTION:type, value);
 
@@ -117,12 +117,12 @@ native mysql_tquery_inline(MySQL:handle, const query[], callback:Callback, const
 */
 native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
 
-native mysql_errno(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_format(MySQL:handle, output[], len, const format[], {Float,_}:...);
-native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
-native mysql_set_charset(const charset[], MySQL:handle = DEFAULT_MYSQL_HANDLE);
-native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
-native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
+native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
+native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
+native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 
 
 

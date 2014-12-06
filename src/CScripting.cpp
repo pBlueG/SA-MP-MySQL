@@ -7,7 +7,7 @@
 #include "misc.h"
 
 
-// native ORM:orm_create(const table[], MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::orm_create)
 {
 	return 0;
@@ -120,7 +120,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 	return handle->GetId();
 }
 
-// native mysql_close(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_close)
 {
 	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<CHandle::Id_t>(params[1]));
@@ -130,13 +130,13 @@ AMX_DECLARE_NATIVE(Native::mysql_close)
 	return CHandleManager::Get()->Destroy(handle);
 }
 
-// native mysql_reconnect(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_reconnect(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_reconnect)
 {
 	return 0;
 }
 
-// native mysql_unprocessed_queries(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 {
 	return 0;
@@ -209,7 +209,7 @@ AMX_DECLARE_NATIVE(Native::mysql_query)
 	return 0;
 }
 
-// native mysql_errno(MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_errno)
 {
 	return 0;
@@ -221,25 +221,25 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 	return 0;
 }
 
-// native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 {
 	return 0;
 }
 
-// native mysql_set_charset(const charset[], MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 {
 	return 0;
 }
 
-// native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 {
 	return 0;
 }
 
-// native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_stat)
 {
 	return 0;
@@ -404,19 +404,19 @@ AMX_DECLARE_NATIVE(Native::cache_save)
 	return 0;
 }
 
-// native cache_delete(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native cache_delete(Cache:cache_id, MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::cache_delete)
 {
 	return 0;
 }
 
-// native cache_set_active(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native cache_set_active(Cache:cache_id, MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::cache_set_active)
 {
 	return 0;
 }
 
-// native cache_is_valid(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
+// native cache_is_valid(Cache:cache_id, MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::cache_is_valid)
 {
 	return 0;
