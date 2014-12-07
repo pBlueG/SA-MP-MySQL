@@ -59,7 +59,6 @@ namespace Native
 	
 
 	//Cache natives
-	AMX_DECLARE_NATIVE(cache_get_data);
 	AMX_DECLARE_NATIVE(cache_get_row_count);
 	AMX_DECLARE_NATIVE(cache_get_field_count);
 	AMX_DECLARE_NATIVE(cache_get_field_name);

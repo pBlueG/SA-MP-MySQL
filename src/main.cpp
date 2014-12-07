@@ -98,7 +98,6 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(mysql_set_charset)
 
 
-	AMX_DEFINE_NATIVE(cache_get_data)
 	AMX_DEFINE_NATIVE(cache_get_row_count)
 	AMX_DEFINE_NATIVE(cache_get_field_count)
 	AMX_DEFINE_NATIVE(cache_get_field_name)

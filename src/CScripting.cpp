@@ -294,26 +294,6 @@ AMX_DECLARE_NATIVE(Native::mysql_stat)
 
 
 
-// native cache_get_data(&num_rows, &num_fields);
-AMX_DECLARE_NATIVE(Native::cache_get_data)
-{
-	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
-	if (resultset == nullptr)
-		return 0;
-
-	cell
-		*num_rows_dest = nullptr,
-		*num_fields_dest = nullptr;
-	amx_GetAddr(amx, params[1], &num_rows_dest);
-	amx_GetAddr(amx, params[2], &num_fields_dest);
-	if (num_rows_dest == nullptr || num_fields_dest == nullptr)
-		return 0;
-
-	(*num_rows_dest) = static_cast<cell>(resultset->GetActiveResult()->GetRowCount());
-	(*num_fields_dest) = resultset->GetActiveResult()->GetFieldCount();
-	return 1;
-}
-
 // native cache_get_row_count();
 AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 {
