@@ -100,7 +100,9 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 	AMX_DEFINE_NATIVE(cache_get_row_count)
 	AMX_DEFINE_NATIVE(cache_get_field_count)
+	AMX_DEFINE_NATIVE(cache_get_result_count)
 	AMX_DEFINE_NATIVE(cache_get_field_name)
+	AMX_DEFINE_NATIVE(cache_set_result)
 
 	AMX_DEFINE_NATIVE(cache_get_row)
 	AMX_DEFINE_NATIVE(cache_get_row_int)

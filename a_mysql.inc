@@ -141,7 +141,9 @@ native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = M
 // Cache functions
 native cache_get_row_count();
 native cache_get_field_count();
+native cache_get_result_count();
 native cache_get_field_name(field_index, destination[], max_len = sizeof(destination));
+native cache_set_result(result_index);
 
 native cache_get_row(row_idx, field_idx, destination[], max_len = sizeof(destination));
 native cache_get_row_int(row_idx, field_idx);

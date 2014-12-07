@@ -308,6 +308,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 	return resultset != nullptr ? resultset->GetActiveResult()->GetFieldCount() : -1;
 }
 
+// native cache_get_result_count();
+AMX_DECLARE_NATIVE(Native::cache_get_result_count)
+{
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	return resultset != nullptr ? resultset->GetResultCount() : -1; 
+}
+
 // native cache_get_field_name(field_index, destination[], max_len = sizeof(destination))
 AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 {
@@ -322,6 +329,14 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 	amx_SetCppString(amx, params[2], field_name, params[3]);
 	return 1;
 }
+
+// native cache_set_result(result_index);
+AMX_DECLARE_NATIVE(Native::cache_set_result)
+{
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	return resultset != nullptr ? resultset->SetActiveResult(params[1]) : false;
+}
+
 
 // native cache_get_row(row_idx, field_idx, destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_row)
