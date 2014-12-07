@@ -298,21 +298,21 @@ AMX_DECLARE_NATIVE(Native::mysql_stat)
 AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 {
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
-	return resultset != nullptr ? static_cast<cell>(resultset->GetActiveResult()->GetRowCount()) : -1;
+	return resultset != nullptr ? static_cast<cell>(resultset->GetActiveResult()->GetRowCount()) : 0;
 }
 
 // native cache_get_field_count();
 AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 {
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
-	return resultset != nullptr ? resultset->GetActiveResult()->GetFieldCount() : -1;
+	return resultset != nullptr ? resultset->GetActiveResult()->GetFieldCount() : 0;
 }
 
 // native cache_get_result_count();
 AMX_DECLARE_NATIVE(Native::cache_get_result_count)
 {
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
-	return resultset != nullptr ? resultset->GetResultCount() : -1; 
+	return resultset != nullptr ? resultset->GetResultCount() : 0; 
 }
 
 // native cache_get_field_name(field_index, destination[], max_len = sizeof(destination))
