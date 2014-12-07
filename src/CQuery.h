@@ -25,8 +25,8 @@ public: //constructor / deconstructor
 
 private: //variables
 	string m_Query;
-	function<void(CResultSet *result)> m_Callback;
-	CResultSet *m_Result = nullptr;
+	function<void(shared_ptr<CResultSet> result)> m_Callback;
+	shared_ptr<CResultSet> m_Result = nullptr; //TODO: type is ugly
 
 public: //functions
 	bool Execute(MYSQL *connection);

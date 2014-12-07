@@ -234,17 +234,16 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	CQuery::Type_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
 	if (callback != nullptr)
 	{
-		query->OnExecutionFinished([=](CResultSet *result)
+		query->OnExecutionFinished([=](CResultSet::Type_t resultset)
 		{
 			// TODO: pre-execute: set active handle & result(cache)
-			CResultSetManager::Get()->SetActiveResultSet(result);
+			CResultSetManager::Get()->SetActiveResultSet(resultset);
 
 			//execute PAWN callback
 			callback->Execute();
 
 			// TODO: post-execute: unset active handle & result(cache) + delete result
 			CResultSetManager::Get()->SetActiveResultSet(nullptr);
-			delete result;
 		});
 	}
 
@@ -298,8 +297,8 @@ AMX_DECLARE_NATIVE(Native::mysql_stat)
 // native cache_get_data(&num_rows, &num_fields);
 AMX_DECLARE_NATIVE(Native::cache_get_data)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	cell
@@ -310,34 +309,34 @@ AMX_DECLARE_NATIVE(Native::cache_get_data)
 	if (num_rows_dest == nullptr || num_fields_dest == nullptr)
 		return 0;
 
-	(*num_rows_dest) = static_cast<cell>(result->GetActiveResult()->GetRowCount());
-	(*num_fields_dest) = result->GetActiveResult()->GetFieldCount();
+	(*num_rows_dest) = static_cast<cell>(resultset->GetActiveResult()->GetRowCount());
+	(*num_fields_dest) = resultset->GetActiveResult()->GetFieldCount();
 	return 1;
 }
 
 // native cache_get_row_count();
 AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	return result != nullptr ? static_cast<cell>(result->GetActiveResult()->GetRowCount()) : -1;
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	return resultset != nullptr ? static_cast<cell>(resultset->GetActiveResult()->GetRowCount()) : -1;
 }
 
 // native cache_get_field_count();
 AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	return result != nullptr ? result->GetActiveResult()->GetFieldCount() : -1;
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	return resultset != nullptr ? resultset->GetActiveResult()->GetFieldCount() : -1;
 }
 
 // native cache_get_field_name(field_index, destination[], max_len = sizeof(destination))
 AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	string field_name;
-	if (result->GetActiveResult()->GetFieldName(params[1], field_name) == false)
+	if (resultset->GetActiveResult()->GetFieldName(params[1], field_name) == false)
 		return 0;
 
 	amx_SetCppString(amx, params[2], field_name, params[3]);
@@ -347,12 +346,12 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 // native cache_get_row(row_idx, field_idx, destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_row)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	string data;
-	if (result->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
 		return 0;
 
 	amx_SetCppString(amx, params[3], data, params[4]);
@@ -362,12 +361,12 @@ AMX_DECLARE_NATIVE(Native::cache_get_row)
 // native cache_get_row_int(row_idx, field_idx);
 AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	string data;
-	if (result->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
 		return 0;
 
 	cell data_int = 0;
@@ -380,12 +379,12 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 // native Float:cache_get_row_float(row_idx, field_idx);
 AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	string data;
-	if (result->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
 		return 0;
 
 	float data_float = 0.0f;
@@ -398,12 +397,12 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 // native cache_get_field_content(row_idx, const field_name[], destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	string data;
-	if (result->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
+	if (resultset->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
 		return 0;
 
 	amx_SetCppString(amx, params[3], data, params[4]);
@@ -413,12 +412,12 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 // native cache_get_field_content_int(row_idx, const field_name[]);
 AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	string data;
-	if (result->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
+	if (resultset->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
 		return 0;
 
 	cell data_int = 0;
@@ -431,12 +430,12 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 // native Float:cache_get_field_content_float(row_idx, const field_name[]);
 AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	if (result == nullptr)
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
 		return 0;
 
 	string data;
-	if (result->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
+	if (resultset->GetActiveResult()->GetRowDataByName(params[1], amx_GetCppString(amx, params[2]), data) == false)
 		return 0;
 
 	float data_float = 0.0f;
@@ -449,46 +448,49 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 // native Cache:cache_save();
 AMX_DECLARE_NATIVE(Native::cache_save)
 {
-	return 0;
+	return CResultSetManager::Get()->StoreActiveResultSet();
 }
 
-// native cache_delete(Cache:cache_id, MySQL:handle = MYSQL_DEFAULT_HANDLE);
+// native cache_delete(Cache:cache_id);
 AMX_DECLARE_NATIVE(Native::cache_delete)
 {
-	return 0;
+	return CResultSetManager::Get()->DeleteResultSet(params[1]);
 }
 
-// native cache_set_active(Cache:cache_id, MySQL:handle = MYSQL_DEFAULT_HANDLE);
+// native cache_set_active(Cache:cache_id);
 AMX_DECLARE_NATIVE(Native::cache_set_active)
 {
-	return 0;
+	auto resultset = CResultSetManager::Get()->GetResultSet(params[1]);
+	if (resultset)
+		CResultSetManager::Get()->SetActiveResultSet(resultset);
+	return resultset != nullptr;
 }
 
-// native cache_is_valid(Cache:cache_id, MySQL:handle = MYSQL_DEFAULT_HANDLE);
+// native cache_is_valid(Cache:cache_id);
 AMX_DECLARE_NATIVE(Native::cache_is_valid)
 {
-	return 0;
+	return CResultSetManager::Get()->IsValidResultSet(params[1]);
 }
 
 // native cache_affected_rows();
 AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	return result != nullptr ? static_cast<cell>(result->AffectedRows()) : -1;
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	return resultset != nullptr ? static_cast<cell>(resultset->AffectedRows()) : -1;
 }
 
 // native cache_warning_count();
 AMX_DECLARE_NATIVE(Native::cache_warning_count)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	return result != nullptr ? result->WarningCount() : -1;
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	return resultset != nullptr ? resultset->WarningCount() : -1;
 }
 
 // native cache_insert_id();
 AMX_DECLARE_NATIVE(Native::cache_insert_id)
 {
-	auto *result = CResultSetManager::Get()->GetActiveResultSet();
-	return result != nullptr ? static_cast<cell>(result->InsertId()) : -1;
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	return resultset != nullptr ? static_cast<cell>(resultset->InsertId()) : -1;
 }
 
 // native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = MICROSECONDS);

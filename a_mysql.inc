@@ -71,6 +71,7 @@ enum E_EXECTIME_UNIT
 };
 
 #define MYSQL_DEFAULT_HANDLE MySQL:1
+#define INVALID_CACHE_ID Cache:0
 
 #define cache_num_fields 	cache_get_field_count
 #define cache_num_rows 		cache_get_row_count
@@ -152,9 +153,9 @@ native cache_get_field_content_int(row_idx, const field_name[]);
 native Float:cache_get_field_content_float(row_idx, const field_name[]);
 
 native Cache:cache_save();
-native cache_delete(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
-native cache_set_active(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
-native cache_is_valid(Cache:cache_id, MySQL:handle = DEFAULT_MYSQL_HANDLE);
+native cache_delete(Cache:cache_id);
+native cache_set_active(Cache:cache_id);
+native cache_is_valid(Cache:cache_id);
 
 native cache_affected_rows();
 native cache_warning_count();

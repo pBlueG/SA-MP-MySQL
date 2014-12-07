@@ -4,9 +4,13 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+#include <unordered_map>
 
 using std::vector;
 using std::string;
+using std::shared_ptr;
+using std::unordered_map;
 
 typedef struct st_mysql MYSQL;
 typedef unsigned long long my_ulonglong;
@@ -44,6 +48,10 @@ public: //functions
 
 class CResultSet
 {
+public:
+	using Id_t = unsigned int;
+	using Type_t = shared_ptr<CResultSet>;
+
 private:
 	CResultSet() = default;
 
@@ -95,7 +103,7 @@ public:
 	}
 
 public: //factory function
-	static CResultSet *Create(MYSQL *connection);
+	static CResultSet::Type_t Create(MYSQL *connection);
 
 };
 
@@ -107,16 +115,28 @@ private:
 	~CResultSetManager() = default;
 
 private:
-	CResultSet *m_ActiveResultSet;
+	CResultSet::Type_t m_ActiveResultSet;
+	unordered_map<CResultSet::Id_t, CResultSet::Type_t> m_StoredResults;
 
 public:
-	inline void SetActiveResultSet(CResultSet *resultset)
+	inline void SetActiveResultSet(CResultSet::Type_t resultset)
 	{
 		m_ActiveResultSet = resultset;
 	}
-	inline CResultSet *GetActiveResultSet()
+	inline CResultSet::Type_t GetActiveResultSet()
 	{
 		return m_ActiveResultSet;
+	}
+
+	inline bool IsValidResultSet(CResultSet::Id_t id)
+	{
+		return m_StoredResults.find(id) != m_StoredResults.end();
+	}
+	CResultSet::Id_t StoreActiveResultSet();
+	bool DeleteResultSet(CResultSet::Id_t id);
+	inline CResultSet::Type_t GetResultSet(CResultSet::Id_t id)
+	{
+		return IsValidResultSet(id) ? m_StoredResults.at(id) : nullptr;
 	}
 
 };

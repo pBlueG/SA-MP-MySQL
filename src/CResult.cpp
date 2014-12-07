@@ -63,7 +63,7 @@ CResultSet::~CResultSet()
 		delete r;
 }
 
-CResultSet *CResultSet::Create(MYSQL *connection)
+CResultSet::Type_t CResultSet::Create(MYSQL *connection)
 {
 	if (connection == nullptr)
 		return nullptr;
@@ -151,5 +151,31 @@ CResultSet *CResultSet::Create(MYSQL *connection)
 			mysql_free_result(raw_result);
 		} while (mysql_next_result(connection) == 0 && (raw_result = mysql_store_result(connection)));
 	}
-	return resultset;
+	return CResultSet::Type_t(resultset);
+}
+
+
+
+CResultSet::Id_t CResultSetManager::StoreActiveResultSet()
+{
+	if (m_ActiveResultSet == false)
+		return 0;
+
+	CResultSet::Id_t id = 1;
+	while (m_StoredResults.find(id) != m_StoredResults.end())
+		id++;
+
+	m_StoredResults.emplace(id, m_ActiveResultSet);
+	return id;
+}
+
+bool CResultSetManager::DeleteResultSet(CResultSet::Id_t id)
+{
+	if (IsValidResultSet(id) == false)
+		return false;
+
+	if (GetResultSet(id) == GetActiveResultSet())
+		SetActiveResultSet(nullptr);
+
+	return m_StoredResults.erase(id) == 1;
 }
