@@ -32,7 +32,7 @@ enum E_LOGLEVEL
 	LOG_ERROR = 1,
 	LOG_WARNING = 2,
 	LOG_DEBUG = 4,
-	
+
 	LOG_ALL = LOG_ERROR | LOG_WARNING | LOG_DEBUG
 };
 
@@ -48,7 +48,7 @@ enum E_ORM_ERROR
 	ERROR_NO_DATA
 };
 
-enum E_VAR_DATATYPE 
+enum E_VAR_DATATYPE
 {
 	DATATYPE_INT,
 	DATATYPE_FLOAT,
@@ -164,72 +164,72 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 	#if !defined E_CALLBACK_DATA
 		#include <YSI\y_inline>
 	#endif
-	
+
 	static g_MySQL_InlineData[1000][E_CALLBACK_DATA];
 	static g_MySQL_VarArray[32][YSI_MAX_STRING];
 	static g_MySQL_AddressArray[32];
 
-	stock MySQL_Internal_SaveInline(callback:CB) 
+	stock MySQL_Internal_SaveInline(callback:CB)
 	{
 		static bool:g_MySQL_LazyInit = true;
-		if(g_MySQL_LazyInit == true) 
+		if(g_MySQL_LazyInit == true)
 		{
 			//set g_MySQL_InlineData empty
-			for(new i=0; i < sizeof(g_MySQL_InlineData); ++i)
+			for(new i=0, len=sizeof(g_MySQL_InlineData); i < len; ++i)
 				for(new E_CALLBACK_DATA:e = E_CALLBACK_DATA:0; e < E_CALLBACK_DATA; ++e)
 					g_MySQL_InlineData[i][e] = 0;
 			g_MySQL_LazyInit = false;
 		}
-		
-		for(new i=0; i < sizeof(g_MySQL_InlineData); ++i)
+
+		for(new i=0, len=sizeof(g_MySQL_InlineData); i < len; ++i)
 			if(_:g_MySQL_InlineData[i][E_CALLBACK_DATA_POINTER] == 0)
 				if (Callback_Get(CB, g_MySQL_InlineData[i]))
 					return i;
-					
+
 		return -1;
 	}
-	
+
 	#define mysql_pquery_inline(%0,%1,%2,"%3"%4) \
 		mysql_pquery(%0,%1,"FJ37DH3JG_MYSQL_INTERNAL","d"#%3,MySQL_Internal_SaveInline(%2)%4)
-		
+
 	#define mysql_tquery_inline(%0,%1,%2,"%3"%4) \
 		mysql_tquery(%0,%1,"FJ37DH3JG_MYSQL_INTERNAL","d"#%3,MySQL_Internal_SaveInline(%2)%4)
-	
+
 	#define orm_select_inline(%0,%1,"%2"%3) \
 		orm_select(%0,"FJ37DH3JG_MYSQL_INTERNAL","d"#%2,MySQL_Internal_SaveInline(%1)%3)
-	
+
 	#define orm_insert_inline(%0,%1,"%2"%3) \
 		orm_insert(%0,"FJ37DH3JG_MYSQL_INTERNAL","d"#%2,MySQL_Internal_SaveInline(%1)%3)
 
 
 	forward FJ37DH3JG_MYSQL_INTERNAL(...);
-	public FJ37DH3JG_MYSQL_INTERNAL(...) 
+	public FJ37DH3JG_MYSQL_INTERNAL(...)
 	{
 		new InlineDataIndex = getarg(0);
 		if(InlineDataIndex < 0)
 			return 0;
-		
-		for(new i=0; i < numargs()-1; ++i) 
+
+		for(new i=0, len=numargs()-1; i < len; ++i)
 		{
-			for(new l=0; l < YSI_MAX_STRING; ++l) 
+			for(new l=0; l < YSI_MAX_STRING; ++l)
 			{
 				new TmpVal = getarg(i+1, l);
 				if(l == 0 || g_MySQL_VarArray[i][l-1] < 256)
 					g_MySQL_VarArray[i][l] = TmpVal;
-				else 
+				else
 					break;
 			}
-			
+
 			g_MySQL_AddressArray[i] = AMX_GetRelativeAddress(g_MySQL_VarArray[i][0]);
 		}
-		
+
 		Callback_Array(g_MySQL_InlineData[InlineDataIndex], g_MySQL_AddressArray);
-		
+
 		Callback_Release(g_MySQL_InlineData[InlineDataIndex]);
 		for(new E_CALLBACK_DATA:e = E_CALLBACK_DATA:0; e < E_CALLBACK_DATA; ++e)
 			g_MySQL_InlineData[InlineDataIndex][e] = 0;
-		
-		for(new i=0; i < numargs()-1; ++i) 
+
+		for(new i=0, len = numargs()-1; i < len; ++i)
 		{
 			g_MySQL_AddressArray[i] = 0;
 			for(new l=0, lmax=strlen(g_MySQL_VarArray[i]); l < lmax; ++l)
