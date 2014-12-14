@@ -44,15 +44,13 @@ bool CHandle::Execute(ExecutionType type, Query_t query)
 	return false;
 }
 
-unsigned int CHandle::GetErrorId()
+bool CHandle::GetErrorId(unsigned int &errorid)
 {
-	unsigned int errorid = 0;
-	if (m_MainConnection != nullptr)
-	{
-		string unused_errormsg;
-		m_MainConnection->GetError(errorid, unused_errormsg);
-	}
-	return errorid;
+	if (m_MainConnection == nullptr)
+		return false;
+
+	string unused_errormsg;
+	return m_MainConnection->GetError(errorid, unused_errormsg);
 }
 
 bool CHandle::EscapeString(const string &src, string &dest)

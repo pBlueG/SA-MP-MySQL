@@ -249,9 +249,13 @@ AMX_DECLARE_NATIVE(Native::mysql_errno)
 {
 	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[1]));
 	if (handle == nullptr)
-		return 0;
+		return -1;
 
-	return handle->GetErrorId();
+	unsigned int errorid = 0;
+	if (handle->GetErrorId(errorid) == false)
+		return -1;
+
+	return errorid;
 }
 
 // native mysql_format(MySQL:handle, output[], len, const format[], {Float,_}:...);
