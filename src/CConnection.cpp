@@ -28,7 +28,6 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 
 	if (result == NULL)
 		return; //TODO: error "connection failed"
-	
 
 	my_bool reconnect = options->GetOption<bool>(COptions::Type::AUTO_RECONNECT);
 	mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
@@ -46,9 +45,8 @@ CConnection::~CConnection()
 
 bool CConnection::EscapeString(const char *src, string &dest)
 {
-	if (src == nullptr || IsConnected() == false)
+	if (IsConnected() == false || src == nullptr)
 		return false;
-
 
 	const size_t src_len = strlen(src);
 	char *tmp_str = static_cast<char *>(malloc((src_len * 2 + 1) * sizeof(char)));
@@ -62,9 +60,8 @@ bool CConnection::EscapeString(const char *src, string &dest)
 
 bool CConnection::SetCharset(string charset)
 {
-	if (m_IsConnected == false || charset.empty())
+	if (IsConnected() == false || charset.empty())
 		return false;
-	
 
 	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	int error = mysql_set_character_set(m_Connection, charset.c_str());
