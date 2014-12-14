@@ -14,7 +14,7 @@ using std::unordered_map;
 
 
 
-class CResult 
+class DLL_API CResult 
 {
 	friend class CResultSet;
 private: //constructor / destructor
@@ -44,7 +44,7 @@ public: //functions
 
 };
 
-class CResultSet
+class DLL_API CResultSet
 {
 private:
 	CResultSet() = default;
@@ -101,7 +101,7 @@ public: //factory function
 
 };
 
-class CResultSetManager : public CSingleton< CResultSetManager >
+class DLL_API CResultSetManager : public CSingleton< CResultSetManager >
 {
 	friend class CSingleton< CResultSetManager >;
 private:
