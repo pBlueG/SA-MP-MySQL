@@ -82,6 +82,15 @@ bool CHandle::GetCharacterSet(string &charset)
 	return m_MainConnection->GetCharset(charset);
 }
 
+bool CHandle::GetStatus(string &stat)
+{
+	if (m_MainConnection == nullptr)
+		return false;
+
+	return m_MainConnection->GetStatus(stat);
+}
+
+
 
 CHandle *CHandleManager::Create(string host, string user, string pass, string db,
 	const COptions *options, CHandle::Error &error)

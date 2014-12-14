@@ -39,6 +39,7 @@ public: //functions
 	bool GetCharset(string &charset);
 	bool Execute(Query_t query);
 	bool GetError(unsigned int &id, string &msg);
+	bool GetStatus(string &stat);
 
 };
 

@@ -100,6 +100,21 @@ bool CConnection::GetError(unsigned int &id, string &msg)
 	return true;
 }
 
+bool CConnection::GetStatus(string &stat)
+{
+	if (IsConnected() == false)
+		return false;
+
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	const char *stat_raw = mysql_stat(m_Connection);
+	
+	if (stat_raw == nullptr)
+		return false;
+
+	stat = stat_raw;
+	return true;
+}
+
 
 
 CThreadedConnection::CThreadedConnection(

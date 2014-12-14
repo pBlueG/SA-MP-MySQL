@@ -317,7 +317,20 @@ AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 // native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_stat)
 {
-	return 0;
+	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[3]));
+	if (handle == nullptr)
+		return 0;
+
+	string status;
+	if (handle->GetStatus(status) == false)
+		return 0;
+
+	size_t max_str_len = params[2] - 1;
+	if (status.length() > max_str_len)
+		return 0; //destination array to small
+
+	amx_SetCppString(amx, params[1], status, max_str_len + 1);
+	return 1;
 }
 
 

@@ -60,6 +60,7 @@ public: //functions
 	bool EscapeString(const string &src, string &dest);
 	bool SetCharacterSet(string charset);
 	bool GetCharacterSet(string &charset);
+	bool GetStatus(string &stat);
 };
 
 class DLL_API CHandleManager : public CSingleton<CHandleManager>
