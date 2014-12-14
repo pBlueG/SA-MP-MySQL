@@ -15,7 +15,7 @@ class CThreadedConnection;
 class CConnectionPool;
 
 
-class CHandle
+class DLL_API CHandle
 {
 	friend class CHandleManager;
 public: //type definitions

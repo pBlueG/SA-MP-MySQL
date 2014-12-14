@@ -15,8 +15,11 @@
 #include "../../src/CCallback.h"
 #include "../../src/CResult.h"
 #include "../../src/COptions.h"
+#include "../../src/CDispatcher.h"
 
 #include <vector>
+#include <boost/chrono.hpp>
+#include <boost/thread.hpp>
 
 
 struct GlobalSetup
@@ -31,7 +34,7 @@ struct GlobalSetup
 		CHandleManager::CSingleton::Destroy();
 		CCallbackManager::CSingleton::Destroy();
 		CResultSetManager::CSingleton::Destroy();
-		//CDispatcher::CSingleton::Destroy();
+		CDispatcher::CSingleton::Destroy();
 		COptionManager::CSingleton::Destroy();
 		
 		mysql_library_end();
@@ -179,3 +182,42 @@ BOOST_AUTO_TEST_SUITE(Handle)
 
 //}
 BOOST_AUTO_TEST_SUITE_END()
+
+
+struct Connection
+{
+	CHandle::Error handle_error;
+	CHandle *handle = nullptr;
+
+	Connection()
+	{
+		handle = CHandleManager::Get()->Create("localhost", "root", "1234", "mysql_test",
+			COptionManager::Get()->GetDefaultOptionHandle(), handle_error);
+
+		BOOST_REQUIRE(handle_error == CHandle::Error::NONE);
+		unsigned int errorid = 0;
+		BOOST_REQUIRE_EQUAL(handle->GetErrorId(errorid), true);
+		BOOST_REQUIRE_EQUAL(errorid, 0);
+	}
+	~Connection()
+	{
+		BOOST_CHECK_EQUAL(CHandleManager::Get()->Destroy(handle), true);
+	}
+};
+BOOST_FIXTURE_TEST_SUITE(Query, Connection)
+//{
+	BOOST_AUTO_TEST_CASE(Empty)
+	{
+		Query_t query = CQuery::Create("");
+		query->OnExecutionFinished([](ResultSet_t res)
+		{
+			BOOST_FAIL("exec callback called");
+		});
+		handle->Execute(CHandle::ExecutionType::THREADED, query);
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+		CDispatcher::Get()->Process();
+	}
+
+//}
+BOOST_AUTO_TEST_SUITE_END()
+
