@@ -29,7 +29,11 @@ struct GlobalSetup
 	~GlobalSetup()
 	{
 		CHandleManager::CSingleton::Destroy();
+		CCallbackManager::CSingleton::Destroy();
+		CResultSetManager::CSingleton::Destroy();
+		//CDispatcher::CSingleton::Destroy();
 		COptionManager::CSingleton::Destroy();
+		
 		mysql_library_end();
 	}
 };
@@ -79,6 +83,13 @@ BOOST_AUTO_TEST_SUITE(Handle)
 		//empty database -> fail
 		handle = CHandleManager::Get()->Create(host, user, password, "", COptionManager::Get()->GetDefaultOptionHandle(), handle_error);
 		BOOST_CHECK(handle_error == CHandle::Error::EMPTY_DATABASE);
+		BOOST_CHECK(handle == nullptr);
+	}
+	BOOST_FIXTURE_TEST_CASE(InvalidOptions, HandleData)
+	{
+		//invalid options -> fail
+		handle = CHandleManager::Get()->Create(host, user, password, database, nullptr, handle_error);
+		BOOST_CHECK(handle_error == CHandle::Error::INVALID_OPTIONS);
 		BOOST_CHECK(handle == nullptr);
 	}
 	BOOST_FIXTURE_TEST_CASE(IdEnumeration, HandleData)
