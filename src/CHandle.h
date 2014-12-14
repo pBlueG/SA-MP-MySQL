@@ -50,13 +50,13 @@ private: //variables
 	CConnectionPool *m_ConnectionPool = nullptr;
 
 public: //functions
-	bool Execute(ExecutionType type, Query_t query);
-
 	inline HandleId_t GetId() const
 	{
 		return m_Id;
 	}
 
+	bool Execute(ExecutionType type, Query_t query);
+	unsigned int GetErrorId();
 };
 
 class DLL_API CHandleManager : public CSingleton<CHandleManager>

@@ -44,6 +44,17 @@ bool CHandle::Execute(ExecutionType type, Query_t query)
 	return false;
 }
 
+unsigned int CHandle::GetErrorId()
+{
+	unsigned int errorid = 0;
+	if (m_MainConnection != nullptr)
+	{
+		string unused_errormsg;
+		m_MainConnection->GetError(errorid, unused_errormsg);
+	}
+	return errorid;
+}
+
 
 CHandle *CHandleManager::Create(string host, string user, string pass, string db,
 	const COptions *options, CHandle::Error &error)

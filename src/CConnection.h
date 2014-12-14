@@ -37,6 +37,7 @@ public: //functions
 	bool EscapeString(const char *src, string &dest);
 	bool SetCharset(string charset);
 	bool Execute(Query_t query);
+	bool GetError(unsigned int &id, string &msg);
 
 };
 

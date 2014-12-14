@@ -80,6 +80,18 @@ bool CConnection::Execute(Query_t query)
 	return IsConnected() && query->Execute(m_Connection);
 }
 
+bool CConnection::GetError(unsigned int &id, string &msg)
+{
+	if (IsConnected() == false)
+		return false;
+
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	id = mysql_errno(m_Connection);
+	msg = mysql_error(m_Connection);
+
+	return true;
+}
+
 
 
 CThreadedConnection::CThreadedConnection(
