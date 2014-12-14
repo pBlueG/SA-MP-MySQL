@@ -24,9 +24,9 @@ COptionManager::~COptionManager()
 		delete o.second;
 }
 
-COptions::Id_t COptionManager::Create()
+OptionsId_t COptionManager::Create()
 {
-	COptions::Id_t id = 1;
+	OptionsId_t id = 1;
 	while (m_Options.find(id) != m_Options.end())
 		id++;
 

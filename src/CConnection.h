@@ -11,9 +11,7 @@
 using std::string;
 using std::forward_list;
 
-class CQuery;
-typedef struct st_mysql MYSQL;
-class COptions;
+#include "Types.h"
 
 
 class CConnection
@@ -38,7 +36,7 @@ public: //functions
 	}
 	bool EscapeString(const char *src, string &dest);
 	bool SetCharset(string charset);
-	bool Execute(CQuery::Type_t query);
+	bool Execute(Query_t query);
 
 };
 
@@ -57,12 +55,12 @@ private:
 	boost::thread m_WorkerThread;
 	boost::atomic<bool> m_WorkerThreadActive;
 
-	boost::lockfree::spsc_queue < CQuery::Type_t,
+	boost::lockfree::spsc_queue < Query_t,
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 32768 >> m_Queue;
 
 public:
-	inline bool Queue(CQuery::Type_t query)
+	inline bool Queue(Query_t query)
 	{
 		return m_Queue.push(query);
 	}
@@ -89,7 +87,7 @@ private:
 	Pool_t::iterator m_PoolPos;
 
 public:
-	bool Queue(CQuery::Type_t query);
+	bool Queue(Query_t query);
 	bool SetCharset(string charset);
 
 };

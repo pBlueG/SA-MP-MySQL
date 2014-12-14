@@ -24,7 +24,7 @@ CHandle::~CHandle()
 		delete m_ConnectionPool;
 }
 
-bool CHandle::Execute(ExecutionType type, CQuery::Type_t query)
+bool CHandle::Execute(ExecutionType type, Query_t query)
 {
 	if (query)
 	{
@@ -77,7 +77,7 @@ CHandle *CHandleManager::Create(string host, string user, string pass, string db
 	}
 
 
-	CHandle::Id_t id = 1;
+	HandleId_t id = 1;
 	while (m_Handles.find(id) != m_Handles.end())
 		id++;
 

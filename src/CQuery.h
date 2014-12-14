@@ -2,21 +2,15 @@
 
 #include <string>
 #include <functional>
-#include <memory>
 
 using std::string;
 using std::function;
-using std::shared_ptr;
 
-class CResultSet;
-typedef struct st_mysql MYSQL;
+#include "Types.h"
 
 
 class CQuery
 {
-public: //type definitions
-	using Type_t = shared_ptr<CQuery>;
-
 public: //constructor / deconstructor
 	CQuery(string &&query) :
 		m_Query(query)
@@ -25,8 +19,8 @@ public: //constructor / deconstructor
 
 private: //variables
 	string m_Query;
-	function<void(shared_ptr<CResultSet> result)> m_Callback;
-	shared_ptr<CResultSet> m_Result = nullptr; //TODO: type is ugly
+	function<void(ResultSet_t result)> m_Callback;
+	ResultSet_t m_Result = nullptr;
 
 public: //functions
 	bool Execute(MYSQL *connection);
@@ -41,7 +35,7 @@ public: //functions
 	}
 
 public: //factory function
-	static inline CQuery::Type_t Create(string &&query)
+	static inline Query_t Create(string &&query)
 	{
 		return std::make_shared<CQuery>(std::move(query));
 	}

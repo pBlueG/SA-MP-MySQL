@@ -11,13 +11,13 @@ using std::string;
 using std::map;
 using std::unordered_map;
 
+#include "Types.h"
+
 
 class COptions
 {
 	friend class COptionManager;
 public:
-	using Id_t = unsigned int;
-
 	enum class Type
 	{
 		AUTO_RECONNECT, //true
@@ -83,17 +83,17 @@ private:
 	~COptionManager();
 
 private:
-	unordered_map<COptions::Id_t, COptions *> m_Options;
+	unordered_map<OptionsId_t, COptions *> m_Options;
 	map<EGlobalOption, bool> m_GlobalOptions;
 
 public:
-	COptions::Id_t Create();
+	OptionsId_t Create();
 
-	inline bool IsValidOptionHandle(const COptions::Id_t id)
+	inline bool IsValidOptionHandle(const OptionsId_t id)
 	{
 		return m_Options.find(id) != m_Options.end();
 	}
-	inline COptions *GetOptionHandle(COptions::Id_t id)
+	inline COptions *GetOptionHandle(OptionsId_t id)
 	{
 		return IsValidOptionHandle(id) ? m_Options.at(id) : nullptr;
 	}

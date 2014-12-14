@@ -10,8 +10,6 @@
 #include <unordered_set>
 #include <boost/variant.hpp>
 
-#include <memory>
-
 using std::string;
 using std::queue;
 using std::function;
@@ -19,13 +17,12 @@ using std::stack;
 using std::unordered_set;
 using boost::variant;
 
-using std::shared_ptr;
+#include "Types.h"
 
 
 class CCallback 
 {
 public: //type definitions
-	using Type_t = shared_ptr<CCallback>;
 	using ParamList_t = stack<variant<cell, string>>;
 
 	enum class Error
@@ -64,7 +61,7 @@ public: //functions
 	
 
 public: //factory function
-	static Type_t Create(AMX *amx, string name, string format, cell *params, cell param_offset,
+	static Callback_t Create(AMX *amx, string name, string format, cell *params, cell param_offset,
 		CCallback::Error &error);
 };
 

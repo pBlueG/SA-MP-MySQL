@@ -107,6 +107,7 @@
     <ClInclude Include="src\CSingleton.h" />
     <ClInclude Include="src\sdk.h" />
     <ClInclude Include="src\misc.h" />
+    <ClInclude Include="src\Types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="libs\sdk\amxplugin.cpp" />

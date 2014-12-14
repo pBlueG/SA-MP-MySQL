@@ -1,7 +1,7 @@
 #include "CDispatcher.h"
 
 
-void CDispatcher::Dispatch(Function_t &&func)
+void CDispatcher::Dispatch(DispatchFunction_t &&func)
 {
 	boost::mutex::scoped_lock lock(m_QueueMtx);
 	return m_Queue.push(func);

@@ -126,7 +126,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 // native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_close)
 {
-	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<CHandle::Id_t>(params[1]));
+	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[1]));
 	if (handle == nullptr)
 		return 0;
 
@@ -212,14 +212,14 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 // native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
-	const CHandle::Id_t handle_id = static_cast<CHandle::Id_t>(params[1]);
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	CHandle *handle = CHandleManager::Get()->GetHandle(handle_id);
 
 	if (handle == nullptr)
 		return 0;
 
 	CCallback::Error callback_error;
-	CCallback::Type_t callback = CCallback::Create(
+	Callback_t callback = CCallback::Create(
 		amx, 
 		amx_GetCppString(amx, params[3]),
 		amx_GetCppString(amx, params[4]),
@@ -231,10 +231,10 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		return 0; // TODO: log error with CCallbackManager::GetErrorString
 	
 
-	CQuery::Type_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
+	Query_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
 	if (callback != nullptr)
 	{
-		query->OnExecutionFinished([=](CResultSet::Type_t resultset)
+		query->OnExecutionFinished([=](ResultSet_t resultset)
 		{
 			// TODO: pre-execute: set active handle & result(cache)
 			CResultSetManager::Get()->SetActiveResultSet(resultset);

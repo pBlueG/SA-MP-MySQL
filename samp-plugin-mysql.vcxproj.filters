@@ -19,6 +19,7 @@
     <ClInclude Include="src\CResult.h" />
     <ClInclude Include="src\CDispatcher.h" />
     <ClInclude Include="src\COptions.h" />
+    <ClInclude Include="src\Types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CScripting.cpp" />

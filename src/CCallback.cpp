@@ -3,7 +3,7 @@
 #include <map>
 
 
-CCallback::Type_t CCallback::Create(
+Callback_t CCallback::Create(
 	AMX *amx, string name, string format, cell *params, cell param_offset, CCallback::Error &error)
 {
 	error = CCallback::Error::NONE;

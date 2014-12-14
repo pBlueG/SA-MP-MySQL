@@ -74,7 +74,7 @@ bool CConnection::SetCharset(string charset)
 	return true;
 }
 
-bool CConnection::Execute(CQuery::Type_t query)
+bool CConnection::Execute(Query_t query)
 {
 	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	return IsConnected() && query->Execute(m_Connection);
@@ -94,7 +94,7 @@ CThreadedConnection::CThreadedConnection(
 
 		while (m_WorkerThreadActive)
 		{
-			CQuery::Type_t query;
+			Query_t query;
 			while (m_Queue.pop(query))
 			{
 				if (m_Connection.Execute(query))
@@ -129,7 +129,7 @@ CConnectionPool::CConnectionPool(
 	m_PoolPos = m_Pool.begin();
 }
 
-bool CConnectionPool::Queue(CQuery::Type_t query)
+bool CConnectionPool::Queue(Query_t query)
 {
 	if (m_PoolPos == m_Pool.end())
 		m_PoolPos = m_Pool.begin();
