@@ -145,12 +145,6 @@ AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 	return 0;
 }
 
-// native mysql_current_handle();
-AMX_DECLARE_NATIVE(Native::mysql_current_handle)
-{
-	return 0;
-}
-
 // native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
 AMX_DECLARE_NATIVE(Native::mysql_global_options)
 {

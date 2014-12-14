@@ -113,7 +113,6 @@ native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_reconnect(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 
 native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
-native mysql_current_handle();
 native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
 
 native MySQLOpt:mysql_init_options();
