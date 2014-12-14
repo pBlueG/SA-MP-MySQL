@@ -152,7 +152,7 @@ AMX_DECLARE_NATIVE(Native::mysql_current_handle)
 }
 
 // native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
-AMX_DECLARE_NATIVE(Native::mysql_option)
+AMX_DECLARE_NATIVE(Native::mysql_global_options)
 {
 	COptionManager::Get()->SetGlobalOption(static_cast<COptionManager::EGlobalOption>(params[1]), params[2] != 0);
 	return 1; //TODO: check if passed enum value really is correct

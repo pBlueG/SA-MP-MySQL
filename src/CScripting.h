@@ -41,7 +41,7 @@ namespace Native
 
 	AMX_DECLARE_NATIVE(mysql_unprocessed_queries);
 	AMX_DECLARE_NATIVE(mysql_current_handle);
-	AMX_DECLARE_NATIVE(mysql_option);
+	AMX_DECLARE_NATIVE(mysql_global_options);
 
 	AMX_DECLARE_NATIVE(mysql_init_options);
 	AMX_DECLARE_NATIVE(mysql_set_option);
