@@ -110,7 +110,6 @@ native orm_setkey(ORM:id, varname[]);
 native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
 native MySQL:mysql_connect(const host[], const user[], const password[], const database[], MySQLOpt:option_id = MySQLOpt:0);
 native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
-native mysql_reconnect(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 
 native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);

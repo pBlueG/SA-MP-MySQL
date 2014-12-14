@@ -86,7 +86,6 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(mysql_log)
 	AMX_DEFINE_NATIVE(mysql_connect)
 	AMX_DEFINE_NATIVE(mysql_close)
-	AMX_DEFINE_NATIVE(mysql_reconnect)
 	
 	AMX_DEFINE_NATIVE(mysql_unprocessed_queries)
 	AMX_DEFINE_NATIVE(mysql_global_options)

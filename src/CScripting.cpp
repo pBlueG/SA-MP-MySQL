@@ -133,12 +133,6 @@ AMX_DECLARE_NATIVE(Native::mysql_close)
 	return CHandleManager::Get()->Destroy(handle);
 }
 
-// native mysql_reconnect(MySQL:handle = MYSQL_DEFAULT_HANDLE);
-AMX_DECLARE_NATIVE(Native::mysql_reconnect)
-{
-	return 0;
-}
-
 // native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 {
