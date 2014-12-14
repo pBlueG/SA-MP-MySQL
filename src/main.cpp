@@ -1,7 +1,10 @@
 #include "sdk.h"
 #include "CScripting.h"
+#include "CHandle.h"
 #include "CCallback.h"
+#include "CResult.h"
 #include "CDispatcher.h"
+#include "COptions.h"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -39,6 +42,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 PLUGIN_EXPORT void PLUGIN_CALL Unload() 
 {
 	logprintf("plugin.mysql: Unloading plugin...");
+
+	CHandleManager::CSingleton::Destroy();
+	CCallbackManager::CSingleton::Destroy();
+	CResultSetManager::CSingleton::Destroy();
+	CDispatcher::CSingleton::Destroy();
+	COptionManager::CSingleton::Destroy();
 
 	mysql_library_end();
 
