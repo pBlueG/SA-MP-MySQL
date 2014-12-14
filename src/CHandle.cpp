@@ -63,6 +63,17 @@ bool CHandle::EscapeString(const string &src, string &dest)
 	return m_MainConnection->EscapeString(src.c_str(), dest);
 }
 
+bool CHandle::SetCharacterSet(string charset)
+{
+	if (m_MainConnection == nullptr)
+		return false;
+
+	return
+		m_MainConnection->SetCharset(charset)
+		&& m_ThreadedConnection->SetCharset(charset)
+		&& m_ConnectionPool != nullptr ? m_ConnectionPool->SetCharset(charset) : true;
+}
+
 
 CHandle *CHandleManager::Create(string host, string user, string pass, string db,
 	const COptions *options, CHandle::Error &error)
