@@ -88,6 +88,7 @@ private:
 
 	Pool_t m_Pool;
 	Pool_t::iterator m_PoolPos;
+	boost::mutex m_PoolMutex;
 
 public:
 	bool Queue(Query_t query);

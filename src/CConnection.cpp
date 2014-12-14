@@ -166,6 +166,7 @@ CConnectionPool::CConnectionPool(
 
 bool CConnectionPool::Queue(Query_t query)
 {
+	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
 	if (m_PoolPos == m_Pool.end())
 		m_PoolPos = m_Pool.begin();
 
@@ -180,6 +181,7 @@ bool CConnectionPool::Queue(Query_t query)
 
 bool CConnectionPool::SetCharset(string charset)
 {
+	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
 	for (auto *c : m_Pool)
 		if (c == nullptr || c->SetCharset(charset) == false)
 			return false;
@@ -189,6 +191,7 @@ bool CConnectionPool::SetCharset(string charset)
 
 CConnectionPool::~CConnectionPool()
 {
+	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
 	for (auto *c : m_Pool)
 		delete c;
 }
