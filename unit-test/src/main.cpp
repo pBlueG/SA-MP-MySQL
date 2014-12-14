@@ -16,6 +16,7 @@
 #include "../../src/CResult.h"
 #include "../../src/COptions.h"
 #include "../../src/CDispatcher.h"
+#include "misc.h"
 
 #include <vector>
 #include <boost/chrono.hpp>
@@ -219,11 +220,11 @@ BOOST_AUTO_TEST_CASE(RawCheckThreaded)
 	query->OnExecutionFinished([](ResultSet_t res)
 	{
 		string dest;
-		res->GetActiveResult()->GetRowData(0, 0, dest);
+		BOOST_REQUIRE_EQUAL(res->GetActiveResult()->GetRowData(0, 0, dest), true);
 		BOOST_REQUIRE_EQUAL(dest, "42");
 		dest.clear();
 
-		res->GetActiveResult()->GetRowDataByName(0, "TestField", dest);
+		BOOST_REQUIRE_EQUAL(res->GetActiveResult()->GetRowDataByName(0, "TestField", dest), true);
 		BOOST_REQUIRE_EQUAL(dest, "42");
 	});
 	handle->Execute(CHandle::ExecutionType::THREADED, query);
@@ -240,6 +241,31 @@ BOOST_AUTO_TEST_CASE(Empty)
 	handle->Execute(CHandle::ExecutionType::THREADED, query);
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
 	CDispatcher::Get()->Process();
+}
+BOOST_AUTO_TEST_CASE(BasicResultFetch)
+{
+	Query_t query = CQuery::Create("SELECT * FROM test");
+	query->OnExecutionFinished([](ResultSet_t resset)
+	{
+		vector<string> should_vals{ "123", "456", "789" };
+		auto result = resset->GetActiveResult();
+		for (size_t r = 0; r < result->GetRowCount(); ++r)
+		{
+			string id_str;
+			BOOST_CHECK_EQUAL(result->GetRowData(r, 0, id_str), true);
+			int id = -1;
+			BOOST_CHECK_EQUAL(ConvertStrToData(id_str, id), true);
+			BOOST_CHECK_EQUAL(id, r + 1);
+
+			for (size_t f = 1; f < result->GetFieldCount(); ++f)
+			{
+				string is_val;
+				BOOST_CHECK_EQUAL(result->GetRowData(r, f, is_val), true);
+
+				BOOST_CHECK_EQUAL(is_val, should_vals[r]);
+			}
+		}
+	});
 }
 
 BOOST_AUTO_TEST_SUITE_END()
