@@ -71,6 +71,17 @@ bool CConnection::SetCharset(string charset)
 	return true;
 }
 
+bool CConnection::GetCharset(string &charset)
+{
+	if (IsConnected() == false)
+		return false;
+
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	charset = mysql_character_set_name(m_Connection);
+
+	return true;
+}
+
 bool CConnection::Execute(Query_t query)
 {
 	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);

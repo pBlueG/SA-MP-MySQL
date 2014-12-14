@@ -74,6 +74,14 @@ bool CHandle::SetCharacterSet(string charset)
 		&& m_ConnectionPool != nullptr ? m_ConnectionPool->SetCharset(charset) : true;
 }
 
+bool CHandle::GetCharacterSet(string &charset)
+{
+	if (m_MainConnection == nullptr)
+		return false;
+
+	return m_MainConnection->GetCharset(charset);
+}
+
 
 CHandle *CHandleManager::Create(string host, string user, string pass, string db,
 	const COptions *options, CHandle::Error &error)
