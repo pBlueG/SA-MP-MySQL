@@ -269,7 +269,20 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 // native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 {
-	return 0;
+	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[4]));
+	if (handle == nullptr)
+		return 0;
+
+	string escaped_str;
+	if (handle->EscapeString(amx_GetCppString(amx, params[1]), escaped_str) == false)
+		return 0;
+
+	size_t max_str_len = params[3] - 1;
+	if (escaped_str.length() > max_str_len)
+		return 0; //destination array to small
+
+	amx_SetCppString(amx, params[2], escaped_str, max_str_len + 1);
+	return 1;
 }
 
 // native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);

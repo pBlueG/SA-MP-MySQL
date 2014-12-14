@@ -57,6 +57,7 @@ public: //functions
 
 	bool Execute(ExecutionType type, Query_t query);
 	unsigned int GetErrorId();
+	bool EscapeString(const string &src, string &dest);
 };
 
 class DLL_API CHandleManager : public CSingleton<CHandleManager>

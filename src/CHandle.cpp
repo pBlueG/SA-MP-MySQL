@@ -55,6 +55,14 @@ unsigned int CHandle::GetErrorId()
 	return errorid;
 }
 
+bool CHandle::EscapeString(const string &src, string &dest)
+{
+	if (m_MainConnection == nullptr)
+		return false;
+
+	return m_MainConnection->EscapeString(src.c_str(), dest);
+}
+
 
 CHandle *CHandleManager::Create(string host, string user, string pass, string db,
 	const COptions *options, CHandle::Error &error)
