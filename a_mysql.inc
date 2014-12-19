@@ -71,10 +71,13 @@ enum E_EXECTIME_UNIT
 };
 
 #define MYSQL_DEFAULT_HANDLE MySQL:1
-#define INVALID_CACHE_ID Cache:0
+#define MYSQL_INVALID_HANDLE MySQL:0
+#define MYSQL_INVALID_CACHE Cache:0
+#define MYSQL_INVALID_ORM ORM:0
 
-#define cache_num_fields 	cache_get_field_count
 #define cache_num_rows 		cache_get_row_count
+#define cache_num_fields 	cache_get_field_count
+#define cache_num_results	cache_get_result_count
 
 
 // ORM functions
