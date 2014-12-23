@@ -1,4 +1,4 @@
-MySQL Plugin for San Andreas Multiplayer (SA:MP)
+MySQL Plugin for San Andreas Multiplayer (SA:MP) [![Build Status](https://travis-ci.org/pBlueG/SA-MP-MySQL.svg?branch=master)](https://travis-ci.org/pBlueG/SA-MP-MySQL)
 ------------------------------------------------
 *The best and most famous MySQL plugin for SA:MP out there!*
 

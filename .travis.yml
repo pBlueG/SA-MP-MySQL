@@ -1,0 +1,15 @@
+language: cpp
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install -y gcc-4.4 g++-4.4 g++-4.4-multilib build-essential libmysqlclient-dev
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.4 99 --slave /usr/bin/g++ g++ /usr/bin/g++-4.4
+  - sudo update-alternatives --auto gcc
+  - wget -O boost_1_55_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz/download
+  - tar xzf boost_1_55_0.tar.gz
+install:
+  - cd boost_1_55_0/
+  - sudo bash bootstrap.sh --prefix=/usr/local --with-libraries=system,chrono,thread,date_time,atomic
+  - sudo ./b2 variant=release link=static threading=multi address-model=32 runtime-link=shared -j 4 -d0 install
+  - sudo ldconfig
+  - cd ..
+script: make compile clean
