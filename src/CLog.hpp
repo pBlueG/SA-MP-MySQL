@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CSingleton.h"
+#include "CSingleton.hpp"
 
 
 enum e_LogLevel 

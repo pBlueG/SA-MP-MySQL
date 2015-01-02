@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CSingleton.h"
-#include "sdk.h"
+#include "CSingleton.hpp"
+#include "sdk.hpp"
 
 #include <string>
 #include <queue>
@@ -17,7 +17,7 @@ using std::stack;
 using std::unordered_set;
 using boost::variant;
 
-#include "Types.h"
+#include "types.hpp"
 
 
 class CCallback 

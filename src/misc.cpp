@@ -1,6 +1,6 @@
 #pragma warning (disable: 4244) //conversion from `long` to `float`, possible loss of data
 
-#include "misc.h"
+#include "misc.hpp"
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/karma.hpp>

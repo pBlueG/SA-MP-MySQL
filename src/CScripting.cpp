@@ -1,10 +1,10 @@
-#include "CScripting.h"
-#include "CQuery.h"
-#include "CHandle.h"
-#include "CCallback.h"
-#include "CResult.h"
-#include "COptions.h"
-#include "misc.h"
+#include "CScripting.hpp"
+#include "CQuery.hpp"
+#include "CHandle.hpp"
+#include "CCallback.hpp"
+#include "CResult.hpp"
+#include "COptions.hpp"
+#include "misc.hpp"
 
 
 // native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);

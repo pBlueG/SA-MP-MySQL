@@ -1,4 +1,4 @@
-#include "CLog.h"
+#include "CLog.hpp"
 
 
 void CLog::ProcessLog() 

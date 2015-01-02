@@ -1,10 +1,10 @@
-#include "sdk.h"
-#include "CScripting.h"
-#include "CHandle.h"
-#include "CCallback.h"
-#include "CResult.h"
-#include "CDispatcher.h"
-#include "COptions.h"
+#include "sdk.hpp"
+#include "CScripting.hpp"
+#include "CHandle.hpp"
+#include "CCallback.hpp"
+#include "CResult.hpp"
+#include "CDispatcher.hpp"
+#include "COptions.hpp"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -30,7 +30,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	
 	if (mysql_library_init(0, NULL, NULL)) 
 	{
-		logprintf(" >> plugin.mysql: plugin failed to load due to uninitialized MySQL library ('libmysql.dll' probably missing).");
+		logprintf(" >> plugin.mysql: can't initialize MySQL library.");
 		return false;
 	}
 	

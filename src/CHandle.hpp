@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CSingleton.h"
+#include "CSingleton.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -8,7 +8,7 @@
 using std::string;
 using std::unordered_map;
 
-#include "Types.h"
+#include "types.hpp"
 
 class CConnection;
 class CThreadedConnection;

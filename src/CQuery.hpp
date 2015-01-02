@@ -6,7 +6,7 @@
 using std::string;
 using std::function;
 
-#include "Types.h"
+#include "types.hpp"
 
 
 class CQuery

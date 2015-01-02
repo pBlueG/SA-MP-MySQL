@@ -1,4 +1,4 @@
-#include "CResult.h"
+#include "CResult.hpp"
 
 #include <cstring>
 

@@ -11,7 +11,7 @@
 using std::string;
 using std::forward_list;
 
-#include "Types.h"
+#include "types.hpp"
 
 
 class CConnection

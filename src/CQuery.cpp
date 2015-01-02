@@ -1,5 +1,5 @@
-#include "CQuery.h"
-#include "CResult.h"
+#include "CQuery.hpp"
+#include "CResult.hpp"
 
 #ifdef WIN32
 	#include <WinSock2.h>

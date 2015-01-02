@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CSingleton.h"
+#include "CSingleton.hpp"
 
 #include <string>
 #include <map>
@@ -11,7 +11,7 @@ using std::string;
 using std::map;
 using std::unordered_map;
 
-#include "Types.h"
+#include "types.hpp"
 
 
 class COptions

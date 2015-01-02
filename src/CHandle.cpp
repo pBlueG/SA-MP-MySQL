@@ -1,7 +1,7 @@
-#include "CQuery.h"
-#include "CHandle.h"
-#include "CConnection.h"
-#include "COptions.h"
+#include "CQuery.hpp"
+#include "CHandle.hpp"
+#include "CConnection.hpp"
+#include "COptions.hpp"
 
 #ifdef WIN32
 	#define NOMINMAX //goddamnit Microsoft

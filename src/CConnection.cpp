@@ -1,7 +1,7 @@
-#include "CQuery.h"
-#include "CConnection.h"
-#include "CDispatcher.h"
-#include "COptions.h"
+#include "CQuery.hpp"
+#include "CConnection.hpp"
+#include "CDispatcher.hpp"
+#include "COptions.hpp"
 
 #ifdef WIN32
 	#include <WinSock2.h>

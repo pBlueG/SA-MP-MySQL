@@ -5,6 +5,6 @@
     <ClCompile Include="src\misc.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\misc.h" />
+    <ClInclude Include="src\misc.hpp" />
   </ItemGroup>
 </Project>

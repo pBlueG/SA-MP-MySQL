@@ -9,14 +9,14 @@
 	#include <mysql/mysql.h>
 #endif
 
-#include "../../src/CQuery.h"
-#include "../../src/CConnection.h"
-#include "../../src/CHandle.h"
-#include "../../src/CCallback.h"
-#include "../../src/CResult.h"
-#include "../../src/COptions.h"
-#include "../../src/CDispatcher.h"
-#include "misc.h"
+#include "../../src/CQuery.hpp"
+#include "../../src/CConnection.hpp"
+#include "../../src/CHandle.hpp"
+#include "../../src/CCallback.hpp"
+#include "../../src/CResult.hpp"
+#include "../../src/COptions.hpp"
+#include "../../src/CDispatcher.hpp"
+#include "misc.hpp"
 
 #include <vector>
 #include <boost/chrono.hpp>

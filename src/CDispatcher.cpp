@@ -1,4 +1,4 @@
-#include "CDispatcher.h"
+#include "CDispatcher.hpp"
 
 
 void CDispatcher::Dispatch(DispatchFunction_t &&func)

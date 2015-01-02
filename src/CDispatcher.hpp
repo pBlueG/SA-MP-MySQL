@@ -1,11 +1,11 @@
 #pragma once
 
-#include "CSingleton.h"
+#include "CSingleton.hpp"
 
 #include <queue>
 #include <boost/thread/mutex.hpp>
 
-#include "Types.h"
+#include "types.hpp"
 
 
 class DLL_API CDispatcher : public CSingleton < CDispatcher >
