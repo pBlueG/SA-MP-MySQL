@@ -6,6 +6,8 @@
 #include "COptions.hpp"
 #include "misc.hpp"
 
+#include <fstream>
+
 
 // native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::orm_create)
@@ -242,6 +244,44 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 AMX_DECLARE_NATIVE(Native::mysql_query)
 {
 	return 0;
+}
+
+// native mysql_query_file(MySQL:handle, const file_path[]);
+AMX_DECLARE_NATIVE(Native::mysql_query_file)
+{
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
+	CHandle *handle = CHandleManager::Get()->GetHandle(handle_id);
+
+	if (handle == nullptr)
+		return 0;
+
+	std::ifstream file(amx_GetCppString(amx, params[2]));
+	if (file.fail())
+		return 0;
+
+	string query_str;
+	while (file.good())
+	{
+		string tmp_query_str;
+		std::getline(file, tmp_query_str);
+
+		if (tmp_query_str.find("--") == 0) // indicates a SQL comment
+			continue;
+
+		if (tmp_query_str.empty())
+			continue;
+		
+		query_str.append(tmp_query_str);
+
+		if (query_str.back() == ';')
+		{
+			Query_t query = CQuery::Create(query_str);
+			handle->Execute(CHandle::ExecutionType::UNTHREADED, query);
+			query_str.clear();
+		}
+	}
+
+	return 1;
 }
 
 // native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);

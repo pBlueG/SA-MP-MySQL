@@ -129,6 +129,7 @@ native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const fo
 native mysql_tquery_inline(MySQL:handle, const query[], callback:Callback, const format[], {Float,_}:...); //y_inline
 */
 native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
+native mysql_query_file(MySQL:handle, const file_path[]);
 
 native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_format(MySQL:handle, output[], len, const format[], {Float,_}:...);

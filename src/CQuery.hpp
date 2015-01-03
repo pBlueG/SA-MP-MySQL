@@ -35,7 +35,7 @@ public: //functions
 	}
 
 public: //factory function
-	static inline Query_t Create(string &&query)
+	static inline Query_t Create(string query)
 	{
 		return std::make_shared<CQuery>(std::move(query));
 	}
