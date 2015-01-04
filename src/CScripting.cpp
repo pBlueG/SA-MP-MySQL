@@ -166,8 +166,15 @@ AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 // native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
 AMX_DECLARE_NATIVE(Native::mysql_global_options)
 {
-	COptionManager::Get()->SetGlobalOption(static_cast<COptionManager::EGlobalOption>(params[1]), params[2] != 0);
-	return 1; //TODO: check if passed enum value really is correct
+	switch (static_cast<COptionManager::GlobalOption>(params[1]))
+	{
+	case COptionManager::GlobalOption::DUPLICATE_CONNECTIONS:
+		COptionManager::Get()->SetGlobalOption(COptionManager::GlobalOption::DUPLICATE_CONNECTIONS, params[2] != 0);
+		break;
+	default:
+		return 0;
+	}
+	return 1;
 }
 
 // native MySQLOpt:mysql_init_options();
