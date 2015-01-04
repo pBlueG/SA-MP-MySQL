@@ -46,29 +46,78 @@ Callback_t CCallback::Create(
 
 		cell param_idx = 0;
 		cell *address_ptr = nullptr;
+		cell *array_addr_ptr = nullptr;
 
-		for (auto &c : format)
+		for (auto c = format.begin(); c != format.end(); ++c)
 		{
-			switch (c)
+			switch (*c)
 			{
-			case 'd':
-			case 'i':
-			case 'f':
-			case 'b':
+			case 'd': //decimal
+			case 'i': //integer
+			{
 				amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
-				param_list.push(*address_ptr);
+				cell value = *address_ptr;
+				if (array_addr_ptr != nullptr)
+				{
+					if (value <= 0)
+					{
+						//TODO: error: invalid array size
+						return nullptr;
+					}
+					cell *copied_array = static_cast<cell *>(malloc(value * sizeof(cell)));
+					memcpy(copied_array, array_addr_ptr, value * sizeof(cell));
+
+					param_list.push(std::make_tuple('a', std::make_tuple(copied_array, value)));
+					array_addr_ptr = nullptr;
+				}
+				param_list.push(std::make_tuple('c', value));
+			}	break;
+			case 'f': //float
+			case 'b': //bool
+				if (array_addr_ptr != nullptr)
+				{
+					//TODO: error: expected 'd'/'i' specifier for array size
+					return nullptr;
+				}
+				amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
+				param_list.push(std::make_tuple('c', *address_ptr));
 				break;
-			case 's':
-				param_list.push(amx_GetCppString(amx, params[param_offset + param_idx]));
+			case 's': //string
+				if (array_addr_ptr != nullptr)
+				{
+					//TODO: error: expected 'd'/'i' specifier for array size
+					return nullptr;
+				}
+				param_list.push(std::make_tuple('s', amx_GetCppString(amx, params[param_offset + param_idx])));
 				break;
-			case 'a':
-				//TODO: support for arrays
+			case 'a': //array
+				if (array_addr_ptr != nullptr)
+				{
+					//TODO: error: expected 'd'/'i' specifier for array size
+					return nullptr;
+				}
+				amx_GetAddr(amx, params[param_offset + param_idx], &array_addr_ptr);
+				break;
+			case 'r': //reference
+				if (array_addr_ptr != nullptr)
+				{
+					//TODO: error: expected 'd'/'i' specifier for array size
+					return nullptr;
+				}
+				amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
+				param_list.push(std::make_tuple('r', address_ptr));
 				break;
 			default:
 				error = CCallback::Error::INVALID_FORMAT_SPECIFIER;
 				return nullptr;
 			}
 			param_idx++;
+		}
+
+		if (array_addr_ptr != nullptr)
+		{
+			//TODO: error: no length specified after 'a' specifier
+			return nullptr;
 		}
 	}
 
@@ -88,19 +137,39 @@ bool CCallback::Execute()
 	cell amx_address = -1;
 	while (m_Params.empty() == false)
 	{
+		cell tmp_addr;
 		auto &param = m_Params.top();
-		if (param.type() == typeid(cell))
+		boost::any &param_val = std::get<1>(param);
+		switch (std::get<0>(param))
 		{
-			amx_Push(m_AmxInstance, boost::get<cell>(param));
-		}
-		else
-		{
-			cell tmp_addr;
-			amx_PushString(m_AmxInstance, &tmp_addr, nullptr,
-				boost::get<string>(param).c_str(), 0, 0);
+			case 'c': //cell
+				amx_Push(m_AmxInstance, boost::any_cast<cell>(param_val));
+				break;
+			case 's': //string
+				amx_PushString(m_AmxInstance, &tmp_addr, nullptr,
+					boost::any_cast<string>(param_val).c_str(), 0, 0);
 
-			if (amx_address < NULL)
-				amx_address = tmp_addr;
+				if (amx_address < NULL)
+					amx_address = tmp_addr;
+				break;
+			case 'a': //array
+			{
+				auto &array_tuple = boost::any_cast<tuple<cell *, cell>>(param_val);
+				cell *array_addr = std::get<0>(array_tuple);
+				cell array_size = std::get<1>(array_tuple);
+				amx_PushArray(m_AmxInstance, &tmp_addr, nullptr, array_addr, array_size);
+				free(array_addr);
+
+				if (amx_address < NULL)
+					amx_address = tmp_addr;
+			} break;
+			case 'r': //reference
+				amx_PushArray(m_AmxInstance, &tmp_addr, nullptr, 
+					boost::any_cast<cell *>(param_val), 1);
+
+				if (amx_address < NULL)
+					amx_address = tmp_addr;
+				break;
 		}
 		m_Params.pop();
 	}

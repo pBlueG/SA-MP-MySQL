@@ -8,14 +8,15 @@
 #include <functional>
 #include <stack>
 #include <unordered_set>
-#include <boost/variant.hpp>
+#include <tuple>
+#include <boost/any.hpp>
 
 using std::string;
 using std::queue;
 using std::function;
 using std::stack;
 using std::unordered_set;
-using boost::variant;
+using std::tuple;
 
 #include "types.hpp"
 
@@ -23,7 +24,7 @@ using boost::variant;
 class CCallback 
 {
 public: //type definitions
-	using ParamList_t = stack<variant<cell, string>>;
+	using ParamList_t = stack<tuple<char, boost::any>>;
 
 	enum class Error
 	{
