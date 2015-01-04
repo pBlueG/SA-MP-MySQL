@@ -112,6 +112,7 @@ native orm_setkey(ORM:id, varname[]);
 // MySQL functions
 native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
 native MySQL:mysql_connect(const host[], const user[], const password[], const database[], MySQLOpt:option_id = MySQLOpt:0);
+native MySQL:mysql_connect_file(const file_name[] = "mysql.ini");
 native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 
 native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);

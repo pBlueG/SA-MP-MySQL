@@ -31,6 +31,11 @@ template bool ConvertStrToData(const string &src, long long &dest);
 template bool ConvertStrToData(const string &src, unsigned long long &dest);
 template bool ConvertStrToData(const string &src, float &dest);
 template bool ConvertStrToData(const string &src, double &dest);
+template<> //bool specialization
+bool ConvertStrToData(const string &src, bool &dest)
+{
+	return qi::parse(src.begin(), src.end(), qi::bool_, dest);
+}
 
 
 
@@ -49,6 +54,7 @@ bool ConvertDataToStr(T src, string &dest)
 		>::type(),
 		src);
 }
+
 template bool ConvertDataToStr(int src, string &dest);
 template bool ConvertDataToStr(unsigned int src, string &dest);
 template bool ConvertDataToStr(short src, string &dest);
@@ -59,3 +65,8 @@ template bool ConvertDataToStr(long long src, string &dest);
 template bool ConvertDataToStr(unsigned long long src, string &dest);
 template bool ConvertDataToStr(float src, string &dest);
 template bool ConvertDataToStr(double src, string &dest);
+template<> //bool specialization
+bool ConvertDataToStr(bool src, string &dest)
+{
+	return karma::generate(std::back_inserter(dest), karma::bool_, src);
+}

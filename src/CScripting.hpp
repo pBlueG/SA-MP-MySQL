@@ -36,6 +36,7 @@ namespace Native
 	//MySQL natives
 	AMX_DECLARE_NATIVE(mysql_log);
 	AMX_DECLARE_NATIVE(mysql_connect);
+	AMX_DECLARE_NATIVE(mysql_connect_file);
 	AMX_DECLARE_NATIVE(mysql_close);
 
 	AMX_DECLARE_NATIVE(mysql_unprocessed_queries);

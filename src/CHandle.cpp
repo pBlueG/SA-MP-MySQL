@@ -2,6 +2,12 @@
 #include "CHandle.hpp"
 #include "CConnection.hpp"
 #include "COptions.hpp"
+#include "misc.hpp"
+
+#include <fstream>
+#include <boost/spirit/include/qi.hpp>
+
+using namespace boost::spirit;
 
 #ifdef WIN32
 	#define NOMINMAX //goddamnit Microsoft
@@ -137,6 +143,95 @@ CHandle *CHandleManager::Create(string host, string user, string pass, string db
 
 	m_Handles.emplace(id, handle);
 	return handle;
+}
+
+CHandle *CHandleManager::CreateFromFile(string file_path, CHandle::Error &error)
+{
+	error = CHandle::Error::NONE;
+
+	std::ifstream file(file_path);
+	if (file.fail())
+	{
+		error = CHandle::Error::INVALID_FILE;
+		return nullptr;
+	}
+
+	string hostname, username, password, database;
+	auto options_id = COptionManager::Get()->Create();
+	COptions *options = COptionManager::Get()->GetOptionHandle(options_id);
+
+	const std::unordered_map<string, function<void(string &)>> assign_map{
+		{ "hostname", [&](string &val_str) { hostname = val_str; } },
+		{ "username", [&](string &val_str) { username = val_str; } },
+		{ "password", [&](string &val_str) { password = val_str; } },
+		{ "database", [&](string &val_str) { database = val_str; } },
+		{ "auto_reconnect", [&](string &val_str) 
+			{
+				bool val;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::AUTO_RECONNECT, val);
+			} 
+		},
+		{ "multi_statements", [&](string &val_str) 
+			{
+				bool val;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::MULTI_STATEMENTS, val);
+			} 
+		},
+		{ "pool_size", [&](string &val_str) 
+			{
+				unsigned int val = 0;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::POOL_SIZE, val);
+			} 
+		},
+		{ "server_port", [&](string &val_str) 
+			{
+				unsigned int val = 0;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::SERVER_PORT, val);
+			} 
+		}
+	};
+
+	while (file.good())
+	{
+		string line;
+		std::getline(file, line);
+
+		if (line.empty())
+			continue;
+
+		if (line.front() == '#') //comment, ignore it
+			continue;
+
+		std::string field, data;
+		if (qi::parse(line.begin(), line.end(),
+			qi::skip(qi::space)[
+				qi::as_string[+qi::char_("a-z_")] >> qi::lit('=') >> qi::as_string[+qi::alnum]
+			],
+			field, data))
+		{
+			auto field_it = assign_map.find(field);
+			if (field_it != assign_map.end() && data.empty() == false)
+			{
+				field_it->second(data);
+			}
+			else
+			{
+				error = CHandle::Error::INVALID_FIELD;
+				return nullptr;
+			}
+		}
+		else
+		{
+			error = CHandle::Error::SYNTAX_ERROR;
+			return nullptr;
+		}
+	}
+
+	return Create(hostname, username, password, database, options, error);
 }
 
 bool CHandleManager::Destroy(CHandle *handle)

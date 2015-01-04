@@ -7,6 +7,7 @@
 #include "misc.hpp"
 
 #include <fstream>
+#include <boost/filesystem.hpp>
 
 
 // native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
@@ -116,6 +117,27 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 		amx_GetCppString(amx, params[4]),
 		options,
 		handle_error);
+
+	if (handle_error != CHandle::Error::NONE)
+		return 0; //TODO: error message
+
+	assert(handle != nullptr);
+
+	return handle->GetId();
+}
+
+// native MySQL:mysql_connect_file(const file_name[] = "mysql.ini");
+AMX_DECLARE_NATIVE(Native::mysql_connect_file)
+{
+	string file_name = amx_GetCppString(amx, params[1]);
+	boost::filesystem::path current_path = boost::filesystem::current_path();
+	current_path.append(file_name);
+	//restrict file access; the file has to be in the same directory as the SA-MP server
+	if (boost::filesystem::exists(current_path) == false)
+		return 0;
+
+	CHandle::Error handle_error;
+	CHandle *handle = CHandleManager::Get()->CreateFromFile(file_name, handle_error);
 
 	if (handle_error != CHandle::Error::NONE)
 		return 0; //TODO: error message

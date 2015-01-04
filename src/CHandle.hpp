@@ -34,6 +34,10 @@ public: //type definitions
 		EMPTY_USER,
 		EMPTY_DATABASE,
 		INVALID_OPTIONS,
+		//file errors
+		INVALID_FILE,
+		SYNTAX_ERROR,
+		INVALID_FIELD,
 	};
 
 private: //constructor / deconstructor
@@ -76,6 +80,7 @@ private: //variables
 public: //functions
 	CHandle *Create(string host, string user, string pass, string db, 
 		const COptions *options, CHandle::Error &error);
+	CHandle *CreateFromFile(string file_path, CHandle::Error &error);
 	bool Destroy(CHandle *handle);
 
 	inline bool IsValidHandle(const HandleId_t id)
