@@ -125,9 +125,13 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 
 			const size_t mem_size = mem_head_size + static_cast<size_t>(num_rows)* mem_row_size;
 			char ***mem_data = result->m_Data = static_cast<char ***>(malloc(mem_size));
+			if (mem_data == nullptr) //error while allocating memory
+			{
+				delete resultset;
+				return nullptr;
+			}
 			char **mem_offset = reinterpret_cast<char **>(&mem_data[num_rows]);
 
-			//TODO: check if mem_data == nullptr
 
 			for (size_t r = 0; r != num_rows; ++r)
 			{
