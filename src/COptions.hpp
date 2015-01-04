@@ -72,7 +72,7 @@ class DLL_API COptionManager : public CSingleton<COptionManager>
 {
 	friend class CSingleton<COptionManager>;
 public:
-	enum class EGlobalOption
+	enum class GlobalOption
 	{
 		DUPLICATE_CONNECTIONS, //false
 
@@ -84,7 +84,7 @@ private:
 
 private:
 	unordered_map<OptionsId_t, COptions *> m_Options;
-	map<EGlobalOption, bool> m_GlobalOptions;
+	map<GlobalOption, bool> m_GlobalOptions;
 
 public:
 	OptionsId_t Create();
@@ -102,11 +102,11 @@ public:
 		return m_Options.at(0);
 	}
 
-	inline bool GetGlobalOption(EGlobalOption option)
+	inline bool GetGlobalOption(GlobalOption option)
 	{
 		return m_GlobalOptions[option];
 	}
-	inline void SetGlobalOption(EGlobalOption option, bool value)
+	inline void SetGlobalOption(GlobalOption option, bool value)
 	{
 		m_GlobalOptions[option] = value;
 	}

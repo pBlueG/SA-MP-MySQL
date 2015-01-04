@@ -255,13 +255,13 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	{
 		query->OnExecutionFinished([=](ResultSet_t resultset)
 		{
-			// TODO: pre-execute: set active handle & result(cache)
+			//pre-execute: set active result(cache)
 			CResultSetManager::Get()->SetActiveResultSet(resultset);
 
 			//execute PAWN callback
 			callback->Execute();
 
-			// TODO: post-execute: unset active handle & result(cache) + delete result
+			//post-execute: unset active result(cache) + delete result (done by shared_ptr)
 			CResultSetManager::Get()->SetActiveResultSet(nullptr);
 		});
 	}

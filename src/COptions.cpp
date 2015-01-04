@@ -12,7 +12,7 @@ COptions::COptions()
 
 COptionManager::COptionManager()
 {
-	m_GlobalOptions[EGlobalOption::DUPLICATE_CONNECTIONS] = false;
+	m_GlobalOptions[GlobalOption::DUPLICATE_CONNECTIONS] = false;
 
 	//create default options instance with id = 0
 	m_Options.emplace(0, new COptions);

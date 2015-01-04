@@ -14,9 +14,9 @@
 CConnection::CConnection(const string &host, const string &user, const string &passw, const string &db,
 	const COptions *options)
 {
-	//boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	assert(options != nullptr);
 
+	//initialize
 	m_Connection = mysql_init(NULL);
 	if (m_Connection == NULL)
 		return; //TODO: error "MySQL initialization failed"
@@ -26,6 +26,7 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 	if (options->GetOption<bool>(COptions::Type::MULTI_STATEMENTS) == true)
 		connect_flags |= CLIENT_MULTI_STATEMENTS;
 
+	//connect
 	auto *result = mysql_real_connect(m_Connection, host.c_str(),
 		user.c_str(), passw.c_str(), db.c_str(), 
 		options->GetOption<unsigned int>(COptions::Type::SERVER_PORT), 
@@ -34,6 +35,7 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 	if (result == NULL)
 		return; //TODO: error "connection failed"
 
+	//set additional connection options
 	my_bool reconnect = options->GetOption<bool>(COptions::Type::AUTO_RECONNECT);
 	mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
 	
@@ -140,6 +142,10 @@ CThreadedConnection::CThreadedConnection(
 				if (m_Connection.Execute(query))
 				{
 					CDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
+				}
+				else
+				{
+					// TODO: OnQueryError callback
 				}
 			}
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));

@@ -72,7 +72,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 	CResultSet *resultset = nullptr;
 	MYSQL_RES *raw_result = mysql_store_result(connection);
 
-	if (raw_result == nullptr)
+	if (raw_result == nullptr) //result empty, non-SELECT query or error?
 	{
 		if (mysql_field_count(connection) == 0) //query is non-SELECT query
 		{
@@ -82,12 +82,12 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 			resultset->m_AffectedRows = mysql_affected_rows(connection);
 			resultset->m_InsertId = mysql_insert_id(connection);
 		}
-		else
+		else //error
 		{
-			//TODO: mysql_errno
+			return nullptr;
 		}
 	}
-	else
+	else //SELECT query
 	{
 		resultset = new CResultSet;
 		resultset->m_WarningCount = mysql_warning_count(connection);
