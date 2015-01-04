@@ -21,10 +21,15 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 	if (m_Connection == NULL)
 		return; //TODO: error "MySQL initialization failed"
 	
+	//prepare connection flags through passed options
+	unsigned long connect_flags = 0;
+	if (options->GetOption<bool>(COptions::Type::MULTI_STATEMENTS) == true)
+		connect_flags |= CLIENT_MULTI_STATEMENTS;
+
 	auto *result = mysql_real_connect(m_Connection, host.c_str(),
 		user.c_str(), passw.c_str(), db.c_str(), 
 		options->GetOption<unsigned int>(COptions::Type::SERVER_PORT), 
-		NULL, NULL); //TODO: option "MULTI_STATEMENTS"
+		NULL, connect_flags); 
 
 	if (result == NULL)
 		return; //TODO: error "connection failed"
