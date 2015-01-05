@@ -154,7 +154,7 @@ bool CCallback::Execute()
 				break;
 			case 'a': //array
 			{
-				auto &array_tuple = boost::any_cast<tuple<cell *, cell>>(param_val);
+				auto array_tuple = boost::any_cast<tuple<cell *, cell>>(param_val);
 				cell *array_addr = std::get<0>(array_tuple);
 				cell array_size = std::get<1>(array_tuple);
 				amx_PushArray(m_AmxInstance, &tmp_addr, nullptr, array_addr, array_size);
