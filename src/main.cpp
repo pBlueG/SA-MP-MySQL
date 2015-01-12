@@ -5,6 +5,7 @@
 #include "CResult.hpp"
 #include "CDispatcher.hpp"
 #include "COptions.hpp"
+#include "version.hpp"
 
 #ifdef WIN32
 	#include <WinSock2.h>
@@ -35,7 +36,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	}
 	
 	
-	logprintf(" >> plugin.mysql: R40 successfully loaded.");
+	logprintf(" >> plugin.mysql: %s successfully loaded.", MYSQL_VERSION);
 	return true;
 }
 

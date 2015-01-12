@@ -1,0 +1,3 @@
+#pragma once
+
+#define MYSQL_VERSION "@MYSQL_PLUGIN_VERSION@"

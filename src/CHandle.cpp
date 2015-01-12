@@ -10,7 +10,6 @@
 using namespace boost::spirit;
 
 #ifdef WIN32
-	#define NOMINMAX //goddamnit Microsoft
 	#include <WinSock2.h>
 	#include <mysql.h>
 #else
