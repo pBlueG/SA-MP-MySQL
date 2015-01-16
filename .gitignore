@@ -1,20 +1,25 @@
-/bin/
-/build/
+[Bb]in/
+build/
+[Rr]elease/
+[Dd]ebug/
+
+#Linux
 *.o
 *.so
 *~
-/archive/
-Release/
-Debug/
-*.html
+
+#Visual Studio
 *.sdf
 *.opensdf
 *.suo
-*.rar
-*.zip
-*.sublime-workspace
 *.psess
 *.vsp
-*.orig
-/src/*-old/
 *.user
+
+#Merge files
+*.orig
+
+#archives
+*.rar
+*.zip
+*.tar.gz
