@@ -164,11 +164,7 @@ bool CCallback::Execute()
 					amx_address = tmp_addr;
 			} break;
 			case 'r': //reference
-				amx_PushArray(m_AmxInstance, &tmp_addr, nullptr, 
-					boost::any_cast<cell *>(param_val), 1);
-
-				if (amx_address < NULL)
-					amx_address = tmp_addr;
+				amx_PushAddress(m_AmxInstance, boost::any_cast<cell *>(param_val));
 				break;
 		}
 		m_Params.pop();
