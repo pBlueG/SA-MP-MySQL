@@ -6,13 +6,10 @@ MySQL Plugin for San Andreas Multiplayer (SA:MP) [![Build Status](https://travis
 
 How to install
 --------------
-Move *mysql.dll* (Windows) or *mysql.so* (Linux) to your `plugins/` directory. If you are on Windows you also have to move the *libmysql.dll* to your main server directory.
-You'll have to edit the server configuration (*server.cfg*) as follows:
-#### Windows
-<pre>plugins mysql</pre>
-
-#### Linux
-<pre>plugins mysql.so</pre>
+1. Extract the content of the downloaded archive into the root directory of your SA-MP server.
+2. Edit the server configuration (*server.cfg*) as follows:
+   - Windows: `plugins mysql`
+   - Linux: `plugins mysql.so`
 
 F.A.Q.
 ------
@@ -33,16 +30,24 @@ A: That's because the plugin uses multiple direct database connections per conne
 
 Build instruction
 ---------------
+*Note*: The plugin has to be a 32-bit library; that means all required libraries have to be compiled in 32-bit and the compiler has to support 32-bit.
 #### Windows
-1. Install Microsoft Visual Studio C++ (2012 or newer, the Express version also works) and the [MySQL C Connector (32-bit)](http://dev.mysql.com/downloads/connector/c/)
-2. Install the [boost libraries (version 1.55 or higher)](http://www.boost.org/users/download/)
-3. Open the solution file with Visual Studio -> right click on the project -> Properties -> VC++ Directories, use *Release* as configuration and adjust the paths to the previously installed libraries
-4. Build the solution with *Release* as configuration
+1. install a C++ compiler of your choice
+2. install the [MySQL C Connector (version 6.1.5)](http://dev.mysql.com/downloads/connector/c/)
+3. install the [Boost libraries (version 1.57 or higher)](http://www.boost.org/users/download/)
+4. install [CMake](http://www.cmake.org/)
+5. clone this repository
+6. create a folder named `build` and execute CMake in there
+7. build the generated project files with your C++ compiler
 
 #### Linux
-1. Install these packages (names may vary throughout the distributions): `g++-multilib mysql-client libmysqlclient libmysqlclient-dev`
-2. Install the [boost libraries (version 1.55 or higher)](http://www.boost.org/users/download/)
-3. Navigate to the project root directory and execute `make`
+1. install a C++ compiler of your choice
+2. install the appropriate MySQL client (version 5.5.40 or higher) through your package manager
+3. install the [Boost libraries (version 1.57 or higher)](http://www.boost.org/users/download/)
+4. install [CMake](http://www.cmake.org/)
+5. clone this repository
+6. create a folder named `build` and execute CMake in there (`mkdir build && cd build && cmake ..`)
+7. build the generated project files with your C++ compiler
 
 Thanks to
 ---------
