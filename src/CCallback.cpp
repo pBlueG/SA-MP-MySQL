@@ -149,7 +149,7 @@ bool CCallback::Execute()
 				amx_PushString(m_AmxInstance, &tmp_addr, nullptr,
 					boost::any_cast<string>(param_val).c_str(), 0, 0);
 
-				if (amx_address < NULL)
+				if (amx_address < 0)
 					amx_address = tmp_addr;
 				break;
 			case 'a': //array
@@ -160,7 +160,7 @@ bool CCallback::Execute()
 				amx_PushArray(m_AmxInstance, &tmp_addr, nullptr, array_addr, array_size);
 				free(array_addr);
 
-				if (amx_address < NULL)
+				if (amx_address < 0)
 					amx_address = tmp_addr;
 			} break;
 			case 'r': //reference
@@ -171,7 +171,7 @@ bool CCallback::Execute()
 	}
 
 	amx_Exec(m_AmxInstance, nullptr, m_AmxCallbackIndex);
-	if (amx_address >= NULL)
+	if (amx_address >= 0)
 		amx_Release(m_AmxInstance, amx_address);
 
 	m_Executed = true;
