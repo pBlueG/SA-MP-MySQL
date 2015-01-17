@@ -36,7 +36,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	}
 	
 	
-	logprintf(" >> plugin.mysql: %s successfully loaded.", MYSQL_VERSION);
+	logprintf(" >> plugin.mysql: " MYSQL_VERSION " successfully loaded.");
 	return true;
 }
 
