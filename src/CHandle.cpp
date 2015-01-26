@@ -9,12 +9,7 @@
 
 using namespace boost::spirit;
 
-#ifdef WIN32
-	#include <WinSock2.h>
-	#include <mysql.h>
-#else
-	#include <mysql/mysql.h>
-#endif
+#include "mysql.hpp"
 
 
 CHandle::~CHandle()

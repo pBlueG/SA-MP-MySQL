@@ -2,12 +2,7 @@
 
 #include <cstring>
 
-#ifdef WIN32
-	#include <WinSock2.h>
-	#include <mysql.h>
-#else
-	#include <mysql/mysql.h>
-#endif
+#include "mysql.hpp"
 
 
 CResult::~CResult()
@@ -108,7 +103,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 
 
 			size_t row_data_size = 0;
-			while (mysql_field = mysql_fetch_field(raw_result))
+			while ((mysql_field = mysql_fetch_field(raw_result)))
 			{
 				result->m_FieldNames.push_back(mysql_field->name);
 				row_data_size += mysql_field->max_length + 1;
@@ -162,7 +157,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 
 ResultSetId_t CResultSetManager::StoreActiveResultSet()
 {
-	if (m_ActiveResultSet == false)
+	if (m_ActiveResultSet == nullptr)
 		return 0;
 
 	ResultSetId_t id = 1;

@@ -7,12 +7,7 @@
 #include "COptions.hpp"
 #include "version.hpp"
 
-#ifdef WIN32
-	#include <WinSock2.h>
-	#include <mysql.h>
-#else
-	#include <mysql/mysql.h>
-#endif
+#include "mysql.hpp"
 
 
 extern void	*pAMXFunctions;

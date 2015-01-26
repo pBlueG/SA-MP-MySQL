@@ -1,12 +1,7 @@
 #include "CQuery.hpp"
 #include "CResult.hpp"
 
-#ifdef WIN32
-	#include <WinSock2.h>
-	#include <mysql.h>
-#else
-	#include <mysql/mysql.h>
-#endif
+#include "mysql.hpp"
 
 
 bool CQuery::Execute(MYSQL *connection)

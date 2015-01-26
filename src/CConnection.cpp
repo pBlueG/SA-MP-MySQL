@@ -3,12 +3,7 @@
 #include "CDispatcher.hpp"
 #include "COptions.hpp"
 
-#ifdef WIN32
-	#include <WinSock2.h>
-	#include <mysql.h>
-#else
-	#include <mysql/mysql.h>
-#endif
+#include "mysql.hpp"
 
 
 CConnection::CConnection(const string &host, const string &user, const string &passw, const string &db,
