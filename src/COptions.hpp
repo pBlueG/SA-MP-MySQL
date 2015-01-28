@@ -68,7 +68,7 @@ public:
 	
 };
 
-class DLL_API COptionManager : public CSingleton<COptionManager>
+class COptionManager : public CSingleton<COptionManager>
 {
 	friend class CSingleton<COptionManager>;
 public:

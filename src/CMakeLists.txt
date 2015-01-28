@@ -63,8 +63,6 @@ add_samp_plugin(mysql
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
 endif()
-#--TODO: remove this DLL-interface
-add_definitions(-DDLL_EXPORTS) 
 
 if(NOT MSVC) #we have auto-linking in Visual Studio
 	target_link_libraries(mysql

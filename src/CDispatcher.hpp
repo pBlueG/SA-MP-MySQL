@@ -8,7 +8,7 @@
 #include "types.hpp"
 
 
-class DLL_API CDispatcher : public CSingleton < CDispatcher >
+class CDispatcher : public CSingleton < CDispatcher >
 {
 	friend class CSingleton < CDispatcher > ;
 public: //type definitions

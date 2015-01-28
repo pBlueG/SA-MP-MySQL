@@ -15,7 +15,7 @@ class CThreadedConnection;
 class CConnectionPool;
 
 
-class DLL_API CHandle
+class CHandle
 {
 	friend class CHandleManager;
 public: //type definitions
@@ -67,7 +67,7 @@ public: //functions
 	bool GetStatus(string &stat);
 };
 
-class DLL_API CHandleManager : public CSingleton<CHandleManager>
+class CHandleManager : public CSingleton<CHandleManager>
 {
 	friend class CSingleton<CHandleManager>;
 private: //constructor / deconstructor
