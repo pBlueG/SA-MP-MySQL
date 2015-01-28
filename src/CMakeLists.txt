@@ -31,17 +31,32 @@ add_samp_plugin(mysql
 	${SAMPSDK_DIR}/amxplugin2.cpp
 	${SAMPSDK_DIR}/amx/getch.c
 	CCallback.cpp
+	CCallback.hpp
 	CConnection.cpp
+	CConnection.hpp
 	CDispatcher.cpp
+	CDispatcher.hpp
 	CHandle.cpp
+	CHandle.hpp
 	CLog.cpp
+	CLog.hpp
 	COptions.cpp
+	COptions.hpp
 	COrm.cpp
+	COrm.hpp
 	CQuery.cpp
+	CQuery.hpp
 	CResult.cpp
+	CResult.hpp
 	CScripting.cpp
+	CScripting.hpp
+	CSingleton.hpp
 	main.cpp
 	misc.cpp
+	misc.hpp
+	mysql.hpp
+	sdk.hpp
+	types.hpp
 	plugin.def
 )
 
