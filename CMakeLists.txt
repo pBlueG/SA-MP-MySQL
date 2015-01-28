@@ -6,6 +6,7 @@ set(MYSQL_PLUGIN_VERSION "R40")
 option (BUILD_TESTS "Build tests" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libs/cmake")
 
 if(UNIX)
 	#force C++11 flag and 32bit compilation
@@ -76,9 +77,7 @@ endif()
 
 find_package(MySQLCAPI 5.5.40 REQUIRED)
 
-
 set(Boost_USE_STATIC_LIBS ON)
-
 find_package(Boost 1.57 QUIET 
 	COMPONENTS atomic chrono date_time filesystem system thread)
 
