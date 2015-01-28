@@ -23,3 +23,6 @@ build/
 *.rar
 *.zip
 *.tar.gz
+
+#MacOS
+.DS_Store
