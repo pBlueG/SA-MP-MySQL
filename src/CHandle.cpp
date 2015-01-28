@@ -26,22 +26,29 @@ CHandle::~CHandle()
 
 bool CHandle::Execute(ExecutionType type, Query_t query)
 {
+	bool return_val = false;
 	if (query)
 	{
 		switch (type)
 		{
 		case ExecutionType::THREADED:
-			return m_ThreadedConnection != nullptr ? m_ThreadedConnection->Queue(query) : false;
-
+			if (m_ThreadedConnection != nullptr)
+				return_val = m_ThreadedConnection->Queue(query);
+			break;
 		case ExecutionType::PARALLEL:
-			return m_ConnectionPool != nullptr ? m_ConnectionPool->Queue(query) : false;
-
+			if (m_ConnectionPool != nullptr)
+				return_val = m_ConnectionPool->Queue(query);
+			break;
 		case ExecutionType::UNTHREADED:
-			return m_MainConnection != nullptr ? m_MainConnection->Execute(query) : false;
+			if (m_MainConnection != nullptr)
+				return_val = m_MainConnection->Execute(query);
+			break;
+
+		default:
+			; //TODO: log error
 		}
 	}
-
-	return false;
+	return return_val;
 }
 
 bool CHandle::GetErrorId(unsigned int &errorid)
