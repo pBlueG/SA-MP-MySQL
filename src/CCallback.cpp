@@ -38,9 +38,9 @@ void CCallback::ProcessCallbacks()
 			for (set<AMX *>::iterator a = m_AmxList.begin(), end = m_AmxList.end(); a != end; ++a)
 			{
 				AMX *amx = (*a);
-				int amx_index;
+				int amx_index = -1;
 
-				if (amx_FindPublic(amx, query->Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE)
+				if (amx_FindPublic(amx, query->Callback.Name.c_str(), &amx_index) == AMX_ERR_NONE && amx_index >= 0)
 				{
 					cell amx_mem_addr = -1;
 					CLog::Get()->StartCallback(query->Callback.Name.c_str());
