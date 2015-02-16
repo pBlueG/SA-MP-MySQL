@@ -125,31 +125,33 @@ CThreadedConnection::CThreadedConnection(
 	:
 	m_Connection(host, user, passw, db, options),
 	m_WorkerThreadActive(true),
-	m_WorkerThread([this]()
-	{
-		mysql_thread_init();
-
-		while (m_WorkerThreadActive)
-		{
-			Query_t query;
-			while (m_Queue.pop(query))
-			{
-				if (m_Connection.Execute(query))
-				{
-					CDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
-				}
-				else
-				{
-					// TODO: OnQueryError callback
-				}
-			}
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
-		}
-
-		mysql_thread_end();
-	})
+	m_WorkerThread(std::bind(&CThreadedConnection::WorkerFunc, this))
 {
 
+}
+
+void CThreadedConnection::WorkerFunc()
+{
+	mysql_thread_init();
+
+	while (m_WorkerThreadActive)
+	{
+		Query_t query;
+		while (m_Queue.pop(query))
+		{
+			if (m_Connection.Execute(query))
+			{
+				CDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
+			}
+			else
+			{
+				// TODO: OnQueryError callback
+			}
+		}
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+	}
+
+	mysql_thread_end();
 }
 
 CThreadedConnection::~CThreadedConnection()

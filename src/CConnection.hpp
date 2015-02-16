@@ -62,6 +62,9 @@ private:
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 32768 >> m_Queue;
 
+private:
+	void WorkerFunc();
+
 public:
 	inline bool Queue(Query_t query)
 	{
