@@ -127,6 +127,8 @@ Callback_t CCallback::Create(
 
 bool CCallback::Execute()
 {
+	//the user could unload a filterscript between CCallback creation and
+	//execution, so we better check if the AMX instance is still valid
 	if (CCallbackManager::Get()->IsValidAmx(m_AmxInstance) == false)
 		return false;
 

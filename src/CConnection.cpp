@@ -92,6 +92,9 @@ bool CConnection::Execute(Query_t query)
 
 bool CConnection::GetError(unsigned int &id, string &msg)
 {
+	//don't use IsConnected() here, since m_Connected is false,
+	//thus this function won't execute on a connection error, even
+	//though it should
 	if (m_Connection == nullptr)
 		return false;
 
