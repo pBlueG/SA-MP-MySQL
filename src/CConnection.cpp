@@ -92,7 +92,7 @@ bool CConnection::Execute(Query_t query)
 
 bool CConnection::GetError(unsigned int &id, string &msg)
 {
-	if (IsConnected() == false)
+	if (m_Connection == nullptr)
 		return false;
 
 	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
