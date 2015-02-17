@@ -1,19 +1,47 @@
 language: cpp
+
+env:
+  global:
+    - SAMP_SERVER_ROOT=$TRAVIS_BUILD_DIR/samp03
+    - PATH=$TRAVIS_BUILD_DIR/samp-server-cli:$PATH
+  matrix:
+    - STATIC_BUILD=ON
+    - STATIC_BUILD=OFF
+
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq update
-  - sudo apt-get -qq install -yfm libc6-dev-i386 g++-4.7-multilib cmake
-  - sudo apt-get -qq install -yfm libmysqlclient-dev:i386
+  - sudo apt-get -qq install -y g++-4.7-multilib > /dev/null
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 99 --slave /usr/bin/g++ g++ /usr/bin/g++-4.7
-  - wget -O boost_1_57_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz/download
+  - wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh
+  - sudo sh cmake-2.8.12.2-Linux-i386.sh --exclude-subdir --prefix=/usr
+  - wget http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz
+  - tar xzf mysql-connector-c-6.1.6-src.tar.gz
+  - wget http://files.sa-mp.com/samp03zsvr_R4.tar.gz
+  - tar xzf samp03zsvr_R4.tar.gz
+  - git clone https://github.com/Zeex/samp-server-cli.git
+  - wget http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz
   - tar xzf boost_1_57_0.tar.gz
+
 install:
+  - cd mysql-connector-c-6.1.6-src/
+  - cmake . -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32 -DCMAKE_INSTALL_PREFIX=/usr -DINSTALL_LAYOUT=DEB > /dev/null
+  - make -j2 > /dev/null
+  - sudo make install > /dev/null
+  - cd ..
   - cd boost_1_57_0/
   - sudo bash bootstrap.sh --prefix=/usr/local --with-libraries=system,chrono,thread,date_time,atomic,filesystem
-  - sudo ./b2 variant=release link=static threading=multi address-model=32 runtime-link=shared -j 2 -d0 install
-  - sudo ldconfig
+  - sudo ./b2 variant=release link=static threading=multi address-model=32 runtime-link=shared -j2 -d0 install
   - cd ..
+  - sudo ldconfig
+
+before_script:
+  - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
+  - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
+
 script:
-  - mkdir build && cd build
-  - cmake ..
-  - make
+  - make -j2
+  - make install
+  - make test
+
+after_failure: cat Testing/Temporary/LastTest.log

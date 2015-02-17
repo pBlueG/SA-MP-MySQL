@@ -1,4 +1,4 @@
-#define RUN_TESTS
+#define INCLUDE_TESTS
 #include <a_samp>
 #include <a_mysql>
 #include <YSI_Core\y_testing>
@@ -6,9 +6,9 @@
 
 #define TEST_ORM 1
 
-#define MYSQL_HOSTNAME "localhost"
+#define MYSQL_HOSTNAME "127.0.0.1"
 #define MYSQL_USERNAME "root"
-#define MYSQL_PASSWORD "1234"
+#define MYSQL_PASSWORD ""
 #define MYSQL_DATABASE "test"
 
 
@@ -47,11 +47,11 @@ Test:ConnectionFailPassword()
 	new MySQL:sql;
 
 	//empty password is valid, won't connect though
-	sql = mysql_connect(
+	/*sql = mysql_connect(
 		MYSQL_HOSTNAME, MYSQL_USERNAME, "", MYSQL_DATABASE);
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == ER_ACCESS_DENIED_ERROR);
-
+	*/
 	sql = mysql_connect(
 		MYSQL_HOSTNAME, MYSQL_USERNAME, "wrongpass", MYSQL_DATABASE);
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
@@ -114,5 +114,16 @@ Test:ConnectionFileSuccess()
 	ASSERT_TRUE(mysql_close(sql));
 }
 
+public OnGameModeInit()
+{
+	Testing_RunAll();
+	return 1;
+}
+public OnTestsComplete(tests, fails)
+{
+	if(fails == 0)
+	    SendRconCommand("exit");
+	return 1;
+}
 main() {}
 
