@@ -1,5 +1,5 @@
-include(AMXConfig)
-include(AddSAMPPlugin)
+include(AMXConfig);
+include(AddSAMPPlugin);
 
 if(NOT WIN32 AND MYSQLCAPI_LIBRARY_STATIC)
 	option(BUILD_STATIC "Build static library" OFF)
