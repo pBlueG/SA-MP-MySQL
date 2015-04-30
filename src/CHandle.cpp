@@ -210,7 +210,7 @@ CHandle *CHandleManager::CreateFromFile(string file_path, CHandle::Error &error)
 		std::string field, data;
 		if (qi::parse(line.begin(), line.end(),
 			qi::skip(qi::space)[
-				qi::as_string[+qi::char_("a-z_")] >> qi::lit('=') >> qi::as_string[+qi::alnum]
+				qi::as_string[+qi::char_("a-z_")] >> qi::lit('=') >> qi::as_string[+qi::graph]
 			],
 			field, data))
 		{
