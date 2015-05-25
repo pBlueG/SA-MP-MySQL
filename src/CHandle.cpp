@@ -204,8 +204,10 @@ CHandle *CHandleManager::CreateFromFile(string file_path, CHandle::Error &error)
 		if (line.empty())
 			continue;
 
-		if (line.front() == '#') //comment, ignore it
-			continue;
+		//erase comment from line
+		size_t comment_pos = line.find_first_of("#;");
+		if (comment_pos != string::npos)
+			line.erase(comment_pos);
 
 		std::string field, data;
 		if (qi::parse(line.begin(), line.end(),

@@ -294,11 +294,31 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 		string tmp_query_str;
 		std::getline(file, tmp_query_str);
 
-		if (tmp_query_str.find("--") == 0) // indicates a SQL comment
-			continue;
-
 		if (tmp_query_str.empty())
 			continue;
+
+		/*
+		 * check for comments (start with "-- " or "#")
+		 * a query could look like this: "SELECT stuff FROM table; -- selects # records"
+		 * that's why we search for both comment specifiers and check for which comes first
+		 * NOTE: we don't process C-style multiple-line comments, because the MySQL server
+		 *       handles them in a special way
+		 */
+		size_t
+			comment_pos = tmp_query_str.find("-- "),
+			alt_comment_pos = tmp_query_str.find('#');
+
+		if (alt_comment_pos != string::npos)
+		{
+			if (comment_pos == string::npos)
+				comment_pos = alt_comment_pos;
+			else
+				comment_pos = (alt_comment_pos < comment_pos) ? alt_comment_pos : comment_pos;
+		}
+
+		if (comment_pos != string::npos)
+			tmp_query_str.erase(comment_pos);
+
 		
 		query_str.append(tmp_query_str);
 
