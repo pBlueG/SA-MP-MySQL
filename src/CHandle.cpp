@@ -201,13 +201,18 @@ CHandle *CHandleManager::CreateFromFile(string file_path, CHandle::Error &error)
 		string line;
 		std::getline(file, line);
 
-		if (line.empty())
-			continue;
+		//erase prepending whitespace
+		size_t first_char_pos = line.find_first_not_of(" \t");
+		if (first_char_pos != string::npos)
+			line.erase(0, first_char_pos);
 
 		//erase comment from line
 		size_t comment_pos = line.find_first_of("#;");
 		if (comment_pos != string::npos)
 			line.erase(comment_pos);
+		
+		if (line.empty())
+			continue;
 
 		std::string field, data;
 		if (qi::parse(line.begin(), line.end(),
