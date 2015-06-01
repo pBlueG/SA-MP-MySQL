@@ -170,32 +170,36 @@ CConnectionPool::CConnectionPool(
 	const size_t size, const string &host, const string &user, const string &passw, const string &db, 
 	const COptions *options)
 {
-	for (size_t i = 0; i < size; ++i)
-		m_Pool.push_front(new CThreadedConnection(host, user, passw, db, options));
-	m_PoolPos = m_Pool.begin();
+	SConnectionNode *node = m_CurrentNode = new SConnectionNode;
+	for (size_t i = 0; i != size; ++i)
+	{
+		node->Connection = new CThreadedConnection(host, user, passw, db, options);
+		node->Next = ((i + 1) != size) ? m_CurrentNode : (node = new SConnectionNode);
+	}
 }
 
 bool CConnectionPool::Queue(Query_t query)
 {
 	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
-	if (m_PoolPos == m_Pool.end())
-		m_PoolPos = m_Pool.begin();
+	auto *connection = m_CurrentNode->Connection;
 
-	auto *connection = *m_PoolPos;
-	if (connection != nullptr)
-	{
-		m_PoolPos++;
-		return connection->Queue(query);
-	}
-	return false;
+	m_CurrentNode = m_CurrentNode->Next;
+	assert(m_CurrentNode != nullptr && connection != nullptr);
+
+	return connection->Queue(query);
 }
 
 bool CConnectionPool::SetCharset(string charset)
 {
 	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
-	for (auto *c : m_Pool)
-		if (c == nullptr || c->SetCharset(charset) == false)
+	SConnectionNode *node = m_CurrentNode;
+
+	do
+	{
+		if (node->Connection->SetCharset(charset) == false)
 			return false;
+
+	} while ((node = node->Next) != m_CurrentNode);
 
 	return true;
 }
@@ -203,6 +207,14 @@ bool CConnectionPool::SetCharset(string charset)
 CConnectionPool::~CConnectionPool()
 {
 	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
-	for (auto *c : m_Pool)
-		delete c;
+	SConnectionNode *node = m_CurrentNode;
+
+	do
+	{
+		delete node->Connection;
+
+		auto *old_node = node;
+		node = node->Next;
+		delete old_node;
+	} while (node != m_CurrentNode);
 }

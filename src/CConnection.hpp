@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <forward_list>
 #include <boost/atomic/atomic.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -9,7 +8,6 @@
 #include <boost/lockfree/spsc_queue.hpp>
 
 using std::string;
-using std::forward_list;
 
 #include "types.hpp"
 
@@ -87,10 +85,13 @@ public:
 	CConnectionPool(const CConnectionPool &rhs) = delete;
 
 private:
-	using Pool_t = forward_list<CThreadedConnection *>;
+	struct SConnectionNode
+	{
+		CThreadedConnection *Connection;
+		SConnectionNode *Next;
+	};
 
-	Pool_t m_Pool;
-	Pool_t::iterator m_PoolPos;
+	SConnectionNode *m_CurrentNode;
 	boost::mutex m_PoolMutex;
 
 public:
