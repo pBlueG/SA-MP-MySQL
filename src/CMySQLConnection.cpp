@@ -45,6 +45,15 @@ CMySQLConnection::~CMySQLConnection()
 {
 	if(m_QueryThread != NULL)
 	{
+		bool func_queue_empty = false;
+		do
+		{
+			m_FuncQueueMtx.lock();
+			func_queue_empty = m_FuncQueue.empty();
+			m_FuncQueueMtx.unlock();
+			this_thread::sleep_for(chrono::milliseconds(5));
+		} while (func_queue_empty == false);
+
 		m_QueryThreadRunning = false;
 		m_QueryThread->join();
 		delete m_QueryThread;
