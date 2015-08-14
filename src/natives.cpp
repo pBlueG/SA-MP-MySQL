@@ -1,4 +1,4 @@
-#include "CScripting.hpp"
+#include "natives.hpp"
 #include "CQuery.hpp"
 #include "CHandle.hpp"
 #include "CCallback.hpp"

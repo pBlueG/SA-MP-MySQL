@@ -1,5 +1,5 @@
 #include "sdk.hpp"
-#include "CScripting.hpp"
+#include "natives.hpp"
 #include "CHandle.hpp"
 #include "CCallback.hpp"
 #include "CResult.hpp"
