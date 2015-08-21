@@ -39,9 +39,7 @@ check_cxx_source_compiles(
 		
 		template<typename... Args>
 		void TemplateArgs(int &var1, Args ...args)
-		{
-			var1 += args...;
-		}
+		{ }
 		
 		int m_Num = 42;
 		int *m_NumPtr = nullptr;
