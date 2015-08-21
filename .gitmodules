@@ -4,3 +4,6 @@
 [submodule "libs/cmake"]
 	path = libs/cmake
 	url = https://github.com/Zeex/cmake-modules.git
+[submodule "libs/samp-log-core"]
+	path = libs/samp-log-core
+	url = https://github.com/maddinat0r/samp-log-core.git
