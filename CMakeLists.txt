@@ -11,6 +11,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libs/cmake")
 if(UNIX)
 	#force C++11 flag and 32bit compilation
 	set(CMAKE_CXX_FLAGS "-m32 -std=c++11")
+	set(CMAKE_C_FLAGS "-m32")
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
 endif()
 
@@ -34,6 +35,12 @@ check_cxx_source_compiles(
 		{
 			m_Num = mv.m_Num;
 			m_NumPtr = mv.m_NumPtr;
+		}
+		
+		template<typename... Args>
+		void TemplateArgs(int &var1, Args ...args)
+		{
+			var1 += args...;
 		}
 		
 		int m_Num = 42;
@@ -96,6 +103,8 @@ if(MSVC)
 	link_directories("${Boost_LIBRARY_DIRS}")
 endif()
 
+option(LOGCORE_INSTALL OFF)
+add_subdirectory(libs/samp-log-core)
 
 add_subdirectory(src)
 

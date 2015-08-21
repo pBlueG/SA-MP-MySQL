@@ -9,9 +9,11 @@ set(SAMP_SDK_ROOT "${PROJECT_SOURCE_DIR}/libs/sdk")
 find_package(SAMPSDK REQUIRED)
 
 set(MYSQL_PLUGIN_CONFIG_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/config_headers")
-include_directories("${SAMPSDK_INCLUDE_DIR}" "${MYSQL_PLUGIN_CONFIG_INCLUDE_DIR}")
-
-#set(CMAKE_DEBUG_POSTFIX "_d")
+include_directories(
+	${SAMPSDK_INCLUDE_DIR}
+	${MYSQL_PLUGIN_CONFIG_INCLUDE_DIR}
+	${PROJECT_SOURCE_DIR}/libs/samp-log-core/include
+)
 
 configure_file(
 	"../a_mysql.inc.in"
@@ -60,9 +62,13 @@ add_samp_plugin(mysql
 	plugin.def
 )
 
+add_dependencies(mysql log-core)
+
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
 endif()
+
+target_link_libraries(mysql log-core)
 
 if(NOT MSVC) #we have auto-linking in Visual Studio
 	target_link_libraries(mysql ${Boost_LIBRARIES})

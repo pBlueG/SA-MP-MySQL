@@ -4,6 +4,7 @@
 #include "CCallback.hpp"
 #include "CResult.hpp"
 #include "COptions.hpp"
+#include "CLog.hpp"
 #include "misc.hpp"
 
 #include <fstream>

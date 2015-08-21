@@ -8,6 +8,8 @@
 #include "version.hpp"
 
 #include "mysql.hpp"
+#include <samplog/DebugInfo.hpp>
+
 
 
 extern void	*pAMXFunctions;
@@ -133,12 +135,14 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) 
 {
+	samplog::RegisterAmx(amx);
 	CCallbackManager::Get()->AddAmx(amx);
 	return amx_Register(amx, native_list, -1);
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) 
 {
+	samplog::EraseAmx(amx);
 	CCallbackManager::Get()->RemoveAmx(amx);
 	return AMX_ERR_NONE;
 }
