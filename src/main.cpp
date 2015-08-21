@@ -16,7 +16,7 @@ extern void	*pAMXFunctions;
 logprintf_t logprintf;
 
 
-PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() 
+PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK; 
 }
@@ -31,7 +31,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 		logprintf(" >> plugin.mysql: can't initialize MySQL library.");
 		return false;
 	}
-	
 	
 	logprintf(" >> plugin.mysql: " MYSQL_VERSION " successfully loaded.");
 	return true;
