@@ -183,12 +183,12 @@ bool CCallback::Execute()
 bool CCallbackManager::GetErrorString(CCallback::Error error, string &dest)
 {
 	static const std::map<CCallback::Error, string> error_list{
-			{ CCallback::Error::INVALID_AMX, "Invalid AMX" },
-			{ CCallback::Error::INVALID_PARAMETERS, "Invalid parameters" },
-			{ CCallback::Error::INVALID_PARAM_OFFSET, "Parameter count does not match format specifier length" },
-			{ CCallback::Error::INVALID_FORMAT_SPECIFIER, "Invalid format specifier" },
-			{ CCallback::Error::EMPTY_NAME, "Empty name specified" },
-			{ CCallback::Error::NOT_FOUND, "Callback does not exist" }
+			{ CCallback::Error::INVALID_AMX, "invalid AMX" },
+			{ CCallback::Error::INVALID_PARAMETERS, "invalid parameters" },
+			{ CCallback::Error::INVALID_PARAM_OFFSET, "parameter count does not match format specifier length" },
+			{ CCallback::Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier" },
+			{ CCallback::Error::EMPTY_NAME, "empty name specified" },
+			{ CCallback::Error::NOT_FOUND, "callback does not exist" }
 	};
 
 	auto error_it = error_list.find(error);
