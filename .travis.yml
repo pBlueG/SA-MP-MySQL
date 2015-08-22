@@ -37,7 +37,7 @@ install:
 
 before_script:
   - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
-  - git submodule update --recursive
+  - git submodule update --recursive --init
   - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
 
 script:
