@@ -11,9 +11,10 @@
 #include <samplog/DebugInfo.hpp>
 
 
-
 extern void	*pAMXFunctions;
 logprintf_t logprintf;
+
+static_assert(sizeof(cell) == sizeof(CHandle *), "handle ptr size does not fit in PAWN cell");
 
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()

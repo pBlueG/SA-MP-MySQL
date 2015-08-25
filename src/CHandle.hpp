@@ -3,11 +3,12 @@
 #include "CSingleton.hpp"
 
 #include <string>
-#include <unordered_map>
+#include <unordered_set>
 
 using std::string;
-using std::unordered_map;
+using std::unordered_set;
 
+#include <amx/amx.h>
 #include "types.hpp"
 
 class CConnection;
@@ -41,24 +42,15 @@ public: //type definitions
 	};
 
 private: //constructor / deconstructor
-	CHandle(HandleId_t id) :
-		m_Id(id)
-	{ }
+	CHandle() = default;
 	~CHandle();
 
 private: //variables
-	const HandleId_t m_Id;
-
 	CConnection *m_MainConnection = nullptr;
 	CThreadedConnection *m_ThreadedConnection = nullptr;
 	CConnectionPool *m_ConnectionPool = nullptr;
 
 public: //functions
-	inline HandleId_t GetId() const
-	{
-		return m_Id;
-	}
-
 	bool Execute(ExecutionType type, Query_t query);
 	bool GetErrorId(unsigned int &errorid);
 	bool EscapeString(const string &src, string &dest);
@@ -75,21 +67,22 @@ private: //constructor / deconstructor
 	~CHandleManager() = default;
 
 private: //variables
-	unordered_map<HandleId_t, CHandle *> m_Handles;
+	unordered_set<Handle_t> m_Handles;
 
 public: //functions
-	CHandle *Create(string host, string user, string pass, string db, 
+	Handle_t Create(string host, string user, string pass, string db, 
 		const COptions *options, CHandle::Error &error);
-	CHandle *CreateFromFile(string file_path, CHandle::Error &error);
-	bool Destroy(CHandle *handle);
+	Handle_t CreateFromFile(string file_path, CHandle::Error &error);
+	bool Destroy(Handle_t &handle);
 
-	inline bool IsValidHandle(const HandleId_t id)
+	inline bool IsValidHandle(const Handle_t &handle)
 	{
-		return m_Handles.find(id) != m_Handles.end();
+		return m_Handles.find(handle) != m_Handles.end();
 	}
-	inline CHandle *GetHandle(const HandleId_t id)
+	inline Handle_t GetHandle(cell handle_cell)
 	{
-		return IsValidHandle(id) ? m_Handles.at(id) : nullptr;
+		CHandle *handle = reinterpret_cast<CHandle *>(handle_cell);
+		return IsValidHandle(handle) ? handle : nullptr;
 	}
 
 };

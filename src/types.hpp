@@ -15,7 +15,7 @@ class CResultSet;
 class COptions;
 
 
-using HandleId_t = unsigned int;
+using Handle_t = CHandle *;
 
 using Query_t = shared_ptr<CQuery>;
 

@@ -111,7 +111,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 		return 0;
 
 	CHandle::Error handle_error;
-	CHandle *handle = CHandleManager::Get()->Create(
+	Handle_t handle = CHandleManager::Get()->Create(
 		amx_GetCppString(amx, params[1]),
 		amx_GetCppString(amx, params[2]),
 		amx_GetCppString(amx, params[3]),
@@ -124,7 +124,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 
 	assert(handle != nullptr);
 
-	return handle->GetId();
+	return reinterpret_cast<cell>(handle);
 }
 
 // native MySQL:mysql_connect_file(const file_name[] = "mysql.ini");
@@ -138,20 +138,20 @@ AMX_DECLARE_NATIVE(Native::mysql_connect_file)
 		return 0;
 
 	CHandle::Error handle_error;
-	CHandle *handle = CHandleManager::Get()->CreateFromFile(file_name, handle_error);
+	Handle_t handle = CHandleManager::Get()->CreateFromFile(file_name, handle_error);
 
 	if (handle_error != CHandle::Error::NONE)
 		return 0; //TODO: error message
 
 	assert(handle != nullptr);
 
-	return handle->GetId();
+	return reinterpret_cast<cell>(handle);
 }
 
 // native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_close)
 {
-	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[1]));
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
 	if (handle == nullptr)
 		return 0;
 
@@ -232,8 +232,7 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 // native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
-	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
-	CHandle *handle = CHandleManager::Get()->GetHandle(handle_id);
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
 
 	if (handle == nullptr)
 		return 0;
@@ -277,8 +276,7 @@ AMX_DECLARE_NATIVE(Native::mysql_query)
 // native mysql_query_file(MySQL:handle, const file_path[]);
 AMX_DECLARE_NATIVE(Native::mysql_query_file)
 {
-	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
-	CHandle *handle = CHandleManager::Get()->GetHandle(handle_id);
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
 
 	if (handle == nullptr)
 		return 0;
@@ -335,7 +333,7 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 // native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_errno)
 {
-	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[1]));
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
 	if (handle == nullptr)
 		return -1;
 
@@ -355,7 +353,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 // native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 {
-	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[4]));
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[4]);
 	if (handle == nullptr)
 		return 0;
 
@@ -374,7 +372,7 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 // native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 {
-	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[2]));
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[2]);
 	if (handle == nullptr)
 		return 0;
 	
@@ -384,7 +382,7 @@ AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 // native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 {
-	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[3]));
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[3]);
 	if (handle == nullptr)
 		return 0;
 
@@ -403,7 +401,7 @@ AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 // native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_stat)
 {
-	CHandle *handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[3]));
+	Handle_t handle = CHandleManager::Get()->GetHandle(params[3]);
 	if (handle == nullptr)
 		return 0;
 
