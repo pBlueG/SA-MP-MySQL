@@ -16,6 +16,7 @@ class COptions;
 
 
 using Handle_t = CHandle *;
+using HandleId_t = unsigned int;
 
 using Query_t = shared_ptr<CQuery>;
 

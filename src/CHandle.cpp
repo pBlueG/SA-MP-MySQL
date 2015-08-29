@@ -131,7 +131,11 @@ Handle_t CHandleManager::Create(string host, string user, string pass, string db
 	}
 
 
-	Handle_t handle = new CHandle;
+	HandleId_t id = 1;
+	while (m_Handles.find(id) != m_Handles.end())
+		id++;
+
+	Handle_t handle = new CHandle(id);
 	
 	handle->m_MainConnection = new CConnection(host, user, pass, db, options);
 	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, options);
@@ -140,7 +144,7 @@ Handle_t CHandleManager::Create(string host, string user, string pass, string db
 	if (pool_size != 0)
 		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, options);
 
-	m_Handles.insert(handle);
+	m_Handles.emplace(id, handle);
 	return handle;
 }
 
@@ -243,8 +247,12 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 
 bool CHandleManager::Destroy(Handle_t &handle)
 {
-	if (m_Handles.erase(handle) == 0)
+	if (handle == nullptr)
 		return false;
+
+	if (m_Handles.erase(handle->GetId()) == 0)
+		return false;
+
 
 	delete handle;
 	return true;

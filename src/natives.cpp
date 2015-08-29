@@ -127,7 +127,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 
 	assert(handle != nullptr);
 
-	return reinterpret_cast<cell>(handle);
+	return handle->GetId();
 }
 
 // native MySQL:mysql_connect_file(const file_name[] = "mysql.ini");
@@ -148,13 +148,13 @@ AMX_DECLARE_NATIVE(Native::mysql_connect_file)
 
 	assert(handle != nullptr);
 
-	return reinterpret_cast<cell>(handle);
+	return handle->GetId();
 }
 
 // native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_close)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[1]));
 	if (handle == nullptr)
 		return 0;
 
@@ -235,7 +235,8 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 // native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 
 	if (handle == nullptr)
 		return 0;
@@ -282,7 +283,8 @@ AMX_DECLARE_NATIVE(Native::mysql_query)
 // native mysql_query_file(MySQL:handle, const file_path[]);
 AMX_DECLARE_NATIVE(Native::mysql_query_file)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 
 	if (handle == nullptr)
 		return 0;
@@ -339,7 +341,7 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 // native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_errno)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[1]));
 	if (handle == nullptr)
 		return -1;
 
@@ -359,7 +361,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 // native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[4]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[4]));
 	if (handle == nullptr)
 		return 0;
 
@@ -378,7 +380,7 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 // native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[2]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[2]));
 	if (handle == nullptr)
 		return 0;
 	
@@ -388,7 +390,7 @@ AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 // native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[3]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[3]));
 	if (handle == nullptr)
 		return 0;
 
@@ -407,7 +409,7 @@ AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 // native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_stat)
 {
-	Handle_t handle = CHandleManager::Get()->GetHandle(params[3]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(static_cast<HandleId_t>(params[3]));
 	if (handle == nullptr)
 		return 0;
 
