@@ -211,13 +211,13 @@ AMX_DECLARE_NATIVE(Native::mysql_set_option)
 		ret_val = options->SetOption(COptions::Type::MULTI_STATEMENTS, static_cast<bool>(value != 0));
 		break;
 	case COptions::Type::POOL_SIZE:
-		if (params[3] >= 32)
+		if (value <= 32)
 			ret_val = options->SetOption(COptions::Type::POOL_SIZE, static_cast<unsigned int>(value));
 		else
 			; //TODO: error
 		break;
 	case COptions::Type::SERVER_PORT:
-		if (params[3] <= std::numeric_limits<unsigned short>::max())
+		if (value <= std::numeric_limits<unsigned short>::max())
 			ret_val = options->SetOption(COptions::Type::SERVER_PORT, static_cast<unsigned int>(value));
 		else
 			; //TODO: error
