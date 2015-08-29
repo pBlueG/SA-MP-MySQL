@@ -31,7 +31,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 	int cb_idx = -1;
 	if (amx_FindPublic(amx, name.c_str(), &cb_idx) != AMX_ERR_NONE)
 	{
-		error.set(CCallback::Error::NOT_FOUND, "callback does not exist");
+		error.set(CCallback::Error::NOT_FOUND, "callback \"" + name + "\" does not exist");
 		return nullptr;
 	}
 
@@ -111,7 +111,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 				param_list.push(std::make_tuple('r', address_ptr));
 				break;
 			default:
-				error.set(CCallback::Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier");
+				error.set(CCallback::Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '" + *c + '\'');
 				return nullptr;
 			}
 			param_idx++;
