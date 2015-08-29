@@ -38,6 +38,7 @@ add_samp_plugin(mysql
 	CConnection.hpp
 	CDispatcher.cpp
 	CDispatcher.hpp
+	CError.hpp
 	CHandle.cpp
 	CHandle.hpp
 	CLog.cpp

@@ -2,6 +2,7 @@
 
 #include <samplog/PluginLogger.hpp>
 #include "CSingleton.hpp"
+#include "CError.hpp"
 
 using samplog::PluginLogger_t;
 using samplog::LOGLEVEL;
@@ -34,6 +35,12 @@ public:
 		return m_Logger->LogNativeCall(amx, name, params_format);
 	}
 
+	template<typename T>
+	inline void LogError(AMX * const amx, const std::string &func, const CError<T> &error)
+	{
+		LogFormat(amx, LOGLEVEL::ERROR, "%s: %s error: %s", 
+			func.c_str(), error.module().c_str(), error.msg().c_str());
+	}
 
 private:
 	PluginLogger_t m_Logger;

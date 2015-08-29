@@ -18,10 +18,11 @@ using std::stack;
 using std::unordered_set;
 using std::tuple;
 
+#include "CError.hpp"
 #include "types.hpp"
 
 
-class CCallback 
+class CCallback
 {
 public: //type definitions
 	using ParamList_t = stack<tuple<char, boost::any>>;
@@ -36,18 +37,15 @@ public: //type definitions
 		EMPTY_NAME,
 		NOT_FOUND,
 	};
-
+	static const string ModuleName;
 
 public: //constructor / destructor
 	CCallback(AMX *amx, int cb_idx, ParamList_t &&params) :
 		m_AmxInstance(amx),
 		m_AmxCallbackIndex(cb_idx),
 		m_Params(params)
-	{
-
-	}
+	{ }
 	~CCallback() = default;
-
 
 private: //variables
 	AMX *m_AmxInstance = nullptr;
@@ -55,15 +53,13 @@ private: //variables
 
 	ParamList_t m_Params;
 	bool m_Executed = false;
-
 	
 public: //functions
 	bool Execute();
-	
 
 public: //factory function
-	static Callback_t Create(AMX *amx, string name, string format, cell *params, cell param_offset,
-		CCallback::Error &error);
+	static Callback_t Create(AMX *amx, string name, string format, 
+		cell *params, cell param_offset, CError<CCallback> &error);
 };
 
 
@@ -80,8 +76,6 @@ private: //variables
 
 
 public: //functions
-	bool GetErrorString(CCallback::Error error, string &dest);
-
 	inline bool IsValidAmx(const AMX *amx)
 	{
 		return m_AmxInstances.count(amx) == 1;

@@ -110,7 +110,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 	if (options == nullptr)
 		return 0;
 
-	CHandle::Error handle_error;
+	CError<CHandle> handle_error;
 	Handle_t handle = CHandleManager::Get()->Create(
 		amx_GetCppString(amx, params[1]),
 		amx_GetCppString(amx, params[2]),
@@ -119,8 +119,11 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 		options,
 		handle_error);
 
-	if (handle_error != CHandle::Error::NONE)
-		return 0; //TODO: error message
+	if (handle_error)
+	{
+		CLog::Get()->LogError(amx, "mysql_connect", handle_error);
+		return 0;
+	}
 
 	assert(handle != nullptr);
 
@@ -137,10 +140,10 @@ AMX_DECLARE_NATIVE(Native::mysql_connect_file)
 	if (boost::filesystem::exists(current_path) == false)
 		return 0;
 
-	CHandle::Error handle_error;
+	CError<CHandle> handle_error;
 	Handle_t handle = CHandleManager::Get()->CreateFromFile(file_name, handle_error);
 
-	if (handle_error != CHandle::Error::NONE)
+	if (handle_error)
 		return 0; //TODO: error message
 
 	assert(handle != nullptr);
@@ -237,7 +240,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 	if (handle == nullptr)
 		return 0;
 
-	CCallback::Error callback_error;
+	CError<CCallback> callback_error;
 	Callback_t callback = CCallback::Create(
 		amx, 
 		amx_GetCppString(amx, params[3]),
@@ -245,9 +248,12 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		params, 5,
 		callback_error);
 
-	if (callback_error != CCallback::Error::NONE &&
-		callback_error != CCallback::Error::EMPTY_NAME)
-		return 0; // TODO: log error with CCallbackManager::GetErrorString
+	if (callback_error &&
+		callback_error.type() != CCallback::Error::EMPTY_NAME)
+	{
+		CLog::Get()->LogError(amx, "mysql_tquery", callback_error);
+		return 0;
+	}
 	
 
 	Query_t query = CQuery::Create(amx_GetCppString(amx, params[2]));

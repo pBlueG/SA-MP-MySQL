@@ -9,6 +9,7 @@ using std::string;
 using std::unordered_set;
 
 #include <amx/amx.h>
+#include "CError.hpp"
 #include "types.hpp"
 
 class CConnection;
@@ -38,8 +39,10 @@ public: //type definitions
 		//file errors
 		INVALID_FILE,
 		SYNTAX_ERROR,
-		INVALID_FIELD,
+		UNKNOWN_FIELD,
 	};
+	static const string ModuleName;
+	
 
 private: //constructor / deconstructor
 	CHandle() = default;
@@ -71,8 +74,8 @@ private: //variables
 
 public: //functions
 	Handle_t Create(string host, string user, string pass, string db, 
-		const COptions *options, CHandle::Error &error);
-	Handle_t CreateFromFile(string file_path, CHandle::Error &error);
+		const COptions *options, CError<CHandle> &error);
+	Handle_t CreateFromFile(string file_path, CError<CHandle> &error);
 	bool Destroy(Handle_t &handle);
 
 	inline bool IsValidHandle(const Handle_t &handle)

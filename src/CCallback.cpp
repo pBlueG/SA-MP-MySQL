@@ -3,25 +3,27 @@
 #include <map>
 
 
-Callback_t CCallback::Create(
-	AMX *amx, string name, string format, cell *params, cell param_offset, CCallback::Error &error)
+const string CCallback::ModuleName{ "callback" };
+
+
+Callback_t CCallback::Create(AMX *amx, string name, string format, 
+	cell *params, cell param_offset, CError<CCallback> &error)
 {
-	error = CCallback::Error::NONE;
 	if (amx == nullptr)
 	{
-		error = CCallback::Error::INVALID_AMX;
+		error.set(CCallback::Error::INVALID_AMX, "invalid AMX");
 		return nullptr;
 	}
 
 	if (params == nullptr)
 	{
-		error = CCallback::Error::INVALID_PARAMETERS;
+		error.set(CCallback::Error::INVALID_PARAMETERS, "invalid parameters");
 		return nullptr;
 	}
 
 	if (name.empty())
 	{
-		error = CCallback::Error::EMPTY_NAME;
+		error.set(CCallback::Error::EMPTY_NAME, "empty name specified");
 		return nullptr;
 	}
 
@@ -29,7 +31,7 @@ Callback_t CCallback::Create(
 	int cb_idx = -1;
 	if (amx_FindPublic(amx, name.c_str(), &cb_idx) != AMX_ERR_NONE)
 	{
-		error = CCallback::Error::NOT_FOUND;
+		error.set(CCallback::Error::NOT_FOUND, "callback does not exist");
 		return nullptr;
 	}
 
@@ -39,7 +41,8 @@ Callback_t CCallback::Create(
 	{
 		if (static_cast<cell>(params[0] / sizeof(cell)) < param_offset)
 		{
-			error = CCallback::Error::INVALID_PARAM_OFFSET;
+			error.set(CCallback::Error::INVALID_PARAM_OFFSET, 
+				"parameter count does not match format specifier length");
 			return nullptr;
 		}
 
@@ -108,7 +111,7 @@ Callback_t CCallback::Create(
 				param_list.push(std::make_tuple('r', address_ptr));
 				break;
 			default:
-				error = CCallback::Error::INVALID_FORMAT_SPECIFIER;
+				error.set(CCallback::Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier");
 				return nullptr;
 			}
 			param_idx++;
@@ -178,24 +181,4 @@ bool CCallback::Execute()
 
 	m_Executed = true;
 	return true;
-}
-
-bool CCallbackManager::GetErrorString(CCallback::Error error, string &dest)
-{
-	static const std::map<CCallback::Error, string> error_list{
-			{ CCallback::Error::INVALID_AMX, "invalid AMX" },
-			{ CCallback::Error::INVALID_PARAMETERS, "invalid parameters" },
-			{ CCallback::Error::INVALID_PARAM_OFFSET, "parameter count does not match format specifier length" },
-			{ CCallback::Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier" },
-			{ CCallback::Error::EMPTY_NAME, "empty name specified" },
-			{ CCallback::Error::NOT_FOUND, "callback does not exist" }
-	};
-
-	auto error_it = error_list.find(error);
-	if (error_it != error_list.end())
-	{
-		dest = error_it->second;
-		return true;
-	}
-	return false;
 }
