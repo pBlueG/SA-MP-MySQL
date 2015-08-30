@@ -36,6 +36,9 @@ public: //type definitions
 		INVALID_FORMAT_SPECIFIER,
 		EMPTY_NAME,
 		NOT_FOUND,
+		EXPECTED_ARRAY_SIZE,
+		INVALID_ARRAY_SIZE,
+		NO_ARRAY_SIZE,
 	};
 	static const string ModuleName;
 

@@ -53,6 +53,13 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 
 		for (auto c = format.begin(); c != format.end(); ++c)
 		{
+			if (array_addr_ptr != nullptr && (*c) != 'd' && (*c) != 'i')
+			{
+				error.set(CCallback::Error::EXPECTED_ARRAY_SIZE, 
+					"expected 'd'/'i' specifier for array size (got '{}' instead)", *c);
+				return nullptr;
+			}
+
 			switch (*c)
 			{
 			case 'd': //decimal
@@ -64,7 +71,8 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 				{
 					if (value <= 0)
 					{
-						//TODO: error: invalid array size
+						error.set(CCallback::Error::INVALID_ARRAY_SIZE,
+							"invalid array size '{}'", value);
 						return nullptr;
 					}
 					cell *copied_array = static_cast<cell *>(malloc(value * sizeof(cell)));
@@ -77,36 +85,16 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 			}	break;
 			case 'f': //float
 			case 'b': //bool
-				if (array_addr_ptr != nullptr)
-				{
-					//TODO: error: expected 'd'/'i' specifier for array size
-					return nullptr;
-				}
 				amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
 				param_list.push(std::make_tuple('c', *address_ptr));
 				break;
 			case 's': //string
-				if (array_addr_ptr != nullptr)
-				{
-					//TODO: error: expected 'd'/'i' specifier for array size
-					return nullptr;
-				}
 				param_list.push(std::make_tuple('s', amx_GetCppString(amx, params[param_offset + param_idx])));
 				break;
 			case 'a': //array
-				if (array_addr_ptr != nullptr)
-				{
-					//TODO: error: expected 'd'/'i' specifier for array size
-					return nullptr;
-				}
 				amx_GetAddr(amx, params[param_offset + param_idx], &array_addr_ptr);
 				break;
 			case 'r': //reference
-				if (array_addr_ptr != nullptr)
-				{
-					//TODO: error: expected 'd'/'i' specifier for array size
-					return nullptr;
-				}
 				amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
 				param_list.push(std::make_tuple('r', address_ptr));
 				break;
@@ -119,7 +107,8 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 
 		if (array_addr_ptr != nullptr)
 		{
-			//TODO: error: no length specified after 'a' specifier
+			error.set(CCallback::Error::NO_ARRAY_SIZE, 
+				"no array size specified after 'a' specifier");
 			return nullptr;
 		}
 	}
