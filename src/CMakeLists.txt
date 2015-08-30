@@ -13,6 +13,7 @@ include_directories(
 	${SAMPSDK_INCLUDE_DIR}
 	${MYSQL_PLUGIN_CONFIG_INCLUDE_DIR}
 	${PROJECT_SOURCE_DIR}/libs/samp-log-core/include
+	${PROJECT_SOURCE_DIR}/libs/samp-log-core/libs/cppformat
 )
 
 configure_file(
@@ -63,13 +64,13 @@ add_samp_plugin(mysql
 	plugin.def
 )
 
-add_dependencies(mysql log-core)
+add_dependencies(mysql log-core cppformat)
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
 endif()
 
-target_link_libraries(mysql log-core)
+target_link_libraries(mysql log-core cppformat)
 
 if(NOT MSVC) #we have auto-linking in Visual Studio
 	target_link_libraries(mysql ${Boost_LIBRARIES})
