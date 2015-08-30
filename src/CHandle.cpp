@@ -154,7 +154,7 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 	if (file.fail())
 	{
 		error.set(CHandle::Error::INVALID_FILE,
-			"invalid connection file specified (file: \"" + file_path + ")\"");
+			"invalid connection file specified (file: \"{}\")", file_path);
 		return nullptr;
 	}
 
@@ -230,14 +230,14 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 			else
 			{
 				error.set(CHandle::Error::UNKNOWN_FIELD, 
-					"unknown field in connection file (field: \"" + field + ")\"");
+					"unknown field in connection file (field: \"{}\")", field);
 				return nullptr;
 			}
 		}
 		else
 		{
 			error.set(CHandle::Error::SYNTAX_ERROR,
-				"syntax error in connection file (line: \"" + line + ")\"");
+				"syntax error in connection file (line: \"{}\")", line);
 			return nullptr;
 		}
 	}
