@@ -60,10 +60,10 @@ public:
 		Log(amx, LOGLEVEL::WARNING, "{}: {}", func.c_str(), msg.c_str());
 	}
 	template<typename... Args>
-	inline void LogError(AMX * const amx, const std::string &func,
+	inline void LogWarning(AMX * const amx, const std::string &func,
 		const std::string &format, Args &&...args)
 	{
-		LogError(amx, func, fmt::format(format, std::forward<Args>(args)...));
+		LogWarning(amx, func, fmt::format(format, std::forward<Args>(args)...));
 	}
 
 private:
