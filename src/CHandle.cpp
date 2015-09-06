@@ -1,15 +1,15 @@
+#include <fstream>
+#include <boost/spirit/include/qi.hpp>
+
+#include "mysql.hpp"
+
 #include "CQuery.hpp"
 #include "CHandle.hpp"
 #include "CConnection.hpp"
 #include "COptions.hpp"
 #include "misc.hpp"
 
-#include <fstream>
-#include <boost/spirit/include/qi.hpp>
-
 using namespace boost::spirit;
-
-#include "mysql.hpp"
 
 
 const string CHandle::ModuleName{ "handle" };
