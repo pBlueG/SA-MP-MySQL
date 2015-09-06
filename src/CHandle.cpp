@@ -46,9 +46,6 @@ bool CHandle::Execute(ExecutionType type, Query_t query)
 			if (m_MainConnection != nullptr)
 				return_val = m_MainConnection->Execute(query);
 			break;
-
-		default:
-			; //TODO: log error
 		}
 	}
 	return return_val;
