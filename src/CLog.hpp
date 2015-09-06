@@ -11,61 +11,109 @@ using samplog::PluginLogger_t;
 using samplog::LOGLEVEL;
 
 
+struct DebugInfo
+{
+	long line = 0;
+	std::string
+		function,
+		file;
+};
+
+class CDebugInfoManager : public CSingleton<CDebugInfoManager>
+{
+	friend class CSingleton<CDebugInfoManager>;
+	friend class CScopedDebugInfo;
+private:
+	CDebugInfoManager() = default;
+	~CDebugInfoManager() = default;
+
+public:
+	inline AMX * const GetCurrentAmx()
+	{
+		return m_Amx;
+	}
+	inline const DebugInfo &GetCurrentInfo()
+	{
+		return m_Info;
+	}
+	inline bool IsInfoAvailable()
+	{
+		return m_Available;
+	}
+	inline std::string &GetCurrentNativeName()
+	{
+		return m_NativeName;
+	}
+
+private:
+	void Update(AMX * const amx, std::string &&func);
+	void Clear();
+
+private:
+	bool m_Available = false;
+
+	AMX *m_Amx = nullptr;
+	DebugInfo m_Info;
+	std::string m_NativeName;
+};
+
+
 class CLog : public CSingleton<CLog>
 {
 	friend class CSingleton<CLog>;
+	friend class CScopedDebugInfo;
 private:
 	CLog();
 	~CLog() = default;
 
 public:
 	template<typename... Args>
-	void Log(const LOGLEVEL &level, const std::string &fmt, Args &&...args)
+	inline void Log(const LOGLEVEL &level, const std::string &format, Args &&...args)
 	{
-		m_Logger.load(std::memory_order_acquire)
-			->Log(level, fmt::format(fmt, std::forward<Args>(args)...));
+		m_Logger->Log(level, fmt::format(format, std::forward<Args>(args)...));
 	}
+
+	// should ONLY be called in AMX thread!
 	template<typename... Args>
-	void Log(AMX * const amx, const LOGLEVEL &level, const std::string &fmt, Args &&...args)
+	void LogNative(const LOGLEVEL &level, const std::string &fmt, Args &&...args)
 	{
-		m_Logger.load(std::memory_order_acquire)
-			->Log(amx, level, fmt::format(fmt, std::forward<Args>(args)...));
-	}
-	
-	inline bool LogNativeCall(AMX * const amx, const std::string &name, const std::string &params_format)
-	{
-		return m_Logger.load(std::memory_order_acquire)
-			->LogNativeCall(amx, name, params_format);
+		string msg = fmt::format("{}: {}", 
+			CDebugInfoManager::Get()->GetCurrentNativeName(), 
+			fmt::format(fmt, std::forward<Args>(args)...));
+		if (CDebugInfoManager::Get()->IsInfoAvailable())
+		{
+			const DebugInfo &info = CDebugInfoManager::Get()->GetCurrentInfo();
+			m_Logger->LogEx(level, msg, info.line, info.file, info.function);
+		}
+		else
+		{
+			m_Logger->Log(level, msg);
+		}
 	}
 
 	template<typename T>
-	inline void LogError(AMX * const amx, const std::string &func, const CError<T> &error)
+	inline void LogNative(const CError<T> &error)
 	{
-		Log(amx, LOGLEVEL::ERROR, "{}: {} error: {}",
-			func.c_str(), error.module().c_str(), error.msg().c_str());
-	}
-	inline void LogError(AMX * const amx, const std::string &func, const std::string &msg)
-	{
-		Log(amx, LOGLEVEL::ERROR, "{}: {}", func.c_str(), msg.c_str());
-	}
-	template<typename... Args>
-	inline void LogError(AMX * const amx, const std::string &func, 
-		const std::string &format, Args &&...args)
-	{
-		LogError(amx, func, fmt::format(format, std::forward<Args>(args)...));
-	}
-
-	inline void LogWarning(AMX * const amx, const std::string &func, const std::string &msg)
-	{
-		Log(amx, LOGLEVEL::WARNING, "{}: {}", func.c_str(), msg.c_str());
-	}
-	template<typename... Args>
-	inline void LogWarning(AMX * const amx, const std::string &func,
-		const std::string &format, Args &&...args)
-	{
-		LogWarning(amx, func, fmt::format(format, std::forward<Args>(args)...));
+		LogNative(LOGLEVEL::ERROR, "{} error: {}", error.module(), error.msg());
 	}
 
 private:
-	std::atomic<PluginLogger_t> m_Logger;
+	PluginLogger_t m_Logger;
+
+};
+
+
+class CScopedDebugInfo
+{
+public:
+	CScopedDebugInfo(AMX * const amx, std::string &&func, std::string params_format = std::string())
+	{
+		CLog::Get()->m_Logger->LogNativeCall(amx, func, params_format);
+		CDebugInfoManager::Get()->Update(amx, std::move(func));
+	}
+	~CScopedDebugInfo()
+	{
+		CDebugInfoManager::Get()->Clear();
+	}
+	CScopedDebugInfo(const CScopedDebugInfo &rhs) = delete;
 };
