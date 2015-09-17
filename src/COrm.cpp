@@ -202,7 +202,7 @@ void COrm::ApplySelectResult(CMySQLResult *result)
 						(*var->Address) = amx_ftoc(float_var);
 					} break;
 				case DATATYPE_STRING: 
-					amx_SetString(var->Address, data, 0, 0, var->MaxLen);
+					amx_SetString(var->Address, data != NULL ? data : "NULL", 0, 0, var->MaxLen);
 					break;
 			}
 		}
