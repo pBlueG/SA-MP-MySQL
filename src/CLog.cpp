@@ -28,6 +28,7 @@ void CDebugInfoManager::Clear()
 {
 	m_Amx = nullptr;
 	m_NativeName.clear();
+	m_Available = false;
 	m_Info.line = 0;
 	m_Info.function.clear();
 	m_Info.file.clear();
