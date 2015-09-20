@@ -73,22 +73,24 @@ public:
 		m_Logger->Log(level, fmt::format(format, std::forward<Args>(args)...));
 	}
 
-	// should ONLY be called in AMX thread!
+	//log-core note: LogEx() behaves like Log() if parameter line == 0
+	template<typename... Args>
+	inline void Log(const LOGLEVEL &level, const DebugInfo &dbginfo, const std::string &format, Args &&...args)
+	{
+		m_Logger->LogEx(level, fmt::format(format, std::forward<Args>(args)...), 
+			dbginfo.line, dbginfo.file, dbginfo.function);
+	}
+
+	// should only be called in native functions
 	template<typename... Args>
 	void LogNative(const LOGLEVEL &level, const std::string &fmt, Args &&...args)
 	{
-		string msg = fmt::format("{}: {}", 
+		if (CDebugInfoManager::Get()->GetCurrentAmx() == nullptr)
+			return; //do nothing, since we're not called from within a native func
+
+		Log(level, CDebugInfoManager::Get()->GetCurrentInfo(), fmt::format("{}: {}",
 			CDebugInfoManager::Get()->GetCurrentNativeName(), 
 			fmt::format(fmt, std::forward<Args>(args)...));
-		if (CDebugInfoManager::Get()->IsInfoAvailable())
-		{
-			const DebugInfo &info = CDebugInfoManager::Get()->GetCurrentInfo();
-			m_Logger->LogEx(level, msg, info.line, info.file, info.function);
-		}
-		else
-		{
-			m_Logger->Log(level, msg);
-		}
 	}
 
 	template<typename T>
