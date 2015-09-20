@@ -6,6 +6,7 @@
 using std::string;
 using std::function;
 
+#include "CLog.hpp"
 #include "types.hpp"
 
 
@@ -13,7 +14,8 @@ class CQuery
 {
 public: //constructor / deconstructor
 	CQuery(string &&query) :
-		m_Query(query)
+		m_Query(query),
+		m_DbgInfo(CDebugInfoManager::Get()->GetCurrentInfo())
 	{ }
 	~CQuery() = default;
 
@@ -21,6 +23,7 @@ private: //variables
 	string m_Query;
 	function<void(ResultSet_t result)> m_Callback;
 	ResultSet_t m_Result = nullptr;
+	const DebugInfo m_DbgInfo;
 
 public: //functions
 	bool Execute(MYSQL *connection);
