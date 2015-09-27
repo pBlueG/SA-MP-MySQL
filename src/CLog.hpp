@@ -73,10 +73,10 @@ public:
 		m_Logger->Log(level, fmt::format(format, std::forward<Args>(args)...));
 	}
 
-	//log-core note: LogEx() behaves like Log() if parameter line == 0
 	template<typename... Args>
 	inline void Log(const LOGLEVEL &level, const DebugInfo &dbginfo, const std::string &format, Args &&...args)
 	{
+		//log-core note: LogEx() behaves like Log() if parameter line == 0
 		m_Logger->LogEx(level, fmt::format(format, std::forward<Args>(args)...), 
 			dbginfo.line, dbginfo.file, dbginfo.function);
 	}

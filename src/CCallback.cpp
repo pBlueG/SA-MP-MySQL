@@ -11,37 +11,36 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 {
 	if (amx == nullptr)
 	{
-		error.set(CCallback::Error::INVALID_AMX, "invalid AMX");
+		error.set(Error::INVALID_AMX, "invalid AMX");
 		return nullptr;
 	}
 
 	if (params == nullptr)
 	{
-		error.set(CCallback::Error::INVALID_PARAMETERS, "invalid parameters");
+		error.set(Error::INVALID_PARAMETERS, "invalid parameters");
 		return nullptr;
 	}
 
 	if (name.empty())
 	{
-		error.set(CCallback::Error::EMPTY_NAME, "empty name specified");
+		error.set(Error::EMPTY_NAME, "empty name specified");
 		return nullptr;
 	}
-
 
 	int cb_idx = -1;
 	if (amx_FindPublic(amx, name.c_str(), &cb_idx) != AMX_ERR_NONE)
 	{
-		error.set(CCallback::Error::NOT_FOUND, "callback \"{}\" does not exist", name);
+		error.set(Error::NOT_FOUND, "callback \"{}\" does not exist", name);
 		return nullptr;
 	}
 
 
-	CCallback::ParamList_t param_list;
+	ParamList_t param_list(format.length());
 	if (format.empty() == false)
 	{
 		if (static_cast<cell>(params[0] / sizeof(cell)) < param_offset)
 		{
-			error.set(CCallback::Error::INVALID_PARAM_OFFSET, 
+			error.set(Error::INVALID_PARAM_OFFSET, 
 				"parameter count does not match format specifier length");
 			return nullptr;
 		}
@@ -55,7 +54,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 		{
 			if (array_addr_ptr != nullptr && (*c) != 'd' && (*c) != 'i')
 			{
-				error.set(CCallback::Error::EXPECTED_ARRAY_SIZE, 
+				error.set(Error::EXPECTED_ARRAY_SIZE, 
 					"expected 'd'/'i' specifier for array size (got '{}' instead)", *c);
 				return nullptr;
 			}
@@ -71,7 +70,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 				{
 					if (value <= 0)
 					{
-						error.set(CCallback::Error::INVALID_ARRAY_SIZE,
+						error.set(Error::INVALID_ARRAY_SIZE,
 							"invalid array size '{}'", value);
 						return nullptr;
 					}
@@ -99,7 +98,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 				param_list.push_front(std::make_tuple('r', address_ptr));
 				break;
 			default:
-				error.set(CCallback::Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *c);
+				error.set(Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *c);
 				return nullptr;
 			}
 			param_idx++;
@@ -107,7 +106,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 
 		if (array_addr_ptr != nullptr)
 		{
-			error.set(CCallback::Error::NO_ARRAY_SIZE, 
+			error.set(Error::NO_ARRAY_SIZE, 
 				"no array size specified after 'a' specifier");
 			return nullptr;
 		}

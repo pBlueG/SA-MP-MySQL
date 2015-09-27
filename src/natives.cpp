@@ -279,8 +279,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		params, 5,
 		callback_error);
 
-	if (callback_error &&
-		callback_error.type() != CCallback::Error::EMPTY_NAME)
+	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
 	{
 		CLog::Get()->LogNative(callback_error);
 		return 0;
