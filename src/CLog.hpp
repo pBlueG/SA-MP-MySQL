@@ -90,7 +90,7 @@ public:
 
 		Log(level, CDebugInfoManager::Get()->GetCurrentInfo(), fmt::format("{}: {}",
 			CDebugInfoManager::Get()->GetCurrentNativeName(), 
-			fmt::format(fmt, std::forward<Args>(args)...));
+			fmt::format(fmt, std::forward<Args>(args)...)));
 	}
 
 	template<typename T>
