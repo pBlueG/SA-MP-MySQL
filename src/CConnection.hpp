@@ -57,7 +57,7 @@ private:
 
 	boost::lockfree::spsc_queue < Query_t,
 		boost::lockfree::fixed_sized < true >,
-		boost::lockfree::capacity < 32768 >> m_Queue;
+		boost::lockfree::capacity < 65536 >> m_Queue;
 
 private:
 	void WorkerFunc();
