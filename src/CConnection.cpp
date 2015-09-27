@@ -17,8 +17,8 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 	assert(options != nullptr);
 
 	//initialize
-	m_Connection = mysql_init(NULL);
-	if (m_Connection == NULL)
+	m_Connection = mysql_init(nullptr);
+	if (m_Connection == nullptr)
 	{
 		CLog::Get()->Log(LOGLEVEL::ERROR, 
 			"CConnection::CConnection - MySQL initialization failed (not enough memory available)");
@@ -34,9 +34,9 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 	auto *result = mysql_real_connect(m_Connection, host.c_str(),
 		user.c_str(), passw.c_str(), db.c_str(), 
 		options->GetOption<unsigned int>(COptions::Type::SERVER_PORT), 
-		NULL, connect_flags); 
+		nullptr, connect_flags);
 
-	if (result == NULL)
+	if (result == nullptr)
 	{
 		CLog::Get()->Log(LOGLEVEL::ERROR, 
 			"CConnection::CConnection - establishing connection to MySQL database failed: #{} '{}'",
