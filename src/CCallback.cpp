@@ -1,4 +1,5 @@
 #include "CCallback.hpp"
+#include "CLog.hpp"
 
 #include <map>
 
@@ -9,6 +10,12 @@ const string CCallback::ModuleName{ "callback" };
 Callback_t CCallback::Create(AMX *amx, string name, string format, 
 	cell *params, cell param_offset, CError<CCallback> &error)
 {
+	CLog::Get()->Log(LOGLEVEL::DEBUG,
+		"CCallback::Create(amx={}, name='{}', format='{}, params={}, param_offset={})",
+		static_cast<const void *>(amx), name, format, static_cast<const void *>(params), param_offset);
+
+	CLog::Get()->Log(LOGLEVEL::INFO, "Setting up callback '{}' for delayed execution...", name);
+	
 	if (amx == nullptr)
 	{
 		error.set(Error::INVALID_AMX, "invalid AMX");
@@ -33,6 +40,9 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 		error.set(Error::NOT_FOUND, "callback \"{}\" does not exist", name);
 		return nullptr;
 	}
+
+	CLog::Get()->Log(LOGLEVEL::DEBUG, "CCallback::Create - callback index for '{}': {}",
+		name, cb_idx);
 
 
 	ParamList_t param_list(format.length());
@@ -70,8 +80,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 				{
 					if (value <= 0)
 					{
-						error.set(Error::INVALID_ARRAY_SIZE,
-							"invalid array size '{}'", value);
+						error.set(Error::INVALID_ARRAY_SIZE, "invalid array size '{}'", value);
 						return nullptr;
 					}
 					cell *copied_array = static_cast<cell *>(malloc(value * sizeof(cell)));
@@ -106,11 +115,12 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 
 		if (array_addr_ptr != nullptr)
 		{
-			error.set(Error::NO_ARRAY_SIZE, 
-				"no array size specified after 'a' specifier");
+			error.set(Error::NO_ARRAY_SIZE, "no array size specified after 'a' specifier");
 			return nullptr;
 		}
 	}
+
+	CLog::Get()->Log(LOGLEVEL::INFO, "Callback successfully set up.");
 
 	return std::make_shared<CCallback>(amx, cb_idx, std::move(param_list));
 }
@@ -118,11 +128,23 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 
 bool CCallback::Execute()
 {
+	CLog::Get()->Log(LOGLEVEL::DEBUG, "CCallback::Execute(amx={}, index={}, num_params={})",
+		static_cast<const void *>(m_AmxInstance), m_AmxCallbackIndex, m_Params.size());
+
 	//the user could unload a filterscript between CCallback creation and
 	//execution, so we better check if the AMX instance is still valid
 	if (CCallbackManager::Get()->IsValidAmx(m_AmxInstance) == false)
+	{
+		CLog::Get()->Log(LOGLEVEL::ERROR, "CCallback::Execute - invalid AMX instance");
 		return false;
+	}
 
+	char callback_name[sNAMEMAX + 1];
+	if (amx_GetPublic(m_AmxInstance, m_AmxCallbackIndex, callback_name) == AMX_ERR_NONE)
+	{
+		CLog::Get()->Log(LOGLEVEL::INFO, "Executing callback '{}' with {} parameter{}...",
+			callback_name, m_Params.size(), m_Params.size() > 1 ? "s" : ""); 
+	}
 
 
 	cell amx_address = -1;
@@ -162,6 +184,8 @@ bool CCallback::Execute()
 	amx_Exec(m_AmxInstance, nullptr, m_AmxCallbackIndex);
 	if (amx_address >= 0)
 		amx_Release(m_AmxInstance, amx_address);
+
+	CLog::Get()->Log(LOGLEVEL::INFO, "Callback successfully executed.");
 
 	return true;
 }
