@@ -22,7 +22,6 @@ public: //constructor / deconstructor
 	CConnection(const CConnection &rhs) = delete;
 
 private: //variables
-	bool m_IsConnected = false;
 	MYSQL *m_Connection = nullptr;
 
 	boost::mutex m_Mutex; //protect every MySQL C API call
@@ -30,7 +29,7 @@ private: //variables
 public: //functions
 	inline bool IsConnected() const
 	{
-		return m_IsConnected && m_Connection != nullptr;
+		return m_Connection != nullptr;
 	}
 	bool EscapeString(const char *src, string &dest);
 	bool SetCharset(string charset);
