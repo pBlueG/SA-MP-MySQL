@@ -40,7 +40,7 @@ public:
 	{
 		return m_Available;
 	}
-	inline std::string &GetCurrentNativeName()
+	inline const std::string &GetCurrentNativeName()
 	{
 		return m_NativeName;
 	}
