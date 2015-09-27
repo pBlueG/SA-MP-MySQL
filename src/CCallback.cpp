@@ -78,25 +78,25 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 					cell *copied_array = static_cast<cell *>(malloc(value * sizeof(cell)));
 					memcpy(copied_array, array_addr_ptr, value * sizeof(cell));
 
-					param_list.push(std::make_tuple('a', std::make_tuple(copied_array, value)));
+					param_list.push_front(std::make_tuple('a', std::make_tuple(copied_array, value)));
 					array_addr_ptr = nullptr;
 				}
-				param_list.push(std::make_tuple('c', value));
+				param_list.push_front(std::make_tuple('c', value));
 			}	break;
 			case 'f': //float
 			case 'b': //bool
 				amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
-				param_list.push(std::make_tuple('c', *address_ptr));
+				param_list.push_front(std::make_tuple('c', *address_ptr));
 				break;
 			case 's': //string
-				param_list.push(std::make_tuple('s', amx_GetCppString(amx, params[param_offset + param_idx])));
+				param_list.push_front(std::make_tuple('s', amx_GetCppString(amx, params[param_offset + param_idx])));
 				break;
 			case 'a': //array
 				amx_GetAddr(amx, params[param_offset + param_idx], &array_addr_ptr);
 				break;
 			case 'r': //reference
 				amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
-				param_list.push(std::make_tuple('r', address_ptr));
+				param_list.push_front(std::make_tuple('r', address_ptr));
 				break;
 			default:
 				error.set(CCallback::Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *c);
@@ -124,17 +124,14 @@ bool CCallback::Execute()
 	if (CCallbackManager::Get()->IsValidAmx(m_AmxInstance) == false)
 		return false;
 
-	if (m_Executed == true)
-		return false; //can't execute the same callback more than once because m_Params is emptied
 
 
 	cell amx_address = -1;
-	while (m_Params.empty() == false)
+	for(auto &i : m_Params)
 	{
 		cell tmp_addr;
-		auto &param = m_Params.top();
-		boost::any &param_val = std::get<1>(param);
-		switch (std::get<0>(param))
+		boost::any &param_val = std::get<1>(i);
+		switch (std::get<0>(i))
 		{
 			case 'c': //cell
 				amx_Push(m_AmxInstance, boost::any_cast<cell>(param_val));
@@ -161,13 +158,11 @@ bool CCallback::Execute()
 				amx_PushAddress(m_AmxInstance, boost::any_cast<cell *>(param_val));
 				break;
 		}
-		m_Params.pop();
 	}
 
 	amx_Exec(m_AmxInstance, nullptr, m_AmxCallbackIndex);
 	if (amx_address >= 0)
 		amx_Release(m_AmxInstance, amx_address);
 
-	m_Executed = true;
 	return true;
 }

@@ -6,7 +6,7 @@
 #include <string>
 #include <queue>
 #include <functional>
-#include <stack>
+#include <list>
 #include <unordered_set>
 #include <tuple>
 #include <boost/any.hpp>
@@ -14,7 +14,7 @@
 using std::string;
 using std::queue;
 using std::function;
-using std::stack;
+using std::list;
 using std::unordered_set;
 using std::tuple;
 
@@ -25,7 +25,7 @@ using std::tuple;
 class CCallback
 {
 public: //type definitions
-	using ParamList_t = stack<tuple<char, boost::any>>;
+	using ParamList_t = list<tuple<char, boost::any>>;
 
 	enum class Error
 	{
@@ -55,7 +55,6 @@ private: //variables
 	int m_AmxCallbackIndex = -1;
 
 	ParamList_t m_Params;
-	bool m_Executed = false;
 	
 public: //functions
 	bool Execute();
