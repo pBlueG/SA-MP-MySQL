@@ -41,8 +41,6 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 		CLog::Get()->Log(LOGLEVEL::ERROR, 
 			"CConnection::CConnection - establishing connection to MySQL database failed: #{} '{}'",
 			mysql_errno(m_Connection), mysql_error(m_Connection));
-		mysql_close(m_Connection);
-		m_Connection = nullptr;
 		return;
 	}
 
