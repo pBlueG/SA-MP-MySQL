@@ -13,13 +13,25 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install -y g++-4.8-multilib > /dev/null
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 99 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
+  
   - wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh
   - sudo sh cmake-2.8.12.2-Linux-i386.sh --exclude-subdir --prefix=/usr
+  
   - wget http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz
   - tar xzf mysql-connector-c-6.1.6-src.tar.gz
-  - wget http://files.sa-mp.com/samp03zsvr_R4.tar.gz
-  - tar xzf samp03zsvr_R4.tar.gz
+  
+  - wget http://files.sa-mp.com/samp037svr_R2-1.tar.gz
+  - tar xzf samp037svr_R2-1.tar.gz
+  
+  - wget http://files.sa-mp.com/samp037_svr_R2-1-1_win32.zip
+  - unzip samp037_svr_R2-1-1_win32.zip -d $SAMP_SERVER_ROOT pawno/include/*
+  
   - git clone https://github.com/Zeex/samp-server-cli.git
+  
+  - wget https://github.com/Zeex/pawn/releases/download/20150531/pawnc-3.10.20150531-linux.tar.gz
+  - sudo tar xvf pawnc-3.10.20150412-linux.tar.gz --strip-components=1 -C /usr/local
+  - sudo ldconfig
+  
   - wget http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz
   - tar xzf boost_1_57_0.tar.gz
 
@@ -34,6 +46,7 @@ install:
   - sudo ./b2 variant=release link=static threading=multi address-model=32 runtime-link=shared -j2 -d0 install
   - cd ..
   - sudo ldconfig
+  
 
 before_script:
   - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
