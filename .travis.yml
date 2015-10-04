@@ -53,7 +53,7 @@ before_script:
   - git submodule update --recursive --init
   - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
   # tests
-  - pawncc tests/unit_test.pwn -\; -\( -ipawno/include -itests/include -ounit_test
+  - pawncc tests/unit_test.pwn -\; -\( -i${SAMP_SERVER_ROOT}/pawno/include -itests/include -ounit_test
   - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
   
 script:
