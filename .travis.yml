@@ -41,21 +41,28 @@ install:
   - make -j2 > /dev/null
   - sudo make install > /dev/null
   - cd ..
+  
   - cd boost_1_57_0/
   - sudo bash bootstrap.sh --prefix=/usr/local --with-libraries=system,chrono,thread,date_time,atomic,filesystem
   - sudo ./b2 variant=release link=static threading=multi address-model=32 runtime-link=shared -j2 -d0 install
   - cd ..
   - sudo ldconfig
-  
 
 before_script:
   - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
   - git submodule update --recursive --init
   - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
-
+  # tests
+  - pawncc tests/unit_test.pwn -\; -\( -ipawno/include -itests/include -ounit_test
+  - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
+  
 script:
   - make -j2
   - make install
-  - make test
+  # tests
+  - samp-server-cli -o -g unit_test -d mysql.so -T 60
+  - ls -laF
+  - cat server.cfg
+  
 
 after_script: cat Testing/Temporary/LastTest.log

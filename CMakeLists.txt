@@ -107,7 +107,3 @@ add_subdirectory(libs/samp-log-core)
 add_subdirectory(src)
 
 
-if(BUILD_TESTS)
-	enable_testing()
-	add_subdirectory(tests)
-endif()
