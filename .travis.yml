@@ -52,14 +52,13 @@ before_script:
   - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
   - git submodule update --recursive --init
   - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
-  # tests
-  - pawncc tests/unit_test.pwn -\; -\( -i${SAMP_SERVER_ROOT}/pawno/include -itests/include -ounit_test
-  - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
   
 script:
   - make -j2
   - make install
   # tests
+  - pawncc tests/unit_test.pwn -\; -\( -i${SAMP_SERVER_ROOT}/pawno/include -itests/include -ounit_test
+  - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
   - samp-server-cli -o -g unit_test -d mysql.so -T 60
   - ls -laF
   - cat server.cfg
