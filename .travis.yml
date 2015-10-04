@@ -57,7 +57,7 @@ script:
   - make -j2
   - make install
   # tests
-  - pawncc tests/unit_test.pwn -\; -\( -i${SAMP_SERVER_ROOT}/pawno/include -itests/include -ounit_test
+  - pawncc tests/unit_test.pwn -Z+ -\; -\( -i${SAMP_SERVER_ROOT}/pawno/include -itests/include -ounit_test
   - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
   - samp-server-cli -o -g unit_test -d mysql.so -T 60
   - ls -laF
