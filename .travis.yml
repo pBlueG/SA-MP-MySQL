@@ -29,7 +29,7 @@ before_install:
   - git clone https://github.com/Zeex/samp-server-cli.git
   
   - wget https://github.com/Zeex/pawn/releases/download/20150531/pawnc-3.10.20150531-linux.tar.gz
-  - sudo tar xvf pawnc-3.10.20150412-linux.tar.gz --strip-components=1 -C /usr/local
+  - sudo tar xvf pawnc-3.10.20150531-linux.tar.gz --strip-components=1 -C /usr/local
   - sudo ldconfig
   
   - wget http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz
