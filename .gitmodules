@@ -7,3 +7,6 @@
 [submodule "libs/samp-log-core"]
 	path = libs/samp-log-core
 	url = https://github.com/maddinat0r/samp-log-core.git
+[submodule "tests/include/amx"]
+	path = tests/include/amx
+	url = https://github.com/Zeex/amx_assembly.git
