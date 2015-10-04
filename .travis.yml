@@ -58,4 +58,4 @@ script:
   - make install
   - make test
 
-after_failure: cat Testing/Temporary/LastTest.log
+after_script: cat Testing/Temporary/LastTest.log
