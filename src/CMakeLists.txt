@@ -28,8 +28,6 @@ configure_file(
 	@ONLY
 )
 
-set(CMAKE_SKIP_RPATH ON)
-
 add_samp_plugin(mysql 
 	${SAMPSDK_DIR}/amxplugin.cpp
 	${SAMPSDK_DIR}/amxplugin2.cpp
@@ -77,8 +75,13 @@ if(NOT MSVC) #we have auto-linking in Visual Studio
 	target_link_libraries(mysql ${Boost_LIBRARIES})
 endif()
 
-if(UNIX AND NOT APPLE)
-	target_link_libraries(mysql rt)
+if(UNIX)
+	if(NOT APPLE)
+		target_link_libraries(mysql rt)
+	endif()
+	
+	set_target_properties(mysql PROPERTIES
+		INSTALL_RPATH "$ORIGIN/..:$ORIGIN/")
 endif()
 
 if(BUILD_STATIC)
