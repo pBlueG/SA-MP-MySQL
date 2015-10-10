@@ -28,6 +28,7 @@ configure_file(
 	@ONLY
 )
 
+set(CMAKE_SKIP_RPATH ON)
 
 add_samp_plugin(mysql 
 	${SAMPSDK_DIR}/amxplugin.cpp
