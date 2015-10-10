@@ -59,6 +59,7 @@ script:
   # tests
   - pawncc tests/unit_test.pwn -Z+ -\; -\( -i${SAMP_SERVER_ROOT}/pawno/include -itests/include -ounit_test
   - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
+  - cp *.amx ${SAMP_SERVER_ROOT}/gamemodes
   - samp-server-cli -o -g unit_test -d mysql.so -T 60
   - ls -laF
   - cat server.cfg
