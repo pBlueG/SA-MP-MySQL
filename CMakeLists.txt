@@ -102,6 +102,7 @@ if(MSVC)
 endif()
 
 option(LOGCORE_INSTALL_DEV OFF)
+mark_as_advanced(LOGCORE_INSTALL_DEV)
 add_subdirectory(libs/samp-log-core)
 
 add_subdirectory(src)
