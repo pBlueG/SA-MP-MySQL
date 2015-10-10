@@ -61,8 +61,6 @@ script:
   - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
   - cp *.amx ${SAMP_SERVER_ROOT}/gamemodes
   - samp-server-cli -o -g unit_test -d mysql.so -T 60
-  - ls -laF
-  - cat server.cfg
   
 
 after_script: cat Testing/Temporary/LastTest.log
