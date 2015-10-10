@@ -101,7 +101,7 @@ if(MSVC)
 	link_directories("${Boost_LIBRARY_DIRS}")
 endif()
 
-option(LOGCORE_INSTALL OFF)
+option(LOGCORE_INSTALL_DEV OFF)
 add_subdirectory(libs/samp-log-core)
 
 add_subdirectory(src)
