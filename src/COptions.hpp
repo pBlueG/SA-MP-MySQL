@@ -86,7 +86,6 @@ public:
 	enum class GlobalOption
 	{
 		DUPLICATE_CONNECTIONS, //false
-
 	};
 
 private:
