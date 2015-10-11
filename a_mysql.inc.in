@@ -31,9 +31,10 @@ enum E_LOGLEVEL
 	NONE = 0,
 	ERROR = 1,
 	WARNING = 2,
-	DEBUG = 4,
+	INFO = 4,
+	DEBUG = 8,
 	
-	ALL = ERROR | WARNING | DEBUG
+	ALL = ERROR | WARNING | INFO | DEBUG
 };
 
 enum E_LOGTYPE
