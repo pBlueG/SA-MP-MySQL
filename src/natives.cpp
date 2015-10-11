@@ -99,7 +99,23 @@ AMX_DECLARE_NATIVE(Native::orm_setkey)
 // native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
 AMX_DECLARE_NATIVE(Native::mysql_log)
 {
-	return 0;
+	enum _LogLevel
+	{
+		NONE = 0,
+		ERROR = 1,
+		WARNING = 2,
+		INFO = 4,
+		DEBUG = 8,
+	};
+
+	cell loglevel = params[1];
+
+	CLog::Get()->SetLogLevel(LOGLEVEL::ERROR, (loglevel & _LogLevel::ERROR));
+	CLog::Get()->SetLogLevel(LOGLEVEL::WARNING, (loglevel & _LogLevel::WARNING));
+	CLog::Get()->SetLogLevel(LOGLEVEL::INFO, (loglevel & _LogLevel::INFO));
+	CLog::Get()->SetLogLevel(LOGLEVEL::DEBUG, (loglevel & _LogLevel::DEBUG));
+
+	return 1;
 }
 
 // native MySQL:mysql_connect(const host[], const user[], const password[], const database[], MySQLOpt:option_id = MySQLOpt:0);

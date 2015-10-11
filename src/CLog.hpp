@@ -67,6 +67,11 @@ private:
 	~CLog() = default;
 
 public:
+	inline void SetLogLevel(const LOGLEVEL &level, bool enabled)
+	{
+		m_Logger->SetLogLevel(level, enabled);
+	}
+
 	template<typename... Args>
 	inline void Log(const LOGLEVEL &level, const std::string &format, Args &&...args)
 	{
