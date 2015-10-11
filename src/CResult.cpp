@@ -33,14 +33,14 @@ bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, string &dest) 
 
 bool CResult::GetRowDataByName(unsigned int row, const string &field, string &dest) const
 {
-	if(row >= m_Rows || m_Fields == 0)
+	if(row >= m_Rows)
 		return false;
 	
 	if (field.empty())
 		return false;
 	
 
-	for (unsigned int i = 0; i < m_Fields; ++i)
+	for (unsigned int i = 0; i != m_Fields; ++i)
 	{
 		if (m_FieldNames.at(i).compare(field) == 0)
 		{
