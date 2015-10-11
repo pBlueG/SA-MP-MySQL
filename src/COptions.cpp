@@ -7,6 +7,12 @@ COptions::COptions()
 	m_Options[Type::MULTI_STATEMENTS] = false;
 	m_Options[Type::POOL_SIZE] = 2u;
 	m_Options[Type::SERVER_PORT] = 3306u;
+	m_Options[Type::SSL_ENABLE] = false;
+	m_Options[Type::SSL_KEY_FILE] = string();
+	m_Options[Type::SSL_CERT_FILE] = string();
+	m_Options[Type::SSL_CA_FILE] = string();
+	m_Options[Type::SSL_CA_PATH] = string();
+	m_Options[Type::SSL_CIPHER] = string();
 }
 
 

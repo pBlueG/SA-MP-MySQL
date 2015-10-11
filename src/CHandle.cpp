@@ -191,7 +191,29 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 				if (ConvertStrToData(val_str, val))
 					options->SetOption(COptions::Type::SERVER_PORT, val);
 			} 
-		}
+		},
+		{ "ssl_enable", [&](string &val_str) 
+			{
+				bool val;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::SSL_ENABLE, val);
+			} 
+		},
+		{ "ssl_key_file", [&](string &val_str) 
+			{ options->SetOption(COptions::Type::SSL_KEY_FILE, val_str); } 
+		},
+		{ "ssl_cert_file", [&](string &val_str) 
+			{ options->SetOption(COptions::Type::SSL_CERT_FILE, val_str); } 
+		},
+		{ "ssl_ca_file", [&](string &val_str)
+			{ options->SetOption(COptions::Type::SSL_CA_FILE, val_str); }
+		},
+		{ "ssl_ca_path", [&](string &val_str)
+			{ options->SetOption(COptions::Type::SSL_CA_PATH, val_str); }
+		},
+		{ "ssl_cipher", [&](string &val_str)
+			{ options->SetOption(COptions::Type::SSL_CIPHER, val_str); }
+		},
 	};
 
 	while (file.good())

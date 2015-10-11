@@ -23,8 +23,13 @@ public:
 		AUTO_RECONNECT, //true
 		MULTI_STATEMENTS, //false
 		POOL_SIZE, //2
-		SERVER_PORT //3306
-		//TODO: SSL stuff
+		SERVER_PORT, //3306
+		SSL_ENABLE, //false
+		SSL_KEY_FILE, //nullptr
+		SSL_CERT_FILE, //nullptr
+		SSL_CA_FILE, //nullptr
+		SSL_CA_PATH, //nullptr
+		SSL_CIPHER, //nullptr
 	};
 
 private:
@@ -43,7 +48,13 @@ private: //helper function
 			{ Type::AUTO_RECONNECT, typeid(bool).hash_code() },
 			{ Type::MULTI_STATEMENTS, typeid(bool).hash_code() },
 			{ Type::POOL_SIZE, typeid(unsigned int).hash_code() },
-			{ Type::SERVER_PORT, typeid(unsigned int).hash_code() }
+			{ Type::SERVER_PORT, typeid(unsigned int).hash_code() },
+			{ Type::SSL_ENABLE, typeid(bool).hash_code() },
+			{ Type::SSL_KEY_FILE, typeid(string).hash_code() },
+			{ Type::SSL_CERT_FILE, typeid(string).hash_code() },
+			{ Type::SSL_CA_FILE, typeid(string).hash_code() },
+			{ Type::SSL_CA_PATH, typeid(string).hash_code() },
+			{ Type::SSL_CIPHER, typeid(string).hash_code() }
 		};
 
 		return type_map.at(option) == typeid(T).hash_code();

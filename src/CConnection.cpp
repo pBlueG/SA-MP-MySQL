@@ -25,6 +25,24 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 		return;
 	}
 	
+	if (options->GetOption<bool>(COptions::Type::SSL_ENABLE))
+	{
+		string
+			key = options->GetOption<string>(COptions::Type::SSL_KEY_FILE),
+			cert = options->GetOption<string>(COptions::Type::SSL_CERT_FILE),
+			ca = options->GetOption<string>(COptions::Type::SSL_CA_FILE),
+			capath = options->GetOption<string>(COptions::Type::SSL_CA_PATH),
+			cipher = options->GetOption<string>(COptions::Type::SSL_CIPHER);
+
+		
+		mysql_ssl_set(m_Connection, 
+			key.empty() ? nullptr : key.c_str(),
+			cert.empty() ? nullptr : cert.c_str(),
+			ca.empty() ? nullptr : ca.c_str(),
+			capath.empty() ? nullptr : capath.c_str(),
+			cipher.empty() ? nullptr : cipher.c_str());
+	}
+
 	//prepare connection flags through passed options
 	unsigned long connect_flags = 0;
 	if (options->GetOption<bool>(COptions::Type::MULTI_STATEMENTS) == true)

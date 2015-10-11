@@ -273,6 +273,24 @@ AMX_DECLARE_NATIVE(Native::mysql_set_option)
 		else
 			CLog::Get()->LogNative(LOGLEVEL::ERROR, "invalid MySQL server port '{}'", value);
 		break;
+	case COptions::Type::SSL_ENABLE:
+		ret_val = options->SetOption(COptions::Type::SSL_ENABLE, static_cast<bool>(value != 0));
+		break;
+	case COptions::Type::SSL_KEY_FILE:
+		ret_val = options->SetOption(COptions::Type::SSL_KEY_FILE, amx_GetCppString(amx, value));
+		break;
+	case COptions::Type::SSL_CERT_FILE:
+		ret_val = options->SetOption(COptions::Type::SSL_CERT_FILE, amx_GetCppString(amx, value));
+		break;
+	case COptions::Type::SSL_CA_FILE:
+		ret_val = options->SetOption(COptions::Type::SSL_CA_FILE, amx_GetCppString(amx, value));
+		break;
+	case COptions::Type::SSL_CA_PATH:
+		ret_val = options->SetOption(COptions::Type::SSL_CA_PATH, amx_GetCppString(amx, value));
+		break;
+	case COptions::Type::SSL_CIPHER:
+		ret_val = options->SetOption(COptions::Type::SSL_CIPHER, amx_GetCppString(amx, value));
+		break;
 	}
 
 	CLog::Get()->LogNative(LOGLEVEL::DEBUG, "return value: '{}'", ret_val);
