@@ -26,7 +26,7 @@ before_install:
   - wget http://files.sa-mp.com/samp037_svr_R2-1-1_win32.zip
   - unzip samp037_svr_R2-1-1_win32.zip -d $SAMP_SERVER_ROOT pawno/include/*
   
-  - git clone https://github.com/Zeex/samp-server-cli.git
+  - git clone https://github.com/maddinat0r/samp-server-cli.git
   
   - wget https://github.com/Zeex/pawn/releases/download/20150531/pawnc-3.10.20150531-linux.tar.gz
   - sudo tar xvf pawnc-3.10.20150531-linux.tar.gz --strip-components=1 -C /usr/local
@@ -59,7 +59,7 @@ script:
   # tests
   - pawncc tests/unit_test.pwn -Z+ -\; -\( -i${SAMP_SERVER_ROOT}/pawno/include -itests/include -ounit_test
   - cp -R tests/test_data/* ${SAMP_SERVER_ROOT}
-  - cp *.amx ${SAMP_SERVER_ROOT}/gamemodes
+  # - cp *.amx ${SAMP_SERVER_ROOT}/gamemodes
   - samp-server-cli -o -g unit_test -d mysql.so -T 60
   
 
