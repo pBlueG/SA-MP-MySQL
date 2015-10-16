@@ -138,6 +138,8 @@ Test:ConnectionFileSuccess()
 
 public OnGameModeInit()
 {
+	mysql_log(ALL);
+	
 	new
 	    test_counter = 0,
 		fail_counter = 0;
