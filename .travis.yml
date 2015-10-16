@@ -62,3 +62,4 @@ script:
   - cp *.amx ${SAMP_SERVER_ROOT}/gamemodes
   - samp-server-cli -o -g unit_test -d mysql.so -T 60
 
+after_script: cat ${SAMP_SERVER_ROOT}/logs/plugins/mysql.log
