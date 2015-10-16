@@ -12,7 +12,7 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 {
 	CLog::Get()->Log(LOGLEVEL::DEBUG, 
 		"CConnection::CConnection(this={}, host='{}', user='{}', passw='****', db='{}', options={})",
-		static_cast<const void *>(this), host, user, passw, db, static_cast<const void *>(options));
+		static_cast<const void *>(this), host, user, db, static_cast<const void *>(options));
 
 	assert(options != nullptr);
 

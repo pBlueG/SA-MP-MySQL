@@ -4,7 +4,7 @@
 void CDispatcher::Dispatch(DispatchFunction_t &&func)
 {
 	boost::mutex::scoped_lock lock(m_QueueMtx);
-	return m_Queue.push(func);
+	return m_Queue.push(std::move(func));
 }
 
 void CDispatcher::Process()
