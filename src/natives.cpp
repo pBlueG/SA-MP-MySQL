@@ -300,7 +300,48 @@ AMX_DECLARE_NATIVE(Native::mysql_set_option)
 // native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_pquery)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "mysql_pquery", "dsss");
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
+
+	if (handle == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid connection handle '{}'", handle_id);
+		return 0;
+	}
+
+	CError<CCallback> callback_error;
+	Callback_t callback = CCallback::Create(
+		amx,
+		amx_GetCppString(amx, params[3]),
+		amx_GetCppString(amx, params[4]),
+		params, 5,
+		callback_error);
+
+	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
+	{
+		CLog::Get()->LogNative(callback_error);
+		return 0;
+	}
+
+
+	Query_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
+	if (callback != nullptr)
+	{
+		query->OnExecutionFinished([=](ResultSet_t resultset)
+		{
+			CResultSetManager::Get()->SetActiveResultSet(resultset);
+
+			callback->Execute();
+
+			//unset active result(cache) + delete result (done by shared_ptr)
+			CResultSetManager::Get()->SetActiveResultSet(nullptr);
+		});
+	}
+
+	cell ret_val = handle->Execute(CHandle::ExecutionType::PARALLEL, query);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
@@ -353,7 +394,27 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 // native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
 AMX_DECLARE_NATIVE(Native::mysql_query)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "mysql_query", "dsd");
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
+
+	if (handle == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid connection handle '{}'", handle_id);
+		return 0;
+	}
+
+	Query_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
+	cell ret_val = 0;
+
+	if (handle->Execute(CHandle::ExecutionType::UNTHREADED, query) && params[3] != 0)
+	{
+		CResultSetManager::Get()->SetActiveResultSet(query->GetResult());
+		ret_val = CResultSetManager::Get()->StoreActiveResultSet();
+	}
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native mysql_query_file(MySQL:handle, const file_path[]);

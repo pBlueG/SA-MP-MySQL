@@ -36,6 +36,10 @@ public: //functions
 		if (m_Callback)
 			m_Callback(m_Result);
 	}
+	ResultSet_t GetResult()
+	{
+		return m_Result;
+	}
 
 public: //factory function
 	static inline Query_t Create(string query)
