@@ -19,7 +19,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -27,7 +27,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -43,14 +43,14 @@
     <OutDir>bin\</OutDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>mysql</TargetName>
-    <IncludePath>D:\boost_1_55_0;libs;D:\mysql-c-connector\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0_xp;D:\mysql-c-connector\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\boost_1_57_0;C:\libs\mysql-connector-c-6.1.5\include;libs;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\libs\boost_1_57_0\lib32-msvc-12.0;C:\libs\mysql-connector-c-6.1.5\lib;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mysql</TargetName>
-    <IncludePath>D:\boost_1_55_0;libs;D:\mysql-c-connector\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_55_0\lib32-msvc-11.0_xp;D:\mysql-c-connector\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\boost_1_57_0;C:\libs\mysql-connector-c-6.1.5\include;libs;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\libs\boost_1_57_0\lib32-msvc-12.0;C:\libs\mysql-connector-c-6.1.5\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
