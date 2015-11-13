@@ -21,17 +21,17 @@ bool CResult::GetFieldName(unsigned int idx, string &dest) const
 	return false;
 }
 
-bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const
+bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, const char **dest) const
 {
 	if (row < m_Rows && fieldidx < m_Fields)
 	{
-		dest = m_Data[row][fieldidx];
+		*dest = m_Data[row][fieldidx];
 		return true;
 	}
 	return false;
 }
 
-bool CResult::GetRowDataByName(unsigned int row, const string &field, string &dest) const
+bool CResult::GetRowDataByName(unsigned int row, const string &field, const char **dest) const
 {
 	if(row >= m_Rows)
 		return false;
@@ -44,7 +44,7 @@ bool CResult::GetRowDataByName(unsigned int row, const string &field, string &de
 	{
 		if (m_FieldNames.at(i).compare(field) == 0)
 		{
-			dest = m_Data[row][i];
+			*dest = m_Data[row][i];
 			return true;
 		}
 	}
@@ -114,6 +114,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 				mem_head_size = sizeof(char **) * static_cast<size_t>(num_rows),
 				mem_row_size = (sizeof(char *) * (num_fields + 1)) + ((row_data_size)* sizeof(char));
 			//+1 because there is another value in memory pointing to somewhere
+
 			//mem_row_size has to be a multiple of 8
 			while (mem_row_size % 8 != 0)
 				mem_row_size++;

@@ -1,6 +1,7 @@
 #include "CLog.hpp"
 
 #include <samplog/DebugInfo.hpp>
+#include <amx/amx.h>
 
 
 CLog::CLog()
@@ -32,4 +33,17 @@ void CDebugInfoManager::Clear()
 	m_Info.line = 0;
 	m_Info.function.clear();
 	m_Info.file.clear();
+}
+
+CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func, const char *params_format /* = ""*/)
+{
+	uint16_t amx_flags = 0;
+	amx_Flags(amx, &amx_flags);
+	m_HasAmxDebugSymbols = (amx_flags & AMX_FLAG_DEBUG) == AMX_FLAG_DEBUG;
+
+	if (m_HasAmxDebugSymbols)
+		CDebugInfoManager::Get()->Update(amx, func);
+
+	if (CLog::Get()->m_Logger->IsLogLevel(LogLevel::DEBUG))
+		CLog::Get()->m_Logger->LogNativeCall(amx, func, params_format);
 }

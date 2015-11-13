@@ -39,8 +39,24 @@ public: //functions
 	}
 
 	bool GetFieldName(unsigned int idx, string &dest) const;
-	bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const;
-	bool GetRowDataByName(unsigned int row, const string &field, string &dest) const;
+	bool GetRowData(unsigned int row, unsigned int fieldidx, const char **dest) const;
+	inline bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const
+	{
+		const char *cdest = nullptr;
+		bool result = GetRowData(row, fieldidx, &cdest);
+		if(result && cdest != nullptr)
+			dest = cdest;
+		return result;
+	}
+	bool GetRowDataByName(unsigned int row, const string &field, const char **dest) const;
+	bool GetRowDataByName(unsigned int row, const string &field, string &dest) const
+	{
+		const char *cdest = nullptr;
+		bool result = GetRowDataByName(row, field, &cdest);
+		if (result && cdest != nullptr)
+			dest = cdest;
+		return result;
+	}
 
 };
 

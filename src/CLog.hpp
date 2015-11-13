@@ -122,15 +122,14 @@ private:
 
 class CScopedDebugInfo
 {
+private:
+	bool m_HasAmxDebugSymbols = false;
 public:
-	CScopedDebugInfo(AMX * const amx, std::string &&func, std::string params_format = std::string())
-	{
-		CLog::Get()->m_Logger->LogNativeCall(amx, func, params_format);
-		CDebugInfoManager::Get()->Update(amx, std::move(func));
-	}
+	CScopedDebugInfo(AMX * const amx, const char *func, const char *params_format = "");
 	~CScopedDebugInfo()
 	{
-		CDebugInfoManager::Get()->Clear();
+		if (m_HasAmxDebugSymbols)
+			CDebugInfoManager::Get()->Clear();
 	}
 	CScopedDebugInfo(const CScopedDebugInfo &rhs) = delete;
 };

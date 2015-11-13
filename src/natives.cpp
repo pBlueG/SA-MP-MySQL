@@ -669,16 +669,16 @@ AMX_DECLARE_NATIVE(Native::cache_get_row)
 		return 0;
 	}
 
-	string data;
-	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+	const char *data = nullptr;
+	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, 
 			"invalid row ('{}') or field ('{}') index", params[1], params[2]);
 		return 0;
 	}
 
-	amx_SetCppString(amx, params[3], data, params[4]);
-	CLog::Get()->LogNative(LOGLEVEL::DEBUG, "return value: '1'");
+	amx_SetCString(amx, params[3], data, params[4]);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
 }
 
@@ -693,8 +693,8 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 		return 0;
 	}
 
-	string data;
-	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+	const char *data = nullptr;
+	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 			"invalid row ('{}') or field ('{}') index", params[1], params[2]);
@@ -702,7 +702,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 	}
 
 	cell data_int = 0;
-	if (ConvertStrToData<cell>(data, data_int) == false)
+	if (ConvertStrToData<cell>(data, data_int) == false) //TODO: make ConvertStrToData accept C-strings?
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;
@@ -723,8 +723,8 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 		return 0;
 	}
 
-	string data;
-	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], data) == false)
+	const char *data = nullptr;
+	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 			"invalid row ('{}') or field ('{}') index", params[1], params[2]);
@@ -732,7 +732,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 	}
 
 	float data_float = 0.0f;
-	if (ConvertStrToData<float>(data, data_float) == false)
+	if (ConvertStrToData<float>(data, data_float) == false) //TODO: make ConvertStrToData accept C-strings?
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;
@@ -753,7 +753,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 		return 0;
 	}
 
-	string field_name = amx_GetCppString(amx, params[2]);
+	const string field_name = amx_GetCppString(amx, params[2]);
 	if (field_name.empty())
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "empty field name");
@@ -769,8 +769,8 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 		return 0;
 	}
 
-	string data;
-	if (result->GetRowDataByName(row_idx, field_name, data) == false)
+	const char *data = nullptr;
+	if (result->GetRowDataByName(row_idx, field_name, &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "field '{}' not found", field_name);
 		return 0;
@@ -792,7 +792,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 		return 0;
 	}
 
-	string field_name = amx_GetCppString(amx, params[2]);
+	const string field_name = amx_GetCppString(amx, params[2]);
 	if (field_name.empty())
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "empty field name");
@@ -808,15 +808,15 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 		return 0;
 	}
 
-	string data;
-	if (result->GetRowDataByName(row_idx, field_name, data) == false)
+	const char *data = nullptr;
+	if (result->GetRowDataByName(row_idx, field_name, &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "field '{}' not found", field_name);
 		return 0;
 	}
 
 	cell data_int = 0;
-	if (ConvertStrToData<cell>(data, data_int) == false)
+	if (ConvertStrToData<cell>(data, data_int) == false) //TODO: make ConvertStrToData accept C-strings?
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;
@@ -837,7 +837,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 		return 0;
 	}
 
-	string field_name = amx_GetCppString(amx, params[2]);
+	const string field_name = amx_GetCppString(amx, params[2]);
 	if (field_name.empty())
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "empty field name");
@@ -853,15 +853,15 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
 		return 0;
 	}
 
-	string data;
-	if (result->GetRowDataByName(row_idx, field_name, data) == false)
+	const char *data = nullptr;
+	if (result->GetRowDataByName(row_idx, field_name, &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "field '{}' not found", field_name);
 		return 0;
 	}
 
 	float data_float = 0.0f;
-	if (ConvertStrToData<float>(data, data_float) == false)
+	if (ConvertStrToData<float>(data, data_float) == false) //TODO: make ConvertStrToData accept C-strings?
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;
