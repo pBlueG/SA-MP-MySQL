@@ -29,7 +29,7 @@ public: //functions
 	bool Execute(MYSQL *connection);
 	inline void OnExecutionFinished(decltype(m_Callback) &&cb)
 	{
-		m_Callback = cb;
+		m_Callback = std::move(cb);
 	}
 	inline void CallCallback()
 	{

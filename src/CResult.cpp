@@ -116,8 +116,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 			//+1 because there is another value in memory pointing to somewhere
 
 			//mem_row_size has to be a multiple of 8
-			while (mem_row_size % 8 != 0)
-				mem_row_size++;
+			mem_row_size += 8 - (mem_row_size % 8);
 
 			const size_t mem_size = mem_head_size + static_cast<size_t>(num_rows)* mem_row_size;
 			char ***mem_data = result->m_Data = static_cast<char ***>(malloc(mem_size));
