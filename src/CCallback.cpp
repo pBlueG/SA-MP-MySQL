@@ -10,11 +10,11 @@ const string CCallback::ModuleName{ "callback" };
 Callback_t CCallback::Create(AMX *amx, string name, string format, 
 	cell *params, cell param_offset, CError<CCallback> &error)
 {
-	CLog::Get()->Log(LOGLEVEL::DEBUG,
+	CLog::Get()->Log(LogLevel::DEBUG,
 		"CCallback::Create(amx={}, name='{}', format='{}, params={}, param_offset={})",
 		static_cast<const void *>(amx), name, format, static_cast<const void *>(params), param_offset);
 
-	CLog::Get()->Log(LOGLEVEL::INFO, "Setting up callback '{}' for delayed execution...", name);
+	CLog::Get()->Log(LogLevel::INFO, "Setting up callback '{}' for delayed execution...", name);
 	
 	if (amx == nullptr)
 	{
@@ -41,7 +41,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 		return nullptr;
 	}
 
-	CLog::Get()->Log(LOGLEVEL::DEBUG, "CCallback::Create - callback index for '{}': {}",
+	CLog::Get()->Log(LogLevel::DEBUG, "CCallback::Create - callback index for '{}': {}",
 		name, cb_idx);
 
 
@@ -120,7 +120,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 		}
 	}
 
-	CLog::Get()->Log(LOGLEVEL::INFO, "Callback successfully set up.");
+	CLog::Get()->Log(LogLevel::INFO, "Callback successfully set up.");
 
 	return std::make_shared<CCallback>(amx, cb_idx, std::move(param_list));
 }
@@ -128,21 +128,21 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 
 bool CCallback::Execute()
 {
-	CLog::Get()->Log(LOGLEVEL::DEBUG, "CCallback::Execute(amx={}, index={}, num_params={})",
+	CLog::Get()->Log(LogLevel::DEBUG, "CCallback::Execute(amx={}, index={}, num_params={})",
 		static_cast<const void *>(m_AmxInstance), m_AmxCallbackIndex, m_Params.size());
 
 	//the user could unload a filterscript between CCallback creation and
 	//execution, so we better check if the AMX instance is still valid
 	if (CCallbackManager::Get()->IsValidAmx(m_AmxInstance) == false)
 	{
-		CLog::Get()->Log(LOGLEVEL::ERROR, "CCallback::Execute - invalid AMX instance");
+		CLog::Get()->Log(LogLevel::ERROR, "CCallback::Execute - invalid AMX instance");
 		return false;
 	}
 
 	char callback_name[sNAMEMAX + 1];
 	if (amx_GetPublic(m_AmxInstance, m_AmxCallbackIndex, callback_name) == AMX_ERR_NONE)
 	{
-		CLog::Get()->Log(LOGLEVEL::INFO, "Executing callback '{}' with {} parameter{}...",
+		CLog::Get()->Log(LogLevel::INFO, "Executing callback '{}' with {} parameter{}...",
 			callback_name, m_Params.size(), m_Params.size() > 1 ? "s" : ""); 
 	}
 
@@ -185,7 +185,7 @@ bool CCallback::Execute()
 	if (amx_address >= 0)
 		amx_Release(m_AmxInstance, amx_address);
 
-	CLog::Get()->Log(LOGLEVEL::INFO, "Callback successfully executed.");
+	CLog::Get()->Log(LogLevel::INFO, "Callback successfully executed.");
 
 	return true;
 }

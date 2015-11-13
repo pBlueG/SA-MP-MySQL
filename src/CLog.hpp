@@ -5,10 +5,9 @@
 #include "CError.hpp"
 
 #include <format.h>
-#include <atomic>
 
 using samplog::PluginLogger_t;
-using samplog::LOGLEVEL;
+using samplog::LogLevel;
 
 
 struct DebugInfo
@@ -67,20 +66,27 @@ private:
 	~CLog() = default;
 
 public:
-	inline void SetLogLevel(const LOGLEVEL &level, bool enabled)
+	inline void SetLogLevel(const LogLevel level, bool enabled)
 	{
 		m_Logger->SetLogLevel(level, enabled);
 	}
 
 	template<typename... Args>
-	inline void Log(const LOGLEVEL &level, const std::string &format, Args &&...args)
+	inline void Log(const LogLevel level, const char *format, Args &&...args)
 	{
+		if (!m_Logger->IsLogLevel(level))
+			return;
+
 		m_Logger->Log(level, fmt::format(format, std::forward<Args>(args)...));
 	}
 
 	template<typename... Args>
-	inline void Log(const LOGLEVEL &level, const DebugInfo &dbginfo, const std::string &format, Args &&...args)
+	inline void Log(const LogLevel level, const DebugInfo &dbginfo, 
+		const char *format, Args &&...args)
 	{
+		if (!m_Logger->IsLogLevel(level))
+			return;
+
 		//log-core note: LogEx() behaves like Log() if parameter line == 0
 		m_Logger->LogEx(level, fmt::format(format, std::forward<Args>(args)...), 
 			dbginfo.line, dbginfo.file, dbginfo.function);
@@ -88,20 +94,24 @@ public:
 
 	// should only be called in native functions
 	template<typename... Args>
-	void LogNative(const LOGLEVEL &level, const std::string &fmt, Args &&...args)
+	void LogNative(const LogLevel level, const char *fmt, Args &&...args)
 	{
+		if (!m_Logger->IsLogLevel(level))
+			return;
+
 		if (CDebugInfoManager::Get()->GetCurrentAmx() == nullptr)
 			return; //do nothing, since we're not called from within a native func
 
 		Log(level, CDebugInfoManager::Get()->GetCurrentInfo(), fmt::format("{}: {}",
 			CDebugInfoManager::Get()->GetCurrentNativeName(), 
-			fmt::format(fmt, std::forward<Args>(args)...)));
+			fmt::format(fmt, std::forward<Args>(args)...)).c_str());
 	}
 
 	template<typename T>
 	inline void LogNative(const CError<T> &error)
 	{
-		LogNative(LOGLEVEL::ERROR, "{} error: {}", error.module(), error.msg());
+		LogNative(LogLevel::ERROR, "{} error: {}", 
+			error.module(), error.msg());
 	}
 
 private:

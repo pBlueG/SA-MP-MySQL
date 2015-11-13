@@ -113,7 +113,7 @@ Handle_t CHandleManager::Create(string host, string user, string pass, string db
 	}
 
 	if (pass.empty())
-		CLog::Get()->LogNative(LOGLEVEL::WARNING, "no password specified");
+		CLog::Get()->LogNative(LogLevel::WARNING, "no password specified");
 
 	if (db.empty())
 	{
