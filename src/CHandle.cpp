@@ -76,7 +76,7 @@ bool CHandle::SetCharacterSet(string charset)
 	return
 		m_MainConnection->SetCharset(charset)
 		&& m_ThreadedConnection->SetCharset(charset)
-		&& m_ConnectionPool != nullptr ? m_ConnectionPool->SetCharset(charset) : true;
+		&& ( (m_ConnectionPool != nullptr) ? m_ConnectionPool->SetCharset(charset) : true);
 }
 
 bool CHandle::GetCharacterSet(string &charset)
