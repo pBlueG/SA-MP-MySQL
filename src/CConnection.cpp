@@ -94,7 +94,7 @@ bool CConnection::EscapeString(const char *src, string &dest)
 	const size_t src_len = strlen(src);
 	char *tmp_str = static_cast<char *>(malloc((src_len * 2 + 1) * sizeof(char)));
 
-	//TODO: mutex?
+	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
 	mysql_real_escape_string(m_Connection, tmp_str, src, src_len);
 	dest.assign(tmp_str);
 	free(tmp_str);
