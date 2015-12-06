@@ -242,13 +242,14 @@ AMX_DECLARE_NATIVE(Native::mysql_set_option)
 		return 0;
 	}
 
-	cell *param_addr = nullptr;
-	amx_GetAddr(amx, params[3], &param_addr);
-	if (param_addr == nullptr)
+	if (params[0] == sizeof(cell) * 2)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "no value specified");
 		return 0;
 	}
+
+	cell *param_addr = nullptr;
+	amx_GetAddr(amx, params[3], &param_addr);
 
 	cell value = *param_addr;
 	bool ret_val = false;

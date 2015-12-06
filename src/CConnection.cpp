@@ -62,6 +62,8 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 		return;
 	}
 
+	m_IsConnected = true;
+
 	//set additional connection options
 	my_bool reconnect = options->GetOption<bool>(COptions::Type::AUTO_RECONNECT);
 	mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
@@ -145,7 +147,7 @@ bool CConnection::GetError(unsigned int &id, string &msg)
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnection::GetError(this={}, connection={})",
 		static_cast<const void *>(this), static_cast<const void *>(m_Connection));
 
-	if (IsConnected() == false)
+	if (m_Connection == nullptr)
 		return false;
 
 	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
