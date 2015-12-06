@@ -362,9 +362,156 @@ Test:StringEscape()
 	ASSERT_TRUE(mysql_escape_string(src, dest, .handle = sql));
 	new desired_dest[128] = "\\\"Some ol\\' \\\\stri\\ng";
 	ASSERT(strcmp(dest, desired_dest) == 0);
+	
+	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
 
+
+
+
+
+/*
+                                         
+                                         
+                                  ,d     
+                                  88     
+           ,adPPYba,  ,adPPYba, MM88MMM  
+           I8[    "" a8P_____88   88     
+            `"Y8ba,  8PP"""""""   88     
+           aa    ]8I "8b,   ,aa   88,    
+           `"YbbdP"'  `"Ybbd8"'   "Y888  
+                                         
+888888888888                             
+                                                                                      
+                      88                                                              
+                      88                                                       ,d     
+                      88                                                       88     
+            ,adPPYba, 88,dPPYba,  ,adPPYYba, 8b,dPPYba, ,adPPYba,  ,adPPYba, MM88MMM  
+           a8"     "" 88P'    "8a ""     `Y8 88P'   "Y8 I8[    "" a8P_____88   88     
+           8b         88       88 ,adPPPPP88 88          `"Y8ba,  8PP"""""""   88     
+           "8a,   ,aa 88       88 88,    ,88 88         aa    ]8I "8b,   ,aa   88,    
+            `"Ybbd8"' 88       88 `"8bbdP"Y8 88         `"YbbdP"'  `"Ybbd8"'   "Y888  
+                                                                                      
+888888888888                                                                          
+*/
+
+Test:ConnectionCharsetSet()
+{
+	ASSERT_FALSE(mysql_set_charset("asdf", MYSQL_INVALID_HANDLE));
+	
+	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) != 0);
+	ASSERT_FALSE(mysql_set_charset("utf8", sql));
+	ASSERT_TRUE(mysql_close(sql));
+	
+	sql = mysql_connect_file();
+	
+	ASSERT_TRUE(mysql_set_charset("utf8", sql));
+	ASSERT_FALSE(mysql_set_charset("", sql));
+	ASSERT_FALSE(mysql_set_charset("invalid-charset", sql));
+	
+	ASSERT_TRUE(mysql_close(sql));
+	return 1;
+}
+
+
+
+
+
+/*
+                                           
+                                           
+                                    ,d     
+                                    88     
+            ,adPPYb,d8  ,adPPYba, MM88MMM  
+           a8"    `Y88 a8P_____88   88     
+           8b       88 8PP"""""""   88     
+           "8a,   ,d88 "8b,   ,aa   88,    
+            `"YbbdP"Y8  `"Ybbd8"'   "Y888  
+            aa,    ,88                     
+888888888888 "Y8bbdP"                      
+                                                                                      
+                      88                                                              
+                      88                                                       ,d     
+                      88                                                       88     
+            ,adPPYba, 88,dPPYba,  ,adPPYYba, 8b,dPPYba, ,adPPYba,  ,adPPYba, MM88MMM  
+           a8"     "" 88P'    "8a ""     `Y8 88P'   "Y8 I8[    "" a8P_____88   88     
+           8b         88       88 ,adPPPPP88 88          `"Y8ba,  8PP"""""""   88     
+           "8a,   ,aa 88       88 88,    ,88 88         aa    ]8I "8b,   ,aa   88,    
+            `"Ybbd8"' 88       88 `"8bbdP"Y8 88         `"YbbdP"'  `"Ybbd8"'   "Y888  
+                                                                                      
+888888888888                                                                          
+*/
+
+Test:ConnectionCharsetGet()
+{
+	new dest[64];
+	
+	ASSERT_FALSE(mysql_get_charset(dest, .handle = MYSQL_INVALID_HANDLE));
+	
+	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) != 0);
+	ASSERT_FALSE(mysql_get_charset(dest, .handle = sql));
+	ASSERT_TRUE(mysql_close(sql));
+	
+	sql = mysql_connect_file();
+	
+	ASSERT_TRUE(mysql_get_charset(dest, .handle = sql));
+	
+	new short_dest[2];
+	ASSERT_FALSE(mysql_get_charset(short_dest, .handle = sql));
+	
+	ASSERT_TRUE(mysql_set_charset("utf8", sql));
+	ASSERT_TRUE(mysql_get_charset(dest, .handle = sql));
+	ASSERT(strcmp(dest, "utf8") == 0);
+	
+	ASSERT_TRUE(mysql_close(sql));
+	return 1;
+}
+
+
+
+
+
+/*
+													
+                                                 
+                       ,d                 ,d     
+                       88                 88     
+           ,adPPYba, MM88MMM ,adPPYYba, MM88MMM  
+           I8[    ""   88    ""     `Y8   88     
+            `"Y8ba,    88    ,adPPPPP88   88     
+           aa    ]8I   88,   88,    ,88   88,    
+           `"YbbdP"'   "Y888 `"8bbdP"Y8   "Y888  
+                                                 
+888888888888                                     
+*/
+
+Test:ConnectionStat()
+{
+	new dest[256];
+	
+	ASSERT_FALSE(mysql_stat(dest, .handle = MYSQL_INVALID_HANDLE));
+	
+	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) != 0);
+	ASSERT_FALSE(mysql_stat(dest, .handle = sql));
+	ASSERT_TRUE(mysql_close(sql));
+	
+	sql = mysql_connect_file();
+	
+	ASSERT_TRUE(mysql_stat(dest, .handle = sql));
+	
+	new short_dest[5];
+	ASSERT_FALSE(mysql_stat(short_dest, .handle = sql));
+	
+	ASSERT_TRUE(mysql_close(sql));
+	return 1;
+}
 
 
 
