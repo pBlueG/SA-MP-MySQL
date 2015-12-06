@@ -16,16 +16,17 @@
 #define Test:%0() forward Test_%0();public Test_%0()
 
 //cruelessly stolen from YSI's y_testing
-#define _Y_TESTEQ(%0) "\"%0\""),0
+#define _Y_TESTEQ(%0) "\"%0\""),_g_Failed=true
 #define _Y_TESTDQ:_Y_TESTEQ(%0"%1"%2) _Y_TESTDQ:_Y_TESTEQ(%0\x22;%1\x22;%2)
 #define _Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0)%1) _Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0\x29;%1)
 #define _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0(%1) _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0\x28;%1)
 
-#define ASSERT(%0) if(!(%0))return printf("ASSERT FAILED: %s", _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0)
+#define ASSERT(%0) if(!(%0))printf("ASSERT FAILED: %s", _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0)
 
 #define ASSERT_TRUE(%0) ASSERT(!!(%0))
 #define ASSERT_FALSE(%0) ASSERT(!(%0))
 
+new bool:_g_Failed = false;
 
 /*
 ########################################################
@@ -388,7 +389,8 @@ public OnGameModeInit()
 	    {
 	        test_counter++;
 	        printf("executing test \"%s\"...", pname);
-	        if(CallLocalFunction(pname, "") == 0)
+	        CallLocalFunction(pname, "");
+	        if(_g_Failed == true)
 	        {
 	            fail_counter++;
 	            printf("failed.\n");
@@ -397,6 +399,7 @@ public OnGameModeInit()
 		 	{
 	            printf("passed!\n");
 		 	}
+		 	_g_Failed = false;
  		}
 	}
 
