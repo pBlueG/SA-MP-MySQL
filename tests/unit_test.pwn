@@ -231,6 +231,71 @@ Test:ConnectionCloseFail()
 
 
 /*
+                                                                                                                                        
+                                                                                                                                    88  
+                                                                                                                                    88  
+                                                                                                                                    88  
+           88       88 8b,dPPYba,  8b,dPPYba,  8b,dPPYba,  ,adPPYba,   ,adPPYba,  ,adPPYba, ,adPPYba, ,adPPYba,  ,adPPYba,  ,adPPYb,88  
+           88       88 88P'   `"8a 88P'    "8a 88P'   "Y8 a8"     "8a a8"     "" a8P_____88 I8[    "" I8[    "" a8P_____88 a8"    `Y88  
+           88       88 88       88 88       d8 88         8b       d8 8b         8PP"""""""  `"Y8ba,   `"Y8ba,  8PP""""""" 8b       88  
+           "8a,   ,a88 88       88 88b,   ,a8" 88         "8a,   ,a8" "8a,   ,aa "8b,   ,aa aa    ]8I aa    ]8I "8b,   ,aa "8a,   ,d88  
+            `"YbbdP'Y8 88       88 88`YbbdP"'  88          `"YbbdP"'   `"Ybbd8"'  `"Ybbd8"' `"YbbdP"' `"YbbdP"'  `"Ybbd8"'  `"8bbdP"Y8  
+                                   88                                                                                                   
+888888888888                       88                                                                                                   
+                                                                                  
+                                                         88                       
+                                                         ""                       
+                                                                                  
+            ,adPPYb,d8 88       88  ,adPPYba, 8b,dPPYba, 88  ,adPPYba, ,adPPYba,  
+           a8"    `Y88 88       88 a8P_____88 88P'   "Y8 88 a8P_____88 I8[    ""  
+           8b       88 88       88 8PP""""""" 88         88 8PP"""""""  `"Y8ba,   
+           "8a    ,d88 "8a,   ,a88 "8b,   ,aa 88         88 "8b,   ,aa aa    ]8I  
+            `"YbbdP'88  `"YbbdP'Y8  `"Ybbd8"' 88         88  `"Ybbd8"' `"YbbdP"'  
+                    88                                                            
+888888888888        88                                                            
+*/
+
+Test:ConnectionUnprocQueries()
+{
+	ASSERT_FALSE(mysql_unprocessed_queries(MYSQL_INVALID_HANDLE));
+	
+	new MySQL:sql = mysql_connect_file();
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) == 0);
+	ASSERT(mysql_unprocessed_queries(sql) == 0);
+	ASSERT_TRUE(mysql_tquery(sql, "SELECT SLEEP(0.5)"));
+	ASSERT(mysql_unprocessed_queries(sql) == 1);
+	
+	new tc = tickcount();
+    while((tickcount() - tc) < 1500)
+    { }
+	
+	ASSERT(mysql_unprocessed_queries(sql) == 0);
+	
+	for(new i; i != 1000; ++i)
+	{
+		if( (i+1) % 3 == 0)
+			mysql_tquery(sql, "SELECT SLEEP(0.01)");
+		else
+			mysql_pquery(sql, "SELECT SLEEP(0.01)");
+	}
+	
+	printf("unproc-queries: %d", mysql_unprocessed_queries(sql));
+	ASSERT(mysql_unprocessed_queries(sql) > 0);
+	
+	tc = tickcount();
+    while((tickcount() - tc) < 15000)
+    { }
+	
+	ASSERT(mysql_unprocessed_queries(sql) == 0);
+	return 1;
+}
+
+
+
+
+
+/*
                                                                  
                        88             88                     88  
                        88             88                     88  
