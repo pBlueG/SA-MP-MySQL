@@ -216,7 +216,7 @@ void CThreadedConnection::WorkerFunc()
 
 			CDispatcher::Get()->Dispatch(std::move(func));
 		}
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
 
 	mysql_thread_end();
@@ -228,7 +228,7 @@ CThreadedConnection::~CThreadedConnection()
 		static_cast<const void *>(this), static_cast<const void *>(&m_Connection));
 
 	while(m_Queue.empty() == false)
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(20));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 
 	m_WorkerThreadActive = false;
 	m_WorkerThread.join();
