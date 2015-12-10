@@ -9,6 +9,7 @@
 #include <list>
 #include <unordered_set>
 #include <tuple>
+#include <cstdarg>
 #include <boost/any.hpp>
 
 using std::string;
@@ -59,9 +60,12 @@ private: //variables
 public: //functions
 	bool Execute();
 
-public: //factory function
+public: //factory functions
 	static Callback_t Create(AMX *amx, string name, string format, 
 		cell *params, cell param_offset, CError<CCallback> &error);
+
+	static Callback_t Create(CError<CCallback> &error, 
+		AMX *amx, string name, string format, ...);
 };
 
 

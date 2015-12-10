@@ -340,6 +340,27 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 		});
 	}
 
+	query->OnError([=](unsigned int errorid, string error)
+	{
+		char
+			*cb_name = nullptr,
+			*query = nullptr;
+
+		amx_GetCString(amx, params[3], cb_name);
+		amx_GetCString(amx, params[2], query);
+
+		CError<CCallback> error_cb_error;
+		//forward OnQueryError(errorid, const error[], const callback[], const query[], MySQL:handle);
+		Callback_t error_cb = CCallback::Create(error_cb_error, amx, "OnQueryError", "dsssd",
+			errorid, error.c_str(), cb_name, query, handle_id);
+
+		if (!error_cb_error)
+			error_cb->Execute();
+
+		free(cb_name);
+		free(query);
+	});
+
 	cell ret_val = handle->Execute(CHandle::ExecutionType::PARALLEL, query);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
@@ -386,6 +407,27 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 			CResultSetManager::Get()->SetActiveResultSet(nullptr);
 		});
 	}
+
+	query->OnError([=](unsigned int errorid, string error)
+	{
+		char
+			*cb_name = nullptr,
+			*query = nullptr;
+
+		amx_GetCString(amx, params[3], cb_name);
+		amx_GetCString(amx, params[2], query);
+
+		CError<CCallback> error_cb_error;
+		//forward OnQueryError(errorid, const error[], const callback[], const query[], MySQL:handle);
+		Callback_t error_cb = CCallback::Create(error_cb_error, amx, "OnQueryError", "dsssd",
+			errorid, error.c_str(), cb_name, query, handle_id);
+		
+		if (!error_cb_error)
+			error_cb->Execute();
+
+		free(cb_name);
+		free(query);
+	});
 
 	cell ret_val = handle->Execute(CHandle::ExecutionType::THREADED, query);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);

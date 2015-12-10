@@ -125,6 +125,72 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 	return std::make_shared<CCallback>(amx, cb_idx, std::move(param_list));
 }
 
+Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, string name, string format, ...)
+{
+	CLog::Get()->Log(LogLevel::DEBUG,
+		"CCallback::Create(amx={}, name='{}', format='{})",
+		static_cast<const void *>(amx), name, format);
+
+	CLog::Get()->Log(LogLevel::INFO, "Setting up callback '{}' for delayed execution...", name);
+	
+	if (amx == nullptr)
+	{
+		error.set(Error::INVALID_AMX, "invalid AMX");
+		return nullptr;
+	}
+
+	if (name.empty())
+	{
+		error.set(Error::EMPTY_NAME, "empty name specified");
+		return nullptr;
+	}
+
+	int cb_idx = -1;
+	if (amx_FindPublic(amx, name.c_str(), &cb_idx) != AMX_ERR_NONE)
+	{
+		error.set(Error::NOT_FOUND, "callback \"{}\" does not exist", name);
+		return nullptr;
+	}
+
+	CLog::Get()->Log(LogLevel::DEBUG, "CCallback::Create - callback index for '{}': {}",
+		name, cb_idx);
+
+
+	ParamList_t param_list(format.length());
+	if (format.empty() == false)
+	{
+		va_list args;
+		va_start(args, format);
+
+		for (auto c = format.begin(); c != format.end(); ++c)
+		{
+			switch (*c)
+			{
+			case 'd': //decimal
+			case 'i': //integer
+			case 'b': //bool
+				param_list.push_front(std::make_tuple('c', va_arg(args, cell)));
+				break;
+			case 'f': //float
+				param_list.push_front(std::make_tuple('c', va_arg(args, float)));
+				break;
+			case 's': //string
+				param_list.push_front(std::make_tuple('s', string(va_arg(args, const char*))));
+				break;
+			default:
+				error.set(Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *c);
+				return nullptr;
+			}
+		}
+
+		va_end(args);
+	}
+
+	CLog::Get()->Log(LogLevel::INFO, "Callback successfully set up.");
+
+	return std::make_shared<CCallback>(amx, cb_idx, std::move(param_list));
+}
+
 
 bool CCallback::Execute()
 {

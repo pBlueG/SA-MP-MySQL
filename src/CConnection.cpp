@@ -201,14 +201,20 @@ void CThreadedConnection::WorkerFunc()
 		Query_t query;
 		while (m_Queue.pop(query))
 		{
+			DispatchFunction_t func;
 			if (m_Connection.Execute(query))
 			{
-				CDispatcher::Get()->Dispatch(std::bind(&CQuery::CallCallback, query));
+				func = std::bind(&CQuery::CallCallback, query);
 			}
 			else
 			{
-				// TODO: OnQueryError callback
+				unsigned int errorid = 0;
+				string error;
+				m_Connection.GetError(errorid, error);
+				func = std::bind(&CQuery::CallErrorCallback, query, errorid, error);
 			}
+
+			CDispatcher::Get()->Dispatch(std::move(func));
 		}
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 	}
