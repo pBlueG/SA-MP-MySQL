@@ -95,6 +95,17 @@ bool CHandle::GetStatus(string &stat)
 	return m_MainConnection->GetStatus(stat);
 }
 
+unsigned int CHandle::GetUnprocessedQueryCount()
+{
+	unsigned int count = 0;
+
+	count += m_ThreadedConnection->GetUnprocessedQueryCount();
+	if (m_ConnectionPool != nullptr)
+		count += m_ConnectionPool->GetUnprocessedQueryCount();
+
+	return count;
+}
+
 
 
 Handle_t CHandleManager::Create(string host, string user, string pass, string db,

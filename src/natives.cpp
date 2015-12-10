@@ -199,7 +199,18 @@ AMX_DECLARE_NATIVE(Native::mysql_close)
 // native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "mysql_unprocessed_queries", "d");
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
+	if (handle == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid connection handle '{}'", handle_id);
+		return 0;
+	}
+
+	cell ret_val = handle->GetUnprocessedQueryCount();
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);

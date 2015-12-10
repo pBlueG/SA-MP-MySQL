@@ -60,17 +60,23 @@ private:
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 65536 >> m_Queue;
 
+	boost::atomic<unsigned int> m_UnprocessedQueries;
+
 private:
 	void WorkerFunc();
 
 public:
 	inline bool Queue(Query_t query)
 	{
-		return m_Queue.push(query);
+		return m_Queue.push(query) && ++m_UnprocessedQueries;
 	}
 	inline bool SetCharset(string charset)
 	{
 		return m_Connection.SetCharset(charset);
+	}
+	inline unsigned int GetUnprocessedQueryCount()
+	{
+		return m_UnprocessedQueries;
 	}
 
 };
@@ -97,5 +103,6 @@ private:
 public:
 	bool Queue(Query_t query);
 	bool SetCharset(string charset);
+	unsigned int GetUnprocessedQueryCount();
 
 };

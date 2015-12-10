@@ -68,6 +68,7 @@ public: //functions
 	bool SetCharacterSet(string charset);
 	bool GetCharacterSet(string &charset);
 	bool GetStatus(string &stat);
+	unsigned int GetUnprocessedQueryCount();
 };
 
 class CHandleManager : public CSingleton<CHandleManager>

@@ -182,6 +182,7 @@ CThreadedConnection::CThreadedConnection(
 	const COptions *options)
 	:
 	m_Connection(host, user, passw, db, options),
+	m_UnprocessedQueries(0),
 	m_WorkerThreadActive(true),
 	m_WorkerThread(std::bind(&CThreadedConnection::WorkerFunc, this))
 {
@@ -215,6 +216,7 @@ void CThreadedConnection::WorkerFunc()
 			}
 
 			CDispatcher::Get()->Dispatch(std::move(func));
+			m_UnprocessedQueries--;
 		}
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
@@ -281,6 +283,23 @@ bool CConnectionPool::SetCharset(string charset)
 	} while ((node = node->Next) != m_CurrentNode);
 
 	return true;
+}
+
+unsigned int CConnectionPool::GetUnprocessedQueryCount()
+{
+	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::GetUnprocessedQueryCount(this={})",
+		static_cast<const void *>(this));
+
+	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
+	SConnectionNode *node = m_CurrentNode;
+
+	unsigned int count = 0;
+	do
+	{
+		count += node->Connection->GetUnprocessedQueryCount();
+	} while ((node = node->Next) != m_CurrentNode);
+
+	return count;
 }
 
 CConnectionPool::~CConnectionPool()
