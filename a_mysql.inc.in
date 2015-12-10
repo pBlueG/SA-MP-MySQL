@@ -156,10 +156,24 @@ native cache_set_result(result_index);
 native cache_get_row(row_idx, field_idx, destination[], max_len = sizeof(destination));
 native cache_get_row_int(row_idx, field_idx);
 native Float:cache_get_row_float(row_idx, field_idx);
+/*
+native bool:cache_get_row_bool(row_idx, field_idx);
+*/
+stock bool:cache_get_row_bool(row_idx, field_idx)
+{
+    return bool:cache_get_row_int(row_idx, field_idx);
+}
 
 native cache_get_field_content(row_idx, const field_name[], destination[], max_len = sizeof(destination));
 native cache_get_field_content_int(row_idx, const field_name[]);
 native Float:cache_get_field_content_float(row_idx, const field_name[]);
+/*
+native bool:cache_get_field_content_bool(row_idx, const field_name[]);
+*/
+stock bool:cache_get_field_content_bool(row_idx, const field_name[])
+{
+    return bool:cache_get_field_content_int(row_idx, field_name);
+}
 
 native Cache:cache_save();
 native cache_delete(Cache:cache_id);
