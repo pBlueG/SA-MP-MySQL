@@ -231,6 +231,42 @@ Test:ConnectionCloseFail()
 
 
 /*
+                                                                 
+                       88             88                     88  
+                       88             88                     88  
+                       88             88                     88  
+            ,adPPYb,d8 88  ,adPPYba,  88,dPPYba,  ,adPPYYba, 88  
+           a8"    `Y88 88 a8"     "8a 88P'    "8a ""     `Y8 88  
+           8b       88 88 8b       d8 88       d8 ,adPPPPP88 88  
+           "8a,   ,d88 88 "8a,   ,a8" 88b,   ,a8" 88,    ,88 88  
+            `"YbbdP"Y8 88  `"YbbdP"'  8Y"Ybbd8"'  `"8bbdP"Y8 88  
+            aa,    ,88                                           
+888888888888 "Y8bbdP"                                            
+                                                                                
+                                          88                                    
+                                    ,d    ""                                    
+                                    88                                          
+            ,adPPYba,  8b,dPPYba, MM88MMM 88  ,adPPYba,  8b,dPPYba,  ,adPPYba,  
+           a8"     "8a 88P'    "8a  88    88 a8"     "8a 88P'   `"8a I8[    ""  
+           8b       d8 88       d8  88    88 8b       d8 88       88  `"Y8ba,   
+           "8a,   ,a8" 88b,   ,a8"  88,   88 "8a,   ,a8" 88       88 aa    ]8I  
+            `"YbbdP"'  88`YbbdP"'   "Y888 88  `"YbbdP"'  88       88 `"YbbdP"'  
+                       88                                                       
+888888888888           88                                                       
+*/
+
+Test:GlobalOptions()
+{
+	ASSERT_FALSE(mysql_global_options(E_MYSQL_GLOBAL_OPTION:54321, 432));
+	ASSERT_TRUE(mysql_global_options(DUPLICATE_CONNECTIONS, false));
+	return 1;
+}
+
+
+
+
+
+/*
                                          
                                          
                                   ,d     
