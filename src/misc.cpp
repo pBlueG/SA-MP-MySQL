@@ -1,4 +1,4 @@
-#pragma warning (disable: 4244) //conversion from `long` to `float`, possible loss of data
+#pragma warning (disable: 4244 4018) //warnings regarding float specialization
 
 #include "misc.hpp"
 
