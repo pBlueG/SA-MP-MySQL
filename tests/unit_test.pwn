@@ -263,12 +263,12 @@ Test:ConnectionUnprocQueries()
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == 0);
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
-	ASSERT_TRUE(mysql_tquery(sql, "SELECT SLEEP(0.5)"));
+	ASSERT_TRUE(mysql_tquery(sql, "SELECT SLEEP(1)"));
 	ASSERT(mysql_unprocessed_queries(sql) == 1);
 	
-	new tc = tickcount();
-    while((tickcount() - tc) < 1500)
-    { }
+	new tc = GetTickCount();
+	while((GetTickCount() - tc) < 1100)
+	{ }
 	
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
 	
@@ -278,9 +278,9 @@ Test:ConnectionUnprocQueries()
 	
 	ASSERT(mysql_unprocessed_queries(sql) == 3);
 	
-	tc = tickcount();
-    while((tickcount() - tc) < 3000)
-    { }
+	tc = GetTickCount();
+	while((GetTickCount() - tc) < 3300)
+	{ }
 	
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
 	return 1;
