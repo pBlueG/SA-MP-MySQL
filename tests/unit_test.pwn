@@ -272,19 +272,14 @@ Test:ConnectionUnprocQueries()
 	
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
 	
-	for(new i; i != 1000; ++i)
-	{
-		if( (i+1) % 3 == 0)
-			mysql_tquery(sql, "SELECT SLEEP(0.01)");
-		else
-			mysql_pquery(sql, "SELECT SLEEP(0.01)");
-	}
+	mysql_tquery(sql, "SELECT SLEEP(3)");
+	mysql_pquery(sql, "SELECT SLEEP(3)");
+	mysql_pquery(sql, "SELECT SLEEP(3)");
 	
-	printf("unproc-queries: %d", mysql_unprocessed_queries(sql));
-	ASSERT(mysql_unprocessed_queries(sql) > 0);
+	ASSERT(mysql_unprocessed_queries(sql) == 3);
 	
 	tc = tickcount();
-    while((tickcount() - tc) < 15000)
+    while((tickcount() - tc) < 3000)
     { }
 	
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
