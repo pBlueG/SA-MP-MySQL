@@ -245,6 +245,8 @@ CConnectionPool::CConnectionPool(
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::(size={}, this={})",
 		size, static_cast<const void *>(this));
 
+	assert(size != 0);
+
 	SConnectionNode
 		*node = m_CurrentNode = new SConnectionNode,
 		*old_node = nullptr;

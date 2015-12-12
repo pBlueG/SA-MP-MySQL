@@ -5,7 +5,6 @@
 
 bool CQuery::Execute(MYSQL *connection)
 {
-	//TODO: error logging
 	if (mysql_real_query(connection, m_Query.c_str(), m_Query.length()) != 0)
 	{
 		CLog::Get()->Log(LogLevel::ERROR, m_DbgInfo, "(error #{}) {}",
