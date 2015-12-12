@@ -245,11 +245,15 @@ CConnectionPool::CConnectionPool(
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::(size={}, this={})",
 		size, static_cast<const void *>(this));
 
-	SConnectionNode *node = m_CurrentNode = new SConnectionNode;
+	SConnectionNode
+		*node = m_CurrentNode = new SConnectionNode,
+		*old_node = nullptr;
+
 	for (size_t i = 0; i != size; ++i)
 	{
-		node->Connection = new CThreadedConnection(host, user, passw, db, options);
-		node->Next = ((i + 1) != size) ? m_CurrentNode : (node = new SConnectionNode);
+		old_node = node;
+		old_node->Connection = new CThreadedConnection(host, user, passw, db, options);
+		old_node->Next = ((i + 1) == size) ? m_CurrentNode : (node = new SConnectionNode);
 	}
 }
 
