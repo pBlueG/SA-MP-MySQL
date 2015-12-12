@@ -172,7 +172,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, string name, st
 				param_list.push_front(std::make_tuple('c', va_arg(args, cell)));
 				break;
 			case 'f': //float
-				param_list.push_front(std::make_tuple('c', va_arg(args, float)));
+				param_list.push_front(std::make_tuple('c', va_arg(args, double)));
 				break;
 			case 's': //string
 				param_list.push_front(std::make_tuple('s', string(va_arg(args, const char*))));
