@@ -5,10 +5,10 @@ env:
     - SAMP_SERVER_ROOT=$TRAVIS_BUILD_DIR/samp03
     - PATH=$TRAVIS_BUILD_DIR/samp-server-cli:$PATH
   matrix:
-    - STATIC_BUILD=ON
-    - STATIC_BUILD=OFF
-    - BUILD_TYPE=Release
-    - BUILD_TYPE=Debug
+    - STATIC_BUILD=ON BUILD_TYPE=Release
+    - STATIC_BUILD=ON BUILD_TYPE=Debug
+    - STATIC_BUILD=OFF BUILD_TYPE=Release
+    - STATIC_BUILD=OFF BUILD_TYPE=Debug
 
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
