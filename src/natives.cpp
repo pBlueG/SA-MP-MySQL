@@ -593,14 +593,18 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 
 	for (; *format_str != '\0'; ++format_str)
 	{
+		bool break_loop = false;
+
 		if ( (output_str - org_output_str) + 1U >= dest_len)
 		{
 			CLog::Get()->LogNative(LogLevel::ERROR, "destination size '{}' is too small", dest_len);
 			break;
 		}
 
-		if ( *(format_str++) == '%')
+		if (*format_str == '%')
 		{
+			++format_str;
+
 			if (*format_str == '%')
 			{
 				*(output_str++) = '%';
@@ -610,7 +614,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 			if (param_counter >= num_dyn_args)
 			{
 				CLog::Get()->LogNative(LogLevel::ERROR, "no value for specifier '%{}' passed", *format_str);
-				continue;
+				break;
 			}
 
 			char width_char = ' ';
@@ -785,9 +789,12 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 			}
 			default:
 				CLog::Get()->LogNative(LogLevel::ERROR, "invalid format specifier '%{}'", *format_str);
-
+				break_loop = true;
 			}
-			param_counter++;
+			if (break_loop)
+				break;
+			else
+				param_counter++;
 		}
 		else
 		{
