@@ -411,6 +411,87 @@ Test:ConnectionErrno()
 
 
 
+/*
+                                                                                
+              ad88                                                              
+             d8"                                                         ,d     
+             88                                                          88     
+           MM88MMM ,adPPYba,  8b,dPPYba, 88,dPYba,,adPYba,  ,adPPYYba, MM88MMM  
+             88   a8"     "8a 88P'   "Y8 88P'   "88"    "8a ""     `Y8   88     
+             88   8b       d8 88         88      88      88 ,adPPPPP88   88     
+             88   "8a,   ,a8" 88         88      88      88 88,    ,88   88,    
+             88    `"YbbdP"'  88         88      88      88 `"8bbdP"Y8   "Y888  
+                                                                                
+888888888888                                                                    
+*/
+
+Test:ConnectionFormat()
+{
+	new dest[512];
+	ASSERT_FALSE(mysql_format(MYSQL_INVALID_HANDLE, dest, sizeof dest, "asdf"));
+	
+	new MySQL:sql = mysql_connect_file();
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) == 0);
+	
+	ASSERT_FALSE(mysql_format(sql, dest, 0, "asdf"));
+	ASSERT_FALSE(mysql_format(sql, dest, sizeof dest, "%d %d", 3));
+	ASSERT_FALSE(mysql_format(sql, dest, sizeof dest, "%j %k", 3, 2));
+	
+	new format_str[512], req_res[512];
+	
+	dest[0] = '\0';
+	format_str = "%%d %d %i %4d %06d";
+	req_res = "%d 1234 -4321   12 000999";
+	printf("int check");
+	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 1234, -4321, 12, 999) == strlen(req_res));
+	ASSERT(strcmp(dest, req_res) == 0);
+	
+	//can't check floats since they're not precise
+	
+	dest[0] = '\0';
+	format_str = "%%s %s %s";
+	req_res = "%s MyString 123456789";
+	printf("string check");
+	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, "MyString", "123456789") == strlen(req_res));
+	ASSERT(strcmp(dest, req_res) == 0);
+	
+	dest[0] = '\0';
+	format_str = "%%e %e %e";
+	req_res = "%e 123 \\\"Some ol\\' \\\\stri\\ng";
+	new escape_param[] = "\"Some ol' \\stri\ng";
+	printf("string escape check");
+	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, "123", escape_param) == strlen(req_res));
+	ASSERT(strcmp(dest, req_res) == 0);
+	
+	dest[0] = '\0';
+	format_str = "%%x %x %x";
+	req_res = "%x beaff ffde4d";
+	printf("hex check");
+	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
+	ASSERT(strcmp(dest, req_res) == 0);
+	
+	dest[0] = '\0';
+	format_str = "%%X %X %X";
+	req_res = "%X BEAFF FFDE4D";
+	printf("hex uppercase check");
+	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
+	ASSERT(strcmp(dest, req_res) == 0);
+	
+	dest[0] = '\0';
+	format_str = "%%b %b %b";
+	req_res = "%b 10111110101011111111 111111111101111001001101";
+	printf("binary check");
+	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
+	ASSERT(strcmp(dest, req_res) == 0);
+	
+	return 1;
+}
+
+
+
+
+
 /*                                                                              
                                                                               
                                                                               
