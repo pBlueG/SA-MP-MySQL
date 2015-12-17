@@ -10,8 +10,8 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libs/cmake")
 
 if(UNIX)
 	#force C++11 flag and 32bit compilation
-	set(CMAKE_CXX_FLAGS "-m32 -std=c++11")
-	set(CMAKE_C_FLAGS "-m32")
+	set(CMAKE_CXX_FLAGS "-m32 -std=c++11 -fvisibility=hidden")
+	set(CMAKE_C_FLAGS "-m32 -fvisibility=hidden")
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
 endif()
 
