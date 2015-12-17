@@ -9,8 +9,6 @@
 #include "COptions.hpp"
 #include "misc.hpp"
 
-using namespace boost::spirit;
-
 
 const string CHandle::ModuleName{ "handle" };
 
