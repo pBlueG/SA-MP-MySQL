@@ -1042,6 +1042,9 @@ AMX_DECLARE_NATIVE(Native::cache_get_row)
 		return 0;
 	}
 
+	if (data == nullptr) //NULL value
+		data = "NULL";
+
 	amx_SetCString(amx, params[3], data, params[4]);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
@@ -1140,6 +1143,9 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 		CLog::Get()->LogNative(LogLevel::ERROR, "field '{}' not found", field_name);
 		return 0;
 	}
+
+	if (data == nullptr) //NULL value
+		data = "NULL";
 
 	amx_SetCppString(amx, params[3], data, params[4]);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
