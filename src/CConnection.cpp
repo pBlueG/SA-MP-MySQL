@@ -215,8 +215,8 @@ void CThreadedConnection::WorkerFunc()
 				func = std::bind(&ISqlStatement::CallErrorCallback, query, errorid, error);
 			}
 
+			--m_UnprocessedQueries;
 			CDispatcher::Get()->Dispatch(std::move(func));
-			m_UnprocessedQueries--;
 		}
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
