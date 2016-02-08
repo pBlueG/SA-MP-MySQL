@@ -139,7 +139,7 @@ Handle_t CHandleManager::Create(string host, string user, string pass, string db
 
 	HandleId_t id = 1;
 	while (m_Handles.find(id) != m_Handles.end())
-		id++;
+		++id;
 
 	Handle_t handle = new CHandle(id);
 	

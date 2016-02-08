@@ -519,7 +519,7 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 			if (comment_pos == string::npos)
 				comment_pos = alt_comment_pos;
 			else
-				comment_pos = (alt_comment_pos < comment_pos) ? alt_comment_pos : comment_pos;
+				comment_pos = std::min(alt_comment_pos, comment_pos);
 		}
 
 		if (comment_pos != string::npos)
