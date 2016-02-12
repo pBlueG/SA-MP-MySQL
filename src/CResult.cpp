@@ -135,7 +135,8 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 				//copy mysql result data to our location
 				mem_data[r] = mem_offset;
 				mem_offset += mem_row_size / sizeof(char **);
-				memcpy(mem_data[r], mysql_row, mem_row_size);
+				size_t copy_size = mysql_row[num_fields] - reinterpret_cast<char *>(mysql_row);
+				memcpy(mem_data[r], mysql_row, copy_size);
 
 				//correct the pointers of the copied mysql result data
 				for (size_t f = 0; f != num_fields; ++f)
