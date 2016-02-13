@@ -112,8 +112,8 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 
 			size_t
 				mem_head_size = sizeof(char **) * static_cast<size_t>(num_rows),
-				mem_row_size = (sizeof(char *) * (num_fields + 1)) + ((row_data_size)* sizeof(char));
-			//+1 because there is another value in memory pointing to somewhere
+				mem_row_size = (sizeof(char *) * (num_fields + 1)) + ((row_data_size) * sizeof(char));
+			//+ 1 because there is another value in memory pointing to behind the last MySQL field
 
 			//mem_row_size has to be a multiple of 8
 			mem_row_size += 8 - (mem_row_size % 8);
@@ -141,11 +141,14 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 				//correct the pointers of the copied mysql result data
 				for (size_t f = 0; f != num_fields; ++f)
 				{
-					if (mysql_row[f] == NULL)
+					if (mysql_row[f] == nullptr)
 						continue;
 					size_t dist = mysql_row[f] - reinterpret_cast<char *>(mysql_row);
 					mem_data[r][f] = reinterpret_cast<char *>(mem_data[r]) + dist;
 				}
+				//useless field we had to copy
+				//set it to nullptr to avoid invalid memory access errors (very unlikely to happen in first place)
+				mem_data[r][num_fields] = nullptr;
 			}
 
 			mysql_free_result(raw_result);
