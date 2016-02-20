@@ -11,7 +11,7 @@ using std::string;
 using std::unordered_map;
 
 #include "types.hpp"
-
+#include "mysql.hpp"
 
 
 class CResult 
@@ -21,7 +21,7 @@ public:
 	struct FieldInfo
 	{
 		string Name;
-		enum enum_field_types Type;
+		enum_field_types Type;
 	};
 
 private: //constructor / destructor
@@ -46,7 +46,7 @@ public: //functions
 	}
 
 	bool GetFieldName(unsigned int idx, string &dest) const;
-	bool GetFieldType(unsigned int idx, enum enum_field_types &dest) const;
+	bool GetFieldType(unsigned int idx, enum_field_types &dest) const;
 	bool GetRowData(unsigned int row, unsigned int fieldidx, const char **dest) const;
 	inline bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const
 	{

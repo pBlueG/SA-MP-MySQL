@@ -7,6 +7,7 @@ using std::string;
 using std::function;
 
 #include "types.hpp"
+#include "mysql.hpp"
 
 
 class ISqlStatement

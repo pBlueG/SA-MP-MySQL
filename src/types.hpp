@@ -5,9 +5,6 @@
 
 using std::shared_ptr;
 
-typedef struct st_mysql MYSQL;
-typedef unsigned long long my_ulonglong;
-
 class CHandle;
 class ISqlStatement;
 class CQuery;

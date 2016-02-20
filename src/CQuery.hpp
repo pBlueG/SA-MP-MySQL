@@ -7,8 +7,9 @@ using std::string;
 using std::function;
 
 #include "CLog.hpp"
-#include "types.hpp"
 #include "ISqlStatement.hpp"
+#include "types.hpp"
+#include "mysql.hpp"
 
 
 
