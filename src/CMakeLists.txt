@@ -47,6 +47,10 @@ add_samp_plugin(mysql
 	COptions.hpp
 	COrm.cpp
 	COrm.hpp
+	CPawnPreparedStmt.cpp
+	CPawnPreparedStmt.hpp
+	CPreparedStmt.cpp
+	CPreparedStmt.hpp
 	CQuery.cpp
 	CQuery.hpp
 	CResult.cpp

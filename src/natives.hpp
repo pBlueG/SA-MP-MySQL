@@ -33,6 +33,11 @@ namespace Native
 	AMX_DECLARE_NATIVE(orm_setkey);
 
 
+	//Prepared statement natives
+	AMX_DECLARE_NATIVE(mysql_stmt_create);
+	AMX_DECLARE_NATIVE(mysql_stmt_bind_int);
+
+
 	//MySQL natives
 	AMX_DECLARE_NATIVE(mysql_log);
 	AMX_DECLARE_NATIVE(mysql_connect);

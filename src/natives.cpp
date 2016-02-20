@@ -4,6 +4,7 @@
 #include "CCallback.hpp"
 #include "CResult.hpp"
 #include "COptions.hpp"
+#include "CPawnPreparedStmt.hpp"
 #include "CLog.hpp"
 #include "misc.hpp"
 
@@ -92,6 +93,51 @@ AMX_DECLARE_NATIVE(Native::orm_delvar)
 AMX_DECLARE_NATIVE(Native::orm_setkey)
 {
 	return 0;
+}
+
+
+
+// native Stmt:mysql_stmt_create(MySQL:handle, const query[]);
+AMX_DECLARE_NATIVE(Native::mysql_stmt_create)
+{
+	CScopedDebugInfo dbg_info(amx, "mysql_stmt_create", "ds");
+	const auto handle_id = static_cast<HandleId_t>(params[1]);
+	if (CHandleManager::Get()->IsValidHandle(handle_id) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid connection handle '{}'", handle_id);
+		return 0;
+	}
+
+	auto stmt = CPawnPrepStmtManager::Get()->Create(handle_id, amx_GetCppString(amx, params[2]));
+
+	cell ret_val = stmt->GetId();
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
+}
+
+// native mysql_stmt_bind_int(Stmt:statement, field_idx, &int_var);
+AMX_DECLARE_NATIVE(Native::mysql_stmt_bind_int)
+{
+	CScopedDebugInfo dbg_info(amx, "mysql_stmt_bind_int", "ddr");
+	const auto stmt_id = static_cast<PawnPrepStmtId_t>(params[1]);
+	PawnPrepStmt_t stmt = CPawnPrepStmtManager::Get()->GetStatement(stmt_id);
+	if (stmt == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid prepared statement id '{}'", stmt_id);
+		return 0;
+	}
+
+	cell *int_var_addr = nullptr;
+	if (amx_GetAddr(amx, params[3], &int_var_addr) != AMX_ERR_NONE || int_var_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
+	stmt->BindParam(params[2], CPawnPreparedStmt::ParamType::INT, int_var_addr);
+	
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 
