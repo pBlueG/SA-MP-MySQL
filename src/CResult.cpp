@@ -13,9 +13,19 @@ CResult::~CResult()
 
 bool CResult::GetFieldName(unsigned int idx, string &dest) const
 {
-	if (idx < m_Fields)
+	if (idx < m_NumFields)
 	{
-		dest = m_FieldNames.at(idx);
+		dest = m_Fields.at(idx).Name;
+		return true;
+	}
+	return false;
+}
+
+bool CResult::GetFieldType(unsigned int idx, enum_field_types &dest) const
+{
+	if (idx < m_NumFields)
+	{
+		dest = m_Fields.at(idx).Type;
 		return true;
 	}
 	return false;
@@ -23,7 +33,7 @@ bool CResult::GetFieldName(unsigned int idx, string &dest) const
 
 bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, const char **dest) const
 {
-	if (row < m_Rows && fieldidx < m_Fields)
+	if (row < m_NumRows && fieldidx < m_NumFields)
 	{
 		*dest = m_Data[row][fieldidx];
 		return true;
@@ -33,16 +43,16 @@ bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, const char **d
 
 bool CResult::GetRowDataByName(unsigned int row, const string &field, const char **dest) const
 {
-	if(row >= m_Rows)
+	if(row >= m_NumRows)
 		return false;
 	
 	if (field.empty())
 		return false;
 	
 
-	for (unsigned int i = 0; i != m_Fields; ++i)
+	for (unsigned int i = 0; i != m_NumFields; ++i)
 	{
-		if (m_FieldNames.at(i).compare(field) == 0)
+		if (m_Fields.at(i).Name.compare(field) == 0)
 		{
 			*dest = m_Data[row][i];
 			return true;
@@ -96,16 +106,16 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 			MYSQL_FIELD *mysql_field;
 			MYSQL_ROW mysql_row;
 
-			const my_ulonglong num_rows = result->m_Rows = mysql_num_rows(raw_result);
-			const unsigned int num_fields = result->m_Fields = mysql_num_fields(raw_result);
+			const my_ulonglong num_rows = result->m_NumRows = mysql_num_rows(raw_result);
+			const unsigned int num_fields = result->m_NumFields = mysql_num_fields(raw_result);
 
-			result->m_FieldNames.reserve(num_fields + 1);
+			result->m_Fields.reserve(num_fields + 1);
 
 
 			size_t row_data_size = 0;
 			while ((mysql_field = mysql_fetch_field(raw_result)))
 			{
-				result->m_FieldNames.push_back(mysql_field->name);
+				result->m_Fields.push_back({ mysql_field->name, mysql_field->type });
 				row_data_size += mysql_field->max_length + 1;
 			}
 

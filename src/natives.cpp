@@ -1008,6 +1008,29 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 	return 1;
 }
 
+// native E_MYSQL_FIELD_TYPE:cache_get_field_type(field_index);
+AMX_DECLARE_NATIVE(Native::cache_get_field_type)
+{
+	CScopedDebugInfo dbg_info(amx, "cache_get_field_type", "d");
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+		return 0;
+	}
+
+	enum_field_types type;
+	if (resultset->GetActiveResult()->GetFieldType(params[1], type) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid index '{}'", params[1]);
+		return 0;
+	}
+
+	cell ret_val = type;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
+}
+
 // native cache_set_result(result_index);
 AMX_DECLARE_NATIVE(Native::cache_set_result)
 {

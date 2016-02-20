@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <functional>
+#include <binary_log_types.h>
 
 using std::shared_ptr;
 

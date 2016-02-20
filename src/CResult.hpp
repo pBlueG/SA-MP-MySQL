@@ -17,28 +17,36 @@ using std::unordered_map;
 class CResult 
 {
 	friend class CResultSet;
+public:
+	struct FieldInfo
+	{
+		string Name;
+		enum_field_types Type;
+	};
+
 private: //constructor / destructor
 	CResult() = default;
 	~CResult();
 
 private: //variables
-	unsigned int m_Fields = 0;
-	my_ulonglong m_Rows = 0;
+	unsigned int m_NumFields = 0;
+	my_ulonglong m_NumRows = 0;
 
 	char ***m_Data = nullptr;
-	vector<string> m_FieldNames;
+	vector<FieldInfo> m_Fields;
 
 public: //functions
 	inline my_ulonglong GetRowCount() const 
 	{
-		return m_Rows;
+		return m_NumRows;
 	}
 	inline unsigned int GetFieldCount() const 
 	{
-		return m_Fields;
+		return m_NumFields;
 	}
 
 	bool GetFieldName(unsigned int idx, string &dest) const;
+	bool GetFieldType(unsigned int idx, enum_field_types &dest) const;
 	bool GetRowData(unsigned int row, unsigned int fieldidx, const char **dest) const;
 	inline bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const
 	{

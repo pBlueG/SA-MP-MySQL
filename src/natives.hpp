@@ -63,6 +63,7 @@ namespace Native
 	AMX_DECLARE_NATIVE(cache_get_field_count);
 	AMX_DECLARE_NATIVE(cache_get_result_count);
 	AMX_DECLARE_NATIVE(cache_get_field_name);
+	AMX_DECLARE_NATIVE(cache_get_field_type);
 	AMX_DECLARE_NATIVE(cache_set_result);
 
 	AMX_DECLARE_NATIVE(cache_get_row);
