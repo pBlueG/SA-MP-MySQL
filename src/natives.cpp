@@ -985,7 +985,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_result_count)
 	return ret_val;
 }
 
-// native cache_get_field_name(field_index, destination[], max_len = sizeof(destination))
+// native cache_get_field_name(field_index, destination[], max_len = sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_get_field_name", "drd");
