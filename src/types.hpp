@@ -2,12 +2,12 @@
 
 #include <memory>
 #include <functional>
-#include <binary_log_types.h>
 
 using std::shared_ptr;
 
 typedef struct st_mysql MYSQL;
 typedef unsigned long long my_ulonglong;
+enum enum_field_types;
 
 class CHandle;
 class ISqlStatement;
