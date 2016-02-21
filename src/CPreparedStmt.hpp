@@ -1,11 +1,11 @@
 #pragma once
 
-#include "mysql.hpp"
 #include <memory>
 #include <vector>
 #include <boost/any.hpp>
-#include "types.hpp"
 #include "ISqlStatement.hpp"
+#include "types.hpp"
+#include "mysql.hpp"
 
 
 class CPreparedStmt : public ISqlStatement
