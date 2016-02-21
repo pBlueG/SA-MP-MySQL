@@ -115,13 +115,13 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(cache_get_field_type)
 	AMX_DEFINE_NATIVE(cache_set_result)
 
-	AMX_DEFINE_NATIVE(cache_get_row)
-	AMX_DEFINE_NATIVE(cache_get_row_int)
-	AMX_DEFINE_NATIVE(cache_get_row_float)
+	AMX_DEFINE_NATIVE(cache_get_value_index)
+	AMX_DEFINE_NATIVE(cache_get_value_index_int)
+	AMX_DEFINE_NATIVE(cache_get_value_index_float)
 
-	AMX_DEFINE_NATIVE(cache_get_field_content)
-	AMX_DEFINE_NATIVE(cache_get_field_content_int)
-	AMX_DEFINE_NATIVE(cache_get_field_content_float)
+	AMX_DEFINE_NATIVE(cache_get_value_name)
+	AMX_DEFINE_NATIVE(cache_get_value_name_int)
+	AMX_DEFINE_NATIVE(cache_get_value_name_float)
 
 	AMX_DEFINE_NATIVE(cache_save)
 	AMX_DEFINE_NATIVE(cache_delete)

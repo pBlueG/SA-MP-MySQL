@@ -1094,10 +1094,10 @@ AMX_DECLARE_NATIVE(Native::cache_set_result)
 }
 
 
-// native cache_get_row(row_idx, field_idx, destination[], max_len=sizeof(destination));
-AMX_DECLARE_NATIVE(Native::cache_get_row)
+// native cache_get_value_index(row_idx, column_idx, destination[], max_len=sizeof(destination));
+AMX_DECLARE_NATIVE(Native::cache_get_value_index)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_row", "ddrd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index", "ddrd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1121,10 +1121,10 @@ AMX_DECLARE_NATIVE(Native::cache_get_row)
 	return 1;
 }
 
-// native cache_get_row_int(row_idx, field_idx);
-AMX_DECLARE_NATIVE(Native::cache_get_row_int)
+// native cache_get_value_index_int(row_idx, column_idx);
+AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_row_int", "dd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_int", "dd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1151,10 +1151,10 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_int)
 	return data_int;
 }
 
-// native Float:cache_get_row_float(row_idx, field_idx);
-AMX_DECLARE_NATIVE(Native::cache_get_row_float)
+// native Float:cache_get_value_index_float(row_idx, column_idx);
+AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_row_float", "dd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_float", "dd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1181,10 +1181,10 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_float)
 	return amx_ftoc(data_float);
 }
 
-// native cache_get_field_content(row_idx, const field_name[], destination[], max_len=sizeof(destination));
-AMX_DECLARE_NATIVE(Native::cache_get_field_content)
+// native cache_get_value_name(row_idx, const column_name[], destination[], max_len=sizeof(destination));
+AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_field_content", "dsrd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name", "dsrd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1223,10 +1223,10 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content)
 	return 1;
 }
 
-// native cache_get_field_content_int(row_idx, const field_name[]);
-AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
+// native cache_get_value_name_int(row_idx, const column_name[]);
+AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_field_content_int", "ds");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_int", "ds");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1268,10 +1268,10 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_content_int)
 	return data_int;
 }
 
-// native Float:cache_get_field_content_float(row_idx, const field_name[]);
-AMX_DECLARE_NATIVE(Native::cache_get_field_content_float)
+// native Float:cache_get_value_name_float(row_idx, const column_name[]);
+AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_field_content_float", "ds");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_float", "ds");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
