@@ -204,6 +204,7 @@ stock bool:cache_get_value_index_bool(row_idx, column_idx)
 {
     return bool:cache_get_value_index_int(row_idx, column_idx);
 }
+native bool:cache_is_value_index_null(row_idx, column_idx);
 
 native cache_get_value_name(row_idx, const column_name[], destination[], max_len = sizeof(destination));
 native cache_get_value_name_int(row_idx, const column_name[]);
@@ -215,6 +216,7 @@ stock bool:cache_get_value_name_bool(row_idx, const column_name[])
 {
     return bool:cache_get_value_name_int(row_idx, column_name);
 }
+native bool:cache_is_value_name_null(row_idx, const column_name[]);
 
 native Cache:cache_save();
 native cache_delete(Cache:cache_id);

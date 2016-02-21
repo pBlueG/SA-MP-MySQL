@@ -1181,6 +1181,30 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 	return amx_ftoc(data_float);
 }
 
+// native bool:cache_is_value_index_null(row_idx, column_idx);
+AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
+{
+	CScopedDebugInfo dbg_info(amx, "cache_is_value_index_null", "dd");
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+		return 0;
+	}
+
+	const char *data = nullptr;
+	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+			"invalid row ('{}') or field ('{}') index", params[1], params[2]);
+		return 0;
+	}
+
+	cell ret_val = (data == nullptr);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
+}
+
 // native cache_get_value_name(row_idx, const column_name[], destination[], max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 {
@@ -1311,6 +1335,45 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", data_float);
 	return amx_ftoc(data_float);
+}
+
+// native bool:cache_is_value_name_null(row_idx, const column_name[]);
+AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
+{
+	CScopedDebugInfo dbg_info(amx, "cache_is_value_name_null", "ds");
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+		return 0;
+	}
+
+	const string field_name = amx_GetCppString(amx, params[2]);
+	if (field_name.empty())
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "empty field name");
+		return 0;
+	}
+
+	auto result = resultset->GetActiveResult();
+	const cell &row_idx = params[1];
+	if (row_idx >= result->GetRowCount())
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+			"invalid row index '{}' (number of rows: '{}')", row_idx, result->GetRowCount());
+		return 0;
+	}
+
+	const char *data = nullptr;
+	if (result->GetRowDataByName(row_idx, field_name, &data) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "field '{}' not found", field_name);
+		return 0;
+	}
+
+	cell ret_val = (data == nullptr);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native Cache:cache_save();

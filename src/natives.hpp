@@ -74,10 +74,12 @@ namespace Native
 	AMX_DECLARE_NATIVE(cache_get_value_index);
 	AMX_DECLARE_NATIVE(cache_get_value_index_int);
 	AMX_DECLARE_NATIVE(cache_get_value_index_float);
+	AMX_DECLARE_NATIVE(cache_is_value_index_null);
 	
 	AMX_DECLARE_NATIVE(cache_get_value_name);
 	AMX_DECLARE_NATIVE(cache_get_value_name_int);
 	AMX_DECLARE_NATIVE(cache_get_value_name_float);
+	AMX_DECLARE_NATIVE(cache_is_value_name_null);
 
 	AMX_DECLARE_NATIVE(cache_save);
 	AMX_DECLARE_NATIVE(cache_delete);
