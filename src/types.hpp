@@ -8,8 +8,6 @@ using std::shared_ptr;
 class CHandle;
 class ISqlStatement;
 class CQuery;
-class CPreparedStmt;
-class CPawnPreparedStmt;
 class CCallback;
 class CResultSet;
 class COptions;
@@ -20,9 +18,6 @@ using HandleId_t = unsigned int;
 
 using ISqlStmt_t = shared_ptr<ISqlStatement>;
 using Query_t = shared_ptr<CQuery>;
-using PrepStmt_t = shared_ptr<CPreparedStmt>;
-using PawnPrepStmt_t = shared_ptr<CPawnPreparedStmt>;
-using PawnPrepStmtId_t = unsigned int;
 
 using Callback_t = shared_ptr<CCallback>;
 

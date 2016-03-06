@@ -80,10 +80,6 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(orm_setkey)
 
 
-	AMX_DEFINE_NATIVE(mysql_stmt_create)
-	AMX_DEFINE_NATIVE(mysql_stmt_bind_int)
-
-
 	AMX_DEFINE_NATIVE(mysql_log)
 	AMX_DEFINE_NATIVE(mysql_connect)
 	AMX_DEFINE_NATIVE(mysql_connect_file)

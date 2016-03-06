@@ -149,11 +149,6 @@ native orm_delvar(ORM:id, varname[]);
 native orm_setkey(ORM:id, varname[]);
 
 
-// Prepared statement functions
-native Stmt:mysql_stmt_create(MySQL:handle, const query[]);
-native mysql_stmt_bind_int(Stmt:statement, field_idx, &int_var);
-
-
 // MySQL functions
 native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
 native MySQL:mysql_connect(const host[], const user[], const password[], const database[], MySQLOpt:option_id = MySQLOpt:0);
