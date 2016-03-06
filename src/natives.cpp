@@ -372,8 +372,7 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 		free(query);
 	});
 
-	cell ret_val = handle->Execute(CHandle::ExecutionType::PARALLEL, 
-		std::static_pointer_cast<ISqlStatement>(query));
+	cell ret_val = handle->Execute(CHandle::ExecutionType::PARALLEL, query);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -441,8 +440,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		free(query);
 	});
 
-	cell ret_val = handle->Execute(CHandle::ExecutionType::THREADED, 
-		std::static_pointer_cast<ISqlStatement>(query));
+	cell ret_val = handle->Execute(CHandle::ExecutionType::THREADED, query);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }

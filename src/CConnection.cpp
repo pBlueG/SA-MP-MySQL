@@ -132,7 +132,7 @@ bool CConnection::GetCharset(string &charset)
 	return true;
 }
 
-bool CConnection::Execute(ISqlStmt_t query)
+bool CConnection::Execute(Query_t query)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnection::Execute(query={}, this={}, connection={})",
 		static_cast<const void *>(query.get()), static_cast<const void *>(this), 
@@ -199,20 +199,20 @@ void CThreadedConnection::WorkerFunc()
 
 	while (m_WorkerThreadActive)
 	{
-		ISqlStmt_t query;
+		Query_t query;
 		while (m_Queue.pop(query))
 		{
 			DispatchFunction_t func;
 			if (m_Connection.Execute(query))
 			{
-				func = std::bind(&ISqlStatement::CallCallback, query);
+				func = std::bind(&CQuery::CallCallback, query);
 			}
 			else
 			{
 				unsigned int errorid = 0;
 				string error;
 				m_Connection.GetError(errorid, error);
-				func = std::bind(&ISqlStatement::CallErrorCallback, query, errorid, error);
+				func = std::bind(&CQuery::CallErrorCallback, query, errorid, error);
 			}
 
 			--m_UnprocessedQueries;
@@ -259,7 +259,7 @@ CConnectionPool::CConnectionPool(
 	}
 }
 
-bool CConnectionPool::Queue(ISqlStmt_t query)
+bool CConnectionPool::Queue(Query_t query)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::Queue(query={}, this={})",
 		static_cast<const void *>(query.get()), static_cast<const void *>(this));

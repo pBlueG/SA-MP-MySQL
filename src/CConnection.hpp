@@ -10,7 +10,6 @@
 using std::string;
 
 #include "types.hpp"
-#include "ISqlStatement.hpp"
 
 
 class CConnection
@@ -36,7 +35,7 @@ public: //functions
 	bool EscapeString(const char *src, string &dest);
 	bool SetCharset(string charset);
 	bool GetCharset(string &charset);
-	bool Execute(ISqlStmt_t query);
+	bool Execute(Query_t query);
 	bool GetError(unsigned int &id, string &msg);
 	bool GetStatus(string &stat);
 
@@ -57,7 +56,7 @@ private:
 	boost::thread m_WorkerThread;
 	boost::atomic<bool> m_WorkerThreadActive;
 
-	boost::lockfree::spsc_queue <ISqlStmt_t,
+	boost::lockfree::spsc_queue < Query_t,
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 65536 >> m_Queue;
 
@@ -67,7 +66,7 @@ private:
 	void WorkerFunc();
 
 public:
-	inline bool Queue(ISqlStmt_t query)
+	inline bool Queue(Query_t query)
 	{
 		return m_Queue.push(query) && ++m_UnprocessedQueries;
 	}
@@ -102,7 +101,7 @@ private:
 	boost::mutex m_PoolMutex;
 
 public:
-	bool Queue(ISqlStmt_t query);
+	bool Queue(Query_t query);
 	bool SetCharset(string charset);
 	unsigned int GetUnprocessedQueryCount();
 

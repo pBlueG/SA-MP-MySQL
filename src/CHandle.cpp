@@ -25,7 +25,7 @@ CHandle::~CHandle()
 		delete m_ConnectionPool;
 }
 
-bool CHandle::Execute(ExecutionType type, ISqlStmt_t query)
+bool CHandle::Execute(ExecutionType type, Query_t query)
 {
 	bool return_val = false;
 	if (query)

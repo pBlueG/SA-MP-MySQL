@@ -6,7 +6,6 @@
 using std::shared_ptr;
 
 class CHandle;
-class ISqlStatement;
 class CQuery;
 class CCallback;
 class CResultSet;
@@ -16,7 +15,6 @@ class COptions;
 using Handle_t = CHandle *;
 using HandleId_t = unsigned int;
 
-using ISqlStmt_t = shared_ptr<ISqlStatement>;
 using Query_t = shared_ptr<CQuery>;
 
 using Callback_t = shared_ptr<CCallback>;

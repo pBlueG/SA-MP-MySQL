@@ -62,7 +62,7 @@ public: //functions
 		return m_Id;
 	}
 
-	bool Execute(ExecutionType type, ISqlStmt_t query);
+	bool Execute(ExecutionType type, Query_t query);
 	bool GetErrorId(unsigned int &errorid);
 	bool EscapeString(const string &src, string &dest);
 	bool SetCharacterSet(string charset);

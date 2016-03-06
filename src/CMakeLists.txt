@@ -54,7 +54,6 @@ add_samp_plugin(mysql
 	natives.cpp
 	natives.hpp
 	CSingleton.hpp
-	ISqlStatement.hpp
 	main.cpp
 	misc.hpp
 	mysql.hpp
