@@ -316,38 +316,41 @@ AMX_DECLARE_NATIVE(Native::mysql_set_option)
 	return ret_val;
 }
 
-// native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
-AMX_DECLARE_NATIVE(Native::mysql_pquery)
+static bool SendQueryWithCallback(AMX *amx, cell *params, CHandle::ExecutionType query_type)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_pquery", "dsss");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 
 	if (handle == nullptr)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "invalid connection handle '{}'", handle_id);
-		return 0;
+		return false;
 	}
+
+	string
+		callback_str = amx_GetCppString(amx, params[3]),
+		format_str = amx_GetCppString(amx, params[4]);
 
 	CError<CCallback> callback_error;
 	Callback_t callback = CCallback::Create(
 		amx,
-		amx_GetCppString(amx, params[3]),
-		amx_GetCppString(amx, params[4]),
+		callback_str.c_str(),
+		format_str.c_str(),
 		params, 5,
 		callback_error);
 
 	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
 	{
 		CLog::Get()->LogNative(callback_error);
-		return 0;
+		return nullptr;
 	}
 
 
-	Query_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
+	string query_str = amx_GetCppString(amx, params[2]);
+	Query_t query = CQuery::Create(query_str);
 	if (callback != nullptr)
 	{
-		query->OnExecutionFinished([=](ResultSet_t resultset)
+		query->OnExecutionFinished([callback](ResultSet_t resultset)
 		{
 			CResultSetManager::Get()->SetActiveResultSet(resultset);
 
@@ -358,28 +361,27 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 		});
 	}
 
-	query->OnError([=](unsigned int errorid, string error)
+	query->OnError([amx, handle_id, callback_str, query_str](unsigned int errorid, string error)
 	{
-		char
-			*cb_name = nullptr,
-			*query = nullptr;
-
-		amx_GetCString(amx, params[3], cb_name);
-		amx_GetCString(amx, params[2], query);
-
 		CError<CCallback> error_cb_error;
 		//forward OnQueryError(errorid, const error[], const callback[], const query[], MySQL:handle);
 		Callback_t error_cb = CCallback::Create(error_cb_error, amx, "OnQueryError", "dsssd",
-			errorid, error.c_str(), cb_name, query, handle_id);
+			errorid, error.c_str(), callback_str.c_str(), query_str.c_str(), handle_id);
 
 		if (!error_cb_error)
 			error_cb->Execute();
-
-		free(cb_name);
-		free(query);
 	});
 
-	cell ret_val = handle->Execute(CHandle::ExecutionType::PARALLEL, query);
+	return handle->Execute(query_type, query);
+}
+
+// native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
+AMX_DECLARE_NATIVE(Native::mysql_pquery)
+{
+	CScopedDebugInfo dbg_info(amx, "mysql_pquery", "dsss");
+	
+	cell ret_val = SendQueryWithCallback(amx, params, CHandle::ExecutionType::PARALLEL);
+
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -388,66 +390,9 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
 	CScopedDebugInfo dbg_info(amx, "mysql_tquery", "dsss");
-	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
-	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
-
-	if (handle == nullptr)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "invalid connection handle '{}'", handle_id);
-		return 0;
-	}
-
-	CError<CCallback> callback_error;
-	Callback_t callback = CCallback::Create(
-		amx, 
-		amx_GetCppString(amx, params[3]),
-		amx_GetCppString(amx, params[4]),
-		params, 5,
-		callback_error);
-
-	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
-	{
-		CLog::Get()->LogNative(callback_error);
-		return 0;
-	}
 	
+	cell ret_val = SendQueryWithCallback(amx, params, CHandle::ExecutionType::THREADED);
 
-	Query_t query = CQuery::Create(amx_GetCppString(amx, params[2]));
-	if (callback != nullptr)
-	{
-		query->OnExecutionFinished([=](ResultSet_t resultset)
-		{
-			CResultSetManager::Get()->SetActiveResultSet(resultset);
-
-			callback->Execute();
-
-			//unset active result(cache) + delete result (done by shared_ptr)
-			CResultSetManager::Get()->SetActiveResultSet(nullptr);
-		});
-	}
-
-	query->OnError([=](unsigned int errorid, string error)
-	{
-		char
-			*cb_name = nullptr,
-			*query = nullptr;
-
-		amx_GetCString(amx, params[3], cb_name);
-		amx_GetCString(amx, params[2], query);
-
-		CError<CCallback> error_cb_error;
-		//forward OnQueryError(errorid, const error[], const callback[], const query[], MySQL:handle);
-		Callback_t error_cb = CCallback::Create(error_cb_error, amx, "OnQueryError", "dsssd",
-			errorid, error.c_str(), cb_name, query, handle_id);
-		
-		if (!error_cb_error)
-			error_cb->Execute();
-
-		free(cb_name);
-		free(query);
-	});
-
-	cell ret_val = handle->Execute(CHandle::ExecutionType::THREADED, query);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
