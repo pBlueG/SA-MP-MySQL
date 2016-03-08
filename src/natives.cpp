@@ -166,7 +166,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect_file)
 	string file_name = amx_GetCppString(amx, params[1]);
 	if (file_name.find_first_of("/\\") != string::npos) //no directory seperators allowed
 	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "file \"{}\" not in SA - MP root folder", file_name);
+		CLog::Get()->LogNative(LogLevel::ERROR, "file \"{}\" not in SA-MP root folder", file_name);
 		return 0;
 	}
 
