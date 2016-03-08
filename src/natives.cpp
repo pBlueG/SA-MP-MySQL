@@ -1045,7 +1045,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 	}
 
 	cell data_int = 0;
-	if (ConvertStrToData<cell>(data, data_int) == false) //TODO: make ConvertStrToData accept C-strings?
+	if (ConvertStrToData<cell>(data, data_int) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;
@@ -1075,7 +1075,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 	}
 
 	float data_float = 0.0f;
-	if (ConvertStrToData<float>(data, data_float) == false) //TODO: make ConvertStrToData accept C-strings?
+	if (ConvertStrToData<float>(data, data_float) == false) 
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;
@@ -1186,7 +1186,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 	}
 
 	cell data_int = 0;
-	if (ConvertStrToData<cell>(data, data_int) == false) //TODO: make ConvertStrToData accept C-strings?
+	if (ConvertStrToData<cell>(data, data_int) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;
@@ -1231,7 +1231,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 	}
 
 	float data_float = 0.0f;
-	if (ConvertStrToData<float>(data, data_float) == false) //TODO: make ConvertStrToData accept C-strings?
+	if (ConvertStrToData<float>(data, data_float) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", data);
 		return 0;

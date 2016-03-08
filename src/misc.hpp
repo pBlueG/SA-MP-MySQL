@@ -26,6 +26,18 @@ bool ConvertStrToData(const string &src, T &dest)
 		dest);
 }
 
+template<typename T>
+bool ConvertStrToData(const char *src, T &dest)
+{
+	return qi::parse(src, src + strlen(src),
+		typename std::conditional<
+			std::is_floating_point<T>::value,
+				qi::real_parser<T>,
+				qi::int_parser<T>
+		>::type(),
+		dest);
+}
+
 
 template<typename T, unsigned int B = 10U>
 bool ConvertDataToStr(T src, string &dest)
