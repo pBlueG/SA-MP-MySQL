@@ -106,25 +106,27 @@ unsigned int CHandle::GetUnprocessedQueryCount()
 
 
 
-Handle_t CHandleManager::Create(string host, string user, string pass, string db,
-	const COptions *options, CError<CHandle> &error)
+Handle_t CHandleManager::Create(const char *host, const char *user, 
+	const char *pass, const char *db, const COptions *options, CError<CHandle> &error)
 {
-	if (host.empty())
+	if (host == nullptr || strlen(host) == 0)
 	{
 		error.set(CHandle::Error::EMPTY_HOST, "no hostname specified");
 		return nullptr;
 	}
 
-	if (user.empty())
+	if (user == nullptr || strlen(user) == 0)
 	{
 		error.set(CHandle::Error::EMPTY_USER, "no username specified");
 		return nullptr;
 	}
 
-	if (pass.empty())
+	if (pass == nullptr)
+		pass = "";
+	if (strlen(pass) == 0)
 		CLog::Get()->LogNative(LogLevel::WARNING, "no password specified");
 
-	if (db.empty())
+	if (db == nullptr || strlen(db) == 0)
 	{
 		error.set(CHandle::Error::EMPTY_DATABASE, "no database specified");
 		return nullptr;
@@ -270,7 +272,7 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 		}
 	}
 
-	return Create(hostname, username, password, database, options, error);
+	return Create(hostname.c_str(), username.c_str(), password.c_str(), database.c_str(), options, error);
 }
 
 bool CHandleManager::Destroy(Handle_t &handle)

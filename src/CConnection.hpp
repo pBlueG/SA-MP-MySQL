@@ -16,7 +16,7 @@ class CConnection
 {
 public: //constructor / deconstructor
 	CConnection(
-		const string &host, const string &user, const string &passw, const string &db,
+		const char *host, const char *user, const char *passw, const char *db,
 		const COptions *options);
 	~CConnection();
 	CConnection(const CConnection &rhs) = delete;
@@ -45,7 +45,7 @@ class CThreadedConnection
 {
 public:
 	CThreadedConnection(
-		const string &host, const string &user, const string &passw, const string &db,
+		const char *host, const char *user, const char *passw, const char *db,
 		const COptions *options);
 	~CThreadedConnection();
 	CThreadedConnection(const CThreadedConnection &rhs) = delete;
@@ -85,7 +85,7 @@ class CConnectionPool
 {
 public:
 	CConnectionPool(
-		const size_t size, const string &host, const string &user, const string &passw, const string &db,
+		const size_t size, const char *host, const char *user, const char *passw, const char *db,
 		const COptions *options);
 	~CConnectionPool();
 	CConnectionPool(const CConnectionPool &rhs) = delete;

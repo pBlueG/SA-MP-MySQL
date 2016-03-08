@@ -130,14 +130,21 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 		return 0;
 	}
 
+	const char
+		*host_str = nullptr,
+		*user_str = nullptr,
+		*passwd_str = nullptr,
+		*db_str = nullptr;
+
+	amx_StrParam(amx, params[1], host_str);
+	amx_StrParam(amx, params[2], user_str);
+	amx_StrParam(amx, params[3], passwd_str);
+	amx_StrParam(amx, params[4], db_str);
+
 	CError<CHandle> handle_error;
 	Handle_t handle = CHandleManager::Get()->Create(
-		amx_GetCppString(amx, params[1]),
-		amx_GetCppString(amx, params[2]),
-		amx_GetCppString(amx, params[3]),
-		amx_GetCppString(amx, params[4]),
-		options,
-		handle_error);
+		host_str, user_str, passwd_str, db_str,
+		options, handle_error);
 
 	if (handle_error)
 	{

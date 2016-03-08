@@ -7,7 +7,7 @@
 const string CCallback::ModuleName{ "callback" };
 
 
-Callback_t CCallback::Create(AMX *amx, string name, string format, 
+Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 	cell *params, cell param_offset, CError<CCallback> &error)
 {
 	CLog::Get()->Log(LogLevel::DEBUG,
@@ -28,14 +28,14 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 		return nullptr;
 	}
 
-	if (name.empty())
+	if (name == nullptr || strlen(name) == 0)
 	{
 		error.set(Error::EMPTY_NAME, "empty name specified");
 		return nullptr;
 	}
 
 	int cb_idx = -1;
-	if (amx_FindPublic(amx, name.c_str(), &cb_idx) != AMX_ERR_NONE)
+	if (amx_FindPublic(amx, name, &cb_idx) != AMX_ERR_NONE)
 	{
 		error.set(Error::NOT_FOUND, "callback \"{}\" does not exist", name);
 		return nullptr;
@@ -45,8 +45,9 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 		name, cb_idx);
 
 
-	ParamList_t param_list(format.length());
-	if (format.empty() == false)
+	size_t num_params = format == nullptr ? 0 : strlen(format);
+	ParamList_t param_list(num_params);
+	if (num_params != 0)
 	{
 		if (static_cast<cell>(params[0] / sizeof(cell)) < param_offset)
 		{
@@ -60,16 +61,16 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 		cell *address_ptr = nullptr;
 		cell *array_addr_ptr = nullptr;
 
-		for (auto c = format.begin(); c != format.end(); ++c)
+		do
 		{
-			if (array_addr_ptr != nullptr && (*c) != 'd' && (*c) != 'i')
+			if (array_addr_ptr != nullptr && (*format) != 'd' && (*format) != 'i')
 			{
 				error.set(Error::EXPECTED_ARRAY_SIZE, 
-					"expected 'd'/'i' specifier for array size (got '{}' instead)", *c);
+					"expected 'd'/'i' specifier for array size (got '{}' instead)", *format);
 				return nullptr;
 			}
 
-			switch (*c)
+			switch (*format)
 			{
 			case 'd': //decimal
 			case 'i': //integer
@@ -107,11 +108,11 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 				param_list.push_front(std::make_tuple('r', address_ptr));
 				break;
 			default:
-				error.set(Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *c);
+				error.set(Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *format);
 				return nullptr;
 			}
 			param_idx++;
-		}
+		} while (*(++format) != '\0');
 
 		if (array_addr_ptr != nullptr)
 		{
@@ -125,7 +126,7 @@ Callback_t CCallback::Create(AMX *amx, string name, string format,
 	return std::make_shared<CCallback>(amx, cb_idx, std::move(param_list));
 }
 
-Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, string name, string format, ...)
+Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, const char *name, const char *format, ...)
 {
 	CLog::Get()->Log(LogLevel::DEBUG,
 		"CCallback::Create(amx={}, name='{}', format='{})",
@@ -139,14 +140,14 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, string name, st
 		return nullptr;
 	}
 
-	if (name.empty())
+	if (name == nullptr || strlen(name) == 0)
 	{
 		error.set(Error::EMPTY_NAME, "empty name specified");
 		return nullptr;
 	}
 
 	int cb_idx = -1;
-	if (amx_FindPublic(amx, name.c_str(), &cb_idx) != AMX_ERR_NONE)
+	if (amx_FindPublic(amx, name, &cb_idx) != AMX_ERR_NONE)
 	{
 		error.set(Error::NOT_FOUND, "callback \"{}\" does not exist", name);
 		return nullptr;
@@ -156,15 +157,16 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, string name, st
 		name, cb_idx);
 
 
-	ParamList_t param_list(format.length());
-	if (format.empty() == false)
+	size_t num_params = format == nullptr ? 0 : strlen(format);
+	ParamList_t param_list(num_params);
+	if (num_params != 0)
 	{
 		va_list args;
 		va_start(args, format);
 
-		for (auto c = format.begin(); c != format.end(); ++c)
+		for (; *format != '\0'; ++format)
 		{
-			switch (*c)
+			switch (*format)
 			{
 			case 'd': //decimal
 			case 'i': //integer
@@ -178,7 +180,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, string name, st
 				param_list.push_front(std::make_tuple('s', string(va_arg(args, const char*))));
 				break;
 			default:
-				error.set(Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *c);
+				error.set(Error::INVALID_FORMAT_SPECIFIER, "invalid format specifier '{}'", *format);
 				return nullptr;
 			}
 		}

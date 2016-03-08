@@ -7,7 +7,7 @@
 #include "CLog.hpp"
 
 
-CConnection::CConnection(const string &host, const string &user, const string &passw, const string &db,
+CConnection::CConnection(const char *host, const char *user, const char *passw, const char *db,
 	const COptions *options)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, 
@@ -49,8 +49,7 @@ CConnection::CConnection(const string &host, const string &user, const string &p
 		connect_flags |= CLIENT_MULTI_STATEMENTS;
 
 	//connect
-	auto *result = mysql_real_connect(m_Connection, host.c_str(),
-		user.c_str(), passw.c_str(), db.c_str(), 
+	auto *result = mysql_real_connect(m_Connection, host, user, passw, db, 
 		options->GetOption<unsigned int>(COptions::Type::SERVER_PORT), 
 		nullptr, connect_flags);
 
@@ -178,7 +177,7 @@ bool CConnection::GetStatus(string &stat)
 
 
 CThreadedConnection::CThreadedConnection(
-	const string &host, const string &user, const string &passw, const string &db, 
+	const char *host, const char *user, const char *passw, const char *db,
 	const COptions *options)
 	:
 	m_Connection(host, user, passw, db, options),
@@ -239,7 +238,7 @@ CThreadedConnection::~CThreadedConnection()
 
 
 CConnectionPool::CConnectionPool(
-	const size_t size, const string &host, const string &user, const string &passw, const string &db, 
+	const size_t size, const char *host, const char *user, const char *passw, const char *db,
 	const COptions *options)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::(size={}, this={})",
