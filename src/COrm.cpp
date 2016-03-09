@@ -1,5 +1,6 @@
 #include "COrm.hpp"
 #include "CHandle.hpp"
+#include <cstring>
 
 
 const string COrm::ModuleName{ "orm" };
