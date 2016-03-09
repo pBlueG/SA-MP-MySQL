@@ -44,11 +44,11 @@ void COrm::Variable::SetValue(const char *val)
 	case COrm::Variable::Type::INT:
 		ConvertStrToData(val, (*m_VariableAddr));
 		break;
-	case COrm::Variable::Type::FLOAT:
+	case COrm::Variable::Type::FLOAT: {
 		float dest = 0.0f;
 		if (ConvertStrToData(val, dest))
 			(*m_VariableAddr) = amx_ftoc(dest);
-		break;
+		} break;
 	case COrm::Variable::Type::STRING:
 		amx_SetString(m_VariableAddr, 
 			val != nullptr ? val : "", 0, 0, m_VarMaxLen);

@@ -13,6 +13,11 @@ using std::string;
 #include "CError.hpp"
 
 
+#ifdef NO_DATA
+#undef NO_DATA //thanks M$
+#endif
+
+
 class COrm 
 {
 public:

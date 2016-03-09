@@ -64,7 +64,9 @@ AMX_DECLARE_NATIVE(Native::orm_errno)
 		return 0;
 	}
 
-	return static_cast<cell>(orm->GetError());
+	cell ret_val = static_cast<cell>(orm->GetError());
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
@@ -95,9 +97,11 @@ AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 		return 0;
 	}
 
-	cell row_idx = params[2];
-	if (row_idx >= res->GetRowCount())
-	return 0;
+	orm->ApplyResult(res, params[2]);
+
+	cell ret_val = orm->GetError() == COrm::PawnError::OK;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
