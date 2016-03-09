@@ -126,27 +126,28 @@ native orm_destroy(ORM:id);
 
 native E_ORM_ERROR:orm_errno(ORM:id);
 
-native orm_apply_cache(ORM:id, row);
+native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
 native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 /*
 native orm_select_inline(ORM:id, callback:Callback, format[], {Float,_}:...); //y_inline
 */
-native orm_update(ORM:id);
+native orm_update(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 native orm_insert(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 /*
 native orm_insert_inline(ORM:id, callback:Callback, format[], {Float,_}:...); //y_inline
 */
-native orm_delete(ORM:id, bool:clearvars=true);
+native orm_delete(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 
 native orm_load(ORM:id, callback[] = "", format[] = "", {Float, _}:...) = orm_select;
 native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 
-native orm_addvar_int(ORM:id, &var, varname[]);
-native orm_addvar_float(ORM:id, &Float:var, varname[]);
-native orm_addvar_string(ORM:id, var[], var_maxlen, varname[]);
+native orm_addvar_int(ORM:id, &var, const columnname[]);
+native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
+native orm_addvar_string(ORM:id, var[], var_maxlen, const columnname[]);
 
-native orm_delvar(ORM:id, varname[]);
-native orm_setkey(ORM:id, varname[]);
+native orm_delvar(ORM:id, const columnname[]);
+native orm_clear_vars(ORM:id);
+native orm_setkey(ORM:id, const columnname[]);
 
 
 // MySQL functions

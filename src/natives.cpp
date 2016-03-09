@@ -22,73 +22,73 @@ AMX_DECLARE_NATIVE(Native::orm_destroy)
 	return 0;
 }
 
-// native ORM_Error:orm_errno(ORM:id);
+// native E_ORM_ERROR:orm_errno(ORM:id);
 AMX_DECLARE_NATIVE(Native::orm_errno)
 {
 	return 0;
 }
 
-// native orm_apply_cache(ORM:id, row);
+// native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
 AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 {
 	return 0;
 }
 
-// native orm_select(ORM:id, callback[], format[], {Float, _}:...);
+// native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_select)
 {
 	return 0;
 }
 
-// native orm_update(ORM:id);
+// native orm_update(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_update)
 {
 	return 0;
 }
 
-// native orm_insert(ORM:id, callback[]="", format[]="", {Float, _}:...);
+// native orm_insert(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_insert)
 {
 	return 0;
 }
 
-// native orm_delete(ORM:id, bool:clearvars=true);
+// native orm_delete(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_delete)
 {
 	return 0;
 }
 
-// native orm_save(ORM:id, callback[]="", format[]="", {Float, _}:...);
+// native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_save)
 {
 	return 0;
 }
 
-// native orm_addvar_int(ORM:id, &var, varname[]);
+// native orm_addvar_int(ORM:id, &var, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 {
 	return 0;
 }
 
-// native orm_addvar_float(ORM:id, &Float:var, varname[]);
+// native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_float)
 {
 	return 0;
 }
 
-// native orm_addvar_string(ORM:id, var[], var_maxlen, varname[]);
+// native orm_addvar_string(ORM:id, var[], var_maxlen, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 {
 	return 0;
 }
 
-// native orm_delvar(ORM:id, varname[]);
+// native orm_delvar(ORM:id, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_delvar)
 {
 	return 0;
 }
 
-// native orm_setkey(ORM:id, varname[]);
+// native orm_setkey(ORM:id, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_setkey)
 {
 	return 0;
