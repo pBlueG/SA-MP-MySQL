@@ -77,8 +77,8 @@ public:
 	~CResultSet();
 
 private:
-	vector<CResult *> m_Results;
-	CResult *m_ActiveResult = nullptr;
+	vector<Result_t> m_Results;
+	Result_t m_ActiveResult = nullptr;
 
 	my_ulonglong
 		m_InsertId = 0,
@@ -87,7 +87,7 @@ private:
 	unsigned int m_WarningCount = 0;
 
 public:
-	inline const CResult *GetActiveResult()
+	inline const Result_t GetActiveResult()
 	{
 		if (m_ActiveResult == nullptr)
 			m_ActiveResult = m_Results.front();
@@ -105,6 +105,10 @@ public:
 	inline size_t GetResultCount()
 	{
 		return m_Results.size();
+	}
+	inline const Result_t GetResultByIndex(size_t idx)
+	{
+		return idx < GetResultCount() ? m_Results.at(idx) : nullptr;
 	}
 
 	inline my_ulonglong InsertId() const

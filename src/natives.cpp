@@ -54,19 +54,112 @@ AMX_DECLARE_NATIVE(Native::orm_destroy)
 // native E_ORM_ERROR:orm_errno(ORM:id);
 AMX_DECLARE_NATIVE(Native::orm_errno)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_errno", "d");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	return static_cast<cell>(orm->GetError());
 }
 
 // native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
 AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 {
+	CScopedDebugInfo dbg_info(amx, "orm_apply_cache", "ddd");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	ResultSet_t active_resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (!active_resultset)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active resultset");
+		return 0;
+	}
+
+	auto const res = active_resultset->GetResultByIndex(params[3]);
+	if (res == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, 
+			"invalid resultset index '{}'", params[3]);
+		return 0;
+	}
+
+	cell row_idx = params[2];
+	if (row_idx >= res->GetRowCount())
 	return 0;
 }
 
 // native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_select)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_select", "dss");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	Handle_t handle = CHandleManager::Get()->GetHandle(orm->GetHandleId());
+	if (!handle)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, 
+			"handle id '{}' passed to orm instance is invalid", orm->GetHandleId());
+	}
+
+	string
+		callback_str = amx_GetCppString(amx, params[2]),
+		format_str = amx_GetCppString(amx, params[3]);
+
+	CError<CCallback> callback_error;
+	Callback_t callback = CCallback::Create(
+		amx,
+		callback_str.c_str(),
+		format_str.c_str(),
+		params, 4,
+		callback_error);
+
+	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
+	{
+		CLog::Get()->LogNative(callback_error);
+		return 0;
+	}
+
+	string query_str;
+	CError<COrm> error;
+	if ( (error = orm->GenerateSelectQuery(query_str)) )
+	{
+		CLog::Get()->LogNative(error);
+		return 0;
+	}
+
+	Query_t query = CQuery::Create(query_str);
+	query->OnExecutionFinished([orm, callback](ResultSet_t result)
+	{
+		orm->ApplyResult(result->GetActiveResult());
+
+		if (callback)
+			callback->Execute();
+
+		orm->ResetError();
+	});
+
+	cell ret_val = handle->Execute(CHandle::ExecutionType::THREADED, query);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_update(ORM:id, callback[] = "", format[] = "", {Float, _}:...);

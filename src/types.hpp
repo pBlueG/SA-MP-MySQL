@@ -9,6 +9,7 @@ class CHandle;
 class CQuery;
 class CCallback;
 class CResultSet;
+class CResult;
 class COptions;
 class COrm;
 
@@ -21,6 +22,7 @@ using Query_t = shared_ptr<CQuery>;
 using Callback_t = shared_ptr<CCallback>;
 
 using ResultSet_t = shared_ptr<CResultSet>;
+using Result_t = CResult *;
 using ResultSetId_t = unsigned int;
 
 using OptionsId_t = unsigned int;

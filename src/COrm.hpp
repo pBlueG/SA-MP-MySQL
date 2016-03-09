@@ -16,8 +16,9 @@ using std::string;
 class COrm 
 {
 public:
-	struct Variable
+	class Variable
 	{
+	public:
 		enum class Type
 		{
 			INVALID,
@@ -26,20 +27,41 @@ public:
 			STRING
 		};
 
-
+	public:
 		Variable(Type type, string name, 
 			cell *variable, size_t var_len = 0) : 
-			type(type),
-			name(name),
-			variable(variable),
-			variable_maxlen(var_len)
+			m_Type(type),
+			m_Name(name),
+			m_VariableAddr(variable),
+			m_VarMaxLen(var_len)
 		{ }
-		
+		Variable() = default;
+		~Variable() = default;
 
-		Type type = Type::INVALID;
-		string name;
-		cell *variable = nullptr;
-		size_t variable_maxlen = 0;
+	private:
+		Type m_Type = Type::INVALID;
+		string m_Name;
+		cell *m_VariableAddr = nullptr;
+		size_t m_VarMaxLen = 0;
+
+	public:
+		inline string const & GetName() const
+		{
+			return m_Name;
+		}
+
+		string GetValueAsString();
+		void SetValue(const char *val);
+		inline void Clear()
+		{
+			if (m_VariableAddr != nullptr)
+				(*m_VariableAddr) = 0;
+		}
+
+		inline operator bool() const
+		{
+			return m_Type != Type::INVALID;
+		}
 	};
 
 public:
@@ -47,7 +69,15 @@ public:
 	{
 		NONE,
 		EMPTY_TABLE,
-		INVALID_CONNECTION_HANDLE
+		INVALID_CONNECTION_HANDLE,
+		NO_VARIABLES,
+		NO_KEY_VARIABLE,
+	};
+
+	enum class PawnError //errors for Pawn
+	{
+		OK,
+		NO_DATA,
 	};
 
 	static const string ModuleName;
@@ -64,21 +94,40 @@ private:
 	string m_Table;
 
 	std::vector<Variable> m_Variables;
-	decltype(m_Variables)::iterator m_KeyVarIterator;
+	Variable m_KeyVariable;
+
+	PawnError m_Error = PawnError::OK;
 
 public:
+	inline HandleId_t GetHandleId() const
+	{
+		return m_HandleId;
+	}
+
 	bool AddVariable(Variable::Type type, 
 		const char *name, cell *var_addr, size_t var_maxlen = 0);
 	bool RemoveVariable(const char *name);
 	void ClearAllVariables();
 	bool SetKeyVariable(const char *name);
 
-	void GenerateSelectQuery(string &dest);
-	void GenerateUpdateQuery(string &dest);
-	void GenerateInsertQuery(string &dest);
-	void GenerateDeleteQuery(string &dest);
+	CError<COrm> GenerateSelectQuery(string &dest);
+	CError<COrm> GenerateUpdateQuery(string &dest);
+	CError<COrm> GenerateInsertQuery(string &dest);
+	CError<COrm> GenerateDeleteQuery(string &dest);
 
-	void ApplyResult(ResultSet_t result);
+	void ApplyResult(Result_t result, 
+		unsigned int rowidx = 0U);
+
+	inline PawnError GetError() const
+	{
+		return m_Error;
+	}
+	inline void ResetError()
+	{
+		m_Error = PawnError::OK;
+	}
+private:
+	void WriteVariableNamesAsList(fmt::MemoryWriter &writer);
 };
 
 class COrmManager : public CSingleton<COrmManager>

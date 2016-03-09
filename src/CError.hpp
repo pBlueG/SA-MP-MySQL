@@ -14,6 +14,15 @@ public:
 	CError() :
 		m_Type(ErrorType::NONE)
 	{ }
+	CError(ErrorType type, string &&msg) :
+		m_Type(type),
+		m_Message(std::move(msg))
+	{ }
+	template<typename... Args>
+	CError(ErrorType type, string &&format, Args &&...args) :
+		m_Type(type),
+		m_Message(fmt::format(format, std::forward<Args>(args)...))
+	{ }
 	~CError() = default;
 
 	operator bool() const
