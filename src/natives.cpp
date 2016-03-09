@@ -4,6 +4,7 @@
 #include "CCallback.hpp"
 #include "CResult.hpp"
 #include "COptions.hpp"
+#include "COrm.hpp"
 #include "CLog.hpp"
 #include "misc.hpp"
 
@@ -13,13 +14,41 @@
 // native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::orm_create)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_create", "sd");
+	const char *tablename = nullptr;
+	amx_StrParam(amx, params[1], tablename);
+	const HandleId_t handleid = params[2];
+
+	CError<COrm> orm_error;
+	auto orm_res = COrmManager::Get()->Create(handleid, tablename, orm_error);
+	if (orm_error)
+	{
+		CLog::Get()->LogNative(orm_error);
+		return 0;
+	}
+
+
+	cell ret_val = std::get<OrmId_t>(orm_res);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_destroy(ORM:id);
 AMX_DECLARE_NATIVE(Native::orm_destroy)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_destroy", "d");
+	const OrmId_t ormid = params[1];
+
+	if (COrmManager::Get()->IsValid(ormid) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+
+	cell ret_val = COrmManager::Get()->Delete(ormid);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native E_ORM_ERROR:orm_errno(ORM:id);
@@ -67,31 +96,190 @@ AMX_DECLARE_NATIVE(Native::orm_save)
 // native orm_addvar_int(ORM:id, &var, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_addvar_int", "drs");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	cell *var = nullptr;
+	if (amx_GetAddr(amx, params[2], &var) != AMX_ERR_NONE || var == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid variable reference '{}'", 
+			static_cast<void *>(var));
+		return 0;
+	}
+
+	const char *column_name = nullptr;
+	amx_StrParam(amx, params[3], column_name);
+	if (column_name == nullptr || strlen(column_name) == 0)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
+		return 0;
+	}
+
+
+	cell ret_val = orm->AddVariable(
+		COrm::Variable::Type::INT, column_name, var);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_float)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_addvar_float", "drs");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	cell *var = nullptr;
+	if (amx_GetAddr(amx, params[2], &var) != AMX_ERR_NONE || var == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid variable reference '{}'",
+			static_cast<void *>(var));
+		return 0;
+	}
+
+	const char *column_name = nullptr;
+	amx_StrParam(amx, params[3], column_name);
+	if (column_name == nullptr || strlen(column_name) == 0)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
+		return 0;
+	}
+
+
+	cell ret_val = orm->AddVariable(
+		COrm::Variable::Type::FLOAT, column_name, var);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_addvar_string(ORM:id, var[], var_maxlen, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_addvar_string", "drds");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	cell *var = nullptr;
+	if (amx_GetAddr(amx, params[2], &var) != AMX_ERR_NONE || var == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid variable reference '{}'",
+			static_cast<void *>(var));
+		return 0;
+	}
+
+	cell var_maxlen = params[3];
+	if (var_maxlen <= 0)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, 
+			"invalid variable max. length '{}'", var_maxlen);
+		return 0;
+	}
+
+	const char *column_name = nullptr;
+	amx_StrParam(amx, params[4], column_name);
+	if (column_name == nullptr || strlen(column_name) == 0)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
+		return 0;
+	}
+
+
+	cell ret_val = orm->AddVariable(
+		COrm::Variable::Type::STRING, column_name, var, var_maxlen);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_delvar(ORM:id, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_delvar)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_delvar", "ds");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	const char *column_name = nullptr;
+	amx_StrParam(amx, params[2], column_name);
+	if (column_name == nullptr || strlen(column_name) == 0)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
+		return 0;
+	}
+
+
+	cell ret_val = orm->RemoveVariable(column_name);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
+}
+
+// native orm_clear_vars(ORM:id);
+AMX_DECLARE_NATIVE(Native::orm_clear_vars)
+{
+	CScopedDebugInfo dbg_info(amx, "orm_clear_vars", "d");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+
+	orm->ClearAllVariables();
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native orm_setkey(ORM:id, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_setkey)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_setkey", "ds");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+	const char *column_name = nullptr;
+	amx_StrParam(amx, params[2], column_name);
+	if (column_name == nullptr || strlen(column_name) == 0)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
+		return 0;
+	}
+
+
+	cell ret_val = orm->SetKeyVariable(column_name);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 

@@ -30,7 +30,8 @@ namespace Native
 	AMX_DECLARE_NATIVE(orm_addvar_float);
 	AMX_DECLARE_NATIVE(orm_addvar_string);
 	AMX_DECLARE_NATIVE(orm_delvar);
-	AMX_DECLARE_NATIVE(orm_setkey);
+	AMX_DECLARE_NATIVE(orm_clear_vars);
+	AMX_DECLARE_NATIVE(orm_setkey); 
 
 
 	//MySQL natives
