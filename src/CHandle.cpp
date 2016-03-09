@@ -1,4 +1,5 @@
 #include <fstream>
+#pragma warning (disable: 4348) //silence boost spirit warnings
 #include <boost/spirit/include/qi.hpp>
 
 #include "mysql.hpp"
