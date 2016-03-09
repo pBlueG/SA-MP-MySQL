@@ -28,7 +28,7 @@ AMX_DECLARE_NATIVE(Native::orm_create)
 	}
 
 
-	cell ret_val = std::get<OrmId_t>(orm_res);
+	cell ret_val = std::get<0>(orm_res);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
