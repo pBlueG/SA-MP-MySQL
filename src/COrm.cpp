@@ -10,6 +10,9 @@
 #ifdef NO_DATA
 #undef NO_DATA //thanks M$
 #endif
+#ifdef DELETE
+#undef DELETE //goddammit
+#endif
 
 
 const string COrm::ModuleName{ "orm" };
@@ -51,7 +54,7 @@ void COrm::Variable::SetValue(const char *val)
 		} break;
 	case COrm::Variable::Type::STRING:
 		amx_SetString(m_VariableAddr, 
-			val != nullptr ? val : "", 0, 0, m_VarMaxLen);
+			val != nullptr ? val : "NULL", 0, 0, m_VarMaxLen);
 		break;
 	}
 }
@@ -71,7 +74,19 @@ bool COrm::AddVariable(Variable::Type type,
 	if (type == Variable::Type::STRING && var_maxlen == 0)
 		return false;
 
+	if (m_KeyVariable.GetName().compare(name) == 0)
+		return false;
 
+	auto v = std::find_if(m_Variables.begin(), m_Variables.end(),
+		[name](const Variable &v) -> bool
+	{
+		return v.GetName().compare(name) == 0;
+	}); 
+	
+	if (v != m_Variables.end())
+		return false;
+
+	
 	m_Variables.push_back(Variable(type, name, var_addr, var_maxlen));
 	return true;
 }
@@ -81,17 +96,23 @@ bool COrm::RemoveVariable(const char *name)
 	if (name == nullptr || strlen(name) == 0)
 		return false;
 
-	auto v = std::find_if(m_Variables.begin(), m_Variables.end(), 
-		[name](const Variable &v) -> bool
-		{
-			return v.GetName().compare(name) == 0;
-		});
-	
-	if (v == m_Variables.end())
-		return false;
-
-
-	m_Variables.erase(v);
+	if (m_KeyVariable.GetName().compare(name) == 0)
+	{
+		m_KeyVariable = Variable();
+	}
+	else
+	{
+		auto v = std::find_if(m_Variables.begin(), m_Variables.end(), 
+			[name](const Variable &v) -> bool
+			{
+				return v.GetName().compare(name) == 0;
+			});
+		
+		if (v == m_Variables.end())
+			return false;
+		
+		m_Variables.erase(v);
+	}
 	return true;
 }
 
@@ -99,6 +120,8 @@ void COrm::ClearAllVariables()
 {
 	for (auto &v : m_Variables)
 		v.Clear();
+
+	m_KeyVariable.Clear();
 }
 
 bool COrm::SetKeyVariable(const char *name)
@@ -121,6 +144,28 @@ bool COrm::SetKeyVariable(const char *name)
 	return true;
 }
 
+CError<COrm> COrm::GenerateQuery(COrm::QueryType type, string &dest)
+{
+	switch (type)
+	{
+	case COrm::QueryType::SELECT:
+		return GenerateSelectQuery(dest);
+	case COrm::QueryType::UPDATE:
+		return GenerateUpdateQuery(dest);
+	case COrm::QueryType::INSERT:
+		return GenerateInsertQuery(dest);
+	case COrm::QueryType::DELETE:
+		return GenerateDeleteQuery(dest);
+	}
+	return { COrm::Error::INVALID_QUERY_TYPE, "invalid query type" };
+}
+
+COrm::QueryType COrm::GetSaveQueryType()
+{
+	if (m_KeyVariable && m_KeyVariable.GetValueAsCell() != 0)
+		return QueryType::UPDATE;
+	return QueryType::INSERT;
+}
 
 CError<COrm> COrm::GenerateSelectQuery(string &dest)
 {
@@ -198,9 +243,9 @@ CError<COrm> COrm::GenerateDeleteQuery(string &dest)
 	return {};
 }
 
-void COrm::ApplyResult(Result_t result, unsigned int rowidx /*= 0*/)
+void COrm::ApplyResult(const Result_t result, unsigned int rowidx /*= 0*/)
 {
-	if (rowidx >= result->GetRowCount())
+	if (result == nullptr || rowidx >= result->GetRowCount())
 	{
 		m_Error = PawnError::NO_DATA;
 		return;
@@ -215,6 +260,34 @@ void COrm::ApplyResult(Result_t result, unsigned int rowidx /*= 0*/)
 		}
 	}
 	m_Error = PawnError::OK;
+}
+
+bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
+{
+	if (result == nullptr || rowidx >= result->GetRowCount())
+		return false;
+
+	const char *data = nullptr;
+	for (auto &v : m_Variables)
+	{
+		if (result->GetRowDataByName(rowidx, v.GetName(), &data))
+		{
+			v.SetValue(data);
+		}
+	}
+	return true;
+}
+
+bool COrm::UpdateKeyValue(const ResultSet_t result)
+{
+	if (result == nullptr || result->InsertId() == 0)
+		return false;
+
+	if (!m_KeyVariable)
+		return false;
+
+	m_KeyVariable.SetValue(static_cast<cell>(result->InsertId()));
+	return true;
 }
 
 void COrm::WriteVariableNamesAsList(fmt::MemoryWriter &writer)

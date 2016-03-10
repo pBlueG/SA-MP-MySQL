@@ -16,6 +16,9 @@ using std::string;
 #ifdef NO_DATA
 #undef NO_DATA //thanks M$
 #endif
+#ifdef DELETE
+#undef DELETE //goddammit
+#endif
 
 
 class COrm 
@@ -56,7 +59,15 @@ public:
 		}
 
 		string GetValueAsString();
+		inline cell GetValueAsCell() const
+		{
+			return *m_VariableAddr;
+		}
 		void SetValue(const char *val);
+		inline void SetValue(cell val)
+		{
+			(*m_VariableAddr) = val;
+		}
 		inline void Clear()
 		{
 			if (m_VariableAddr != nullptr)
@@ -77,12 +88,23 @@ public:
 		INVALID_CONNECTION_HANDLE,
 		NO_VARIABLES,
 		NO_KEY_VARIABLE,
+		INVALID_QUERY_TYPE,
 	};
 
 	enum class PawnError //errors for Pawn
 	{
 		OK,
 		NO_DATA,
+	};
+
+	enum class QueryType
+	{
+		INVALID,
+		SELECT,
+		UPDATE,
+		INSERT,
+		DELETE,
+		SAVE, //not used to generate query
 	};
 
 	static const string ModuleName;
@@ -115,13 +137,14 @@ public:
 	void ClearAllVariables();
 	bool SetKeyVariable(const char *name);
 
-	CError<COrm> GenerateSelectQuery(string &dest);
-	CError<COrm> GenerateUpdateQuery(string &dest);
-	CError<COrm> GenerateInsertQuery(string &dest);
-	CError<COrm> GenerateDeleteQuery(string &dest);
+	CError<COrm> GenerateQuery(QueryType type, string &dest);
+	QueryType GetSaveQueryType();
 
-	void ApplyResult(Result_t result, 
+	void ApplyResult(const Result_t result, 
 		unsigned int rowidx = 0U);
+	bool ApplyResultByName(const Result_t result,
+		unsigned int rowidx = 0U);
+	bool UpdateKeyValue(const ResultSet_t result);
 
 	inline PawnError GetError() const
 	{
@@ -132,6 +155,11 @@ public:
 		m_Error = PawnError::OK;
 	}
 private:
+	CError<COrm> GenerateSelectQuery(string &dest);
+	CError<COrm> GenerateUpdateQuery(string &dest);
+	CError<COrm> GenerateInsertQuery(string &dest);
+	CError<COrm> GenerateDeleteQuery(string &dest);
+
 	void WriteVariableNamesAsList(fmt::MemoryWriter &writer);
 };
 

@@ -97,31 +97,34 @@ AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 		return 0;
 	}
 
-	orm->ApplyResult(res, params[2]);
+	if (orm->ApplyResultByName(res, params[2]) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+			"invalid row index index '{}'", params[2]);
+		return 0;
+	}
 
-	cell ret_val = orm->GetError() == COrm::PawnError::OK;
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
-// native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
-AMX_DECLARE_NATIVE(Native::orm_select)
+static bool FireOrmQueryWithCallback(AMX *amx, cell *params, COrm::QueryType type)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_select", "dss");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
 	if (!orm)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
-		return 0;
+		return false;
 	}
 
 	Handle_t handle = CHandleManager::Get()->GetHandle(orm->GetHandleId());
 	if (!handle)
 	{
-		CLog::Get()->LogNative(LogLevel::ERROR, 
+		CLog::Get()->LogNative(LogLevel::ERROR,
 			"handle id '{}' passed to orm instance is invalid", orm->GetHandleId());
+		return false;
 	}
 
 	string
@@ -139,21 +142,27 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
 	{
 		CLog::Get()->LogNative(callback_error);
-		return 0;
+		return false;
 	}
+
+	if (type == COrm::QueryType::SAVE)
+		type = orm->GetSaveQueryType();
 
 	string query_str;
 	CError<COrm> error;
-	if ( (error = orm->GenerateSelectQuery(query_str)) )
+	if ((error = orm->GenerateQuery(type, query_str)))
 	{
 		CLog::Get()->LogNative(error);
-		return 0;
+		return false;
 	}
 
+	CLog::Get()->LogNative(LogLevel::INFO, "generated query \"{}\"", query_str);
+
 	Query_t query = CQuery::Create(query_str);
-	query->OnExecutionFinished([orm, callback](ResultSet_t result)
+	query->OnExecutionFinished([orm, callback, type](ResultSet_t result)
 	{
-		orm->ApplyResult(result->GetActiveResult());
+		if (type == COrm::QueryType::SELECT)
+			orm->ApplyResult(result->GetActiveResult());
 
 		if (callback)
 			callback->Execute();
@@ -161,7 +170,14 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 		orm->ResetError();
 	});
 
-	cell ret_val = handle->Execute(CHandle::ExecutionType::THREADED, query);
+	return handle->Execute(CHandle::ExecutionType::THREADED, query);
+}
+
+// native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+AMX_DECLARE_NATIVE(Native::orm_select)
+{
+	CScopedDebugInfo dbg_info(amx, "orm_select", "dss");
+	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::SELECT);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -169,25 +185,37 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 // native orm_update(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_update)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_update", "dss");
+	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::UPDATE);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_insert(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_insert)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_insert", "dss");
+	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::INSERT);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_delete(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_delete)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_delete", "dss");
+	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::DELETE);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_save)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "orm_save", "dss");
+	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::SAVE);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native orm_addvar_int(ORM:id, &var, const columnname[]);
