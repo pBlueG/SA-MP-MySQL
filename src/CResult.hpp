@@ -73,6 +73,13 @@ public: //functions
 
 class CResultSet
 {
+public:
+	enum class TimeType
+	{
+		MILLISECONDS,
+		MICROSECONDS,
+	};
+
 private:
 	CResultSet() = default;
 
@@ -133,9 +140,11 @@ public:
 		return m_WarningCount;
 	}
 
-	inline auto GetExecutionTime() const
+	inline auto GetExecutionTime(TimeType type) const
 	{
-		return std::make_tuple(m_ExecTimeMilli, m_ExecTimeMicro);
+		if (type == TimeType::MILLISECONDS)
+			return m_ExecTimeMilli;
+		return m_ExecTimeMicro;
 	}
 	inline const string &GetExecutedQuery() const
 	{

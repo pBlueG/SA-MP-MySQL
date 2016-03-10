@@ -1684,13 +1684,6 @@ AMX_DECLARE_NATIVE(Native::cache_insert_id)
 // native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = MICROSECONDS);
 AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
 {
-	/*
-	enum E_EXECTIME_UNIT
-	{
-		MILLISECONDS,
-		MICROSECONDS
-	};
-	*/
 	CScopedDebugInfo dbg_info(amx, "cache_get_query_exec_time", "d");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
@@ -1699,13 +1692,8 @@ AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
 		return 0;
 	}
 
-	unsigned int time = 0;
-	if (params[1] == 0)
-		time = std::get<0>(resultset->GetExecutionTime());
-	else
-		time = std::get<1>(resultset->GetExecutionTime());
-
-	cell ret_val = static_cast<cell>(time);
+	cell ret_val = static_cast<cell>(
+		resultset->GetExecutionTime(static_cast<CResultSet::TimeType>(params[1])));
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
