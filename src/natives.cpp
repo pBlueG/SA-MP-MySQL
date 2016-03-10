@@ -1684,11 +1684,45 @@ AMX_DECLARE_NATIVE(Native::cache_insert_id)
 // native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = MICROSECONDS);
 AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
 {
-	return 0;
+	/*
+	enum E_EXECTIME_UNIT
+	{
+		MILLISECONDS,
+		MICROSECONDS
+	};
+	*/
+	CScopedDebugInfo dbg_info(amx, "cache_get_query_exec_time", "d");
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+		return 0;
+	}
+
+	unsigned int time = 0;
+	if (params[1] == 0)
+		time = std::get<0>(resultset->GetExecutionTime());
+	else
+		time = std::get<1>(resultset->GetExecutionTime());
+
+	cell ret_val = static_cast<cell>(time);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native cache_get_query_string(destination[], max_len = sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_query_string)
 {
-	return 0;
+	CScopedDebugInfo dbg_info(amx, "cache_get_query_string", "rd");
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+		return 0;
+	}
+
+	amx_SetCppString(amx, params[1], resultset->GetExecutedQuery(), params[2]);
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }

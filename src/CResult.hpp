@@ -5,10 +5,13 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <tuple>
+#include <boost/chrono.hpp>
 
 using std::vector;
 using std::string;
 using std::unordered_map;
+using default_clock = boost::chrono::steady_clock;
 
 #include "types.hpp"
 #include "mysql.hpp"
@@ -86,6 +89,12 @@ private:
 
 	unsigned int m_WarningCount = 0;
 
+	unsigned int
+		m_ExecTimeMilli = 0,
+		m_ExecTimeMicro = 0;
+
+	string m_ExecQuery;
+
 public:
 	inline const Result_t GetActiveResult()
 	{
@@ -124,8 +133,18 @@ public:
 		return m_WarningCount;
 	}
 
+	inline auto GetExecutionTime() const
+	{
+		return std::make_tuple(m_ExecTimeMilli, m_ExecTimeMicro);
+	}
+	inline const string &GetExecutedQuery() const
+	{
+		return m_ExecQuery;
+	}
+
 public: //factory function
-	static ResultSet_t Create(MYSQL *connection);
+	static ResultSet_t Create(MYSQL *connection, 
+		default_clock::duration &exec_time, string query_str);
 
 };
 

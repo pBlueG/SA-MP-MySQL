@@ -68,7 +68,8 @@ CResultSet::~CResultSet()
 		delete r;
 }
 
-ResultSet_t CResultSet::Create(MYSQL *connection)
+ResultSet_t CResultSet::Create(MYSQL *connection, 
+	default_clock::duration &exec_time, string query_str)
 {
 	if (connection == nullptr)
 		return nullptr;
@@ -164,6 +165,14 @@ ResultSet_t CResultSet::Create(MYSQL *connection)
 			mysql_free_result(raw_result);
 		} while (mysql_next_result(connection) == 0 && (raw_result = mysql_store_result(connection)));
 	}
+
+	resultset->m_ExecTimeMilli = static_cast<unsigned int>(
+		boost::chrono::duration_cast<boost::chrono::milliseconds>(exec_time).count());
+	resultset->m_ExecTimeMicro = static_cast<unsigned int>(
+		boost::chrono::duration_cast<boost::chrono::microseconds>(exec_time).count());
+
+	resultset->m_ExecQuery = std::move(query_str);
+
 	return ResultSet_t(resultset);
 }
 
