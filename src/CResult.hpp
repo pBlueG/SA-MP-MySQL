@@ -140,7 +140,7 @@ public:
 		return m_WarningCount;
 	}
 
-	inline auto GetExecutionTime(TimeType type) const
+	inline unsigned int GetExecutionTime(TimeType type) const
 	{
 		if (type == TimeType::MILLISECONDS)
 			return m_ExecTimeMilli;
