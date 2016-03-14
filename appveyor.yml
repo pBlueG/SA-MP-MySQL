@@ -1,0 +1,30 @@
+version: '{build}'
+image: Visual Studio 2015
+
+configuration:
+- Debug
+- Release
+
+platform: x86
+
+clone_depth: 1
+
+environment:
+  SAMP_SERVER_ROOT: '%APPVEYOR_BUILD_FOLDER%\samp03'
+  BOOST_ROOT: C:\Libraries\boost_1_59_0
+  BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
+
+install:
+- git submodule update --init --recursive
+- curl -kLO https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-win32.zip
+- 7z x mysql-connector-c-6.1.6-win32.zip
+
+before_build:
+- cmake . -G "Visual Studio 14 2015" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DMYSQLCAPI_ROOT_DIR="mysql-connector-c-6.1.6-win32"
+
+build_script:
+- cmake --build . --config %CONFIGURATION%
+- cmake --build . --config %CONFIGURATION% --target package
+
+artifacts:
+- path: mysql-*-win32.zip
