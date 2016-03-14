@@ -13,16 +13,10 @@ void CDebugInfoManager::Update(AMX * const amx, std::string &&func)
 	m_Amx = amx;
 	m_NativeName.assign(std::move(func));
 
-	char
-		cfile[256],
-		cfunc[64];
 	m_Available =
-		samplog::GetLastAmxFile(amx, cfile) &&
+		samplog::GetLastAmxFile(amx, m_Info.file) &&
 		samplog::GetLastAmxLine(amx, m_Info.line) &&
-		samplog::GetLastAmxFunction(amx, cfunc);
-
-	m_Info.file.assign(cfile);
-	m_Info.function.assign(cfunc);
+		samplog::GetLastAmxFunction(amx, m_Info.function);
 }
 
 void CDebugInfoManager::Clear()
@@ -31,8 +25,8 @@ void CDebugInfoManager::Clear()
 	m_NativeName.clear();
 	m_Available = false;
 	m_Info.line = 0;
-	m_Info.function.clear();
-	m_Info.file.clear();
+	m_Info.function[0] = '\0';
+	m_Info.file[0] = '\0';
 }
 
 CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func, const char *params_format /* = ""*/)

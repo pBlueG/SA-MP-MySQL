@@ -13,9 +13,9 @@ using samplog::LogLevel;
 struct DebugInfo
 {
 	long line = 0;
-	std::string
-		function,
-		file;
+	char
+		function[64],
+		file[512];
 };
 
 class CDebugInfoManager : public CSingleton<CDebugInfoManager>
@@ -77,7 +77,7 @@ public:
 		if (!m_Logger->IsLogLevel(level))
 			return;
 
-		m_Logger->Log(level, fmt::format(format, std::forward<Args>(args)...));
+		m_Logger->Log(level, fmt::format(format, std::forward<Args>(args)...).c_str());
 	}
 
 	template<typename... Args>
@@ -88,7 +88,7 @@ public:
 			return;
 
 		//log-core note: LogEx() behaves like Log() if parameter line == 0
-		m_Logger->LogEx(level, fmt::format(format, std::forward<Args>(args)...), 
+		m_Logger->LogEx(level, fmt::format(format, std::forward<Args>(args)...).c_str(), 
 			dbginfo.line, dbginfo.file, dbginfo.function);
 	}
 

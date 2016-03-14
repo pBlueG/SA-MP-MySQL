@@ -17,7 +17,7 @@
 
 const string COrm::ModuleName{ "orm" };
 
-
+//TODO: some more logging
 string COrm::Variable::GetValueAsString()
 {
 	string res;
