@@ -126,7 +126,7 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 		size_t
 			mem_head_size = sizeof(char **) * static_cast<size_t>(num_rows),
 			mem_row_size = (sizeof(char *) * (num_fields + 1)) + ((row_data_size) * sizeof(char));
-		//+1 because there is another value in memory pointing to somewhere
+		//+ 1 because there is another value in memory pointing to behind the last MySQL field
 		//mem_row_size has to be a multiple of 8
 		while (mem_row_size % 8 != 0)
 			mem_row_size++;
@@ -142,7 +142,8 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 			//copy mysql result data to our location
 			mem_data[r] = mem_offset;
 			mem_offset += mem_row_size / sizeof(char **);
-			memcpy(mem_data[r], mysql_row, mem_row_size);
+			size_t copy_size = mysql_row[num_fields] - reinterpret_cast<char *>(mysql_row);
+			memcpy(mem_data[r], mysql_row, copy_size);
 
 			//correct the pointers of the copied mysql result data
 			for (size_t f = 0; f != num_fields; ++f)
@@ -152,6 +153,9 @@ bool CMySQLQuery::StoreResult(MYSQL *mysql_connection, MYSQL_RES *mysql_result)
 				size_t dist = mysql_row[f] - reinterpret_cast<char *>(mysql_row);
 				mem_data[r][f] = reinterpret_cast<char *>(mem_data[r]) + dist;
 			}
+			//useless field we had to copy
+			//set it to NULL to avoid invalid memory access errors
+			mem_data[r][num_fields] = NULL;
 		}
 		return true;
 	}
