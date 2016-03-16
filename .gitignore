@@ -17,3 +17,5 @@ Debug/
 *.orig
 /src/*-old/
 *.user
+
+*.VC.*
