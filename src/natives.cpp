@@ -161,8 +161,15 @@ static bool FireOrmQueryWithCallback(AMX *amx, cell *params, COrm::QueryType typ
 	Query_t query = CQuery::Create(query_str);
 	query->OnExecutionFinished([orm, callback, type](ResultSet_t result)
 	{
-		if (type == COrm::QueryType::SELECT)
+		switch (type)
+		{
+		case COrm::QueryType::SELECT:
 			orm->ApplyResult(result->GetActiveResult());
+			break;
+		case COrm::QueryType::INSERT:
+			orm->UpdateKeyValue(result);
+			break;
+		}
 
 		if (callback)
 			callback->Execute();
