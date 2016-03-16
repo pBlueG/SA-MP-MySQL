@@ -1,6 +1,7 @@
 #include "CMySQLHandle.h"
 #include "CMySQLResult.h"
 #include "CMySQLQuery.h"
+#include "COrm.h"
 #include "CLog.h"
 
 #include "misc.h"
@@ -34,8 +35,9 @@ bool CMySQLQuery::Execute(MYSQL *mysql_connection)
 
 		MYSQL_RES *mysql_result = mysql_store_result(mysql_connection); //this has to be here
 
-		//why should we process the result if it won't and can't be used?
-		if (Unthreaded || Callback.Name.length() > 0)
+		//why should we process the result if it won't and can't be used? (except for ORM objects and unthreaded queries)
+		bool is_orm = Orm.Object != NULL && (Orm.Type == ORM_QUERYTYPE_SELECT || Orm.Type == ORM_QUERYTYPE_INSERT);
+		if (Unthreaded || is_orm || Callback.Name.length() > 0)
 		{
 			if (StoreResult(mysql_connection, mysql_result) == false)
 				CLog::Get()->LogFunction(LOG_ERROR, log_funcname, "an error occured while storing the result: (error #%d) \"%s\"", mysql_errno(mysql_connection), mysql_error(mysql_connection));
