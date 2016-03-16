@@ -91,6 +91,14 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 
 	if(OrmObject->GenerateSelectQuery(query->Query))
 	{
+		if (CLog::Get()->IsLogLevel(LOG_DEBUG))
+		{
+			string short_query(query->Query);
+			if (MySQLOptions.Log_TruncateData)
+				short_query.resize(64);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_select", "generated query: \"%s\"", short_query.c_str());
+		}
+
 		query->Callback.Name = (cb_name != NULL ? cb_name : string());
 		if (cb_format != NULL)
 			CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
@@ -125,6 +133,14 @@ AMX_DECLARE_NATIVE(Native::orm_update)
 
 	if(OrmObject->GenerateUpdateQuery(query->Query))
 	{
+		if (CLog::Get()->IsLogLevel(LOG_DEBUG))
+		{
+			string short_query(query->Query);
+			if (MySQLOptions.Log_TruncateData)
+				short_query.resize(64);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_update", "generated query: \"%s\"", short_query.c_str());
+		}
+		
 		query->Handle = Handle;
 		query->Orm.Object = OrmObject;
 		query->Orm.Type = ORM_QUERYTYPE_UPDATE;
@@ -164,6 +180,14 @@ AMX_DECLARE_NATIVE(Native::orm_insert)
 
 	if(OrmObject->GenerateInsertQuery(query->Query))
 	{
+		if (CLog::Get()->IsLogLevel(LOG_DEBUG))
+		{
+			string short_query(query->Query);
+			if (MySQLOptions.Log_TruncateData)
+				short_query.resize(64);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_insert", "generated query: \"%s\"", short_query.c_str());
+		}
+		
 		query->Callback.Name = (cb_name != NULL ? cb_name : string());
 		if (cb_format != NULL)
 			CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
@@ -199,6 +223,14 @@ AMX_DECLARE_NATIVE(Native::orm_delete)
 
 	if(OrmObject->GenerateDeleteQuery(query->Query))
 	{
+		if (CLog::Get()->IsLogLevel(LOG_DEBUG))
+		{
+			string short_query(query->Query);
+			if (MySQLOptions.Log_TruncateData)
+				short_query.resize(64);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_delete", "generated query: \"%s\"", short_query.c_str());
+		}
+		
 		query->Handle = Handle;
 		query->Orm.Object = OrmObject;
 		query->Orm.Type = ORM_QUERYTYPE_DELETE;
@@ -244,6 +276,14 @@ AMX_DECLARE_NATIVE(Native::orm_save)
 	query->Orm.Type = OrmObject->GenerateSaveQuery(query->Query);
 	if(query->Orm.Type != ORM_QUERYTYPE_INVALID)
 	{
+		if (CLog::Get()->IsLogLevel(LOG_DEBUG))
+		{
+			string short_query(query->Query);
+			if (MySQLOptions.Log_TruncateData)
+				short_query.resize(64);
+			CLog::Get()->LogFunction(LOG_DEBUG, "orm_save", "generated query: \"%s\"", short_query.c_str());
+		}
+		
 		query->Callback.Name = (cb_name != NULL ? cb_name : string());
 		if (cb_format != NULL)
 			CCallback::Get()->FillCallbackParams(query->Callback.Params, cb_format, amx, params, ConstParamCount);
