@@ -337,7 +337,7 @@ bool COrm::GenerateDeleteQuery(string &dest)
 	char str_buf[512];
 	
 	if(m_KeyVar->Datatype == DATATYPE_INT)
-		sprintf(str_buf, "DELETE FROM %s WHERE `%s`='%d' LIMIT 1", m_TableName.c_str(), m_KeyVar->Name.c_str(), static_cast<int>( *(m_KeyVar->Address) ));
+		sprintf(str_buf, "DELETE FROM `%s` WHERE `%s`='%d' LIMIT 1", m_TableName.c_str(), m_KeyVar->Name.c_str(), static_cast<int>( *(m_KeyVar->Address) ));
 	else 
 	{
 		char *key_value_str = static_cast<char *>(alloca(sizeof(char) * m_KeyVar->MaxLen+1));
