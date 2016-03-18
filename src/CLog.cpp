@@ -8,25 +8,25 @@ CLog::CLog()
 	: m_Logger(samplog::CreatePluginLogger("mysql"))
 { }
 
-void CDebugInfoManager::Update(AMX * const amx, std::string &&func)
+void CDebugInfoManager::Update(AMX * const amx, const char *func)
 {
 	m_Amx = amx;
-	m_NativeName.assign(std::move(func));
+	m_NativeName = func;
 
 	m_Available =
-		samplog::GetLastAmxFile(amx, m_Info.file) &&
 		samplog::GetLastAmxLine(amx, m_Info.line) &&
+		samplog::GetLastAmxFile(amx, m_Info.file) &&
 		samplog::GetLastAmxFunction(amx, m_Info.function);
 }
 
 void CDebugInfoManager::Clear()
 {
 	m_Amx = nullptr;
-	m_NativeName.clear();
+	m_NativeName = nullptr;
 	m_Available = false;
 	m_Info.line = 0;
-	m_Info.function[0] = '\0';
-	m_Info.file[0] = '\0';
+	m_Info.function = nullptr;
+	m_Info.file = nullptr;
 }
 
 CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func, const char *params_format /* = ""*/)

@@ -12,10 +12,10 @@ using samplog::LogLevel;
 
 struct DebugInfo
 {
-	long line = 0;
-	char
-		function[64],
-		file[512];
+	int line = 0;
+	const char
+		*function = nullptr,
+		*file = nullptr;
 };
 
 class CDebugInfoManager : public CSingleton<CDebugInfoManager>
@@ -39,13 +39,13 @@ public:
 	{
 		return m_Available;
 	}
-	inline const std::string &GetCurrentNativeName()
+	inline const char *GetCurrentNativeName()
 	{
 		return m_NativeName;
 	}
 
 private:
-	void Update(AMX * const amx, std::string &&func);
+	void Update(AMX * const amx, const char *func);
 	void Clear();
 
 private:
@@ -53,7 +53,7 @@ private:
 
 	AMX *m_Amx = nullptr;
 	DebugInfo m_Info;
-	std::string m_NativeName;
+	const char *m_NativeName = nullptr;
 };
 
 
