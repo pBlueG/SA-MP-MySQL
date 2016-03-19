@@ -5,6 +5,8 @@
 #include "CResult.hpp"
 #include "CDispatcher.hpp"
 #include "COptions.hpp"
+#include "COrm.hpp"
+#include "CLog.hpp"
 #include "version.hpp"
 
 #include "mysql.hpp"
@@ -40,11 +42,13 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 {
 	logprintf("plugin.mysql: Unloading plugin...");
 
+	COrmManager::CSingleton::Destroy();
 	CHandleManager::CSingleton::Destroy();
 	CCallbackManager::CSingleton::Destroy();
 	CResultSetManager::CSingleton::Destroy();
 	CDispatcher::CSingleton::Destroy();
 	COptionManager::CSingleton::Destroy();
+	CLog::CSingleton::Destroy();
 
 	mysql_library_end();
 
