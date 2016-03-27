@@ -844,7 +844,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 	}
 
 
-	const size_t dest_len = params[3];
+	const size_t dest_maxsize = params[3];
 	const char *format_str = nullptr;
 	amx_StrParam(amx, params[4], format_str);
 
@@ -854,8 +854,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 		return 0;
 	}
 
-	char *output_str = (char *)calloc(dest_len * 2, sizeof(char)); //allocate more than we need to not access invalid memory in case of buffer overflow
-	char *org_output_str = output_str;
+	fmt::MemoryWriter dest_writer;
 
 	const unsigned int
 		first_param_idx = 5,
@@ -867,19 +866,19 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 	{
 		bool break_loop = false;
 
-		if ( (output_str - org_output_str) + 1U >= dest_len)
+		if (dest_writer.size() >= dest_maxsize)
 		{
-			CLog::Get()->LogNative(LogLevel::ERROR, "destination size '{}' is too small", dest_len);
+			CLog::Get()->LogNative(LogLevel::ERROR, "destination size '{}' is too small", dest_maxsize);
 			break;
 		}
-
+		
 		if (*format_str == '%')
 		{
 			++format_str;
 
 			if (*format_str == '%')
 			{
-				*(output_str++) = '%';
+				dest_writer << '%';
 				continue;
 			}
 
@@ -889,180 +888,56 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 				break;
 			}
 
-			char width_char = ' ';
-			int width = -1;
-			int precision = -1;
-
-			if (*format_str == '0')
-			{
-				width_char = '0';
+			const char *format_spec_ptr = format_str - 1;
+			while (!isalpha(*format_str))
 				++format_str;
-			}
-			if (*format_str > '0' && *format_str <= '9')
-			{
-				width = 0;
-				while (*format_str >= '0' && *format_str <= '9')
-				{
-					width *= 10;
-					width += *format_str - '0';
-					++format_str;
-				}
-			}
+			string format_spec(format_spec_ptr, format_str + 1);
 
-			if (*format_str == '.')
-			{
-				++format_str;
-				precision = *format_str - '0';
-				++format_str;
-			}
-
-			cell *amx_address = NULL;
+			cell *amx_address = nullptr;
 			amx_GetAddr(amx, params[first_param_idx + param_counter], &amx_address);
 
 			switch (*format_str)
 			{
-			case 'i':
 			case 'd':
-			{
-				string int_str;
-				ConvertDataToStr(*amx_address, int_str);
-				size_t int_str_len = int_str.length();
-				int complete_len = std::max(width, static_cast<int>(int_str_len));
-
-				if ( (static_cast<size_t>(complete_len) + (output_str - org_output_str) ) < dest_len)
-				{
-					for (int len = static_cast<int>(int_str_len); width > len; ++len)
-					{
-						*output_str = width_char;
-						++output_str;
-					}
-
-					memcpy(output_str, int_str.c_str(), int_str_len);
-					output_str += int_str_len;
-				}
+			case 'i':
+			case 'o':
+			case 'x':
+			case 'X':
+			case 'u':
+				dest_writer << fmt::sprintf(format_spec, static_cast<int>(*amx_address));
 				break;
-			}
 			case 's':
-			{
-				char *str_buf = NULL;
-				amx_StrParam(amx, params[first_param_idx + param_counter], str_buf);
-				if (str_buf != NULL)
-				{
-					size_t str_buf_len = strlen(str_buf);
-					if ( (str_buf_len + (output_str - org_output_str) ) < dest_len)
-					{
-						memcpy(output_str, str_buf, str_buf_len);
-						output_str += str_buf_len;
-					}
-				}
+				dest_writer << amx_GetCppString(amx, params[first_param_idx + param_counter]);
 				break;
-			}
 			case 'f':
-			{
-				float float_val = amx_ctof(*amx_address);
-				string
-					float_str,
-					spec_buf;
-
-				ConvertDataToStr(float_val, float_str);
-				ConvertDataToStr(static_cast<int>(floor(float_val)), spec_buf);
-
-				size_t
-					float_str_len = float_str.length(),
-					spec_buf_len = spec_buf.length();
-				int	complete_len = float_str_len;
-
-				if (width > static_cast<int>(spec_buf_len))
-					complete_len += (width - static_cast<int>(spec_buf_len));
-
-				if ( (static_cast<size_t>(complete_len) + (output_str - org_output_str) ) < dest_len)
-				{
-					for (int len = spec_buf_len; width > len; ++len)
-					{
-						*output_str = width_char;
-						++output_str;
-					}
-
-					if (precision <= 9 && precision >= 0)
-					{
-						memcpy(output_str, float_str.c_str(), spec_buf_len);
-						output_str += spec_buf_len;
-
-						for (size_t c = 0; c < static_cast<size_t>(precision); ++c)
-						{
-							if (c == 0)
-							{
-								*output_str = '.';
-								++output_str;
-							}
-
-							if ((spec_buf_len + c + 1) >= float_str_len)
-								*output_str = '0';
-							else
-								*output_str = float_str[spec_buf_len + c + 1];
-							++output_str;
-						}
-					}
-					else
-					{
-						memcpy(output_str, float_str.c_str(), float_str_len);
-						output_str += float_str_len;
-					}
-				}
+			case 'F':
+			case 'a':
+			case 'A':
+			case 'g':
+			case 'G':
+				dest_writer << fmt::sprintf(format_spec, amx_ctof(*amx_address));
 				break;
-			}
 			case 'e':
 			{
-				char *str_buf = NULL;
-				amx_StrParam(amx, params[first_param_idx + param_counter], str_buf);
-				if (str_buf != NULL)
-				{
-					string escaped_str;
-
-					handle->EscapeString(str_buf, escaped_str); //TODO: error check?
-
-					if ( (escaped_str.length() + (output_str - org_output_str) ) < dest_len)
-					{
-						memcpy(output_str, escaped_str.c_str(), escaped_str.length());
-						output_str += escaped_str.length();
-					}
-				}
-				break;
-			}
-			case 'X': //uppercase hexadecimal
-			case 'x': //lowercase hexadecimal
-			{
-				string hex_str;
-				ConvertDataToStr<int, 16>(*amx_address, hex_str);
-
-				size_t hex_str_len = hex_str.length();
-				if ( (hex_str_len + (output_str - org_output_str) ) < dest_len)
-				{
-					if(*format_str == 'X')
-						std::transform(hex_str.begin(), hex_str.end(), hex_str.begin(), toupper);
-
-					memcpy(output_str, hex_str.c_str(), hex_str_len);
-					output_str += hex_str_len;
-				}
+				string escaped_str;
+				handle->EscapeString(
+					amx_GetCppString(amx, params[first_param_idx + param_counter]), 
+					escaped_str); //TODO: error check?
+				dest_writer << escaped_str;
 				break;
 			}
 			case 'b':
 			{
 				string bin_str;
 				ConvertDataToStr<int, 2>(*amx_address, bin_str);
-
-				size_t bin_str_len = bin_str.length();
-				if ( (bin_str_len + (output_str - org_output_str) ) < dest_len)
-				{
-					memcpy(output_str, bin_str.c_str(), bin_str_len);
-					output_str += bin_str_len;
-				}
+				dest_writer << bin_str;
 				break;
 			}
 			default:
 				CLog::Get()->LogNative(LogLevel::ERROR, "invalid format specifier '%{}'", *format_str);
-				break_loop = true;
+				break_loop = true; // can't break out of loop from within a switch
 			}
+
 			if (break_loop)
 				break;
 			else
@@ -1070,18 +945,16 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 		}
 		else
 		{
-			*(output_str++) = *format_str;
+			dest_writer << *format_str;
 		}
 	}
 
 	cell ret_val = 0;
 	if (*format_str == '\0') //loop exited normally
 	{
-		*output_str = '\0';
-		amx_SetCString(amx, params[2], org_output_str, dest_len);
-		ret_val = static_cast<cell>(output_str - org_output_str);
+		ret_val = static_cast<cell>(dest_writer.size());
+		amx_SetCString(amx, params[2], dest_writer.c_str(), dest_maxsize);
 	}
-	free(org_output_str);
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
