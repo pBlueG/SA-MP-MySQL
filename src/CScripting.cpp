@@ -1104,7 +1104,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 						spec_buf[13];
 
 					ConvertFloatToStr(float_val, float_str);
-					ConvertIntToStr<10>(static_cast<int>(floor(float_val)), spec_buf);
+					ConvertIntToStr<10>(static_cast<int>(float_val >= 0.0f ? floor(float_val) : ceil(float_val)), spec_buf);
 
 					size_t
 						float_str_len = strlen(float_str),
