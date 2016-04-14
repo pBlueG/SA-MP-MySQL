@@ -118,9 +118,9 @@ bool CMySQLConnection::Disconnect()
 			CLog::Get()->LogFunction(LOG_WARNING, "CMySQLConnection::Disconnect", "no connection available");
 		else
 		{
+			m_IsConnected = false;
 			mysql_close(m_Connection);
 			m_Connection = NULL;
-			m_IsConnected = false;
 			CLog::Get()->LogFunction(LOG_DEBUG, "CMySQLConnection::Disconnect", "connection was closed");
 		}
 	}
