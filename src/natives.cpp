@@ -919,11 +919,19 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 				break;
 			case 'e':
 			{
-				string escaped_str;
-				handle->EscapeString(
-					amx_GetCppString(amx, params[first_param_idx + param_counter]), 
-					escaped_str); //TODO: error check?
-				dest_writer << escaped_str;
+				string 
+					source_str = amx_GetCppString(amx, params[first_param_idx + param_counter]),
+					escaped_str;
+				
+				if (handle->EscapeString(source_str, escaped_str))
+				{
+					dest_writer << escaped_str;
+				}
+				else
+				{
+					CLog::Get()->LogNative(LogLevel::ERROR, "can't escape string '{}'", source_str);
+					break_loop = true;
+				}
 				break;
 			}
 			case 'b':
