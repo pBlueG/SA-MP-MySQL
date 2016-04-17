@@ -65,7 +65,7 @@ add_samp_plugin(mysql
 add_dependencies(mysql log-core cppformat)
 
 if(MSVC)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX -D_ENABLE_ATOMIC_ALIGNMENT_FIX)
 endif()
 
 target_link_libraries(mysql log-core cppformat)

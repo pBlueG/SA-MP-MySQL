@@ -197,9 +197,9 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, const char *nam
 				break;
 			case 'f': //float
 				{
-					cell value = amx_ftoc(va_arg(args, double));
-					param_list.push_front(std::make_tuple('c', value));
-					CLog::Get()->Log(LogLevel::DEBUG, "retrieved and pushed value '{}'", amx_ctof(value));
+					float float_value = static_cast<float>(va_arg(args, double));
+					param_list.push_front(std::make_tuple('c', amx_ftoc(float_value)));
+					CLog::Get()->Log(LogLevel::DEBUG, "retrieved and pushed value '{}'", float_value);
 				}
 				break;
 			case 's': //string
