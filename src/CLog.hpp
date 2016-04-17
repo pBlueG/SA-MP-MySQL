@@ -70,6 +70,10 @@ public:
 	{
 		m_Logger->SetLogLevel(level, enabled);
 	}
+	inline bool IsLogLevel(const LogLevel level)
+	{
+		return m_Logger->IsLogLevel(level);
+	}
 
 	template<typename... Args>
 	inline void Log(const LogLevel level, const char *format, Args &&...args)
