@@ -189,12 +189,12 @@ int CLog::LogText(unsigned int loglevel, char* text)
 				sprintf(prefix, "DEBUG");
 				break;
 		}
-		char timeform[16];
+		char timeform[64];
 		time_t rawtime;
 		time(&rawtime);
 		struct tm * timeinfo;
 		timeinfo = localtime(&rawtime);
-		strftime(timeform, sizeof(timeform), "%X", timeinfo);
+		strftime(timeform, sizeof(timeform), "%X %x", timeinfo);
 
 		FILE *log_file = fopen(m_LogFileName, "a");
 		if(log_file != NULL) 
