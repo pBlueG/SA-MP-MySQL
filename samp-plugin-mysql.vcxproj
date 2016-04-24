@@ -43,14 +43,14 @@
     <OutDir>bin\</OutDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>mysql</TargetName>
-    <IncludePath>C:\libs\boost_1_59_0;C:\libs\mysql-connector-c-6.1.6-win32\include;libs;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\libs\boost_1_59_0\msvc-14.0-32;C:\libs\mysql-connector-c-6.1.6-win32\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\boost_1_60_0;C:\libs\mysql-connector-c-6.1.6-win32\include;libs;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\libs\boost_1_60_0\msvc-14.0u2-32;C:\libs\mysql-connector-c-6.1.6-win32\lib;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mysql</TargetName>
-    <IncludePath>C:\libs\boost_1_59_0;C:\libs\mysql-connector-c-6.1.6-win32\include;libs;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\libs\boost_1_59_0\msvc-14.0-32;C:\libs\mysql-connector-c-6.1.6-win32\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libs\boost_1_60_0;C:\libs\mysql-5.7.12-bin-win32-dbg\include;libs;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\libs\boost_1_60_0\msvc-14.0u2-32;C:\libs\mysql-5.7.12-bin-win32-dbg\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
