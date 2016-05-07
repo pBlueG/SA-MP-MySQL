@@ -756,7 +756,6 @@ AMX_DECLARE_NATIVE(Native::mysql_close)
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
 	
-	Handle->ExecuteOnConnections(boost::bind(&CMySQLConnection::Disconnect, _1));
 	Handle->Destroy();
 
 	CCallback::Get()->ClearByHandle(Handle);
