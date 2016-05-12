@@ -26,7 +26,7 @@
 #define CR_SERVER_LOST_EXTENDED 		2055
 
 
-enum E_LOGLEVEL
+enum E_MYSQL_LOGLEVEL
 {
 	NONE = 0,
 	ERROR = 1,
@@ -37,7 +37,7 @@ enum E_LOGLEVEL
 	ALL = ERROR | WARNING | INFO | DEBUG
 };
 
-enum E_LOGTYPE
+enum E_MYSQL_LOGTYPE
 {
 	INVALID,
 	TEXT,
@@ -104,7 +104,7 @@ enum E_MYSQL_FIELD_TYPE
 	MYSQL_TYPE_GEOMETRY = 255
 };
 
-enum E_EXECTIME_UNIT
+enum E_MYSQL_EXECTIME_UNIT
 {
 	MILLISECONDS,
 	MICROSECONDS
@@ -151,7 +151,7 @@ native orm_setkey(ORM:id, const columnname[]);
 
 
 // MySQL functions
-native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
+native mysql_log(E_MYSQL_LOGLEVEL:loglevel = ERROR | WARNING, E_MYSQL_LOGTYPE:logtype = TEXT);
 native MySQL:mysql_connect(const host[], const user[], const password[], const database[], MySQLOpt:option_id = MySQLOpt:0);
 native MySQL:mysql_connect_file(const file_name[] = "mysql.ini");
 native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
@@ -248,7 +248,7 @@ native cache_affected_rows();
 native cache_warning_count();
 native cache_insert_id();
 
-native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = MICROSECONDS);
+native cache_get_query_exec_time(E_MYSQL_EXECTIME_UNIT:unit = MICROSECONDS);
 native cache_get_query_string(destination[], max_len = sizeof(destination));
 
 
