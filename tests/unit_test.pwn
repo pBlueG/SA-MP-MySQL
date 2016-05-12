@@ -1,3 +1,7 @@
+/**
+ * ASCII art generated on http://www.network-science.de/ascii/ (font "univers")
+ */
+
 #include <a_samp>
 #include <a_mysql>
 #include <amx\amx_header>
@@ -23,10 +27,14 @@
 
 #define ASSERT(%0) if(!(%0))printf("ASSERT FAILED: %s", _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0)
 
-#define ASSERT_TRUE(%0) ASSERT(!!(%0))
-#define ASSERT_FALSE(%0) ASSERT(!(%0))
+#define ASSERT_TRUE(%0) ASSERT((%0) != 0)
+#define ASSERT_FALSE(%0) ASSERT((%0) == 0)
 
 new bool:_g_Failed = false;
+
+forward ValidCallback(num, Float:real, string[]);
+public ValidCallback(num, Float:real, string[])
+	return 1;
 
 /*
 ########################################################
@@ -46,6 +54,85 @@ new bool:_g_Failed = false;
 ########################################################
 ########################################################
 */
+
+
+/*
+
+
+             ,d
+             88
+           MM88MMM ,adPPYb,d8 88       88  ,adPPYba, 8b,dPPYba, 8b       d8
+             88   a8"    `Y88 88       88 a8P_____88 88P'   "Y8 `8b     d8'
+             88   8b       88 88       88 8PP""""""" 88          `8b   d8'
+             88,  "8a    ,d88 "8a,   ,a88 "8b,   ,aa 88           `8b,d8'
+             "Y888 `"YbbdP'88  `"YbbdP'Y8  `"Ybbd8"' 88             Y88'
+                           88                                       d8'
+888888888888               88                                      d8'
+*/
+
+Test:TQueryFail()
+{
+    new MySQL:sql = mysql_connect(
+	    MYSQL_HOSTNAME, MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_DATABASE);
+
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) == 0);
+	
+	ASSERT_FALSE(mysql_tquery(MYSQL_INVALID_HANDLE, "SELECT 1"));
+	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1"));
+	
+	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "NonExistingCallback"));
+	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "NonExistingCallback", "dfs", 1));
+	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1));
+	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1, 3.452, "asdf", 2322));
+ 	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1, 3.452, "asdf"));
+ 	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfy", 1, 3.452, "asdf"));
+ 	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "daf", 1, {3,4,5}, 3.14));
+ 	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1", "ValidCallback", "dad", 1, {3,4,5}, 3));
+}
+
+
+
+
+
+/*
+
+
+
+
+
+             8b,dPPYba,   ,adPPYb,d8 88       88  ,adPPYba, 8b,dPPYba, 8b       d8
+             88P'    "8a a8"    `Y88 88       88 a8P_____88 88P'   "Y8 `8b     d8'
+             88       d8 8b       88 88       88 8PP""""""" 88          `8b   d8'
+             88b,   ,a8" "8a    ,d88 "8a,   ,a88 "8b,   ,aa 88           `8b,d8'
+             88`YbbdP"'   `"YbbdP'88  `"YbbdP'Y8  `"Ybbd8"' 88             Y88'
+             88                   88                                       d8'
+888888888888 88                   88                                      d8'
+*/
+
+Test:PQueryFail()
+{
+    new MySQL:sql = mysql_connect(
+	    MYSQL_HOSTNAME, MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_DATABASE);
+
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) == 0);
+
+	ASSERT_FALSE(mysql_pquery(MYSQL_INVALID_HANDLE, "SELECT 1"));
+	ASSERT_TRUE (mysql_pquery(sql, "SELECT 1"));
+
+	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "NonExistingCallback"));
+	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "NonExistingCallback", "dfs", 1));
+	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "dfs", 1));
+	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "dfs", 1, 3.452, "asdf", 2322));
+ 	ASSERT_TRUE (mysql_pquery(sql, "SELECT 1", "ValidCallback", "dfs", 1, 3.452, "asdf"));
+ 	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "dfy", 1, 3.452, "asdf"));
+ 	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "daf", 1, {3,4,5}, 3.14));
+ 	ASSERT_TRUE (mysql_pquery(sql, "SELECT 1", "ValidCallback", "dad", 1, {3,4,5}, 3));
+}
+
+
+
 
 
 /*
@@ -357,7 +444,7 @@ Test:ConnectionOption()
 	
 	new MySQLOpt:option = mysql_init_options();
 	
-	ASSERT_TRUE(_:option != 0);
+	ASSERT(_:option != 0);
 	ASSERT_TRUE(mysql_set_option(option, AUTO_RECONNECT, true));
 	ASSERT_TRUE(mysql_set_option(option, POOL_SIZE, 4));
 	ASSERT_TRUE(mysql_set_option(option, SSL_KEY_FILE, "banana"));
