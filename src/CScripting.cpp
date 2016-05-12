@@ -1110,12 +1110,14 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 						spec_buf_len = strlen(spec_buf);
 					int	complete_len = float_str_len;
 
+					if (float_val < 0.0f && spec_buf[0] != '-')
+						spec_buf_len++;
+
 					if (Width > static_cast<int>(spec_buf_len))
 						complete_len += (Width - static_cast<int>(spec_buf_len));
 
 					if ((complete_len + output_str - org_output_str) < dest_len)
 					{
-
 						for (int len = spec_buf_len; Width > len; ++len)
 						{
 							*output_str = SpaceWidth ? ' ' : '0';
