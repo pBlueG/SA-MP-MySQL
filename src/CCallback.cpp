@@ -43,18 +43,17 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 		name, cb_idx);
 
 
-	const size_t num_params = (format == nullptr) ? 0 : strlen(format);
-	ParamList_t param_list(num_params);
+	const size_t num_params = (format == nullptr) ? 0 : strlen(format); 
+	if ((params[0] / sizeof(cell) - (param_offset - 1)) != num_params)
+	{
+		error.set(Error::INVALID_PARAM_COUNT,
+			"parameter count does not match format specifier length");
+		return nullptr;
+	}
+
+	ParamList_t param_list;
 	if (num_params != 0)
 	{
-		if (static_cast<cell>(params[0] / sizeof(cell)) < param_offset)
-		{
-			error.set(Error::INVALID_PARAM_OFFSET, 
-				"parameter count does not match format specifier length");
-			return nullptr;
-		}
-
-
 		cell param_idx = 0;
 		cell *address_ptr = nullptr;
 		cell *array_addr_ptr = nullptr;
@@ -97,7 +96,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 
 					param_list.push_front(std::make_tuple('c', *address_ptr));
 					CLog::Get()->Log(LogLevel::DEBUG, "retrieved and pushed value '{}'", value);
-				}	
+				}
 				break;
 			case 'f': //float
 			case 'b': //bool
@@ -111,7 +110,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 					amx_StrParam(amx, params[param_offset + param_idx], str);
 					param_list.push_front(std::make_tuple('s', string(str)));
 					CLog::Get()->Log(LogLevel::DEBUG, "retrieved and pushed value '{}'", str);
-				}	
+				}
 				break;
 			case 'a': //array
 				amx_GetAddr(amx, params[param_offset + param_idx], &array_addr_ptr);
@@ -174,7 +173,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, const char *nam
 
 
 	size_t num_params = (format == nullptr) ? 0 : strlen(format);
-	ParamList_t param_list(num_params);
+	ParamList_t param_list;
 	if (num_params != 0)
 	{
 		va_list args;
@@ -216,6 +215,13 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, const char *nam
 		}
 
 		va_end(args);
+	}
+
+	if (param_list.size() != num_params)
+	{
+		error.set(Error::INVALID_PARAM_COUNT,
+			"parameter count does not match format specifier length");
+		return nullptr;
 	}
 
 	CLog::Get()->Log(LogLevel::INFO, "Callback '{}' set up for delayed execution.", name);
