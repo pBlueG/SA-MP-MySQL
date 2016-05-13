@@ -7,6 +7,9 @@ build/
 *.o
 *.so
 *~
+*.swp
+__*/
+.*
 
 #Visual Studio
 *.sdf
