@@ -662,7 +662,7 @@ static bool SendQueryWithCallback(AMX *amx, cell *params, CHandle::ExecutionType
 	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
 	{
 		CLog::Get()->LogNative(callback_error);
-		return nullptr;
+		return false;
 	}
 
 
