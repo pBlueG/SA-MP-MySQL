@@ -80,7 +80,7 @@ if(NOT COMPILER_SUPPORTS_CXX11)
 endif()
 
 
-find_package(MySQLCAPI 5.5.40 REQUIRED)
+find_package(MySQLCAPI 5.5 REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.57 QUIET 
