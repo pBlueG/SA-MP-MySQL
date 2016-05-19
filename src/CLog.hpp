@@ -4,7 +4,7 @@
 #include "CSingleton.hpp"
 #include "CError.hpp"
 
-#include <format.h>
+#include <fmt/format.h>
 
 using samplog::PluginLogger_t;
 using samplog::LogLevel;

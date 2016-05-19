@@ -62,13 +62,13 @@ add_samp_plugin(mysql
 	plugin.def
 )
 
-add_dependencies(mysql log-core cppformat)
+add_dependencies(mysql log-core fmt)
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX -D_ENABLE_ATOMIC_ALIGNMENT_FIX)
 endif()
 
-target_link_libraries(mysql log-core cppformat)
+target_link_libraries(mysql log-core fmt)
 
 if(NOT MSVC) #we have auto-linking in Visual Studio
 	target_link_libraries(mysql ${Boost_LIBRARIES})
