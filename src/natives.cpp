@@ -780,18 +780,7 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 		 * NOTE: we don't process C-style multiple-line comments, because the MySQL server
 		 *       handles them in a special way
 		 */
-		size_t
-			comment_pos = tmp_query_str.find("-- "),
-			alt_comment_pos = tmp_query_str.find('#');
-
-		if (alt_comment_pos != string::npos)
-		{
-			if (comment_pos == string::npos)
-				comment_pos = alt_comment_pos;
-			else
-				comment_pos = std::min(alt_comment_pos, comment_pos);
-		}
-
+		size_t comment_pos = std::min(tmp_query_str.find("-- "), tmp_query_str.find('#'));
 		if (comment_pos != string::npos)
 			tmp_query_str.erase(comment_pos);
 
