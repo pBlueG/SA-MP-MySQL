@@ -241,7 +241,7 @@ CConnectionPool::CConnectionPool(
 	const size_t size, const char *host, const char *user, const char *passw, const char *db,
 	const COptions *options)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::(size={}, this={})",
+	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::CConnectionPool(size={}, this={})",
 		size, static_cast<const void *>(this));
 
 	assert(size != 0);
