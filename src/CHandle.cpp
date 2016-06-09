@@ -80,7 +80,7 @@ bool CHandle::GetErrorId(unsigned int &errorid)
 bool CHandle::EscapeString(const char *src, StringEscapeResult_t &dest)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString(this={}, src='{}')",
-		static_cast<const void *>(this), src);
+		static_cast<const void *>(this), src ? src : "(nullptr)");
 
 	if (m_MainConnection == nullptr)
 		return false;
@@ -147,7 +147,11 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 	const char *pass, const char *db, const COptions *options, CError<CHandle> &error)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Create(this={}, host='{}', user='{}', pass='****', db='{}', options={})",
-		static_cast<const void *>(this), host, user, db, static_cast<const void *>(options));
+		static_cast<const void *>(this), 
+		host ? host : "(nullptr)", 
+		user ? user : "(nullptr)", 
+		db ? db : "(nullptr)", 
+		static_cast<const void *>(options));
 	CLog::Get()->Log(LogLevel::INFO, "Creating new connection handle...");
 
 	if (host == nullptr || strlen(host) == 0)

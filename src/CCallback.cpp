@@ -12,7 +12,10 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 {
 	CLog::Get()->Log(LogLevel::DEBUG,
 		"CCallback::Create(amx={}, name='{}', format='{}', params={}, param_offset={})",
-		static_cast<const void *>(amx), name, format, static_cast<const void *>(params), param_offset);
+		static_cast<const void *>(amx), 
+		name ? name : "(nullptr)", 
+		format ? format : "(nullptr)", 
+		static_cast<const void *>(params), param_offset);
 	
 	if (amx == nullptr)
 	{
@@ -147,7 +150,9 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, const char *nam
 {
 	CLog::Get()->Log(LogLevel::DEBUG,
 		"CCallback::Create(amx={}, name='{}', format='{})",
-		static_cast<const void *>(amx), name, format);
+		static_cast<const void *>(amx),
+		name ? name : "(nullptr)",
+		format ? format : "(nullptr)");
 	
 	if (amx == nullptr)
 	{
@@ -313,8 +318,11 @@ bool CCallback::Execute()
 	}
 
 	CLog::Get()->Log(LogLevel::DEBUG, "executing AMX callback with index '{}'", m_AmxCallbackIndex);
+
 	int error = amx_Exec(m_AmxInstance, nullptr, m_AmxCallbackIndex);
+
 	CLog::Get()->Log(LogLevel::DEBUG, "AMX callback executed with error '{}'", error);
+
 	if (amx_address >= 0)
 		amx_Release(m_AmxInstance, amx_address);
 

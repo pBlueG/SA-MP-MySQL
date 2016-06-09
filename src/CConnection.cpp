@@ -12,7 +12,11 @@ CConnection::CConnection(const char *host, const char *user, const char *passw, 
 {
 	CLog::Get()->Log(LogLevel::DEBUG, 
 		"CConnection::CConnection(this={}, host='{}', user='{}', passw='****', db='{}', options={})",
-		static_cast<const void *>(this), host, user, db, static_cast<const void *>(options));
+		static_cast<const void *>(this), 
+		host ? host : "(nullptr)",
+		user ? user : "(nullptr)",
+		db ? db : "(nullptr)",
+		static_cast<const void *>(options));
 
 	assert(options != nullptr);
 
@@ -85,7 +89,9 @@ CConnection::~CConnection()
 bool CConnection::EscapeString(const char *src, StringEscapeResult_t &dest)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnection::EscapeString(src='{}', this={}, connection={})",
-		src, static_cast<const void *>(this), static_cast<const void *>(m_Connection));
+		src ? src : "(nullptr)",
+		static_cast<const void *>(this), 
+		static_cast<const void *>(m_Connection));
 
 	if (IsConnected() == false || src == nullptr)
 		return false;
