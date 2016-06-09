@@ -1,4 +1,6 @@
 language: cpp
+sudo: required
+dist: trusty
 
 env:
   global:
@@ -10,17 +12,26 @@ env:
     - STATIC_BUILD=OFF BUILD_TYPE=Release
     - STATIC_BUILD=OFF BUILD_TYPE=Debug
 
+addons:
+  apt:
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
+    - cmake
+    - g++-multilib
+
+cache:
+  directories:
+    - boost_1_57_0
+    - mysql-connector-c-6.1.6-src
+
 before_install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install -y g++-4.8-multilib > /dev/null
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 99 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
+  - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then wget "http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz"; fi
+  - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then tar xzf mysql-connector-c-6.1.6-src.tar.gz; fi
   
-  - wget --no-check-certificate https://cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh
-  - sudo sh cmake-2.8.12.2-Linux-i386.sh --exclude-subdir --prefix=/usr
-  
-  - wget http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz
-  - tar xzf mysql-connector-c-6.1.6-src.tar.gz
+  - if [ ! -f "boost_1_57_0/bootstrap.sh" ]; then wget "http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz"; fi
+  - if [ ! -f "boost_1_57_0/bootstrap.sh" ]; then tar xzf boost_1_57_0.tar.gz; fi
   
   - wget http://files.sa-mp.com/samp037svr_R2-1.tar.gz
   - tar xzf samp037svr_R2-1.tar.gz
@@ -33,9 +44,6 @@ before_install:
   - wget https://github.com/Zeex/pawn/releases/download/20150531/pawnc-3.10.20150531-linux.tar.gz
   - sudo tar xvf pawnc-3.10.20150531-linux.tar.gz --strip-components=1 -C /usr/local
   - sudo ldconfig
-  
-  - wget http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz
-  - tar xzf boost_1_57_0.tar.gz
 
 install:
   - cd mysql-connector-c-6.1.6-src/
@@ -45,16 +53,15 @@ install:
   - cd ..
   
   - cd boost_1_57_0/
-  - sudo bash bootstrap.sh --prefix=/usr/local --with-libraries=system,chrono,thread,date_time,atomic,filesystem
+  - if [ ! -f "b2" ]; then sudo bash bootstrap.sh --prefix=/usr/local --with-libraries=system,chrono,thread,date_time,atomic; fi
   - sudo ./b2 variant=${BUILD_TYPE,,} link=static threading=multi address-model=32 runtime-link=shared -j2 -d0 install
   - cd ..
   - sudo ldconfig
 
 before_script:
-  - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
-  - git submodule update --recursive --init
+  - mysql -u root -e "CREATE DATABASE IF NOT EXISTS test;"
   - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
-  
+
 script:
   - make -j2
   - make install
@@ -65,3 +72,7 @@ script:
   - samp-server-cli -o -g unit_test -d mysql.so -T 60
 
 after_script: cat ${SAMP_SERVER_ROOT}/logs/plugins/mysql.log
+
+before_cache:
+  - rm -f boost_1_57_0/bin.v2/config.log
+  - rm -f mysql-connector-c-6.1.6-src/Docs/INFO_BIN
