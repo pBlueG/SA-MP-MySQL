@@ -16,6 +16,9 @@ const string CHandle::ModuleName{ "handle" };
 
 CHandle::~CHandle()
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::~CHandle(this={})",
+		static_cast<const void *>(this));
+
 	if (m_MainConnection != nullptr)
 		delete m_MainConnection;
 
@@ -28,6 +31,11 @@ CHandle::~CHandle()
 
 bool CHandle::Execute(ExecutionType type, Query_t query)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::Execute(this={}, type={}, query={})",
+		static_cast<const void *>(this), 
+		static_cast<std::underlying_type<ExecutionType>::type>(type),
+		static_cast<const void *>(query.get()));
+
 	bool return_val = false;
 	if (query)
 	{
@@ -47,28 +55,49 @@ bool CHandle::Execute(ExecutionType type, Query_t query)
 			break;
 		}
 	}
+	
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::Execute - return value: {}", return_val);
 	return return_val;
 }
 
 bool CHandle::GetErrorId(unsigned int &errorid)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetErrorId(this={})",
+		static_cast<const void *>(this));
+
 	if (m_MainConnection == nullptr)
 		return false;
 
 	string unused_errormsg;
-	return m_MainConnection->GetError(errorid, unused_errormsg);
+	bool return_val = m_MainConnection->GetError(errorid, unused_errormsg);
+
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetErrorId - return value: {}, error id: '{}', error msg: '{}'", 
+		return_val, errorid, unused_errormsg);
+
+	return return_val;
 }
 
 bool CHandle::EscapeString(const string &src, string &dest)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString(this={}, src='{}')",
+		static_cast<const void *>(this), src);
+
 	if (m_MainConnection == nullptr)
 		return false;
 
-	return m_MainConnection->EscapeString(src.c_str(), dest);
+	bool return_val = m_MainConnection->EscapeString(src.c_str(), dest);
+
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString - return value: {}, escaped string: '{}'",
+		return_val, dest);
+
+	return return_val;
 }
 
 bool CHandle::SetCharacterSet(string charset)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::SetCharacterSet(this={}, charset='{}')",
+		static_cast<const void *>(this), charset);
+
 	if (m_MainConnection == nullptr)
 		return false;
 
@@ -80,6 +109,9 @@ bool CHandle::SetCharacterSet(string charset)
 
 bool CHandle::GetCharacterSet(string &charset)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetCharacterSet(this={})",
+		static_cast<const void *>(this));
+
 	if (m_MainConnection == nullptr)
 		return false;
 
@@ -88,6 +120,9 @@ bool CHandle::GetCharacterSet(string &charset)
 
 bool CHandle::GetStatus(string &stat)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetStatus(this={})",
+		static_cast<const void *>(this));
+
 	if (m_MainConnection == nullptr)
 		return false;
 
@@ -96,9 +131,10 @@ bool CHandle::GetStatus(string &stat)
 
 unsigned int CHandle::GetUnprocessedQueryCount()
 {
-	unsigned int count = 0;
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetUnprocessedQueryCount(this={})",
+		static_cast<const void *>(this));
 
-	count += m_ThreadedConnection->GetUnprocessedQueryCount();
+	unsigned int count = m_ThreadedConnection->GetUnprocessedQueryCount();
 	if (m_ConnectionPool != nullptr)
 		count += m_ConnectionPool->GetUnprocessedQueryCount();
 
@@ -110,6 +146,10 @@ unsigned int CHandle::GetUnprocessedQueryCount()
 Handle_t CHandleManager::Create(const char *host, const char *user, 
 	const char *pass, const char *db, const COptions *options, CError<CHandle> &error)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Create(this={}, host='{}', user='{}', pass='****', db='{}', options={})",
+		static_cast<const void *>(this), host, user, db, static_cast<const void *>(options));
+	CLog::Get()->Log(LogLevel::INFO, "Creating new connection handle...");
+
 	if (host == nullptr || strlen(host) == 0)
 	{
 		error.set(CHandle::Error::EMPTY_HOST, "no hostname specified");
@@ -154,11 +194,19 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, options);
 
 	m_Handles.emplace(id, handle);
+
+	CLog::Get()->Log(LogLevel::INFO, "Connection handle with id '{}' successfully created.", id);
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Create - new handle = {}",
+		static_cast<const void *>(handle));
+
 	return handle;
 }
 
 Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::CreateFromFile(this={}, file_path='{}')",
+		static_cast<const void *>(this), file_path);
+
 	std::ifstream file(file_path);
 	if (file.fail())
 	{
@@ -273,11 +321,17 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 		}
 	}
 
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::CreateFromFile - new options = {} (id '{}')",
+		static_cast<const void *>(options), options_id);
+
 	return Create(hostname.c_str(), username.c_str(), password.c_str(), database.c_str(), options, error);
 }
 
 bool CHandleManager::Destroy(Handle_t &handle)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Destroy(this={}, handle={})",
+		static_cast<const void *>(this), static_cast<const void *>(handle));
+
 	if (handle == nullptr)
 		return false;
 
