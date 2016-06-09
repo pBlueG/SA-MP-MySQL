@@ -145,7 +145,7 @@ public:
 		unsigned int rowidx = 0U);
 	bool ApplyResultByName(const Result_t result,
 		unsigned int rowidx = 0U);
-	bool UpdateKeyValue(const ResultSet_t result);
+	bool UpdateKeyValue(const Result_t result);
 
 	inline PawnError GetError() const
 	{

@@ -38,6 +38,12 @@ private: //variables
 	char ***m_Data = nullptr;
 	vector<FieldInfo> m_Fields;
 
+	my_ulonglong
+		m_InsertId = 0,
+		m_AffectedRows = 0;
+
+	unsigned int m_WarningCount = 0;
+
 public: //functions
 	inline my_ulonglong GetRowCount() const 
 	{
@@ -69,6 +75,18 @@ public: //functions
 		return result;
 	}
 
+	inline my_ulonglong InsertId() const
+	{
+		return m_InsertId;
+	}
+	inline my_ulonglong AffectedRows() const
+	{
+		return m_AffectedRows;
+	}
+	inline unsigned int WarningCount() const
+	{
+		return m_WarningCount;
+	}
 };
 
 class CResultSet
@@ -89,12 +107,6 @@ public:
 private:
 	vector<Result_t> m_Results;
 	Result_t m_ActiveResult = nullptr;
-
-	my_ulonglong
-		m_InsertId = 0,
-		m_AffectedRows = 0;
-
-	unsigned int m_WarningCount = 0;
 
 	unsigned int
 		m_ExecTimeMilli = 0,
@@ -125,19 +137,6 @@ public:
 	inline const Result_t GetResultByIndex(size_t idx)
 	{
 		return idx < GetResultCount() ? m_Results.at(idx) : nullptr;
-	}
-
-	inline my_ulonglong InsertId() const
-	{
-		return m_InsertId;
-	}
-	inline my_ulonglong AffectedRows() const
-	{
-		return m_AffectedRows;
-	}
-	inline unsigned int WarningCount() const
-	{
-		return m_WarningCount;
 	}
 
 	inline unsigned int GetExecutionTime(TimeType type) const

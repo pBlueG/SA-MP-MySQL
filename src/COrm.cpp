@@ -278,7 +278,7 @@ bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
 	return true;
 }
 
-bool COrm::UpdateKeyValue(const ResultSet_t result)
+bool COrm::UpdateKeyValue(const Result_t result)
 {
 	if (result == nullptr || result->InsertId() == 0)
 		return false;

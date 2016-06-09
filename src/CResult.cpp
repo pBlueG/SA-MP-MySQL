@@ -75,34 +75,38 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 		return nullptr;
 
 
-	CResultSet *resultset = nullptr;
-	MYSQL_RES *raw_result = mysql_store_result(connection);
-
-	if (raw_result == nullptr) //result empty: non-SELECT query or error
+	ResultSet_t resultset = ResultSet_t(new CResultSet);
+	MYSQL_RES *raw_result = nullptr;
+	bool error = false;
+	do
 	{
-		if (mysql_field_count(connection) == 0) //query is non-SELECT query
-		{
-			resultset = new CResultSet;
+		raw_result = mysql_store_result(connection);
 
-			resultset->m_WarningCount = mysql_warning_count(connection);
-			resultset->m_AffectedRows = mysql_affected_rows(connection);
-			resultset->m_InsertId = mysql_insert_id(connection);
-		}
-		else //error
+		if (raw_result == nullptr) //result empty: non-SELECT-type query or error
 		{
-			return nullptr;
-		}
-	}
-	else //SELECT query
-	{
-		resultset = new CResultSet;
-		resultset->m_WarningCount = mysql_warning_count(connection);
+			if (mysql_field_count(connection) == 0) //query is non-SELECT-type query
+			{
+				CResult *result = new CResult;
 
-		do
+				resultset->m_Results.push_back(result);
+
+				result->m_WarningCount = mysql_warning_count(connection);
+				result->m_AffectedRows = mysql_affected_rows(connection);
+				result->m_InsertId = mysql_insert_id(connection);
+			}
+			else //error
+			{
+				error = true;
+				break;
+			}
+		}
+		else //SELECT-type query
 		{
 			CResult *result = new CResult;
 
 			resultset->m_Results.push_back(result);
+
+			result->m_WarningCount = mysql_warning_count(connection);
 
 			MYSQL_FIELD *mysql_field;
 			MYSQL_ROW mysql_row;
@@ -133,8 +137,8 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 			char ***mem_data = result->m_Data = static_cast<char ***>(malloc(mem_size));
 			if (mem_data == nullptr) //error while allocating memory
 			{
-				delete resultset;
-				return nullptr;
+				error = true;
+				break;
 			}
 			char **mem_offset = reinterpret_cast<char **>(&mem_data[num_rows]);
 
@@ -163,9 +167,15 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 			}
 
 			mysql_free_result(raw_result);
-		} while (mysql_next_result(connection) == 0 && (raw_result = mysql_store_result(connection)));
-	}
+		}
+	} while (mysql_next_result(connection) == 0);
 
+	if (error)
+	{
+		// go through all results to avoid "out of sync" error
+		while (mysql_next_result(connection) == 0)
+			mysql_free_result(mysql_store_result(connection));
+	}
 	resultset->m_ExecTimeMilli = static_cast<unsigned int>(
 		boost::chrono::duration_cast<boost::chrono::milliseconds>(exec_time).count());
 	resultset->m_ExecTimeMicro = static_cast<unsigned int>(
@@ -173,7 +183,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 
 	resultset->m_ExecQuery = std::move(query_str);
 
-	return ResultSet_t(resultset);
+	return resultset;
 }
 
 

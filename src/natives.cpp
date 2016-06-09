@@ -167,7 +167,7 @@ static bool FireOrmQueryWithCallback(AMX *amx, cell *params, COrm::QueryType typ
 			orm->ApplyResult(result->GetActiveResult());
 			break;
 		case COrm::QueryType::INSERT:
-			orm->UpdateKeyValue(result);
+			orm->UpdateKeyValue(result->GetActiveResult());
 			break;
 		}
 
@@ -1526,7 +1526,7 @@ AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 		return -1;
 	}
 
-	cell ret_val = static_cast<cell>(resultset->AffectedRows());
+	cell ret_val = static_cast<cell>(resultset->GetActiveResult()->AffectedRows());
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -1542,7 +1542,7 @@ AMX_DECLARE_NATIVE(Native::cache_warning_count)
 		return -1;
 	}
 
-	cell ret_val = resultset->WarningCount();
+	cell ret_val = resultset->GetActiveResult()->WarningCount();
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -1558,7 +1558,7 @@ AMX_DECLARE_NATIVE(Native::cache_insert_id)
 		return -1;
 	}
 
-	cell ret_val = static_cast<cell>(resultset->InsertId());
+	cell ret_val = static_cast<cell>(resultset->GetActiveResult()->InsertId());
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
