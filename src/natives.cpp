@@ -991,7 +991,8 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 		return 0;
 	}
 
-	amx_SetCString(amx, params[2], std::get<0>(escape_res).get(), max_str_len + 1);
+	auto &escaped_str = std::get<0>(escape_res);
+	amx_SetCString(amx, params[2], escaped_str ? escaped_str.get() : "NULL", max_str_len + 1);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
 }

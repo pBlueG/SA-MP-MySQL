@@ -87,8 +87,9 @@ bool CHandle::EscapeString(const char *src, StringEscapeResult_t &dest)
 
 	bool return_val = m_MainConnection->EscapeString(src, dest);
 
+	auto &escaped_str = std::get<0>(dest);
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString - return value: {}, escaped string: '{}'",
-		return_val, std::get<0>(dest).get());
+		return_val, escaped_str ? escaped_str.get() : "(nullptr)");
 
 	return return_val;
 }
