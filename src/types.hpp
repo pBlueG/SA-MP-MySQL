@@ -2,8 +2,11 @@
 
 #include <memory>
 #include <functional>
+#include <tuple>
 
 using std::shared_ptr;
+using std::unique_ptr;
+using std::tuple;
 
 class CHandle;
 class CQuery;
@@ -31,3 +34,5 @@ using DispatchFunction_t = std::function < void() >;
 
 using Orm_t = shared_ptr<COrm>;
 using OrmId_t = unsigned int;
+
+using StringEscapeResult_t = tuple<unique_ptr<char[]>, unsigned long>;

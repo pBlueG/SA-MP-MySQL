@@ -908,17 +908,18 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 				break;
 			case 'e':
 			{
-				string 
-					source_str = amx_GetCppString(amx, params[first_param_idx + param_counter]),
-					escaped_str;
+				char *source_str = nullptr;
+				amx_StrParam(amx, params[first_param_idx + param_counter], source_str);
 				
-				if (handle->EscapeString(source_str, escaped_str))
+				StringEscapeResult_t escape_res;
+				if (source_str != nullptr && handle->EscapeString(source_str, escape_res))
 				{
-					dest_writer << escaped_str;
+					dest_writer << fmt::StringRef(std::get<0>(escape_res).get(), std::get<1>(escape_res));
 				}
 				else
 				{
-					CLog::Get()->LogNative(LogLevel::ERROR, "can't escape string '{}'", source_str);
+					CLog::Get()->LogNative(LogLevel::ERROR, "can't escape string '{}'", 
+						source_str ? source_str : "(nullptr)");
 					break_loop = true;
 				}
 				break;
@@ -969,25 +970,28 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 		return 0;
 	}
 
-	string
-		unescaped_str = amx_GetCppString(amx, params[1]),
-		escaped_str;
-	if (handle->EscapeString(unescaped_str, escaped_str) == false)
+	char *unescaped_str = nullptr;
+	amx_StrParam(amx, params[1], unescaped_str);
+	
+	StringEscapeResult_t escape_res;
+	if (unescaped_str != nullptr && handle->EscapeString(unescaped_str, escape_res) == false)
 	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "can't escape string '{}'", unescaped_str);
+		CLog::Get()->LogNative(LogLevel::ERROR, "can't escape string '{}'", 
+			unescaped_str ? unescaped_str : "(nullptr)");
 		return 0;
 	}
 
 	size_t max_str_len = params[3] - 1;
-	if (escaped_str.length() > max_str_len)
+	size_t escaped_str_len = std::get<1>(escape_res);
+	if (escaped_str_len > max_str_len)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 			"destination array too small (needs at least '{}' cells; has only '{}')",
-			escaped_str.length() + 1, max_str_len + 1);
+			escaped_str_len + 1, max_str_len + 1);
 		return 0;
 	}
 
-	amx_SetCppString(amx, params[2], escaped_str, max_str_len + 1);
+	amx_SetCString(amx, params[2], std::get<0>(escape_res).get(), max_str_len + 1);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
 }

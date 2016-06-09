@@ -32,7 +32,7 @@ public: //functions
 	{
 		return m_Connection != nullptr && m_IsConnected;
 	}
-	bool EscapeString(const char *src, string &dest);
+	bool EscapeString(const char *src, StringEscapeResult_t &dest);
 	bool SetCharset(string charset);
 	bool GetCharset(string &charset);
 	bool Execute(Query_t query);
