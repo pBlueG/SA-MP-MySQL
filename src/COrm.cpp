@@ -138,6 +138,9 @@ bool COrm::SetKeyVariable(const char *name)
 	if (v == m_Variables.end())
 		return false;
 
+	//add old key variable back to normal variables
+	if (m_KeyVariable)
+		m_Variables.push_back(m_KeyVariable);
 
 	m_KeyVariable = *v;
 	m_Variables.erase(v);
