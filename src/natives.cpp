@@ -783,15 +783,17 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 		if (comment_pos != string::npos)
 			tmp_query_str.erase(comment_pos);
 
-		
-		query_str.append(tmp_query_str);
-
-		if (query_str.back() == ';')
+		size_t sem_pos;
+		while ((sem_pos = tmp_query_str.find(';')) != string::npos)
 		{
-			Query_t query = CQuery::Create(query_str);
-			handle->Execute(CHandle::ExecutionType::UNTHREADED, query);
+			query_str.append(tmp_query_str.substr(0U, sem_pos + 1));
+			tmp_query_str.erase(0, sem_pos + 1);
+
+			handle->Execute(CHandle::ExecutionType::UNTHREADED, CQuery::Create(query_str));
 			query_str.clear();
 		}
+		
+		query_str.append(tmp_query_str);
 	}
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
