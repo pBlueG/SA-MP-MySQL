@@ -175,8 +175,7 @@ private:
 	std::unordered_map<OrmId_t, Orm_t> m_Instances;
 
 public:
-	std::tuple<OrmId_t, Orm_t> Create(
-		HandleId_t handleid, const char *table,
+	OrmId_t Create(HandleId_t handleid, const char *table,
 		CError<COrm> &error);
 	inline bool IsValid(OrmId_t id)
 	{

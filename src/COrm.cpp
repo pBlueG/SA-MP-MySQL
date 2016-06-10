@@ -303,22 +303,19 @@ void COrm::WriteVariableNamesAsList(fmt::MemoryWriter &writer)
 }
 
 
-std::tuple<OrmId_t, Orm_t> COrmManager::Create(
-	HandleId_t handleid, const char *table,
+OrmId_t COrmManager::Create(HandleId_t handleid, const char *table,
 	CError<COrm> &error)
 {
-	static const std::tuple<OrmId_t, Orm_t> empty_ret(0, nullptr);
-
 	if (CHandleManager::Get()->IsValidHandle(handleid) == false)
 	{
 		error.set(COrm::Error::INVALID_CONNECTION_HANDLE, "invalid connection handle");
-		return empty_ret;
+		return 0;
 	}
 		
 	if (table == nullptr || strlen(table) == 0)
 	{
 		error.set(COrm::Error::EMPTY_TABLE, "empty table name");
-		return empty_ret;
+		return 0;
 	}
 
 
@@ -326,5 +323,7 @@ std::tuple<OrmId_t, Orm_t> COrmManager::Create(
 	while (m_Instances.find(id) != m_Instances.end())
 		++id;
 
-	return std::make_tuple(id, std::make_shared<COrm>(handleid, table));
+	m_Instances.emplace(id, std::make_shared<COrm>(handleid, table));
+
+	return id;
 }

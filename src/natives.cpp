@@ -20,15 +20,14 @@ AMX_DECLARE_NATIVE(Native::orm_create)
 	const HandleId_t handleid = params[2];
 
 	CError<COrm> orm_error;
-	auto orm_res = COrmManager::Get()->Create(handleid, tablename, orm_error);
+	OrmId_t orm_id = COrmManager::Get()->Create(handleid, tablename, orm_error);
 	if (orm_error)
 	{
 		CLog::Get()->LogNative(orm_error);
 		return 0;
 	}
 
-
-	cell ret_val = std::get<0>(orm_res);
+	cell ret_val = orm_id;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
