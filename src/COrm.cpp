@@ -33,7 +33,7 @@ string COrm::Variable::GetValueAsString()
 	case COrm::Variable::Type::STRING:
 		std::unique_ptr<char[]> buffer(new char[m_VarMaxLen]);
 		amx_GetString(buffer.get(), m_VariableAddr, 0, m_VarMaxLen);
-		buffer[m_VarMaxLen] = '\0';
+		buffer[m_VarMaxLen - 1] = '\0';
 		res.assign(buffer.get());
 		break;
 	}
