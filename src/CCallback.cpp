@@ -71,7 +71,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 			}
 
 			CLog::Get()->Log(LogLevel::DEBUG, 
-				"processing specifier '{}' with parameter index '{}",
+				"processing specifier '{}' with parameter index {}",
 				*format, param_idx);
 
 			switch (*format)
