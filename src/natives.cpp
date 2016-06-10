@@ -549,6 +549,10 @@ AMX_DECLARE_NATIVE(Native::mysql_global_options)
 		COptionManager::Get()->SetGlobalOption(
 			COptionManager::GlobalOption::DUPLICATE_CONNECTIONS, params[2] != 0);
 		break;
+	case COptionManager::GlobalOption::DUPLICATE_CONNECTION_WARNING:
+		COptionManager::Get()->SetGlobalOption(
+			COptionManager::GlobalOption::DUPLICATE_CONNECTION_WARNING, params[2] != 0);
+		break;
 	default:
 		CLog::Get()->LogNative(LogLevel::ERROR, "unknown option type '{}'", params[1]);
 		return 0;
