@@ -185,7 +185,7 @@ public:
 	{
 		return IsValid(id) ? m_Instances.at(id) : nullptr;
 	}
-	bool Delete(OrmId_t id)
+	inline bool Delete(OrmId_t id)
 	{
 		return m_Instances.erase(id) == 1;
 	}
