@@ -44,13 +44,15 @@ public: //type definitions
 	
 
 private: //constructor / deconstructor
-	CHandle(HandleId_t id) :
-		m_Id(id)
+	CHandle(HandleId_t id, size_t myhash) :
+		m_Id(id),
+		m_MyHash(myhash)
 	{ }
 	~CHandle();
 
 private: //variables
 	const HandleId_t m_Id;
+	const size_t m_MyHash;
 
 	CConnection *m_MainConnection = nullptr;
 	CThreadedConnection *m_ThreadedConnection = nullptr;

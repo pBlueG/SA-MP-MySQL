@@ -185,12 +185,38 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 	}
 
 
+	static const std::hash<string> do_hash;
+	size_t full_hash = 0;
+	boost::hash_combine(full_hash, do_hash(host));
+	boost::hash_combine(full_hash, do_hash(user));
+	boost::hash_combine(full_hash, do_hash(db));
+
+	if (COptionManager::Get()->GetGlobalOption(
+		COptionManager::GlobalOption::DUPLICATE_CONNECTIONS) == false)
+	{
+		for (auto &h : m_Handles)
+		{
+			if (h.second->m_MyHash == full_hash)
+			{
+				if (COptionManager::Get()->GetGlobalOption(
+					COptionManager::GlobalOption::DUPLICATE_CONNECTION_WARNING))
+				{
+					CLog::Get()->Log(LogLevel::WARNING,
+						"duplicate connection detected: handle id {} already exists "
+						"with host = '{}', username = '{}' and database = '{}'",
+						h.first, host, user, db);
+				}
+				return h.second;
+			}
+		}
+	}
+
 	HandleId_t id = 1;
 	while (m_Handles.find(id) != m_Handles.end())
 		++id;
 
-	Handle_t handle = new CHandle(id);
-	
+	Handle_t handle = new CHandle(id, full_hash);
+
 	handle->m_MainConnection = new CConnection(host, user, pass, db, options);
 	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, options);
 
