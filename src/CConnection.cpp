@@ -225,6 +225,9 @@ void CThreadedConnection::WorkerFunc()
 		}
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
+	
+	CLog::Get()->Log(LogLevel::DEBUG, "CThreadedConnection::WorkerFunc(this={}, connection={}) - shutting down",
+		static_cast<const void *>(this), static_cast<const void *>(&m_Connection));
 
 	mysql_thread_end();
 }
