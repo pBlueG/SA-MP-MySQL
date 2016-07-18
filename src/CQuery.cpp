@@ -5,6 +5,9 @@
 
 bool CQuery::Execute(MYSQL *connection)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "CQuery::Execute(this={}, connection={})",
+		static_cast<const void *>(this), static_cast<const void *>(connection));
+
 	int error = 0;
 
 	default_clock::time_point exec_timepoint = default_clock::now();

@@ -1,4 +1,5 @@
 #include "COptions.hpp"
+#include "CLog.hpp"
 
 
 COptions::COptions()
@@ -38,5 +39,7 @@ OptionsId_t COptionManager::Create()
 		id++;
 
 	m_Options.emplace(id, new COptions);
+	CLog::Get()->Log(LogLevel::INFO, "Options instance with id '{}' successfully created.", id);
+
 	return id;
 }
