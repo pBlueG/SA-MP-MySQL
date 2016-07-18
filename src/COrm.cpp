@@ -34,10 +34,9 @@ string COrm::Variable::GetValueAsString()
 		ConvertDataToStr(amx_ctof(*m_VariableAddr), res);
 		break;
 	case COrm::Variable::Type::STRING:
-		std::unique_ptr<char[]> buffer(new char[m_VarMaxLen]);
-		amx_GetString(buffer.get(), m_VariableAddr, 0, m_VarMaxLen);
-		buffer[m_VarMaxLen - 1] = '\0';
-		res.assign(buffer.get());
+		res.reserve(m_VarMaxLen);
+		amx_GetString(&res[0], m_VariableAddr, 0, m_VarMaxLen);
+		res[m_VarMaxLen - 1] = '\0';
 		break;
 	}
 	return res;

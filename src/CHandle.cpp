@@ -77,7 +77,7 @@ bool CHandle::GetErrorId(unsigned int &errorid)
 	return return_val;
 }
 
-bool CHandle::EscapeString(const char *src, StringEscapeResult_t &dest)
+bool CHandle::EscapeString(const char *src, string &dest)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString(this={}, src='{}')",
 		static_cast<const void *>(this), src ? src : "(nullptr)");
@@ -87,9 +87,8 @@ bool CHandle::EscapeString(const char *src, StringEscapeResult_t &dest)
 
 	bool return_val = m_MainConnection->EscapeString(src, dest);
 
-	auto &escaped_str = std::get<0>(dest);
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString - return value: {}, escaped string: '{}'",
-		return_val, escaped_str ? escaped_str.get() : "(nullptr)");
+		return_val, dest);
 
 	return return_val;
 }

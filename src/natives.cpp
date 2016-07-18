@@ -946,10 +946,10 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 				char *source_str = nullptr;
 				amx_StrParam(amx, params[first_param_idx + param_counter], source_str);
 				
-				StringEscapeResult_t escape_res;
-				if (source_str != nullptr && handle->EscapeString(source_str, escape_res))
+				string escaped_str;
+				if (source_str != nullptr && handle->EscapeString(source_str, escaped_str))
 				{
-					dest_writer << fmt::StringRef(std::get<0>(escape_res).get(), std::get<1>(escape_res));
+					dest_writer << escaped_str;
 				}
 				else
 				{
@@ -1008,26 +1008,23 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 	char *unescaped_str = nullptr;
 	amx_StrParam(amx, params[1], unescaped_str);
 	
-	StringEscapeResult_t escape_res;
-	if (unescaped_str != nullptr && handle->EscapeString(unescaped_str, escape_res) == false)
+	string escaped_str;
+	if (unescaped_str != nullptr && handle->EscapeString(unescaped_str, escaped_str) == false)
 	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "can't escape string '{}'", 
-			unescaped_str ? unescaped_str : "(nullptr)");
+		CLog::Get()->LogNative(LogLevel::ERROR, "can't escape string '{}'", escaped_str);
 		return 0;
 	}
 
 	size_t max_str_len = params[3] - 1;
-	size_t escaped_str_len = std::get<1>(escape_res);
-	if (escaped_str_len > max_str_len)
+	if (escaped_str.length() > max_str_len)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 			"destination array too small (needs at least '{}' cells; has only '{}')",
-			escaped_str_len + 1, max_str_len + 1);
+			escaped_str.length() + 1, max_str_len + 1);
 		return 0;
 	}
 
-	auto &escaped_str = std::get<0>(escape_res);
-	amx_SetCString(amx, params[2], escaped_str ? escaped_str.get() : "NULL", max_str_len + 1);
+	amx_SetCString(amx, params[2], escaped_str.c_str(), max_str_len + 1);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
 }

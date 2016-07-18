@@ -86,7 +86,7 @@ CConnection::~CConnection()
 }
 
 
-bool CConnection::EscapeString(const char *src, StringEscapeResult_t &dest)
+bool CConnection::EscapeString(const char *src, string &dest)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnection::EscapeString(src='{}', this={}, connection={})",
 		src ? src : "(nullptr)",
@@ -97,12 +97,11 @@ bool CConnection::EscapeString(const char *src, StringEscapeResult_t &dest)
 		return false;
 	
 	const size_t src_len = strlen(src);
-	auto &dest_ptr = std::get<0>(dest);
 
-	dest_ptr.reset(new char[src_len * 2 + 1]);
+	dest.reserve(src_len * 2 + 1);
 
 	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
-	std::get<1>(dest) = mysql_real_escape_string(m_Connection, dest_ptr.get(), src, src_len);
+	mysql_real_escape_string(m_Connection, &dest[0], src, src_len);
 
 	return true;
 }
