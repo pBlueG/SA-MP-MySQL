@@ -38,6 +38,7 @@ CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func, const char
 	if (m_HasAmxDebugSymbols)
 		CDebugInfoManager::Get()->Update(amx, func);
 
-	if (CLog::Get()->m_Logger->IsLogLevel(LogLevel::DEBUG))
-		CLog::Get()->m_Logger->LogNativeCall(amx, func, params_format);
+	auto &logger = CLog::Get()->m_Logger;
+	if (logger->IsLogLevel(LogLevel::DEBUG))
+		logger->LogNativeCall(amx, func, params_format);
 }

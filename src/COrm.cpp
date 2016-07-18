@@ -40,21 +40,21 @@ string COrm::Variable::GetValueAsString()
 	return res;
 }
 
-void COrm::Variable::SetValue(const char *val)
+void COrm::Variable::SetValue(const char *value)
 {
 	switch (m_Type)
 	{
 	case COrm::Variable::Type::INT:
-		ConvertStrToData(val, (*m_VariableAddr));
+		ConvertStrToData(value, (*m_VariableAddr));
 		break;
 	case COrm::Variable::Type::FLOAT: {
 		float dest = 0.0f;
-		if (ConvertStrToData(val, dest))
+		if (ConvertStrToData(value, dest))
 			(*m_VariableAddr) = amx_ftoc(dest);
 		} break;
 	case COrm::Variable::Type::STRING:
 		amx_SetString(m_VariableAddr, 
-			val != nullptr ? val : "NULL", 0, 0, m_VarMaxLen);
+			value != nullptr ? value : "NULL", 0, 0, m_VarMaxLen);
 		break;
 	}
 }

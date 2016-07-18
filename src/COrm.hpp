@@ -64,10 +64,10 @@ public:
 		{
 			return *m_VariableAddr;
 		}
-		void SetValue(const char *val);
-		inline void SetValue(cell val)
+		void SetValue(const char *value);
+		inline void SetValue(cell value)
 		{
-			(*m_VariableAddr) = val;
+			(*m_VariableAddr) = value;
 		}
 		inline void Clear()
 		{
