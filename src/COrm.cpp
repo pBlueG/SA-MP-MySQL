@@ -1,6 +1,7 @@
 #include "COrm.hpp"
 #include "CHandle.hpp"
 #include "CResult.hpp"
+#include "CLog.hpp"
 #include "misc.hpp"
 #include <fmt/format.h>
 #include <cstring>
@@ -17,9 +18,11 @@
 
 const string COrm::ModuleName{ "orm" };
 
-//TODO: some more logging
 string COrm::Variable::GetValueAsString()
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::Variable::GetValueAsString(this={})",
+		static_cast<const void *>(this));
+
 	string res;
 	switch (m_Type)
 	{
@@ -42,6 +45,9 @@ string COrm::Variable::GetValueAsString()
 
 void COrm::Variable::SetValue(const char *value)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::Variable::SetValue(this={}, value='{}')",
+		static_cast<const void *>(this), value ? value : "(nullptr)");
+
 	switch (m_Type)
 	{
 	case COrm::Variable::Type::INT:
@@ -59,46 +65,54 @@ void COrm::Variable::SetValue(const char *value)
 	}
 }
 
-bool COrm::AddVariable(Variable::Type type, 
+CError<COrm> COrm::AddVariable(Variable::Type type,
 	const char *name, cell *var_addr, size_t var_maxlen)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::AddVariable(this={}, type={}, name='{}', var_addr={}, var_maxlen={})",
+		static_cast<const void *>(this), static_cast<std::underlying_type<decltype(type)>::type>(type), 
+		name ? name : "(nullptr)", static_cast<const void *>(var_addr), var_maxlen);
+	
 	if (type == Variable::Type::INVALID)
-		return false;
+		return { Error::INVALID_VARIABLE_TYPE, "invalid variable type" };
 
 	if (name == nullptr || strlen(name) == 0)
-		return false;
+		return { Error::EMPTY_VARIABLE_NAME, "empty variable name" };
 
 	if (var_addr == nullptr)
-		return false;
+		return { Error::INVALID_PAWN_ADDRESS, "invalid variable PAWN address" };
 
 	if (type == Variable::Type::STRING && var_maxlen == 0)
-		return false;
+		return { Error::INVALID_MAX_LEN, "invalid maximal length for string type variable" };
 
-	if (m_KeyVariable.GetName().compare(name) == 0)
-		return false;
-
-	auto v = std::find_if(m_Variables.begin(), m_Variables.end(),
-		[name](const Variable &v) -> bool
+	bool duplicate = false;
+	for (auto &v : m_Variables)
 	{
-		return v.GetName().compare(name) == 0;
-	}); 
-	
-	if (v != m_Variables.end())
-		return false;
+		if (v.GetName().compare(name) == 0)
+		{
+			duplicate = true;
+			break;
+		}
+	}
+
+	if (duplicate || m_KeyVariable.GetName().compare(name) == 0)
+		return { Error::DUPLICATE_VARIABLE, "variable is already registered" };
 
 	
 	m_Variables.push_back(Variable(type, name, var_addr, var_maxlen));
-	return true;
+	return {};
 }
 
-bool COrm::RemoveVariable(const char *name)
+CError<COrm> COrm::RemoveVariable(const char *name)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::RemoveVariable(this={}, name='{}')",
+		static_cast<const void *>(this), name ? name : "(nullptr)");
+	
 	if (name == nullptr || strlen(name) == 0)
-		return false;
+		return { Error::EMPTY_VARIABLE_NAME, "empty variable name" };
 
 	if (m_KeyVariable.GetName().compare(name) == 0)
 	{
-		m_KeyVariable = Variable();
+		m_KeyVariable = Variable(); // unset/clear key variable
 	}
 	else
 	{
@@ -109,25 +123,31 @@ bool COrm::RemoveVariable(const char *name)
 			});
 		
 		if (v == m_Variables.end())
-			return false;
+			return { Error::UNKNOWN_VARIABLE, "variable not found" };
 		
 		m_Variables.erase(v);
 	}
-	return true;
+	return {};
 }
 
 void COrm::ClearAllVariables()
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::ClearAllVariables(this={})",
+		static_cast<const void *>(this));
+	
 	for (auto &v : m_Variables)
 		v.Clear();
 
 	m_KeyVariable.Clear();
 }
 
-bool COrm::SetKeyVariable(const char *name)
+CError<COrm> COrm::SetKeyVariable(const char *name)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::SetKeyVariable(this={}, name='{}')",
+		static_cast<const void *>(this), name ? name : "(nullptr)");
+	
 	if (name == nullptr || strlen(name) == 0)
-		return false;
+		return { Error::EMPTY_VARIABLE_NAME, "empty variable name" };
 
 	auto v = std::find_if(m_Variables.begin(), m_Variables.end(),
 		[name](const Variable &v) -> bool
@@ -136,7 +156,7 @@ bool COrm::SetKeyVariable(const char *name)
 	});
 
 	if (v == m_Variables.end())
-		return false;
+		return { Error::UNKNOWN_VARIABLE, "variable not found" };
 
 	//add old key variable back to normal variables
 	if (m_KeyVariable)
@@ -144,11 +164,14 @@ bool COrm::SetKeyVariable(const char *name)
 
 	m_KeyVariable = *v;
 	m_Variables.erase(v);
-	return true;
+	return {};
 }
 
 CError<COrm> COrm::GenerateQuery(COrm::QueryType type, string &dest)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GenerateQuery(this={}, type={})",
+		static_cast<const void *>(this), static_cast<std::underlying_type<decltype(type)>::type>(type));
+	
 	switch (type)
 	{
 	case COrm::QueryType::SELECT:
@@ -165,6 +188,9 @@ CError<COrm> COrm::GenerateQuery(COrm::QueryType type, string &dest)
 
 COrm::QueryType COrm::GetSaveQueryType()
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GetSaveQueryType(this={})",
+		static_cast<const void *>(this));
+	
 	if (m_KeyVariable && m_KeyVariable.GetValueAsCell() != 0)
 		return QueryType::UPDATE;
 	return QueryType::INSERT;
@@ -172,6 +198,9 @@ COrm::QueryType COrm::GetSaveQueryType()
 
 CError<COrm> COrm::GenerateSelectQuery(string &dest)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GenerateSelectQuery(this={})",
+		static_cast<const void *>(this));
+	
 	if (m_Variables.empty())
 		return { COrm::Error::NO_VARIABLES, "no registered variables" };
 
@@ -190,6 +219,9 @@ CError<COrm> COrm::GenerateSelectQuery(string &dest)
 
 CError<COrm> COrm::GenerateUpdateQuery(string &dest)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GenerateUpdateQuery(this={})",
+		static_cast<const void *>(this));
+	
 	if (m_Variables.empty())
 		return { COrm::Error::NO_VARIABLES, "no registered variables" };
 
@@ -214,6 +246,9 @@ CError<COrm> COrm::GenerateUpdateQuery(string &dest)
 
 CError<COrm> COrm::GenerateInsertQuery(string &dest)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GenerateInsertQuery(this={})",
+		static_cast<const void *>(this));
+	
 	if (m_Variables.empty())
 		return { COrm::Error::NO_VARIABLES, "no registered variables" };
 
@@ -238,6 +273,9 @@ CError<COrm> COrm::GenerateInsertQuery(string &dest)
 
 CError<COrm> COrm::GenerateDeleteQuery(string &dest)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GenerateDeleteQuery(this={})",
+		static_cast<const void *>(this));
+	
 	if (!m_KeyVariable)
 		return { COrm::Error::NO_KEY_VARIABLE, "no key variable set" };
 
@@ -248,6 +286,9 @@ CError<COrm> COrm::GenerateDeleteQuery(string &dest)
 
 void COrm::ApplyResult(const Result_t result, unsigned int rowidx /*= 0*/)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::ApplyResult(this={}, result={}, rowidx={})",
+		static_cast<const void *>(this), static_cast<const void *>(result), rowidx);
+	
 	if (result == nullptr || rowidx >= result->GetRowCount())
 	{
 		m_Error = PawnError::NO_DATA;
@@ -267,6 +308,9 @@ void COrm::ApplyResult(const Result_t result, unsigned int rowidx /*= 0*/)
 
 bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::ApplyResultByName(this={}, result={}, rowidx={})",
+		static_cast<const void *>(this), static_cast<const void *>(result), rowidx);
+	
 	if (result == nullptr || rowidx >= result->GetRowCount())
 		return false;
 
@@ -283,11 +327,20 @@ bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
 
 bool COrm::UpdateKeyValue(const Result_t result)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::UpdateKeyValue(this={}, result={})",
+		static_cast<const void *>(this), static_cast<const void *>(result));
+	
 	if (result == nullptr || result->InsertId() == 0)
+	{
+		CLog::Get()->Log(LogLevel::ERROR, "COrm::UpdateKeyValue - no result or inserted id is zero");
 		return false;
+	}
 
 	if (!m_KeyVariable)
+	{
+		CLog::Get()->Log(LogLevel::ERROR, "COrm::UpdateKeyValue - no key variable registered");
 		return false;
+	}
 
 	m_KeyVariable.SetValue(static_cast<cell>(result->InsertId()));
 	return true;
@@ -295,6 +348,9 @@ bool COrm::UpdateKeyValue(const Result_t result)
 
 void COrm::WriteVariableNamesAsList(fmt::MemoryWriter &writer)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrm::WriteVariableNamesAsList(this={})",
+		static_cast<const void *>(this));
+	
 	writer << '`';
 	for (size_t i = 0; i != m_Variables.size(); ++i)
 	{
@@ -309,12 +365,15 @@ void COrm::WriteVariableNamesAsList(fmt::MemoryWriter &writer)
 OrmId_t COrmManager::Create(HandleId_t handleid, const char *table,
 	CError<COrm> &error)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, "COrmManager::Create(handleid={}, table='{}')",
+		handleid, table ? table : "(nullptr)");
+	
 	if (CHandleManager::Get()->IsValidHandle(handleid) == false)
 	{
 		error.set(COrm::Error::INVALID_CONNECTION_HANDLE, "invalid connection handle");
 		return 0;
 	}
-		
+	
 	if (table == nullptr || strlen(table) == 0)
 	{
 		error.set(COrm::Error::EMPTY_TABLE, "empty table name");

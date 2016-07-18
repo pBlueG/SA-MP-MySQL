@@ -254,10 +254,16 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 	}
 
 
-	cell ret_val = orm->AddVariable(
-		COrm::Variable::Type::INT, column_name, var);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CError<COrm> error;
+	if ((error = orm->AddVariable(
+		COrm::Variable::Type::INT, column_name, var)))
+	{
+		CLog::Get()->LogNative(error);
+		return 0;
+	}
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
@@ -290,10 +296,16 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_float)
 	}
 
 
-	cell ret_val = orm->AddVariable(
-		COrm::Variable::Type::FLOAT, column_name, var);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CError<COrm> error;
+	if ((error = orm->AddVariable(
+		COrm::Variable::Type::FLOAT, column_name, var)))
+	{
+		CLog::Get()->LogNative(error);
+		return 0;
+	}
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native orm_addvar_string(ORM:id, var[], var_maxlen, const columnname[]);
@@ -334,10 +346,16 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 	}
 
 
-	cell ret_val = orm->AddVariable(
-		COrm::Variable::Type::STRING, column_name, var, var_maxlen);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CError<COrm> error;
+	if ((error = orm->AddVariable(
+		COrm::Variable::Type::STRING, column_name, var, var_maxlen)))
+	{
+		CLog::Get()->LogNative(error);
+		return 0;
+	}
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native orm_delvar(ORM:id, const columnname[]);
@@ -362,9 +380,15 @@ AMX_DECLARE_NATIVE(Native::orm_delvar)
 	}
 
 
-	cell ret_val = orm->RemoveVariable(column_name);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CError<COrm> error;
+	if ((error = orm->RemoveVariable(column_name)))
+	{
+		CLog::Get()->LogNative(error);
+		return 0;
+	}
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native orm_clear_vars(ORM:id);
@@ -407,10 +431,16 @@ AMX_DECLARE_NATIVE(Native::orm_setkey)
 		return 0;
 	}
 
+	
+	CError<COrm> error;
+	if ((error = orm->SetKeyVariable(column_name)))
+	{
+		CLog::Get()->LogNative(error);
+		return 0;
+	}
 
-	cell ret_val = orm->SetKeyVariable(column_name);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 

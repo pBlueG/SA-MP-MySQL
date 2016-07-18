@@ -85,11 +85,21 @@ public:
 	enum class Error
 	{
 		NONE,
+
+		//query generation
 		EMPTY_TABLE,
 		INVALID_CONNECTION_HANDLE,
 		NO_VARIABLES,
 		NO_KEY_VARIABLE,
 		INVALID_QUERY_TYPE,
+
+		//variables
+		INVALID_VARIABLE_TYPE,
+		EMPTY_VARIABLE_NAME,
+		INVALID_PAWN_ADDRESS,
+		INVALID_MAX_LEN,
+		DUPLICATE_VARIABLE,
+		UNKNOWN_VARIABLE,
 	};
 
 	enum class PawnError //errors for Pawn
@@ -132,11 +142,11 @@ public:
 		return m_HandleId;
 	}
 
-	bool AddVariable(Variable::Type type, 
+	CError<COrm> AddVariable(Variable::Type type,
 		const char *name, cell *var_addr, size_t var_maxlen = 0);
-	bool RemoveVariable(const char *name);
+	CError<COrm> RemoveVariable(const char *name);
 	void ClearAllVariables();
-	bool SetKeyVariable(const char *name);
+	CError<COrm> SetKeyVariable(const char *name);
 
 	CError<COrm> GenerateQuery(QueryType type, string &dest);
 	QueryType GetSaveQueryType();
