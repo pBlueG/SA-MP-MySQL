@@ -89,6 +89,8 @@ Test:TQueryFail()
  	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfy", 1, 3.452, "asdf"));
  	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "daf", 1, {3,4,5}, 3.14));
  	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1", "ValidCallback", "dad", 1, {3,4,5}, 3));
+	
+	ASSERT_TRUE(mysql_close(sql));
 }
 
 
@@ -129,6 +131,8 @@ Test:PQueryFail()
  	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "dfy", 1, 3.452, "asdf"));
  	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "daf", 1, {3,4,5}, 3.14));
  	ASSERT_TRUE (mysql_pquery(sql, "SELECT 1", "ValidCallback", "dad", 1, {3,4,5}, 3));
+	
+	ASSERT_TRUE(mysql_close(sql));
 }
 
 
@@ -370,6 +374,8 @@ Test:ConnectionUnprocQueries()
 	{ }
 	
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
+	
+	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
 
@@ -572,6 +578,7 @@ Test:ConnectionFormat()
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
 	
+	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
 
