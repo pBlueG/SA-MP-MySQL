@@ -24,6 +24,7 @@ string COrm::Variable::GetValueAsString()
 		static_cast<const void *>(this));
 
 	string res;
+	int res_len = 0;
 	switch (m_Type)
 	{
 	case COrm::Variable::Type::INVALID:
@@ -34,9 +35,9 @@ string COrm::Variable::GetValueAsString()
 		ConvertDataToStr(amx_ctof(*m_VariableAddr), res);
 		break;
 	case COrm::Variable::Type::STRING:
-		res.reserve(m_VarMaxLen);
+		amx_StrLen(m_VariableAddr, &res_len);
+		res.resize(res_len);
 		amx_GetString(&res[0], m_VariableAddr, 0, m_VarMaxLen);
-		res[m_VarMaxLen - 1] = '\0';
 		break;
 	}
 	return res;

@@ -98,11 +98,11 @@ bool CConnection::EscapeString(const char *src, string &dest)
 	
 	const size_t src_len = strlen(src);
 
-	dest.reserve(src_len * 2 + 1);
+	dest.resize(src_len * 2 + 1);
 
 	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
-	mysql_real_escape_string(m_Connection, &dest[0], src, src_len);
-
+	size_t newsize = mysql_real_escape_string(m_Connection, &dest[0], src, src_len);
+	dest.resize(newsize);
 	return true;
 }
 
