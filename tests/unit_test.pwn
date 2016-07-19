@@ -225,7 +225,7 @@ Test:CacheGetValueIndexFloat()
 	printf("1");
 	new Float:val = cache_get_value_index_float(0, 0);
 	printf("2; %x", val);
-	new is_nan = isnan(val);
+	new is_nan = (val != val);
 	printf("3; %d", is_nan);
 	ASSERT_TRUE(is_nan);
 	printf("4");
