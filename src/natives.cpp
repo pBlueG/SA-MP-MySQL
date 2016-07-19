@@ -1193,14 +1193,14 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_type)
 	if (resultset == nullptr)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
-		return 0;
+		return -1;
 	}
 
 	enum_field_types type;
 	if (resultset->GetActiveResult()->GetFieldType(params[1], type) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "invalid index '{}'", params[1]);
-		return 0;
+		return -1;
 	}
 
 	cell ret_val = type;
