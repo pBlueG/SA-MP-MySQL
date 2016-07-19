@@ -1286,12 +1286,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 // native Float:cache_get_value_index_float(row_idx, column_idx);
 AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 {
+	static const cell pawn_nan = 0x7FFFFFFF;
 	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_float", "dd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
-		return 0;
+		return pawn_nan;
 	}
 
 	const char *data = nullptr;
@@ -1299,7 +1300,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 			"invalid row ('{}') or field ('{}') index", params[1], params[2]);
-		return 0;
+		return pawn_nan;
 	}
 
 	float data_float = 0.0f;
@@ -1307,7 +1308,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", 
 			data ? data : "NULL");
-		return 0;
+		return pawn_nan;
 	}
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", data_float);
@@ -1429,19 +1430,20 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 // native Float:cache_get_value_name_float(row_idx, const column_name[]);
 AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 {
+	static const cell pawn_nan = 0x7FFFFFFF;
 	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_float", "ds");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
-		return 0;
+		return pawn_nan;
 	}
 
 	const string field_name = amx_GetCppString(amx, params[2]);
 	if (field_name.empty())
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "empty field name");
-		return 0;
+		return pawn_nan;
 	}
 
 	auto result = resultset->GetActiveResult();
@@ -1450,14 +1452,14 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 			"invalid row index '{}' (number of rows: '{}')", row_idx, result->GetRowCount());
-		return 0;
+		return pawn_nan;
 	}
 
 	const char *data = nullptr;
 	if (result->GetRowDataByName(row_idx, field_name, &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "field '{}' not found", field_name);
-		return 0;
+		return pawn_nan;
 	}
 
 	float data_float = 0.0f;
@@ -1465,7 +1467,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", 
 			data ? data : "NULL");
-		return 0;
+		return pawn_nan;
 	}
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", data_float);
