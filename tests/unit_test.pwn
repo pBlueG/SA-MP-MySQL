@@ -219,41 +219,32 @@ Test:CacheGetValueIndexInt()
 
 Test:CacheGetValueIndexFloat()
 {
-	printf("0");
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+
 	printf("1");
-	ASSERT_TRUE(isnan(cache_get_value_index_float(0, 0)));
-	printf("2");
+	new Float:val = cache_get_value_index_float(0, 0);
+	printf("2; %x", val);
+	new is_nan = isnan(val);
+	printf("3; %d", is_nan);
+	ASSERT_TRUE(is_nan);
+	printf("4");
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
-	printf("3");
 	ASSERT_TRUE(cache_is_valid(cache));
-	printf("4");
 	ASSERT(cache_get_row_count() == 10);
-	printf("5");
 	ASSERT(cache_get_field_count() == 3);
-	printf("6");
 	ASSERT(floatabs(cache_get_value_index_float(6, 0) - 7) <= 0.001);
-	printf("7");
 	ASSERT(floatabs(cache_get_value_index_float(0, 0) - 1) <= 0.001);
-	printf("8");
 	ASSERT(floatabs(cache_get_value_index_float(6, 2) - 3.14211) <= 0.001);
-	printf("9");
 	ASSERT_TRUE(isnan(cache_get_value_index_float(10, 2)));
-	printf("10");
 	ASSERT_TRUE(isnan(cache_get_value_index_float(2, 3)));
-	printf("11");
 	ASSERT_TRUE(cache_delete(cache));
-	printf("12");
 	ASSERT_FALSE(cache_is_valid(cache));
 
-	printf("13");
 	ASSERT_TRUE(isnan(cache_get_value_index_float(0, 0)));
 
-	printf("14");
 	TeardownConnection(sql);
-	printf("15");
 }
 
 Test:CacheGetValueName()
