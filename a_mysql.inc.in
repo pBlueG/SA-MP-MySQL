@@ -117,9 +117,6 @@ enum E_MYSQL_EXECTIME_UNIT
 #define MYSQL_INVALID_CACHE Cache:0
 #define MYSQL_INVALID_ORM ORM:0
 
-#define cache_num_rows(%1) 		cache_get_row_count(%1)
-#define cache_num_fields(%1) 	cache_get_field_count(%1)
-#define cache_num_results(%1)	cache_get_result_count(%1)
 
 
 // ORM functions
@@ -191,6 +188,13 @@ native cache_get_result_count();
 native cache_get_field_name(field_index, destination[], max_len = sizeof(destination));
 native E_MYSQL_FIELD_TYPE:cache_get_field_type(field_index);
 native cache_set_result(result_index);
+
+stock cache_num_rows()
+	return cache_get_row_count();
+stock cache_num_fields()
+	return cache_get_field_count();
+stock cache_num_results()
+	return cache_get_result_count();
 
 
 //  overload macros for cache_get_value natives
