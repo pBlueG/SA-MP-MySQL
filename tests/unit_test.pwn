@@ -8,8 +8,6 @@
 
 
 
-#define TEST_ORM 1
-
 #define MYSQL_HOSTNAME "127.0.0.1"
 #define MYSQL_USERNAME "root"
 #define MYSQL_PASSWORD ""
@@ -19,13 +17,13 @@
 
 #define Test:%0() forward Test_%0();public Test_%0()
 
-//cruelessly stolen from YSI's y_testing
-#define _Y_TESTEQ(%0) "\"%0\""),_g_Failed=true
+//cruelessly stolen from YSI's y_testing, with some minor additions
+#define _Y_TESTEQ(%0) "\"%0\"", __line),_g_Failed=true
 #define _Y_TESTDQ:_Y_TESTEQ(%0"%1"%2) _Y_TESTDQ:_Y_TESTEQ(%0\x22;%1\x22;%2)
 #define _Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0)%1) _Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0\x29;%1)
 #define _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0(%1) _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0\x28;%1)
 
-#define ASSERT(%0) if(!(%0))printf("ASSERT FAILED: %s", _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0)
+#define ASSERT(%0) if(!(%0))printf("ASSERT FAILED: %s (line %d)", _Y_TESTOB:_Y_TESTCB:_Y_TESTDQ:_Y_TESTEQ(%0)
 
 #define ASSERT_TRUE(%0) ASSERT((%0) != 0)
 #define ASSERT_FALSE(%0) ASSERT((%0) == 0)
@@ -35,6 +33,298 @@ new bool:_g_Failed = false;
 forward ValidCallback(num, Float:real, string[]);
 public ValidCallback(num, Float:real, string[])
 	return 1;
+
+MySQL:SetupConnection()
+{
+	new MySQL:sql = mysql_connect_file();
+	if(sql == MYSQL_INVALID_HANDLE || mysql_errno(sql) != 0)
+		return mysql_close(sql), MYSQL_INVALID_HANDLE;
+
+	mysql_query_file(sql, "test.sql");
+	return sql;
+}
+
+TeardownConnection(MySQL:handle)
+{
+	mysql_query(handle, "DROP TABLE IF EXISTS `test`", false);
+	mysql_close(handle);
+}
+
+
+/*
+########################################################
+########################################################
+
+                                 88
+                                 88
+                                 88
+ ,adPPYba, ,adPPYYba,  ,adPPYba, 88,dPPYba,   ,adPPYba,
+a8"     "" ""     `Y8 a8"     "" 88P'    "8a a8P_____88
+8b         ,adPPPPP88 8b         88       88 8PP"""""""
+"8a,   ,aa 88,    ,88 "8a,   ,aa 88       88 "8b,   ,aa
+ `"Ybbd8"' `"8bbdP"Y8  `"Ybbd8"' 88       88  `"Ybbd8"'
+
+########################################################
+########################################################
+*/
+
+Test:CacheCount()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT(cache_get_row_count() == 0);
+	ASSERT(cache_get_field_count() == 0);
+	ASSERT(cache_get_result_count() == 0);
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT(cache_get_result_count() == 1);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+	
+	ASSERT(cache_get_row_count() == 0);
+	ASSERT(cache_get_field_count() == 0);
+	ASSERT(cache_get_result_count() == 0);
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetFieldName()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+	new dest[32];
+
+	ASSERT_FALSE(cache_get_field_name(0, dest));
+	
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT_TRUE(cache_get_field_name(0, dest));
+	ASSERT(strcmp(dest, "number") == 0);
+	ASSERT_TRUE(cache_get_field_name(1, dest));
+	ASSERT(strcmp(dest, "text") == 0);
+	ASSERT_TRUE(cache_get_field_name(2, dest));
+	ASSERT(strcmp(dest, "float") == 0);
+	ASSERT_FALSE(cache_get_field_name(3, dest));
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+	
+	ASSERT_FALSE(cache_get_field_name(0, dest));
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetFieldType()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT(cache_get_field_type(0) == MYSQL_TYPE_INVALID);
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT(cache_get_field_type(0) == MYSQL_TYPE_LONG);
+	ASSERT(cache_get_field_type(1) == MYSQL_TYPE_VAR_STRING);
+	ASSERT(cache_get_field_type(2) == MYSQL_TYPE_FLOAT);
+	ASSERT(cache_get_field_type(3) == MYSQL_TYPE_INVALID);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT(cache_get_field_type(0) == MYSQL_TYPE_INVALID);
+
+	TeardownConnection(sql);
+}
+
+Test:CacheSetResult()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT_FALSE(cache_set_result(0));
+
+	ASSERT((cache = mysql_query(sql, "SELECT 1; SELECT 2; SELECT 4;")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_result_count() == 3);
+	ASSERT(cache_get_value_index_int(0, 0) == 1);
+	ASSERT_TRUE(cache_set_result(1));
+	ASSERT(cache_get_value_index_int(0, 0) == 2);
+	ASSERT_TRUE(cache_set_result(2));
+	ASSERT(cache_get_value_index_int(0, 0) == 4);
+	ASSERT_FALSE(cache_set_result(3));
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT_FALSE(cache_set_result(0));
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetValueIndex()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+	new dest[32];
+
+	ASSERT_FALSE(cache_get_value_index(0, 0, dest));
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT_TRUE(cache_get_value_index(0, 0, dest));
+	ASSERT(strcmp(dest, "1") == 0);
+	ASSERT_TRUE(cache_get_value_index(5, 0, dest));
+	ASSERT(strcmp(dest, "6") == 0);
+	ASSERT_TRUE(cache_get_value_index(3, 1, dest));
+	ASSERT(strcmp(dest, "asdf") == 0);
+	ASSERT_TRUE(cache_get_value_index(9, 2, dest));
+	ASSERT(strcmp(dest, "3.14", false, 4) == 0);
+	ASSERT_FALSE(cache_get_value_index(10, 2, dest));
+	ASSERT_FALSE(cache_get_value_index(2, 3, dest));
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT_FALSE(cache_get_value_index(0, 0, dest));
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetValueIndexInt()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT(cache_get_value_index_int(0, 0) == 0);
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT(cache_get_value_index_int(4, 0) == 5);
+	ASSERT(cache_get_value_index_int(9, 0) == 10);
+	ASSERT(cache_get_value_index_int(10, 2) == 0);
+	ASSERT(cache_get_value_index_int(2, 3) == 0);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT(cache_get_value_index_int(0, 0) == 0);
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetValueIndexFloat()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT_TRUE(isnan(cache_get_value_index_float(0, 0)));
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT(floatabs(cache_get_value_index_float(6, 0) - 7) <= 0.001);
+	ASSERT(floatabs(cache_get_value_index_float(0, 0) - 1) <= 0.001);
+	ASSERT(floatabs(cache_get_value_index_float(6, 2) - 3.14211) <= 0.001);
+	ASSERT_TRUE(isnan(cache_get_value_index_float(10, 2)));
+	ASSERT_TRUE(isnan(cache_get_value_index_float(2, 3)));
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT_TRUE(isnan(cache_get_value_index_float(0, 0)));
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetValueName()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+	new dest[32];
+
+	ASSERT_FALSE(cache_get_value_name(0, "text", dest));
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT_TRUE(cache_get_value_name(1, "number", dest));
+	ASSERT(strcmp(dest, "2") == 0);
+	ASSERT_TRUE(cache_get_value_name(8, "number", dest));
+	ASSERT(strcmp(dest, "9") == 0);
+	ASSERT_TRUE(cache_get_value_name(0, "text", dest));
+	ASSERT(strcmp(dest, "asdf") == 0);
+	ASSERT_TRUE(cache_get_value_name(9, "float", dest));
+	ASSERT(strcmp(dest, "3.14", false, 4) == 0);
+	ASSERT_FALSE(cache_get_value_name(10, "float", dest));
+	ASSERT_FALSE(cache_get_value_name(2, "bananarama", dest));
+	ASSERT_FALSE(cache_get_value_name(2, "", dest));
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT_FALSE(cache_get_value_name(0, "text", dest));
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetValueNameInt()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT(cache_get_value_name_int(0, "text") == 0);
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT(cache_get_value_name_int(8, "number") == 9);
+	ASSERT(cache_get_value_name_int(0, "number") == 1);
+	ASSERT(cache_get_value_name_int(10, "float") == 0);
+	ASSERT(cache_get_value_name_int(5, "chickenwings") == 0);
+	ASSERT(cache_get_value_name_int(6, "") == 0);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT(cache_get_value_name_int(0, "text") == 0);
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetValueNameFloat()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT_TRUE(isnan(cache_get_value_name_float(0, "text")));
+
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT(floatabs(cache_get_value_name_float(2, "number") - 3) <= 0.001);
+	ASSERT(floatabs(cache_get_value_name_float(9, "number") - 10) <= 0.001);
+	ASSERT(floatabs(cache_get_value_name_float(4, "float") - 3.14211) <= 0.001);
+	ASSERT_TRUE(isnan(cache_get_value_name_float(10, "float")));
+	ASSERT_TRUE(isnan(cache_get_value_name_float(5, "chickenwings")));
+	ASSERT_TRUE(isnan(cache_get_value_name_float(6, "")));
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT_TRUE(isnan(cache_get_value_name_float(0, "text")));
+
+	TeardownConnection(sql);
+}
+
+
+
+
+
 
 /*
 ########################################################
@@ -59,6 +349,58 @@ public ValidCallback(num, Float:real, string[])
 /*
 
 
+            ,adPPYb,d8 88       88  ,adPPYba, 8b,dPPYba, 8b       d8
+           a8"    `Y88 88       88 a8P_____88 88P'   "Y8 `8b     d8'
+           8b       88 88       88 8PP""""""" 88          `8b   d8'
+           "8a    ,d88 "8a,   ,a88 "8b,   ,aa 88           `8b,d8'
+            `"YbbdP'88  `"YbbdP'Y8  `"Ybbd8"' 88             Y88'
+                    88                                       d8'
+888888888888        88                                      d8'
+*/
+Test:UnthreadedQuery()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+	new dest[32];
+	
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+
+	ASSERT(mysql_query(MYSQL_INVALID_HANDLE, "SELECT 1") == MYSQL_INVALID_CACHE);
+	
+	ASSERT(mysql_query(sql, "SELECT 1", false) == MYSQL_INVALID_CACHE);
+	
+	ASSERT( (cache = mysql_query(sql, "SELECT 1")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_value_index_int(0, 0) == 1);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+	
+	ASSERT( (cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_row_count() == 10);
+	ASSERT(cache_get_field_count() == 3);
+	ASSERT(cache_get_result_count() == 1);
+	ASSERT(cache_get_value_index_int(4, 0) == 5);
+	ASSERT(cache_get_value_name_int(4, "number") == 5);
+	ASSERT(floatabs(cache_get_value_index_float(4, 2) - 3.14211) <= 0.001);
+	ASSERT(floatabs(cache_get_value_name_float(4, "float") - 3.14211) <= 0.001);
+	ASSERT_TRUE(cache_get_value_index(4, 1, dest));
+	ASSERT(strcmp(dest, "asdf") == 0);
+	ASSERT_TRUE(cache_get_value_name(4, "text", dest));
+	ASSERT(strcmp(dest, "asdf") == 0);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+	
+	TeardownConnection(sql);
+}
+
+
+
+
+
+/*
+
+
              ,d
              88
            MM88MMM ,adPPYb,d8 88       88  ,adPPYba, 8b,dPPYba, 8b       d8
@@ -69,7 +411,6 @@ public ValidCallback(num, Float:real, string[])
                            88                                       d8'
 888888888888               88                                      d8'
 */
-
 Test:TQueryFail()
 {
     new MySQL:sql = mysql_connect(
@@ -536,7 +877,6 @@ Test:ConnectionFormat()
 	dest[0] = '\0';
 	format_str = "%%d %d %i %4d %06d";
 	req_res = "%d 1234 -4321   12 000999";
-	printf("int check");
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 1234, -4321, 12, 999) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
 	
@@ -545,7 +885,6 @@ Test:ConnectionFormat()
 	dest[0] = '\0';
 	format_str = "%%s %s %s";
 	req_res = "%s MyString 123456789";
-	printf("string check");
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, "MyString", "123456789") == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
 	
@@ -553,28 +892,24 @@ Test:ConnectionFormat()
 	format_str = "%%e %e %e";
 	req_res = "%e 123 \\\"Some ol\\' \\\\stri\\ng";
 	new escape_param[] = "\"Some ol' \\stri\ng";
-	printf("string escape check");
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, "123", escape_param) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
 	
 	dest[0] = '\0';
 	format_str = "%%x %x %x";
 	req_res = "%x beaff ffde4d";
-	printf("hex check");
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
 	
 	dest[0] = '\0';
 	format_str = "%%X %X %X";
 	req_res = "%X BEAFF FFDE4D";
-	printf("hex uppercase check");
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
 	
 	dest[0] = '\0';
 	format_str = "%%b %b %b";
 	req_res = "%b 10111110101011111111 111111111101111001001101";
-	printf("binary check");
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
 	
