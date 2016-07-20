@@ -256,7 +256,7 @@ native bool:cache_is_value_name_null(row_idx, const column_name[]);
 native Cache:cache_save();
 native cache_delete(Cache:cache_id);
 native cache_set_active(Cache:cache_id);
-native cache_is_valid(Cache:cache_id);
+native bool:cache_is_valid(Cache:cache_id);
 
 native cache_affected_rows();
 native cache_warning_count();

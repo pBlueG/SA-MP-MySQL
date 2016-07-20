@@ -1557,13 +1557,13 @@ AMX_DECLARE_NATIVE(Native::cache_set_active)
 	return 1;
 }
 
-// native cache_is_valid(Cache:cache_id);
+// native bool:cache_is_valid(Cache:cache_id);
 AMX_DECLARE_NATIVE(Native::cache_is_valid)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_is_valid", "d");
-	cell ret_val = CResultSetManager::Get()->IsValidResultSet(params[1]);
+	bool ret_val = CResultSetManager::Get()->IsValidResultSet(params[1]);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	return ret_val ? 1 : 0;
 }
 
 // native cache_affected_rows();
@@ -1622,7 +1622,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
 	if (resultset == nullptr)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
-		return 0;
+		return -1;
 	}
 
 	cell ret_val = static_cast<cell>(
