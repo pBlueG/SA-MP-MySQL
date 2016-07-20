@@ -1517,7 +1517,11 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 AMX_DECLARE_NATIVE(Native::cache_save)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_save", "");
+
 	cell ret_val = CResultSetManager::Get()->StoreActiveResultSet();
+	if (ret_val == 0)
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -1526,9 +1530,14 @@ AMX_DECLARE_NATIVE(Native::cache_save)
 AMX_DECLARE_NATIVE(Native::cache_delete)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_delete", "d");
-	cell ret_val = CResultSetManager::Get()->DeleteResultSet(params[1]);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	if (!CResultSetManager::Get()->DeleteResultSet(params[1]))
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid cache id '{}'", params[1]);
+		return 0;
+	}
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native cache_set_active(Cache:cache_id);
@@ -1536,12 +1545,16 @@ AMX_DECLARE_NATIVE(Native::cache_set_active)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_set_active", "d");
 	auto resultset = CResultSetManager::Get()->GetResultSet(params[1]);
-	if (resultset)
-		CResultSetManager::Get()->SetActiveResultSet(resultset);
+	if (!resultset)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid cache id '{}'", params[1]);
+		return 0;
+	}
 
-	cell ret_val = resultset != nullptr;
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CResultSetManager::Get()->SetActiveResultSet(resultset);
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native cache_is_valid(Cache:cache_id);
