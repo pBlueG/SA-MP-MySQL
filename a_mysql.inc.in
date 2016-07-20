@@ -121,7 +121,7 @@ enum E_MYSQL_EXECTIME_UNIT
 #define FLOAT_NAN (Float:0x7FFFFFFF)
 #endif
 
-#if !defined isnan
+#if !defined MYSQL_NO_ISNAN_FUNC
 stock isnan(Float:value)
 	return value != value;
 #endif
