@@ -222,13 +222,7 @@ Test:CacheGetValueIndexFloat()
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
 
-	printf("1");
-	new Float:val = cache_get_value_index_float(0, 0);
-	printf("2; %x", val);
-	new is_nan = (val != val);
-	printf("3; %d", is_nan);
-	ASSERT_TRUE(is_nan);
-	printf("4");
+	ASSERT_TRUE(isnan(cache_get_value_index_float(0, 0)));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache));
