@@ -16,3 +16,11 @@ INSERT INTO `test` VALUES
   (8, 'asdf', 3.142341),
   (9, 'asdf', 3.142341),
   (10, 'asdf', 3.142341);
+
+CREATE TABLE `test2` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `text` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`));
+
+INSERT INTO `test2` VALUES ();
+INSERT INTO `test2` (`text`) VALUE ('asdf');
