@@ -238,21 +238,10 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 	}
 
 	cell *var = nullptr;
-	if (amx_GetAddr(amx, params[2], &var) != AMX_ERR_NONE || var == nullptr)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "invalid variable reference '{}'", 
-			static_cast<void *>(var));
-		return 0;
-	}
+	amx_GetAddr(amx, params[2], &var);
 
 	const char *column_name = nullptr;
 	amx_StrParam(amx, params[3], column_name);
-	if (column_name == nullptr || strlen(column_name) == 0)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
-		return 0;
-	}
-
 
 	CError<COrm> error;
 	if ((error = orm->AddVariable(
@@ -280,21 +269,10 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_float)
 	}
 
 	cell *var = nullptr;
-	if (amx_GetAddr(amx, params[2], &var) != AMX_ERR_NONE || var == nullptr)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "invalid variable reference '{}'",
-			static_cast<void *>(var));
-		return 0;
-	}
+	amx_GetAddr(amx, params[2], &var);
 
 	const char *column_name = nullptr;
 	amx_StrParam(amx, params[3], column_name);
-	if (column_name == nullptr || strlen(column_name) == 0)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
-		return 0;
-	}
-
 
 	CError<COrm> error;
 	if ((error = orm->AddVariable(
@@ -322,33 +300,14 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 	}
 
 	cell *var = nullptr;
-	if (amx_GetAddr(amx, params[2], &var) != AMX_ERR_NONE || var == nullptr)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "invalid variable reference '{}'",
-			static_cast<void *>(var));
-		return 0;
-	}
-
-	cell var_maxlen = params[3];
-	if (var_maxlen <= 0)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, 
-			"invalid variable max. length '{}'", var_maxlen);
-		return 0;
-	}
+	amx_GetAddr(amx, params[2], &var);
 
 	const char *column_name = nullptr;
 	amx_StrParam(amx, params[4], column_name);
-	if (column_name == nullptr || strlen(column_name) == 0)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "empty column name");
-		return 0;
-	}
-
-
+	
 	CError<COrm> error;
 	if ((error = orm->AddVariable(
-		COrm::Variable::Type::STRING, column_name, var, var_maxlen)))
+		COrm::Variable::Type::STRING, column_name, var, params[3])))
 	{
 		CLog::Get()->LogNative(error);
 		return 0;
