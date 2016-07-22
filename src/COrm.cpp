@@ -306,9 +306,16 @@ void COrm::ApplyResult(const Result_t result, unsigned int rowidx /*= 0*/)
 	const char *data = nullptr;
 	for (size_t i = 0; i != m_Variables.size(); ++i)
 	{
+		Variable &var = m_Variables.at(i);
 		if (result->GetRowData(rowidx, i, &data))
 		{
-			m_Variables.at(i).SetValue(data);
+			var.SetValue(data);
+		}
+		else
+		{
+			CLog::Get()->Log(LogLevel::WARNING, 
+				"COrm::ApplyResult - no data to apply to variable linked with field '{}'", 
+				var.GetName());
 		}
 	}
 	m_Error = PawnError::OK;
@@ -329,6 +336,12 @@ bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
 		{
 			m_KeyVariable.SetValue(data);
 		}
+		else
+		{
+			CLog::Get()->Log(LogLevel::WARNING,
+				"COrm::ApplyResultByName - no data to apply to key variable linked with field '{}'",
+				m_KeyVariable.GetName());
+		}
 	}
 
 	for (auto &v : m_Variables)
@@ -336,6 +349,12 @@ bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
 		if (result->GetRowDataByName(rowidx, v.GetName(), &data))
 		{
 			v.SetValue(data);
+		}
+		else
+		{
+			CLog::Get()->Log(LogLevel::WARNING,
+				"COrm::ApplyResultByName - no data to apply to variable linked with field '{}'",
+				v.GetName());
 		}
 	}
 	return true;
