@@ -30,6 +30,10 @@
 
 new bool:_g_Failed = false;
 
+new g_Int;
+new Float:g_Float;
+new g_String[32];
+
 forward ValidCallback(num, Float:real, string[]);
 public ValidCallback(num, Float:real, string[])
 	return 1;
@@ -49,6 +53,457 @@ TeardownConnection(MySQL:handle)
 	mysql_query(handle, "DROP TABLE IF EXISTS `test`, `test2`", false);
 	mysql_close(handle);
 }
+
+FloatCmp(Float:val1, Float:val2)
+{
+	return floatabs(val1 - val2) <= 0.001;
+}
+
+
+/*
+########################################################
+########################################################
+
+
+
+
+ ,adPPYba,  8b,dPPYba, 88,dPYba,,adPYba,
+a8"     "8a 88P'   "Y8 88P'   "88"    "8a
+8b       d8 88         88      88      88
+"8a,   ,a8" 88         88      88      88
+ `"YbbdP"'  88         88      88      88
+
+########################################################
+########################################################
+*/
+
+Test:OrmCreate()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+	
+	ASSERT(orm_create("", MYSQL_INVALID_HANDLE) == MYSQL_INVALID_ORM);
+	ASSERT(orm_create("", sql) == MYSQL_INVALID_ORM);
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_destroy(orm));
+	
+	TeardownConnection(sql);
+}
+
+Test:OrmDestroy()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_destroy(MYSQL_INVALID_ORM));
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	TeardownConnection(sql);
+}
+
+Test:OrmApplyCache()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+	new Cache:cache;
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	
+	ASSERT((cache = mysql_query(sql, "SELECT * FROM test WHERE `number` = 5")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_num_rows() == 1);
+	ASSERT_FALSE(orm_apply_cache(orm, 999));
+	ASSERT_FALSE(orm_apply_cache(orm, 0, 999));
+	ASSERT_TRUE(orm_apply_cache(orm, 0));
+	ASSERT(g_Int == 5);
+	ASSERT_TRUE(FloatCmp(g_Float, 3.14211));
+	ASSERT(strcmp(g_String, "asdf") == 0);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+	
+	TeardownConnection(sql);
+}
+
+Test:OrmSelect()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_select(MYSQL_INVALID_ORM));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	TeardownConnection(sql);
+	ASSERT_FALSE(orm_select(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+	
+	sql = SetupConnection();
+	
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	
+	ASSERT_FALSE(orm_select(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_FALSE(orm_select(orm));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_select(orm));
+	
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+	
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_select(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_FALSE(orm_select(orm));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_select(orm));
+	ASSERT_FALSE(orm_select(orm, "InvalidCallback"));
+	ASSERT_TRUE(orm_select(orm, "ValidCallback"));
+	ASSERT_FALSE(orm_select(orm, "ValidCallback", "dJd", 123, 456, 789));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+	
+	TeardownConnection(sql);
+}
+
+Test:OrmUpdate()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_update(MYSQL_INVALID_ORM));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	TeardownConnection(sql);
+	ASSERT_FALSE(orm_update(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	sql = SetupConnection();
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_update(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_FALSE(orm_update(orm));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_update(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_update(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_FALSE(orm_update(orm));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_update(orm));
+	ASSERT_FALSE(orm_update(orm, "InvalidCallback"));
+	ASSERT_TRUE(orm_update(orm, "ValidCallback"));
+	ASSERT_FALSE(orm_update(orm, "ValidCallback", "dJd", 123, 456, 789));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	TeardownConnection(sql);
+}
+
+Test:OrmInsert()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_insert(MYSQL_INVALID_ORM));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	TeardownConnection(sql);
+	ASSERT_FALSE(orm_insert(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	sql = SetupConnection();
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_insert(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_FALSE(orm_insert(orm));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_insert(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_insert(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_FALSE(orm_insert(orm));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_insert(orm));
+	ASSERT_FALSE(orm_insert(orm, "InvalidCallback"));
+	ASSERT_TRUE(orm_insert(orm, "ValidCallback"));
+	ASSERT_FALSE(orm_insert(orm, "ValidCallback", "dJd", 123, 456, 789));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	TeardownConnection(sql);
+}
+
+Test:OrmDelete()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_delete(MYSQL_INVALID_ORM));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	TeardownConnection(sql);
+	ASSERT_FALSE(orm_delete(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	sql = SetupConnection();
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_delete(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_FALSE(orm_delete(orm));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_delete(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_delete(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_delete(orm));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_delete(orm));
+	ASSERT_FALSE(orm_delete(orm, "InvalidCallback"));
+	ASSERT_TRUE(orm_delete(orm, "ValidCallback"));
+	ASSERT_FALSE(orm_delete(orm, "ValidCallback", "dJd", 123, 456, 789));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	TeardownConnection(sql);
+}
+
+Test:OrmLoad()
+{
+	//literally the same function as orm_select
+}
+
+Test:OrmSave()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_save(MYSQL_INVALID_ORM));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	TeardownConnection(sql);
+	ASSERT_FALSE(orm_save(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	sql = SetupConnection();
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_save(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_FALSE(orm_save(orm));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_save(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_save(orm));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_FALSE(orm_save(orm));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_TRUE(orm_save(orm));
+	ASSERT_FALSE(orm_save(orm, "InvalidCallback"));
+	ASSERT_TRUE(orm_save(orm, "ValidCallback"));
+	ASSERT_FALSE(orm_save(orm, "ValidCallback", "dJd", 123, 456, 789));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+	
+	TeardownConnection(sql);
+}
+
+Test:OrmAddVar()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_addvar_int(MYSQL_INVALID_ORM, g_Int, "number"));
+	ASSERT_FALSE(orm_addvar_float(MYSQL_INVALID_ORM, g_Float, "float"));
+	ASSERT_FALSE(orm_addvar_string(MYSQL_INVALID_ORM, g_String, sizeof g_String, "text"));
+	
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	
+	ASSERT_FALSE(orm_addvar_int(orm, g_Int, ""));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	
+	ASSERT_FALSE(orm_addvar_float(orm, g_Float, ""));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	
+	ASSERT_FALSE(orm_addvar_string(orm, g_String, sizeof g_String, ""));
+	ASSERT_FALSE(orm_addvar_string(orm, g_String, 0, ""));
+	ASSERT_FALSE(orm_addvar_string(orm, g_String, -500, ""));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+	
+	TeardownConnection(sql);
+}
+
+Test:OrmDelVar()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+	
+	ASSERT_FALSE(orm_delvar(MYSQL_INVALID_ORM, "asdf"));
+	
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_FALSE(orm_delvar(orm, ""));
+	ASSERT_FALSE(orm_delvar(orm, "invalid"));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_delvar(orm, "number"));
+	ASSERT_FALSE(orm_delvar(orm, "number"));
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_delete(orm));
+	ASSERT_TRUE(orm_delvar(orm, "number"));
+	ASSERT_FALSE(orm_delete(orm)); //no key registered
+	ASSERT_FALSE(orm_delvar(orm, "number"));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	TeardownConnection(sql);
+}
+
+Test:OrmClearVars()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_clear_vars(MYSQL_INVALID_ORM));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	g_Int = 1234;
+	g_Float = 5.678;
+	g_String = "910";
+	ASSERT_TRUE(orm_clear_vars(orm));
+	ASSERT(g_Int == 0);
+	ASSERT_TRUE(FloatCmp(g_Float, 0.0));
+	ASSERT(g_String[0] == '\0');
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	TeardownConnection(sql);
+}
+
+Test:OrmSetKey()
+{
+	new MySQL:sql = SetupConnection();
+	new ORM:orm;
+
+	ASSERT_FALSE(orm_setkey(MYSQL_INVALID_ORM, "number"));
+
+	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
+	
+	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
+	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
+	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
+	ASSERT_FALSE(orm_setkey(orm, ""));
+	ASSERT_FALSE(orm_delete(orm)); // no key
+	ASSERT_TRUE(orm_setkey(orm, "number"));
+	ASSERT_TRUE(orm_delete(orm));
+
+	ASSERT_TRUE(orm_destroy(orm));
+	ASSERT_FALSE(orm_destroy(orm));
+
+	TeardownConnection(sql);
+}
+
+
+
+
 
 
 /*
@@ -479,6 +934,47 @@ Test:CacheInsertId()
 	ASSERT_FALSE(cache_is_valid(cache));
 
 	ASSERT(cache_insert_id() == -1);
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetQueryExecTime()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+
+	ASSERT(cache_get_query_exec_time(MILLISECONDS) == -1);
+	ASSERT(cache_get_query_exec_time(MICROSECONDS) == -1);
+
+	ASSERT((cache = mysql_query(sql, "SELECT SLEEP(3)")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT(cache_get_query_exec_time(MILLISECONDS) >= 2999);
+	ASSERT(cache_get_query_exec_time(MICROSECONDS) >= 2999999);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT(cache_get_query_exec_time(MILLISECONDS) == -1);
+	ASSERT(cache_get_query_exec_time(MICROSECONDS) == -1);
+
+	TeardownConnection(sql);
+}
+
+Test:CacheGetQueryString()
+{
+	new MySQL:sql = SetupConnection();
+	new Cache:cache;
+	new dest[256];
+
+	ASSERT_FALSE(cache_get_query_string(dest));
+
+	ASSERT((cache = mysql_query(sql, "SELECT 3, 5, 'banana', 'strawberry'")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_valid(cache));
+	ASSERT_TRUE(cache_get_query_string(dest));
+	ASSERT(strcmp(dest, "SELECT 3, 5, 'banana', 'strawberry'") == 0);
+	ASSERT_TRUE(cache_delete(cache));
+	ASSERT_FALSE(cache_is_valid(cache));
+
+	ASSERT_FALSE(cache_get_query_string(dest));
 
 	TeardownConnection(sql);
 }
@@ -1302,6 +1798,11 @@ public OnGameModeInit()
 	    GetPublicNameFromIndex(i, pname);
 	    if(strfind(pname, "Test_") == 0)
 	    {
+	        //reset global ORM variables
+	        g_Int = 999;
+			g_Float = 999.999;
+			g_String = "xxxxxx";
+			
 	        test_counter++;
 	        printf("executing test \"%s\"...", pname);
 	        CallLocalFunction(pname, "");
