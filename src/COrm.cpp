@@ -295,6 +295,14 @@ void COrm::ApplyResult(const Result_t result, unsigned int rowidx /*= 0*/)
 		return;
 	}
 
+	// we don't apply anything to the key variable here, since
+	// 1. it's not possible because variables are assigned sequentially by field index
+	// 2. there is no key value in the result data since no function generates a query
+	//    where it also selects the key
+	// 3. it's not really needed, because only the ORM-generated SELECT query uses this
+	//    function in its query result callback and the SELECT query selects data by
+	//    the key's value (WHERE clause)
+
 	const char *data = nullptr;
 	for (size_t i = 0; i != m_Variables.size(); ++i)
 	{
@@ -315,6 +323,14 @@ bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
 		return false;
 
 	const char *data = nullptr;
+	if (m_KeyVariable)
+	{
+		if (result->GetRowDataByName(rowidx, m_KeyVariable.GetName(), &data))
+		{
+			m_KeyVariable.SetValue(data);
+		}
+	}
+
 	for (auto &v : m_Variables)
 	{
 		if (result->GetRowDataByName(rowidx, v.GetName(), &data))
