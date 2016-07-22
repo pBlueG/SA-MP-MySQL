@@ -81,7 +81,7 @@ CError<COrm> COrm::AddVariable(Variable::Type type,
 	if (var_addr == nullptr)
 		return { Error::INVALID_PAWN_ADDRESS, "invalid variable PAWN address" };
 
-	if (type == Variable::Type::STRING && var_maxlen == 0)
+	if (type == Variable::Type::STRING && var_maxlen <= 0)
 		return { Error::INVALID_MAX_LEN, "invalid maximal length for string type variable" };
 
 	bool duplicate = false;
@@ -191,7 +191,7 @@ COrm::QueryType COrm::GetSaveQueryType()
 	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GetSaveQueryType(this={})",
 		static_cast<const void *>(this));
 	
-	if (m_KeyVariable && m_KeyVariable.GetValueAsCell() != 0)
+	if (m_KeyVariable && m_KeyVariable.GetValueAsCell() != 0) //works for integer and strings
 		return QueryType::UPDATE;
 	return QueryType::INSERT;
 }
