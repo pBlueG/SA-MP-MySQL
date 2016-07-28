@@ -404,7 +404,7 @@ AMX_DECLARE_NATIVE(Native::orm_setkey)
 
 
 
-// native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
+// native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING);
 AMX_DECLARE_NATIVE(Native::mysql_log)
 {
 	CLog::Get()->SetLogLevel(static_cast<LogLevel>(params[1]));
