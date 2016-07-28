@@ -1,11 +1,10 @@
 #include "CLog.hpp"
 
-#include <samplog/DebugInfo.hpp>
 #include <amx/amx.h>
 
 
 CLog::CLog()
-	: m_Logger(samplog::CreatePluginLogger("mysql"))
+	: m_Logger("mysql")
 { }
 
 void CDebugInfoManager::Update(AMX * const amx, const char *func)
@@ -39,6 +38,6 @@ CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func, const char
 		CDebugInfoManager::Get()->Update(amx, func);
 
 	auto &logger = CLog::Get()->m_Logger;
-	if (logger->IsLogLevel(LogLevel::DEBUG))
-		logger->LogNativeCall(amx, func, params_format);
+	if (logger.IsLogLevel(LogLevel::DEBUG))
+		logger.LogNativeCall(amx, func, params_format);
 }

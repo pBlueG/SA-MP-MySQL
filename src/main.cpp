@@ -10,7 +10,7 @@
 #include "version.hpp"
 
 #include "mysql.hpp"
-#include <samplog/DebugInfo.hpp>
+#include <samplog/DebugInfo.h>
 
 
 

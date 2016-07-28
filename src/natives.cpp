@@ -407,22 +407,7 @@ AMX_DECLARE_NATIVE(Native::orm_setkey)
 // native mysql_log(E_LOGLEVEL:loglevel = ERROR | WARNING, E_LOGTYPE:logtype = TEXT);
 AMX_DECLARE_NATIVE(Native::mysql_log)
 {
-	enum _LogLevel
-	{
-		NONE = 0,
-		ERROR = 1,
-		WARNING = 2,
-		INFO = 4,
-		DEBUG = 8,
-	};
-
-	cell loglevel = params[1];
-
-	CLog::Get()->SetLogLevel(LogLevel::ERROR, (loglevel & _LogLevel::ERROR) == _LogLevel::ERROR);
-	CLog::Get()->SetLogLevel(LogLevel::WARNING, (loglevel & _LogLevel::WARNING) == _LogLevel::WARNING);
-	CLog::Get()->SetLogLevel(LogLevel::INFO, (loglevel & _LogLevel::INFO) == _LogLevel::INFO);
-	CLog::Get()->SetLogLevel(LogLevel::DEBUG, (loglevel & _LogLevel::DEBUG) == _LogLevel::DEBUG);
-
+	CLog::Get()->SetLogLevel(static_cast<LogLevel>(params[1]));
 	return 1;
 }
 

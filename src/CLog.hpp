@@ -1,6 +1,6 @@
 #pragma once
 
-#include <samplog/PluginLogger.hpp>
+#include <samplog/PluginLogger.h>
 #include "CSingleton.hpp"
 #include "CError.hpp"
 
@@ -66,41 +66,40 @@ private:
 	~CLog() = default;
 
 public:
-	inline void SetLogLevel(const LogLevel level, bool enabled)
+	inline void SetLogLevel(LogLevel level)
 	{
-		m_Logger->SetLogLevel(level, enabled);
+		m_Logger.SetLogLevel(level);
 	}
-	inline bool IsLogLevel(const LogLevel level)
+	inline bool IsLogLevel(LogLevel level)
 	{
-		return m_Logger->IsLogLevel(level);
+		return m_Logger.IsLogLevel(level);
 	}
 
 	template<typename... Args>
-	inline void Log(const LogLevel level, const char *format, Args &&...args)
+	inline void Log(LogLevel level, const char *format, Args &&...args)
 	{
-		if (!m_Logger->IsLogLevel(level))
+		if (!IsLogLevel(level))
 			return;
 
-		m_Logger->Log(level, fmt::format(format, std::forward<Args>(args)...).c_str());
+		m_Logger.Log(level, fmt::format(format, std::forward<Args>(args)...).c_str());
 	}
 
 	template<typename... Args>
-	inline void Log(const LogLevel level, const DebugInfo &dbginfo, 
+	inline void Log(LogLevel level, const DebugInfo &dbginfo, 
 		const char *format, Args &&...args)
 	{
-		if (!m_Logger->IsLogLevel(level))
+		if (!IsLogLevel(level))
 			return;
 
-		//log-core note: LogEx() behaves like Log() if parameter line == 0
-		m_Logger->LogEx(level, fmt::format(format, std::forward<Args>(args)...).c_str(), 
+		m_Logger.CLogger::Log(level, fmt::format(format, std::forward<Args>(args)...).c_str(), 
 			dbginfo.line, dbginfo.file, dbginfo.function);
 	}
 
 	// should only be called in native functions
 	template<typename... Args>
-	void LogNative(const LogLevel level, const char *fmt, Args &&...args)
+	void LogNative(LogLevel level, const char *fmt, Args &&...args)
 	{
-		if (!m_Logger->IsLogLevel(level))
+		if (!IsLogLevel(level))
 			return;
 
 		if (CDebugInfoManager::Get()->GetCurrentAmx() == nullptr)
