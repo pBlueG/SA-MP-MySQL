@@ -117,14 +117,6 @@ enum E_MYSQL_EXECTIME_UNIT
 #define MYSQL_INVALID_CACHE Cache:0
 #define MYSQL_INVALID_ORM ORM:0
 
-#if !defined FLOAT_NAN
-#define FLOAT_NAN (Float:0x7FFFFFFF)
-#endif
-
-#if !defined MYSQL_NO_ISNAN_FUNC
-stock isnan(Float:value)
-	return value != value;
-#endif
 
 
 // ORM functions
