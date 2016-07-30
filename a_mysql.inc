@@ -26,7 +26,7 @@
 #define CR_SERVER_LOST_EXTENDED 		2055
 
 
-enum E_LOGLEVEL
+enum E_MYSQL_LOGLEVEL
 {
 	LOG_NONE = 0,
 	LOG_ERROR = 1,
@@ -36,7 +36,7 @@ enum E_LOGLEVEL
 	LOG_ALL = LOG_ERROR | LOG_WARNING | LOG_DEBUG
 };
 
-enum E_LOGTYPE
+enum E_MYSQL_LOGTYPE
 {
 	LOG_TYPE_TEXT = 1,
 	LOG_TYPE_HTML = 2
@@ -107,7 +107,7 @@ native orm_setkey(ORM:id, varname[]);
 
 
 // MySQL functions
-native mysql_log(E_LOGLEVEL:loglevel = LOG_ERROR | LOG_WARNING, E_LOGTYPE:logtype = LOG_TYPE_TEXT);
+native mysql_log(E_MYSQL_LOGLEVEL:loglevel = LOG_ERROR | LOG_WARNING, E_MYSQL_LOGTYPE:logtype = LOG_TYPE_TEXT);
 native mysql_connect(const host[], const user[], const database[], const password[], port = 3306, bool:autoreconnect = true, pool_size = 2);
 native mysql_close(connectionHandle = 1);
 native mysql_reconnect(connectionHandle = 1);
