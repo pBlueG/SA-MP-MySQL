@@ -56,6 +56,8 @@ private:
 	boost::thread m_WorkerThread;
 	boost::atomic<bool> m_WorkerThreadActive;
 
+	boost::condition_variable m_QueueNotifier;
+	boost::mutex m_QueueNotifierMutex;
 	boost::lockfree::spsc_queue < Query_t,
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 65536 >> m_Queue;
@@ -66,10 +68,7 @@ private:
 	void WorkerFunc();
 
 public:
-	inline bool Queue(Query_t query)
-	{
-		return m_Queue.push(query) && ++m_UnprocessedQueries;
-	}
+	bool Queue(Query_t query);
 	inline bool SetCharset(string charset)
 	{
 		return m_Connection.SetCharset(charset);

@@ -199,10 +199,13 @@ void CThreadedConnection::WorkerFunc()
 	CLog::Get()->Log(LogLevel::DEBUG, "CThreadedConnection::WorkerFunc(this={}, connection={})",
 		static_cast<const void *>(this), static_cast<const void *>(&m_Connection));
 
+	boost::unique_lock<boost::mutex> lock(m_QueueNotifierMutex);
+
 	mysql_thread_init();
 
 	while (m_WorkerThreadActive)
 	{
+		m_QueueNotifier.wait(lock);
 		Query_t query;
 		while (m_Queue.pop(query))
 		{
@@ -222,13 +225,22 @@ void CThreadedConnection::WorkerFunc()
 			--m_UnprocessedQueries;
 			CDispatcher::Get()->Dispatch(std::move(func));
 		}
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
 	
 	CLog::Get()->Log(LogLevel::DEBUG, "CThreadedConnection::WorkerFunc(this={}, connection={}) - shutting down",
 		static_cast<const void *>(this), static_cast<const void *>(&m_Connection));
 
 	mysql_thread_end();
+}
+
+bool CThreadedConnection::Queue(Query_t query)
+{
+	if (!m_Queue.push(query))
+		return false;
+
+	++m_UnprocessedQueries;
+	m_QueueNotifier.notify_one();
+	return true;
 }
 
 CThreadedConnection::~CThreadedConnection()
@@ -240,6 +252,7 @@ CThreadedConnection::~CThreadedConnection()
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 
 	m_WorkerThreadActive = false;
+	m_QueueNotifier.notify_one();
 	m_WorkerThread.join();
 }
 
