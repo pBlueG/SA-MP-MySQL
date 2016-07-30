@@ -39,13 +39,6 @@ enum E_LOGLEVEL
 };
 #endif
 
-enum E_MYSQL_LOGTYPE
-{
-	INVALID,
-	TEXT,
-	HTML
-};
-
 enum E_ORM_ERROR
 {
 	ERROR_OK,
