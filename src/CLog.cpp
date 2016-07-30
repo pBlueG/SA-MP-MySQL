@@ -3,10 +3,6 @@
 #include <amx/amx.h>
 
 
-CLog::CLog()
-	: m_Logger("mysql")
-{ }
-
 void CDebugInfoManager::Update(AMX * const amx, const char *func)
 {
 	m_Amx = amx;

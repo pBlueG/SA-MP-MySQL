@@ -62,7 +62,9 @@ class CLog : public CSingleton<CLog>
 	friend class CSingleton<CLog>;
 	friend class CScopedDebugInfo;
 private:
-	CLog();
+	CLog() :
+		m_Logger("mysql")
+	{ }
 	~CLog() = default;
 
 public:
