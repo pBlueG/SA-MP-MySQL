@@ -80,6 +80,7 @@ namespace Native
 	AMX_DECLARE_NATIVE(cache_save);
 	AMX_DECLARE_NATIVE(cache_delete);
 	AMX_DECLARE_NATIVE(cache_set_active);
+	AMX_DECLARE_NATIVE(cache_is_any_active);
 	AMX_DECLARE_NATIVE(cache_is_valid);
 	
 	AMX_DECLARE_NATIVE(cache_affected_rows);

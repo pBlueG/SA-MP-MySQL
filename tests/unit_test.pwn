@@ -533,12 +533,14 @@ Test:CacheCount()
 	ASSERT(cache_get_result_count() == 0);
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
 	ASSERT(cache_get_result_count() == 1);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 	
 	ASSERT(cache_get_row_count() == 0);
 	ASSERT(cache_get_field_count() == 0);
@@ -556,6 +558,7 @@ Test:CacheGetFieldName()
 	ASSERT_FALSE(cache_get_field_name(0, dest));
 	
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_field_count() == 3);
 	ASSERT_TRUE(cache_get_field_name(0, dest));
@@ -567,6 +570,7 @@ Test:CacheGetFieldName()
 	ASSERT_FALSE(cache_get_field_name(3, dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 	
 	ASSERT_FALSE(cache_get_field_name(0, dest));
 
@@ -581,6 +585,7 @@ Test:CacheGetFieldType()
 	ASSERT(cache_get_field_type(0) == MYSQL_TYPE_INVALID);
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_field_count() == 3);
 	ASSERT(cache_get_field_type(0) == MYSQL_TYPE_LONG);
@@ -589,6 +594,7 @@ Test:CacheGetFieldType()
 	ASSERT(cache_get_field_type(3) == MYSQL_TYPE_INVALID);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT(cache_get_field_type(0) == MYSQL_TYPE_INVALID);
 
@@ -599,20 +605,26 @@ Test:CacheSetResult()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+	new dest;
 
 	ASSERT_FALSE(cache_set_result(0));
 
 	ASSERT((cache = mysql_query(sql, "SELECT 1; SELECT 2; SELECT 4;")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_result_count() == 3);
-	ASSERT(cache_get_value_index_int(0, 0) == 1);
+	ASSERT_TRUE(cache_get_value_index_int(0, 0, dest));
+	ASSERT(dest == 1);
 	ASSERT_TRUE(cache_set_result(1));
-	ASSERT(cache_get_value_index_int(0, 0) == 2);
+	ASSERT_TRUE(cache_get_value_index_int(0, 0, dest));
+	ASSERT(dest == 2);
 	ASSERT_TRUE(cache_set_result(2));
-	ASSERT(cache_get_value_index_int(0, 0) == 4);
+	ASSERT_TRUE(cache_get_value_index_int(0, 0, dest));
+	ASSERT(dest == 4);
 	ASSERT_FALSE(cache_set_result(3));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT_FALSE(cache_set_result(0));
 
@@ -628,6 +640,7 @@ Test:CacheGetValueIndex()
 	ASSERT_FALSE(cache_get_value_index(0, 0, dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
@@ -643,6 +656,7 @@ Test:CacheGetValueIndex()
 	ASSERT_FALSE(cache_get_value_index(2, 3, dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT_FALSE(cache_get_value_index(0, 0, dest));
 
@@ -653,21 +667,26 @@ Test:CacheGetValueIndexInt()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+	new dest;
 
-	ASSERT(cache_get_value_index_int(0, 0) == 0);
+	ASSERT_FALSE(cache_get_value_index_int(0, 0, dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
-	ASSERT(cache_get_value_index_int(4, 0) == 5);
-	ASSERT(cache_get_value_index_int(9, 0) == 10);
-	ASSERT(cache_get_value_index_int(10, 2) == 0);
-	ASSERT(cache_get_value_index_int(2, 3) == 0);
+	ASSERT_TRUE(cache_get_value_index_int(4, 0, dest));
+	ASSERT(dest == 5);
+	ASSERT_TRUE(cache_get_value_index_int(9, 0, dest));
+	ASSERT(dest == 10);
+	ASSERT_FALSE(cache_get_value_index_int(10, 2, dest));
+	ASSERT_FALSE(cache_get_value_index_int(2, 3, dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
-	ASSERT(cache_get_value_index_int(0, 0) == 0);
+	ASSERT_FALSE(cache_get_value_index_int(0, 0, dest));
 
 	TeardownConnection(sql);
 }
@@ -676,22 +695,28 @@ Test:CacheGetValueIndexFloat()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+	new Float:dest;
 
-	ASSERT_TRUE(isnan(cache_get_value_index_float(0, 0)));
+	ASSERT_FALSE(cache_get_value_index_float(0, 0, dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
-	ASSERT(floatabs(cache_get_value_index_float(6, 0) - 7) <= 0.001);
-	ASSERT(floatabs(cache_get_value_index_float(0, 0) - 1) <= 0.001);
-	ASSERT(floatabs(cache_get_value_index_float(6, 2) - 3.14211) <= 0.001);
-	ASSERT_TRUE(isnan(cache_get_value_index_float(10, 2)));
-	ASSERT_TRUE(isnan(cache_get_value_index_float(2, 3)));
+	ASSERT_TRUE(cache_get_value_index_float(6, 0, dest));
+	ASSERT_TRUE(FloatCmp(dest, 7.0));
+	ASSERT_TRUE(cache_get_value_index_float(0, 0, dest));
+	ASSERT_TRUE(FloatCmp(dest, 1.0));
+	ASSERT_TRUE(cache_get_value_index_float(6, 2, dest));
+	ASSERT_TRUE(FloatCmp(dest, 3.14211));
+	ASSERT_FALSE(cache_get_value_index_float(10, 2, dest));
+	ASSERT_FALSE(cache_get_value_index_float(2, 3, dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
-	ASSERT_TRUE(isnan(cache_get_value_index_float(0, 0)));
+	ASSERT_FALSE(cache_get_value_index_float(0, 0, dest));
 
 	TeardownConnection(sql);
 }
@@ -700,22 +725,28 @@ Test:CacheIsValueIndexNull()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+	new bool:dest = true;
 
-	ASSERT_FALSE(cache_is_value_index_null(0, 0));
+	ASSERT_FALSE(cache_is_value_index_null(0, 0, dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test2")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 2);
 	ASSERT(cache_get_field_count() == 2);
-	ASSERT_TRUE(cache_is_value_index_null(0, 1));
-	ASSERT_FALSE(cache_is_value_index_null(1, 0));
-	ASSERT_FALSE(cache_is_value_index_null(1, 1));
-	ASSERT_FALSE(cache_is_value_index_null(5, 1));
-	ASSERT_FALSE(cache_is_value_index_null(1, 3));
+	ASSERT_TRUE(cache_is_value_index_null(1, 0, dest));
+	ASSERT(dest == false);
+	ASSERT_TRUE(cache_is_value_index_null(0, 1, dest));
+	ASSERT(dest == true);
+	ASSERT_TRUE(cache_is_value_index_null(1, 1, dest));
+	ASSERT(dest == false);
+	ASSERT_FALSE(cache_is_value_index_null(5, 1, dest));
+	ASSERT_FALSE(cache_is_value_index_null(1, 3, dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
-	ASSERT_FALSE(cache_is_value_index_null(0, 0));
+	ASSERT_FALSE(cache_is_value_index_null(0, 0, dest));
 
 	TeardownConnection(sql);
 }
@@ -729,6 +760,7 @@ Test:CacheGetValueName()
 	ASSERT_FALSE(cache_get_value_name(0, "text", dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
@@ -745,6 +777,7 @@ Test:CacheGetValueName()
 	ASSERT_FALSE(cache_get_value_name(2, "", dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT_FALSE(cache_get_value_name(0, "text", dest));
 
@@ -755,22 +788,27 @@ Test:CacheGetValueNameInt()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+	new dest;
 
-	ASSERT(cache_get_value_name_int(0, "text") == 0);
+	ASSERT_FALSE(cache_get_value_name_int(0, "text", dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
-	ASSERT(cache_get_value_name_int(8, "number") == 9);
-	ASSERT(cache_get_value_name_int(0, "number") == 1);
-	ASSERT(cache_get_value_name_int(10, "float") == 0);
-	ASSERT(cache_get_value_name_int(5, "chickenwings") == 0);
-	ASSERT(cache_get_value_name_int(6, "") == 0);
+	ASSERT_TRUE(cache_get_value_name_int(8, "number", dest));
+	ASSERT(dest == 9);
+	ASSERT_TRUE(cache_get_value_name_int(0, "number", dest));
+	ASSERT(dest == 1);
+	ASSERT_FALSE(cache_get_value_name_int(10, "float", dest));
+	ASSERT_FALSE(cache_get_value_name_int(5, "chickenwings", dest));
+	ASSERT_FALSE(cache_get_value_name_int(6, "", dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
-	ASSERT(cache_get_value_name_int(0, "text") == 0);
+	ASSERT_FALSE(cache_get_value_name_int(0, "text", dest));
 
 	TeardownConnection(sql);
 }
@@ -779,23 +817,29 @@ Test:CacheGetValueNameFloat()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+	new Float:dest;
 
-	ASSERT_TRUE(isnan(cache_get_value_name_float(0, "text")));
+	ASSERT_FALSE(cache_get_value_name_float(0, "text", dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
-	ASSERT(floatabs(cache_get_value_name_float(2, "number") - 3) <= 0.001);
-	ASSERT(floatabs(cache_get_value_name_float(9, "number") - 10) <= 0.001);
-	ASSERT(floatabs(cache_get_value_name_float(4, "float") - 3.14211) <= 0.001);
-	ASSERT_TRUE(isnan(cache_get_value_name_float(10, "float")));
-	ASSERT_TRUE(isnan(cache_get_value_name_float(5, "chickenwings")));
-	ASSERT_TRUE(isnan(cache_get_value_name_float(6, "")));
+	ASSERT_TRUE(cache_get_value_name_float(2, "number", dest));
+	ASSERT_TRUE(FloatCmp(dest, 3.0));
+	ASSERT_TRUE(cache_get_value_name_float(9, "number", dest));
+	ASSERT_TRUE(FloatCmp(dest, 10.0));
+	ASSERT_TRUE(cache_get_value_name_float(4, "float", dest));
+	ASSERT_TRUE(FloatCmp(dest, 3.14211));
+	ASSERT_FALSE(cache_get_value_name_float(10, "float", dest));
+	ASSERT_FALSE(cache_get_value_name_float(5, "chickenwings", dest));
+	ASSERT_FALSE(cache_get_value_name_float(6, "", dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
-	ASSERT_TRUE(isnan(cache_get_value_name_float(0, "text")));
+	ASSERT_FALSE(cache_get_value_name_float(0, "text", dest));
 
 	TeardownConnection(sql);
 }
@@ -804,22 +848,28 @@ Test:CacheIsValueNameNull()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
+	new bool:dest = true;
 
-	ASSERT_FALSE(cache_is_value_name_null(0, "text"));
+	ASSERT_FALSE(cache_is_value_name_null(0, "text", dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test2")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_row_count() == 2);
 	ASSERT(cache_get_field_count() == 2);
-	ASSERT_TRUE(cache_is_value_name_null(0, "text"));
-	ASSERT_FALSE(cache_is_value_name_null(1, "id"));
-	ASSERT_FALSE(cache_is_value_name_null(1, "text"));
-	ASSERT_FALSE(cache_is_value_name_null(5, "text"));
-	ASSERT_FALSE(cache_is_value_name_null(1, "pancakes"));
+	ASSERT_TRUE(cache_is_value_name_null(1, "id", dest));
+	ASSERT(dest == false);
+	ASSERT_TRUE(cache_is_value_name_null(0, "text", dest));
+	ASSERT(dest == true);
+	ASSERT_TRUE(cache_is_value_name_null(1, "text", dest));
+	ASSERT(dest == false);
+	ASSERT_FALSE(cache_is_value_name_null(5, "text", dest));
+	ASSERT_FALSE(cache_is_value_name_null(1, "pancakes", dest));
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
-	ASSERT_FALSE(cache_is_value_name_null(0, "text"));
+	ASSERT_FALSE(cache_is_value_name_null(0, "text", dest));
 
 	TeardownConnection(sql);
 }
@@ -836,32 +886,40 @@ Test:CacheSave()
 	ASSERT_FALSE(cache_delete(MYSQL_INVALID_CACHE));
 	
 	ASSERT((cache[0] = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache[0]));
 	ASSERT((cache[1] = cache_save()) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache[1]));
 	ASSERT(cache[0] != cache[1]);
 	ASSERT((cache[2] = mysql_query(sql, "SELECT * FROM test2")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache[2]));
 	ASSERT_TRUE(cache_delete(cache[0]));
 	ASSERT_FALSE(cache_is_valid(cache[0]));
 	ASSERT_FALSE(cache_delete(cache[0]));
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT((num_rows = cache_num_rows()) == 2);
 	ASSERT((num_fields = cache_num_fields()) == 2);
 	ASSERT_TRUE(cache_set_active(cache[1]));
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT(cache_num_rows() != num_rows);
 	ASSERT(cache_num_fields() != num_fields);
 	ASSERT((cache[0] = cache_save()) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache[0]));
 	ASSERT_TRUE(cache_delete(cache[1]));
 	ASSERT_FALSE(cache_is_valid(cache[1]));
+	ASSERT_FALSE(cache_is_any_active());
 	ASSERT((cache[1] = cache_save()) == MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_set_active(cache[0]));
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT(cache_num_rows() != num_rows);
 	ASSERT(cache_num_fields() != num_fields);
 	ASSERT_TRUE(cache_delete(cache[0]));
 	ASSERT_FALSE(cache_is_valid(cache[0]));
+	ASSERT_FALSE(cache_is_any_active());
 	ASSERT_TRUE(cache_delete(cache[2]));
 	ASSERT_FALSE(cache_is_valid(cache[2]));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT(cache_save() == MYSQL_INVALID_CACHE);
 
@@ -880,16 +938,20 @@ Test:CacheAffectedRows()
 	ASSERT(cache_affected_rows() == -1);
 
 	ASSERT((cache = mysql_query(sql, "UPDATE test SET `text` = 'fdsa'")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_affected_rows() == 10);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 	
 	ASSERT((cache = mysql_query(sql, "DELETE FROM test WHERE `number` % 2 = 1")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_affected_rows() == 5);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT(cache_affected_rows() == -1);
 	
@@ -904,16 +966,20 @@ Test:CacheWarningCount()
 	ASSERT(cache_warning_count() == -1);
 
 	ASSERT((cache = mysql_query(sql, "DROP TABLE IF EXISTS `nope`")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_warning_count() == 1);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 	
 	ASSERT((cache = mysql_query(sql, "SELECT 'banana'")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_warning_count() == 0);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT(cache_warning_count() == -1);
 
@@ -928,10 +994,12 @@ Test:CacheInsertId()
 	ASSERT(cache_insert_id() == -1);
 
 	ASSERT((cache = mysql_query(sql, "INSERT INTO test (`float`, `text`) VALUES (2.56412, 'fdsa')")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_insert_id() == 100);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT(cache_insert_id() == -1);
 
@@ -947,11 +1015,13 @@ Test:CacheGetQueryExecTime()
 	ASSERT(cache_get_query_exec_time(MICROSECONDS) == -1);
 
 	ASSERT((cache = mysql_query(sql, "SELECT SLEEP(3)")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_get_query_exec_time(MILLISECONDS) >= 2999);
 	ASSERT(cache_get_query_exec_time(MICROSECONDS) >= 2999999);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT(cache_get_query_exec_time(MILLISECONDS) == -1);
 	ASSERT(cache_get_query_exec_time(MICROSECONDS) == -1);
@@ -968,11 +1038,13 @@ Test:CacheGetQueryString()
 	ASSERT_FALSE(cache_get_query_string(dest));
 
 	ASSERT((cache = mysql_query(sql, "SELECT 3, 5, 'banana', 'strawberry'")) != MYSQL_INVALID_CACHE);
+	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT_TRUE(cache_get_query_string(dest));
 	ASSERT(strcmp(dest, "SELECT 3, 5, 'banana', 'strawberry'") == 0);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
+	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT_FALSE(cache_get_query_string(dest));
 
@@ -1019,7 +1091,9 @@ Test:UnthreadedQuery()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
-	new dest[32];
+	new dest_str[32];
+	new dest_int;
+	new Float:dest_float;
 	
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 
@@ -1029,7 +1103,8 @@ Test:UnthreadedQuery()
 	
 	ASSERT( (cache = mysql_query(sql, "SELECT 1")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache));
-	ASSERT(cache_get_value_index_int(0, 0) == 1);
+	ASSERT_TRUE(cache_get_value_index_int(0, 0, dest_int));
+	ASSERT(dest_int == 1);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
 	
@@ -1038,14 +1113,20 @@ Test:UnthreadedQuery()
 	ASSERT(cache_get_row_count() == 10);
 	ASSERT(cache_get_field_count() == 3);
 	ASSERT(cache_get_result_count() == 1);
-	ASSERT(cache_get_value_index_int(4, 0) == 5);
-	ASSERT(cache_get_value_name_int(4, "number") == 5);
-	ASSERT(floatabs(cache_get_value_index_float(4, 2) - 3.14211) <= 0.001);
-	ASSERT(floatabs(cache_get_value_name_float(4, "float") - 3.14211) <= 0.001);
-	ASSERT_TRUE(cache_get_value_index(4, 1, dest));
-	ASSERT(strcmp(dest, "asdf") == 0);
-	ASSERT_TRUE(cache_get_value_name(4, "text", dest));
-	ASSERT(strcmp(dest, "asdf") == 0);
+	ASSERT_TRUE(cache_get_value_index_int(4, 0, dest_int));
+	ASSERT(dest_int == 5);
+	dest_int = 0;
+	ASSERT_TRUE(cache_get_value_name_int(4, "number", dest_int));
+	ASSERT(dest_int == 5);
+	ASSERT_TRUE(cache_get_value_index_float(4, 2, dest_float));
+	ASSERT_TRUE(FloatCmp(dest_float, 3.14211));
+	dest_float = 0.0;
+	ASSERT_TRUE(cache_get_value_name_float(4, "float", dest_float));
+	ASSERT_TRUE(FloatCmp(dest_float, 3.14211));
+	ASSERT_TRUE(cache_get_value_index(4, 1, dest_str));
+	ASSERT(strcmp(dest_str, "asdf") == 0);
+	ASSERT_TRUE(cache_get_value_name(4, "text", dest_str));
+	ASSERT(strcmp(dest_str, "asdf") == 0);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
 	

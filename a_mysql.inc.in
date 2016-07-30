@@ -222,32 +222,33 @@ stock cache_num_results()
 
 
 native cache_get_value_index(row_idx, column_idx, destination[], max_len = sizeof(destination));
-native cache_get_value_index_int(row_idx, column_idx);
-native Float:cache_get_value_index_float(row_idx, column_idx);
+native cache_get_value_index_int(row_idx, column_idx, &destination);
+native cache_get_value_index_float(row_idx, column_idx, &Float:destination);
 /*
-native bool:cache_get_value_index_bool(row_idx, column_idx);
+native cache_get_value_index_bool(row_idx, column_idx, &bool:destination);
 */
-stock bool:cache_get_value_index_bool(row_idx, column_idx)
+stock cache_get_value_index_bool(row_idx, column_idx, &bool:destination)
 {
-    return bool:cache_get_value_index_int(row_idx, column_idx);
+    return cache_get_value_index_int(row_idx, column_idx, _:destination);
 }
-native bool:cache_is_value_index_null(row_idx, column_idx);
+native cache_is_value_index_null(row_idx, column_idx, &bool:destination);
 
 native cache_get_value_name(row_idx, const column_name[], destination[], max_len = sizeof(destination));
-native cache_get_value_name_int(row_idx, const column_name[]);
-native Float:cache_get_value_name_float(row_idx, const column_name[]);
+native cache_get_value_name_int(row_idx, const column_name[], &destination);
+native cache_get_value_name_float(row_idx, const column_name[], &Float:destination);
 /*
-native bool:cache_get_value_name_bool(row_idx, const column_name[]);
+native cache_get_value_name_bool(row_idx, const column_name[], &bool:destination);
 */
-stock bool:cache_get_value_name_bool(row_idx, const column_name[])
+stock cache_get_value_name_bool(row_idx, const column_name[], &bool:destination)
 {
-    return bool:cache_get_value_name_int(row_idx, column_name);
+    return cache_get_value_name_int(row_idx, column_name, _:destination);
 }
-native bool:cache_is_value_name_null(row_idx, const column_name[]);
+native cache_is_value_name_null(row_idx, const column_name[], &bool:destination);
 
 native Cache:cache_save();
 native cache_delete(Cache:cache_id);
 native cache_set_active(Cache:cache_id);
+native bool:cache_is_any_active();
 native bool:cache_is_valid(Cache:cache_id);
 
 native cache_affected_rows();

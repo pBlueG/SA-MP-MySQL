@@ -1191,12 +1191,14 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index)
 	if (data == nullptr) //NULL value
 		data = "NULL";
 
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", data);
+
 	amx_SetCString(amx, params[3], data, params[4]);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
 }
 
-// native cache_get_value_index_int(row_idx, column_idx);
+// native cache_get_value_index_int(row_idx, column_idx, &destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_int", "dd");
@@ -1207,6 +1209,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 		return 0;
 	}
 
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[3], &dest_addr) != AMX_ERR_NONE || dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
 	const char *data = nullptr;
 	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
 	{
@@ -1215,19 +1224,20 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 		return 0;
 	}
 
-	cell data_int = 0;
-	if (ConvertStrToData<cell>(data, data_int) == false)
+	if (ConvertStrToData<cell>(data, *dest_addr) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number",
 			data ? data : "NULL");
 		return 0;
 	}
 
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", data_int);
-	return data_int;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", *dest_addr);
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
-// native Float:cache_get_value_index_float(row_idx, column_idx);
+// native cache_get_value_index_float(row_idx, column_idx, &Float:destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_float", "dd");
@@ -1238,6 +1248,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 		return 0;
 	}
 
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[3], &dest_addr) != AMX_ERR_NONE || dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
 	const char *data = nullptr;
 	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
 	{
@@ -1246,19 +1263,20 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 		return 0;
 	}
 
-	float data_float = 0.0f;
-	if (ConvertStrToData<float>(data, data_float) == false) 
+	if (ConvertStrToData<float>(data, amx_ctof(*dest_addr)) == false) 
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", 
 			data ? data : "NULL");
 		return 0;
 	}
 
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", data_float);
-	return amx_ftoc(data_float);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", amx_ctof(*dest_addr));
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
-// native bool:cache_is_value_index_null(row_idx, column_idx);
+// native cache_is_value_index_null(row_idx, column_idx, &bool:destination);
 AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_is_value_index_null", "dd");
@@ -1269,6 +1287,13 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 		return 0;
 	}
 
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[3], &dest_addr) != AMX_ERR_NONE || dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
 	const char *data = nullptr;
 	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
 	{
@@ -1277,9 +1302,11 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 		return 0;
 	}
 
-	cell ret_val = (data == nullptr);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	*dest_addr = (data == nullptr) ? 1 : 0;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", *dest_addr);
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native cache_get_value_name(row_idx, const column_name[], destination[], max_len=sizeof(destination));
@@ -1319,12 +1346,14 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 	if (data == nullptr) //NULL value
 		data = "NULL";
 
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", data);
+
 	amx_SetCString(amx, params[3], data, params[4]);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
 }
 
-// native cache_get_value_name_int(row_idx, const column_name[]);
+// native cache_get_value_name_int(row_idx, const column_name[], &destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_int", "ds");
@@ -1335,6 +1364,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 		return 0;
 	}
 
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[3], &dest_addr) != AMX_ERR_NONE || dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
 	const string field_name = amx_GetCppString(amx, params[2]);
 	if (field_name.empty())
 	{
@@ -1358,19 +1394,20 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 		return 0;
 	}
 
-	cell data_int = 0;
-	if (ConvertStrToData<cell>(data, data_int) == false)
+	if (ConvertStrToData<cell>(data, *dest_addr) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", 
 			data ? data : "NULL");
 		return 0;
 	}
 
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", data_int);
-	return data_int;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", *dest_addr);
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
-// native Float:cache_get_value_name_float(row_idx, const column_name[]);
+// native cache_get_value_name_float(row_idx, const column_name[], &Float:destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_float", "ds");
@@ -1381,6 +1418,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 		return 0;
 	}
 
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[3], &dest_addr) != AMX_ERR_NONE || dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
 	const string field_name = amx_GetCppString(amx, params[2]);
 	if (field_name.empty())
 	{
@@ -1404,19 +1448,20 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 		return 0;
 	}
 
-	float data_float = 0.0f;
-	if (ConvertStrToData<float>(data, data_float) == false)
+	if (ConvertStrToData<float>(data, amx_ctof(*dest_addr)) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number", 
 			data ? data : "NULL");
 		return 0;
 	}
 
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", data_float);
-	return amx_ftoc(data_float);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", amx_ctof(*dest_addr));
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
-// native bool:cache_is_value_name_null(row_idx, const column_name[]);
+// native cache_is_value_name_null(row_idx, const column_name[], &bool:destination);
 AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 {
 	CScopedDebugInfo dbg_info(amx, "cache_is_value_name_null", "ds");
@@ -1427,6 +1472,13 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 		return 0;
 	}
 
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[3], &dest_addr) != AMX_ERR_NONE || dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
 	const string field_name = amx_GetCppString(amx, params[2]);
 	if (field_name.empty())
 	{
@@ -1450,9 +1502,11 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 		return 0;
 	}
 
-	cell ret_val = (data == nullptr);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	*dest_addr = (data == nullptr) ? 1 : 0;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", *dest_addr);
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native Cache:cache_save();
@@ -1497,6 +1551,15 @@ AMX_DECLARE_NATIVE(Native::cache_set_active)
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
+}
+
+// native bool:cache_is_any_active();
+AMX_DECLARE_NATIVE(Native::cache_is_any_active)
+{
+	CScopedDebugInfo dbg_info(amx, "cache_is_any_active", "");
+	bool ret_val = (CResultSetManager::Get()->GetActiveResultSet() != nullptr);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val ? 1 : 0;
 }
 
 // native bool:cache_is_valid(Cache:cache_id);

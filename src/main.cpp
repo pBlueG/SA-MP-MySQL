@@ -129,6 +129,7 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(cache_save)
 	AMX_DEFINE_NATIVE(cache_delete)
 	AMX_DEFINE_NATIVE(cache_set_active)
+	AMX_DEFINE_NATIVE(cache_is_any_active)
 	AMX_DEFINE_NATIVE(cache_is_valid)
 
 	AMX_DEFINE_NATIVE(cache_affected_rows)
