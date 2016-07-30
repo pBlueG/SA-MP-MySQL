@@ -1201,7 +1201,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index)
 // native cache_get_value_index_int(row_idx, column_idx, &destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_int", "dd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_int", "ddr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1240,7 +1240,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 // native cache_get_value_index_float(row_idx, column_idx, &Float:destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_float", "dd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_float", "ddr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1279,7 +1279,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 // native cache_is_value_index_null(row_idx, column_idx, &bool:destination);
 AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_is_value_index_null", "dd");
+	CScopedDebugInfo dbg_info(amx, "cache_is_value_index_null", "ddr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1356,7 +1356,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 // native cache_get_value_name_int(row_idx, const column_name[], &destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_int", "ds");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_int", "dsr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1410,7 +1410,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 // native cache_get_value_name_float(row_idx, const column_name[], &Float:destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_float", "ds");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_float", "dsr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1464,7 +1464,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 // native cache_is_value_name_null(row_idx, const column_name[], &bool:destination);
 AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_is_value_name_null", "ds");
+	CScopedDebugInfo dbg_info(amx, "cache_is_value_name_null", "dsr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
