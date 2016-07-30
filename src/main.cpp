@@ -28,6 +28,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 	
+	samplog::Init();
+
 	if (mysql_library_init(0, NULL, NULL)) 
 	{
 		logprintf(" >> plugin.mysql: can't initialize MySQL library.");
@@ -51,6 +53,8 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 	CLog::CSingleton::Destroy();
 
 	mysql_library_end();
+
+	samplog::Exit();
 
 	logprintf("plugin.mysql: Plugin unloaded."); 
 }
