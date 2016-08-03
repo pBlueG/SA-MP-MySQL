@@ -267,6 +267,8 @@ CConnectionPool::CConnectionPool(
 
 	assert(size != 0);
 
+	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
+
 	SConnectionNode
 		*node = m_CurrentNode = new SConnectionNode,
 		*old_node = nullptr;

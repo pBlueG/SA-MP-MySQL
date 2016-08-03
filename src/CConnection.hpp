@@ -22,10 +22,10 @@ public: //constructor / deconstructor
 	CConnection(const CConnection &rhs) = delete;
 
 private: //variables
+	boost::mutex m_Mutex; //protect every MySQL C API call
+
 	MYSQL *m_Connection = nullptr;
 	bool m_IsConnected = false;
-
-	boost::mutex m_Mutex; //protect every MySQL C API call
 
 public: //functions
 	inline bool IsConnected() const
@@ -53,16 +53,16 @@ public:
 private:
 	CConnection m_Connection;
 
-	boost::thread m_WorkerThread;
-	boost::atomic<bool> m_WorkerThreadActive;
-
-	boost::condition_variable m_QueueNotifier;
 	boost::mutex m_QueueNotifierMutex;
+	boost::condition_variable m_QueueNotifier;
 	boost::lockfree::spsc_queue < Query_t,
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 65536 >> m_Queue;
 
 	boost::atomic<unsigned int> m_UnprocessedQueries;
+
+	boost::atomic<bool> m_WorkerThreadActive;
+	boost::thread m_WorkerThread;
 
 private:
 	void WorkerFunc();
@@ -90,6 +90,8 @@ public:
 	CConnectionPool(const CConnectionPool &rhs) = delete;
 
 private:
+	boost::mutex m_PoolMutex;
+
 	struct SConnectionNode
 	{
 		CThreadedConnection *Connection;
@@ -97,7 +99,6 @@ private:
 	};
 
 	SConnectionNode *m_CurrentNode;
-	boost::mutex m_PoolMutex;
 
 public:
 	bool Queue(Query_t query);
