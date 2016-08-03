@@ -248,7 +248,10 @@ CThreadedConnection::~CThreadedConnection()
 	CLog::Get()->Log(LogLevel::DEBUG, "CThreadedConnection::~CThreadedConnection(this={}, connection={})",
 		static_cast<const void *>(this), static_cast<const void *>(&m_Connection));
 
-	m_WorkerThreadActive = false;
+	{
+		boost::lock_guard<boost::mutex> lock_guard(m_QueueNotifierMutex);
+		m_WorkerThreadActive = false;
+	}
 	m_QueueNotifier.notify_one();
 	m_WorkerThread.join();
 }
