@@ -1,9 +1,12 @@
 version: '{build}'
 image: Visual Studio 2015
 
+services:
+  - mysql
+
 configuration:
-- Debug
-- Release
+  - Debug
+  - Release
 
 platform: x86
 
@@ -15,16 +18,49 @@ environment:
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
 
 install:
-- git submodule update --init --recursive
-- curl -kLO https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-win32.zip
-- 7z x mysql-connector-c-6.1.6-win32.zip
+  - git submodule update --init --recursive
+  
+  - curl -kLO https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-win32.zip
+  - 7z x mysql-connector-c-6.1.6-win32.zip
+  - del mysql-connector-c-6.1.6-win32.zip
+  
+  - curl -kLO http://files.sa-mp.com/samp037_svr_R2-1-1_win32.zip
+  - 7z x samp037_svr_R2-1-1_win32.zip -osamp03
+  
+  - appveyor DownloadFile https://github.com/Zeex/pawn/releases/download/20160702/pawnc-3.10.20160702-windows.zip
+  - 7z x pawnc-3.10.20160702-windows.zip
+  - set PATH=%PATH%;%CD%\pawnc-3.10.20160702-windows\bin
+  
+  - set PATH=%PATH%;C:\Python27\Scripts
+  - pip install samp-server-cli
+  
+  - set PATH=%PATH%;C:\Program Files\MySql\MySQL Server 5.7\bin
 
 before_build:
-- cmake . -G "Visual Studio 14 2015" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DMYSQLCAPI_ROOT_DIR="mysql-connector-c-6.1.6-win32"
+  - cmake . -G "Visual Studio 14 2015" -DCMAKE_INSTALL_PREFIX="%SAMP_SERVER_ROOT%" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DMYSQLCAPI_ROOT_DIR="mysql-connector-c-6.1.6-win32"
 
 build_script:
-- cmake --build . --config %CONFIGURATION%
-- cmake --build . --config %CONFIGURATION% --target package
+  - cmake --build . --config %CONFIGURATION%
+  - cmake --build . --config %CONFIGURATION% --target install
+  - cmake --build . --config %CONFIGURATION% --target package
+
+before_test:
+  - mysql -e "CREATE DATABASE `test`;" --user=root --password=Password12!
+  - mysql -e "CREATE USER 'tester'@'127.0.0.1' IDENTIFIED BY '1234';" --user=root --password=Password12!
+  - mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'tester'@'127.0.0.1' WITH GRANT OPTION;" --user=root --password=Password12!
+
+test_script:
+  - pawncc tests\unit_test.pwn -d3 -Z+ -; -( -i%SAMP_SERVER_ROOT%\pawno\include -itests\include
+  - copy tests\test_data\* %SAMP_SERVER_ROOT%
+  - copy *.amx %SAMP_SERVER_ROOT%\gamemodes
+  - samp-server-cli -o -g unit_test -d mysql -T 60
+
+on_failure:
+  - type %SAMP_SERVER_ROOT%\logs\plugins\mysql.log
 
 artifacts:
-- path: mysql-*-win32.zip
+  - path: mysql-*-win32.zip
+    name: MySQL plugin
+  
+  - path: samp03\logs
+    name: MySQL unit test logs

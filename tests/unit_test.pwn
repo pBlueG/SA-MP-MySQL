@@ -9,8 +9,8 @@
 
 
 #define MYSQL_HOSTNAME "127.0.0.1"
-#define MYSQL_USERNAME "root"
-#define MYSQL_PASSWORD ""
+#define MYSQL_USERNAME "tester"
+#define MYSQL_PASSWORD "1234"
 #define MYSQL_DATABASE "test"
 
 
