@@ -91,6 +91,7 @@ endif()
 
 install(TARGETS mysql DESTINATION "plugins/")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/a_mysql.inc" DESTINATION "pawno/include/")
+install(FILES "${PROJECT_SOURCE_DIR}/LICENSE" DESTINATION "./")
 if(WIN32 AND MYSQLCAPI_LIBRARY_SHARED)
 	install(FILES "${MYSQLCAPI_LIBRARY_SHARED}" DESTINATION "./")
 endif()
