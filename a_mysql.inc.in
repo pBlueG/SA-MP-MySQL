@@ -121,19 +121,19 @@ native orm_destroy(ORM:id);
 native E_ORM_ERROR:orm_errno(ORM:id);
 
 native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
-native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+native orm_select(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 /*
-native orm_select_inline(ORM:id, callback:Callback, format[], {Float,_}:...); //y_inline
+native orm_select_inline(ORM:id, callback:Callback, const format[], {Float,_}:...); //y_inline
 */
-native orm_update(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
-native orm_insert(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+native orm_update(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
+native orm_insert(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 /*
-native orm_insert_inline(ORM:id, callback:Callback, format[], {Float,_}:...); //y_inline
+native orm_insert_inline(ORM:id, callback:Callback, const format[], {Float,_}:...); //y_inline
 */
-native orm_delete(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+native orm_delete(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 
-native orm_load(ORM:id, callback[] = "", format[] = "", {Float, _}:...) = orm_select;
-native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+native orm_load(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...) = orm_select;
+native orm_save(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 
 native orm_addvar_int(ORM:id, &var, const columnname[]);
 native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
