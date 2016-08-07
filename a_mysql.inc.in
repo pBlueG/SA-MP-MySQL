@@ -187,21 +187,21 @@ stock cache_num_results()
 #define MSCGV2:cache_get_ovrld_value(%1,%2,%3) cache_get_value_index(%1,%2,%3)
 
 #define cache_get_value_int(%1) (_:MSCGVI0:MSCGVI1:MSCGVI2:cache_get_value_int_ovrld(%1))
-#define MSCGVI0:MSCGVI1:MSCGVI2:cache_get_value_int_ovrld(%1,"%2") cache_get_value_name_int(%1,#%2)
-#define MSCGVI1:MSCGVI2:cache_get_value_int_ovrld(%1,%8string%9:%2) cache_get_value_name_int(%1,%2)
-#define MSCGVI2:cache_get_value_int_ovrld(%1,%2) cache_get_value_index_int(%1,%2)
+#define MSCGVI0:MSCGVI1:MSCGVI2:cache_get_value_int_ovrld(%1,"%2",%3) cache_get_value_name_int(%1,#%2,%3)
+#define MSCGVI1:MSCGVI2:cache_get_value_int_ovrld(%1,%8string%9:%2,%3) cache_get_value_name_int(%1,%2,%3)
+#define MSCGVI2:cache_get_value_int_ovrld(%1,%2,%3) cache_get_value_index_int(%1,%2,%3)
 
-#define cache_get_value_float(%1) (Float:MSCGVF0:MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1))
-#define MSCGVF0:MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1,"%2") cache_get_value_name_float(%1,#%2)
-#define MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1,%8string%9:%2) cache_get_value_name_float(%1,%2)
-#define MSCGVF2:cache_get_value_float_ovrld(%1,%2) cache_get_value_index_float(%1,%2)
+#define cache_get_value_float(%1) (_:MSCGVF0:MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1))
+#define MSCGVF0:MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1,"%2",%3) cache_get_value_name_float(%1,#%2,%3)
+#define MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1,%8string%9:%2,%3) cache_get_value_name_float(%1,%2,%3)
+#define MSCGVF2:cache_get_value_float_ovrld(%1,%2,%3) cache_get_value_index_float(%1,%2,%3)
 
-#define cache_get_value_bool(%1) bool:cache_get_value_int(%1)
+#define cache_get_value_bool(%1) cache_get_value_int(%1)
 
-#define cache_is_value_null(%1) (bool:MSCIVN0:MSCIVN1:MSCIVN2:cache_is_value_null_ovrld(%1))
-#define MSCIVN0:MSCIVN1:MSCIVN2:cache_is_value_null_ovrld(%1,"%2") cache_is_value_name_null(%1,#%2)
-#define MSCIVN1:MSCIVN2:cache_is_value_null_ovrld(%1,%8string%9:%2) cache_is_value_name_null(%1,%2)
-#define MSCIVN2:cache_is_value_null_ovrld(%1,%2) cache_is_value_index_null(%1,%2)
+#define cache_is_value_null(%1) (_:MSCIVN0:MSCIVN1:MSCIVN2:cache_is_value_null_ovrld(%1))
+#define MSCIVN0:MSCIVN1:MSCIVN2:cache_is_value_null_ovrld(%1,"%2",%3) cache_is_value_name_null(%1,#%2,%3)
+#define MSCIVN1:MSCIVN2:cache_is_value_null_ovrld(%1,%8string%9:%2,%3) cache_is_value_name_null(%1,%2,%3)
+#define MSCIVN2:cache_is_value_null_ovrld(%1,%2,%3) cache_is_value_index_null(%1,%2,%3)
 
 
 native cache_get_value_index(row_idx, column_idx, destination[], max_len = sizeof(destination));
