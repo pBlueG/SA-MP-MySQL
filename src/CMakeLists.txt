@@ -74,7 +74,6 @@ target_compile_features(mysql PUBLIC
 	cxx_extended_friend_declarations
 	cxx_lambdas
 	cxx_inheriting_constructors
-	cxx_lambda_init_captures
 	cxx_noexcept
 	cxx_nonstatic_member_init
 	cxx_nullptr
