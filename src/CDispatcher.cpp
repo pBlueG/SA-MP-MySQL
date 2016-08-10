@@ -3,13 +3,13 @@
 
 void CDispatcher::Dispatch(DispatchFunction_t &&func)
 {
-	boost::mutex::scoped_lock lock(m_QueueMtx);
+	std::lock_guard<std::mutex> lock_guard(m_QueueMtx);
 	return m_Queue.push(std::move(func));
 }
 
 void CDispatcher::Process()
 {
-	boost::mutex::scoped_lock lock(m_QueueMtx);
+	std::lock_guard<std::mutex> lock_guard(m_QueueMtx);
 	while (m_Queue.empty() == false)
 	{
 		m_Queue.front()();

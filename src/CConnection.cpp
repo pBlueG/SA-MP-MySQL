@@ -80,7 +80,7 @@ CConnection::~CConnection()
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnection::~CConnection(this={}, connection={})",
 		static_cast<const void *>(this), static_cast<const void *>(m_Connection));
 
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	std::lock_guard<std::mutex> lock_guard(m_Mutex);
 	if (IsConnected())
 		mysql_close(m_Connection);
 }
@@ -100,7 +100,7 @@ bool CConnection::EscapeString(const char *src, string &dest)
 
 	dest.resize(src_len * 2 + 1);
 
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	std::lock_guard<std::mutex> lock_guard(m_Mutex);
 	size_t newsize = mysql_real_escape_string(m_Connection, &dest[0], src, src_len);
 	dest.resize(newsize);
 	return true;
@@ -114,7 +114,7 @@ bool CConnection::SetCharset(string charset)
 	if (IsConnected() == false || charset.empty())
 		return false;
 
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	std::lock_guard<std::mutex> lock_guard(m_Mutex);
 	int error = mysql_set_character_set(m_Connection, charset.c_str());
 	if (error != 0)
 		return false;
@@ -130,7 +130,7 @@ bool CConnection::GetCharset(string &charset)
 	if (IsConnected() == false)
 		return false;
 
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	std::lock_guard<std::mutex> lock_guard(m_Mutex);
 	charset = mysql_character_set_name(m_Connection);
 
 	return true;
@@ -142,7 +142,7 @@ bool CConnection::Execute(Query_t query)
 		static_cast<const void *>(query.get()), static_cast<const void *>(this), 
 		static_cast<const void *>(m_Connection));
 
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	std::lock_guard<std::mutex> lock_guard(m_Mutex);
 	return IsConnected() && query->Execute(m_Connection);
 }
 
@@ -154,7 +154,7 @@ bool CConnection::GetError(unsigned int &id, string &msg)
 	if (m_Connection == nullptr)
 		return false;
 
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	std::lock_guard<std::mutex> lock_guard(m_Mutex);
 	id = mysql_errno(m_Connection);
 	msg = mysql_error(m_Connection);
 
@@ -169,7 +169,7 @@ bool CConnection::GetStatus(string &stat)
 	if (IsConnected() == false)
 		return false;
 
-	boost::lock_guard<boost::mutex> lock_guard(m_Mutex);
+	std::lock_guard<std::mutex> lock_guard(m_Mutex);
 	const char *stat_raw = mysql_stat(m_Connection);
 	
 	if (stat_raw == nullptr)
@@ -199,7 +199,7 @@ void CThreadedConnection::WorkerFunc()
 	CLog::Get()->Log(LogLevel::DEBUG, "CThreadedConnection::WorkerFunc(this={}, connection={})",
 		static_cast<const void *>(this), static_cast<const void *>(&m_Connection));
 
-	boost::unique_lock<boost::mutex> lock(m_QueueNotifierMutex);
+	std::unique_lock<std::mutex> lock(m_QueueNotifierMutex);
 
 	mysql_thread_init();
 
@@ -249,7 +249,7 @@ CThreadedConnection::~CThreadedConnection()
 		static_cast<const void *>(this), static_cast<const void *>(&m_Connection));
 
 	{
-		boost::lock_guard<boost::mutex> lock_guard(m_QueueNotifierMutex);
+		std::lock_guard<std::mutex> lock_guard(m_QueueNotifierMutex);
 		m_WorkerThreadActive = false;
 	}
 	m_QueueNotifier.notify_one();
@@ -267,7 +267,7 @@ CConnectionPool::CConnectionPool(
 
 	assert(size != 0);
 
-	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
+	std::lock_guard<std::mutex> lock_guard(m_PoolMutex);
 
 	SConnectionNode
 		*node = m_CurrentNode = new SConnectionNode,
@@ -286,7 +286,7 @@ bool CConnectionPool::Queue(Query_t query)
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::Queue(query={}, this={})",
 		static_cast<const void *>(query.get()), static_cast<const void *>(this));
 
-	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
+	std::lock_guard<std::mutex> lock_guard(m_PoolMutex);
 	auto *connection = m_CurrentNode->Connection;
 
 	m_CurrentNode = m_CurrentNode->Next;
@@ -300,7 +300,7 @@ bool CConnectionPool::SetCharset(string charset)
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::SetCharset(charset='{}', this={})",
 		charset, static_cast<const void *>(this));
 
-	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
+	std::lock_guard<std::mutex> lock_guard(m_PoolMutex);
 	SConnectionNode *node = m_CurrentNode;
 
 	do
@@ -318,7 +318,7 @@ unsigned int CConnectionPool::GetUnprocessedQueryCount()
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::GetUnprocessedQueryCount(this={})",
 		static_cast<const void *>(this));
 
-	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
+	std::lock_guard<std::mutex> lock_guard(m_PoolMutex);
 	SConnectionNode *node = m_CurrentNode;
 
 	unsigned int count = 0;
@@ -335,7 +335,7 @@ CConnectionPool::~CConnectionPool()
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnectionPool::~CConnectionPool(this={})",
 		static_cast<const void *>(this));
 
-	boost::lock_guard<boost::mutex> lock_guard(m_PoolMutex);
+	std::lock_guard<std::mutex> lock_guard(m_PoolMutex);
 	SConnectionNode *node = m_CurrentNode;
 
 	do

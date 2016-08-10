@@ -3,7 +3,7 @@
 #include "CSingleton.hpp"
 
 #include <queue>
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 #include "types.hpp"
 
@@ -19,7 +19,7 @@ private: //constructor / destructor
 
 private: //variables
 	std::queue<DispatchFunction_t> m_Queue;
-	boost::mutex m_QueueMtx;
+	std::mutex m_QueueMtx;
 
 public: //functions
 	void Dispatch(DispatchFunction_t &&func);

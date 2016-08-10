@@ -10,6 +10,8 @@
 #include "COptions.hpp"
 #include "misc.hpp"
 
+#include <boost/functional/hash.hpp>
+
 
 const string CHandle::ModuleName{ "handle" };
 

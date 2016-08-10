@@ -83,8 +83,7 @@ endif()
 find_package(MySQLCAPI 5.5 REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.57 QUIET 
-	COMPONENTS atomic chrono date_time system thread)
+find_package(Boost 1.57 QUIET)
 
 if(NOT Boost_FOUND)
 	set(BOOST_ROOT "${BOOST_ROOT}" CACHE PATH "Set the Boost root folder.")

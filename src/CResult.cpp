@@ -176,9 +176,9 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 			mysql_free_result(mysql_store_result(connection));
 	}
 	resultset->m_ExecTimeMilli = static_cast<unsigned int>(
-		boost::chrono::duration_cast<boost::chrono::milliseconds>(exec_time).count());
+		std::chrono::duration_cast<std::chrono::milliseconds>(exec_time).count());
 	resultset->m_ExecTimeMicro = static_cast<unsigned int>(
-		boost::chrono::duration_cast<boost::chrono::microseconds>(exec_time).count());
+		std::chrono::duration_cast<std::chrono::microseconds>(exec_time).count());
 
 	resultset->m_ExecQuery = std::move(query_str);
 

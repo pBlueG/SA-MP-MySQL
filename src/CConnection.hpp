@@ -1,9 +1,10 @@
 #pragma once
 
 #include <string>
-#include <boost/atomic/atomic.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 #include <boost/lockfree/queue.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 
@@ -22,7 +23,7 @@ public: //constructor / deconstructor
 	CConnection(const CConnection &rhs) = delete;
 
 private: //variables
-	boost::mutex m_Mutex; //protect every MySQL C API call
+	std::mutex m_Mutex; //protect every MySQL C API call
 
 	MYSQL *m_Connection = nullptr;
 	bool m_IsConnected = false;
@@ -53,16 +54,16 @@ public:
 private:
 	CConnection m_Connection;
 
-	boost::mutex m_QueueNotifierMutex;
-	boost::condition_variable m_QueueNotifier;
+	std::mutex m_QueueNotifierMutex;
+	std::condition_variable m_QueueNotifier;
 	boost::lockfree::spsc_queue < Query_t,
 		boost::lockfree::fixed_sized < true >,
 		boost::lockfree::capacity < 65536 >> m_Queue;
 
-	boost::atomic<unsigned int> m_UnprocessedQueries;
+	std::atomic<unsigned int> m_UnprocessedQueries;
 
-	boost::atomic<bool> m_WorkerThreadActive;
-	boost::thread m_WorkerThread;
+	std::atomic<bool> m_WorkerThreadActive;
+	std::thread m_WorkerThread;
 
 private:
 	void WorkerFunc();
@@ -90,7 +91,7 @@ public:
 	CConnectionPool(const CConnectionPool &rhs) = delete;
 
 private:
-	boost::mutex m_PoolMutex;
+	std::mutex m_PoolMutex;
 
 	struct SConnectionNode
 	{

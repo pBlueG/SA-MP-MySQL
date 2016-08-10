@@ -6,12 +6,12 @@
 #include <string>
 #include <unordered_map>
 #include <tuple>
-#include <boost/chrono.hpp>
+#include <chrono>
 
 using std::vector;
 using std::string;
 using std::unordered_map;
-using default_clock = boost::chrono::steady_clock;
+using default_clock = std::chrono::steady_clock;
 
 #include "types.hpp"
 #include "mysql.hpp"
