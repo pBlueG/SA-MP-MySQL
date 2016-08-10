@@ -49,16 +49,15 @@ install:
   - cmake . -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32 -DCMAKE_INSTALL_PREFIX=/usr -DINSTALL_LAYOUT=DEB > /dev/null
   - make -j2 > /dev/null
   - sudo make install > /dev/null
-  - cd ..
-  
-  - sudo cp -R boost_1_57_0/boost /usr/local/include
   - sudo ldconfig
+  - cd ..
 
 before_script:
   - mysql -u root -e "CREATE DATABASE IF NOT EXISTS test;"
   - mysql -u root -e "CREATE USER 'tester'@'127.0.0.1' IDENTIFIED BY '1234';"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'tester'@'127.0.0.1' WITH GRANT OPTION;"
-  - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
+  
+  - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBOOST_ROOT=boost_1_57_0 -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
 
 script:
   - make -j2
