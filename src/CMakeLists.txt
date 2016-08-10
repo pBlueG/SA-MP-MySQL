@@ -79,7 +79,6 @@ target_compile_features(mysql PUBLIC
 	cxx_nullptr
 	cxx_range_for
 	cxx_reference_qualified_functions
-	cxx_return_type_deduction
 	cxx_right_angle_brackets
 	cxx_rvalue_references
 	cxx_strong_enums
