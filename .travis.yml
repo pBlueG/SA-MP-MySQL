@@ -52,10 +52,7 @@ install:
   - sudo make install > /dev/null
   - cd ..
   
-  - cd boost_1_57_0/
-  - if [ ! -f "b2" ]; then sudo bash bootstrap.sh --prefix=/usr/local; fi
-  - sudo ./b2 headers
-  - cd ..
+  - sudo cp -R boost_1_57_0/boost /usr/local/include
   - sudo ldconfig
 
 before_script:
