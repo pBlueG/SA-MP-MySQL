@@ -14,7 +14,7 @@ using std::function;
 class CQuery
 {
 public: //constructor / deconstructor
-	CQuery(string &&query) :
+	explicit CQuery(string &&query) :
 		m_Query(query),
 		m_DbgInfo(CDebugInfoManager::Get()->GetCurrentInfo())
 	{ }

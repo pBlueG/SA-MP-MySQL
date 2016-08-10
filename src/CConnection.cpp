@@ -269,13 +269,11 @@ CConnectionPool::CConnectionPool(
 
 	std::lock_guard<std::mutex> lock_guard(m_PoolMutex);
 
-	SConnectionNode
-		*node = m_CurrentNode = new SConnectionNode,
-		*old_node = nullptr;
+	SConnectionNode *node = m_CurrentNode = new SConnectionNode;
 
 	for (size_t i = 0; i != size; ++i)
 	{
-		old_node = node;
+		SConnectionNode *old_node = node;
 		old_node->Connection = new CThreadedConnection(host, user, passw, db, options);
 		old_node->Next = ((i + 1) == size) ? m_CurrentNode : (node = new SConnectionNode);
 	}

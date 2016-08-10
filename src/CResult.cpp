@@ -76,11 +76,10 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 
 
 	ResultSet_t resultset = ResultSet_t(new CResultSet);
-	MYSQL_RES *raw_result = nullptr;
 	bool error = false;
 	do
 	{
-		raw_result = mysql_store_result(connection);
+		MYSQL_RES *raw_result = mysql_store_result(connection);
 
 		if (raw_result == nullptr) //result empty: non-SELECT-type query or error
 		{
