@@ -62,28 +62,7 @@ add_samp_plugin(mysql
 	plugin.def
 )
 
-target_compile_features(mysql PUBLIC 
-	cxx_auto_type 
-	cxx_decltype 
-	cxx_defaulted_functions 
-	cxx_default_function_template_args
-	cxx_delegating_constructors
-	cxx_deleted_functions
-	cxx_enum_forward_declarations
-	cxx_explicit_conversions
-	cxx_extended_friend_declarations
-	cxx_lambdas
-	cxx_inheriting_constructors
-	cxx_noexcept
-	cxx_nonstatic_member_init
-	cxx_nullptr
-	cxx_range_for
-	cxx_reference_qualified_functions
-	cxx_right_angle_brackets
-	cxx_rvalue_references
-	cxx_strong_enums
-	cxx_variadic_templates
-)
+set_property(TARGET mysql PROPERTY CXX_STANDARD_REQUIRED ON)
 
 add_dependencies(mysql log-core fmt)
 
