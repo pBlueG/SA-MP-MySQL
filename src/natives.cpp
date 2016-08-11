@@ -9,6 +9,7 @@
 #include "misc.hpp"
 
 #include <fstream>
+#include <fmt/printf.h>
 
 
 // native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
