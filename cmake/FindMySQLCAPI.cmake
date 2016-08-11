@@ -64,6 +64,7 @@ else()
 		MYSQLCAPI_LIBRARY
 		NAME
 		mysqlclient_r
+		mysqlclient
 		HINTS
 		${MYSQLCAPI_ROOT_DIR}
 		PATH_SUFFIXES
