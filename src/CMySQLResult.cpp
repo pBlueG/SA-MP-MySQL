@@ -36,7 +36,7 @@ const char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
 	}
 	else
 	{
-		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowData", "invalid row ('%d') or field index ('%d')", row, fieldidx);
+		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowData", "invalid row ('%d') or field index ('%d') (Query: \"%s\")", row, fieldidx, m_Query.c_str());
 		return NULL;
 	}
 }
