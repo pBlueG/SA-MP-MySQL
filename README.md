@@ -1,5 +1,7 @@
 #MySQL Plugin for San Andreas Multiplayer (SA:MP)
-[![Build Status](https://travis-ci.org/pBlueG/SA-MP-MySQL.svg?branch=master)](https://travis-ci.org/pBlueG/SA-MP-MySQL) [![Build status](https://ci.appveyor.com/api/projects/status/xssdxu7wp8l3q2mk/branch/master?svg=true)](https://ci.appveyor.com/project/maddinat0r/sa-mp-mysql/branch/master)
+| Travis CI | AppVeyor | Total downloads | Latest release |
+| :---: | :---: | :---: | :---: |
+|  [![Build Status](https://travis-ci.org/pBlueG/SA-MP-MySQL.svg?branch=master)](https://travis-ci.org/pBlueG/SA-MP-MySQL)   |  [![Build status](https://ci.appveyor.com/api/projects/status/xssdxu7wp8l3q2mk/branch/master?svg=true)](https://ci.appveyor.com/project/maddinat0r/sa-mp-mysql/branch/master)  |  [![All Releases](https://img.shields.io/github/downloads/pBlueG/SA-MP-MySQL/total.svg?maxAge=2592000)]()  |  [![latest release](https://img.shields.io/github/release/pBlueG/SA-MP-MySQL.svg?maxAge=2592000)](https://github.com/pBlueG/SA-MP-MySQL/releases) <br> [![Github Releases](https://img.shields.io/github/downloads/pBlueG/SA-MP-MySQL/latest/total.svg?maxAge=2592000)](https://github.com/pBlueG/SA-MP-MySQL/releases)  |  
 -------------------------------------------------
 *The best and most famous MySQL plugin for SA:MP out there!*
 
