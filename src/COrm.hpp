@@ -22,7 +22,7 @@ using std::string;
 #endif
 
 
-class COrm 
+class COrm
 {
 public:
 	class Variable
@@ -37,8 +37,8 @@ public:
 		};
 
 	public:
-		Variable(Type type, string name, 
-			cell *variable, size_t var_len = 0) : 
+		Variable(Type type, string name,
+				 cell *variable, size_t var_len = 0) :
 			m_Type(type),
 			m_Name(name),
 			m_VariableAddr(variable),
@@ -142,8 +142,8 @@ public:
 		return m_HandleId;
 	}
 
-	CError<COrm> AddVariable(Variable::Type type,
-		const char *name, cell *var_addr, size_t var_maxlen = 0);
+	CError<COrm> AddVariable(Variable::Type type, const char *name, 
+							 cell *var_addr, size_t var_maxlen = 0);
 	CError<COrm> RemoveVariable(const char *name);
 	void ClearAllVariables();
 	CError<COrm> SetKeyVariable(const char *name);
@@ -151,10 +151,10 @@ public:
 	CError<COrm> GenerateQuery(QueryType type, string &dest);
 	QueryType GetSaveQueryType();
 
-	void ApplyResult(const Result_t result, 
-		unsigned int rowidx = 0U);
+	void ApplyResult(const Result_t result,
+					 unsigned int rowidx = 0U);
 	bool ApplyResultByName(const Result_t result,
-		unsigned int rowidx = 0U);
+						   unsigned int rowidx = 0U);
 	bool UpdateKeyValue(const Result_t result);
 
 	inline PawnError GetError() const
@@ -186,7 +186,7 @@ private:
 
 public:
 	OrmId_t Create(HandleId_t handleid, const char *table,
-		CError<COrm> &error);
+				   CError<COrm> &error);
 	inline bool IsValid(OrmId_t id)
 	{
 		return m_Instances.find(id) != m_Instances.end();

@@ -17,7 +17,7 @@ using default_clock = std::chrono::steady_clock;
 #include "mysql.hpp"
 
 
-class CResult 
+class CResult
 {
 	friend class CResultSet;
 public:
@@ -45,28 +45,32 @@ private: //variables
 	unsigned int m_WarningCount = 0;
 
 public: //functions
-	inline my_ulonglong GetRowCount() const 
+	inline my_ulonglong GetRowCount() const
 	{
 		return m_NumRows;
 	}
-	inline unsigned int GetFieldCount() const 
+	inline unsigned int GetFieldCount() const
 	{
 		return m_NumFields;
 	}
 
 	bool GetFieldName(unsigned int idx, string &dest) const;
 	bool GetFieldType(unsigned int idx, enum_field_types &dest) const;
-	bool GetRowData(unsigned int row, unsigned int fieldidx, const char **dest) const;
-	inline bool GetRowData(unsigned int row, unsigned int fieldidx, string &dest) const
+	bool GetRowData(unsigned int row, unsigned int fieldidx, 
+					const char **dest) const;
+	inline bool GetRowData(unsigned int row, unsigned int fieldidx, 
+						   string &dest) const
 	{
 		const char *cdest = nullptr;
 		bool result = GetRowData(row, fieldidx, &cdest);
-		if(result && cdest != nullptr)
+		if (result && cdest != nullptr)
 			dest = cdest;
 		return result;
 	}
-	bool GetRowDataByName(unsigned int row, const string &field, const char **dest) const;
-	bool GetRowDataByName(unsigned int row, const string &field, string &dest) const
+	bool GetRowDataByName(unsigned int row, const string &field, 
+						  const char **dest) const;
+	bool GetRowDataByName(unsigned int row, const string &field, 
+						  string &dest) const
 	{
 		const char *cdest = nullptr;
 		bool result = GetRowDataByName(row, field, &cdest);
@@ -151,8 +155,9 @@ public:
 	}
 
 public: //factory function
-	static ResultSet_t Create(MYSQL *connection, 
-		default_clock::duration &exec_time, string query_str);
+	static ResultSet_t Create(MYSQL *connection,
+							  default_clock::duration &exec_time, 
+							  string query_str);
 
 };
 

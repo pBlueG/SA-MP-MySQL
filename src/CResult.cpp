@@ -31,7 +31,8 @@ bool CResult::GetFieldType(unsigned int idx, enum_field_types &dest) const
 	return false;
 }
 
-bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, const char **dest) const
+bool CResult::GetRowData(unsigned int row, 
+						 unsigned int fieldidx, const char **dest) const
 {
 	if (row < m_NumRows && fieldidx < m_NumFields)
 	{
@@ -41,14 +42,15 @@ bool CResult::GetRowData(unsigned int row, unsigned int fieldidx, const char **d
 	return false;
 }
 
-bool CResult::GetRowDataByName(unsigned int row, const string &field, const char **dest) const
+bool CResult::GetRowDataByName(unsigned int row, 
+							   const string &field, const char **dest) const
 {
-	if(row >= m_NumRows)
+	if (row >= m_NumRows)
 		return false;
-	
+
 	if (field.empty())
 		return false;
-	
+
 
 	for (unsigned int i = 0; i != m_NumFields; ++i)
 	{
@@ -58,7 +60,7 @@ bool CResult::GetRowDataByName(unsigned int row, const string &field, const char
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -68,8 +70,9 @@ CResultSet::~CResultSet()
 		delete r;
 }
 
-ResultSet_t CResultSet::Create(MYSQL *connection, 
-	default_clock::duration &exec_time, string query_str)
+ResultSet_t CResultSet::Create(MYSQL *connection,
+							   default_clock::duration &exec_time, 
+							   string query_str)
 {
 	if (connection == nullptr)
 		return nullptr;
@@ -110,8 +113,10 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 			MYSQL_FIELD *mysql_field;
 			MYSQL_ROW mysql_row;
 
-			const my_ulonglong num_rows = result->m_NumRows = mysql_num_rows(raw_result);
-			const unsigned int num_fields = result->m_NumFields = mysql_num_fields(raw_result);
+			const my_ulonglong num_rows 
+				= result->m_NumRows = mysql_num_rows(raw_result);
+			const unsigned int num_fields 
+				= result->m_NumFields = mysql_num_fields(raw_result);
 
 			result->m_Fields.reserve(num_fields + 1);
 
@@ -160,13 +165,15 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 					mem_data[r][f] = reinterpret_cast<char *>(mem_data[r]) + dist;
 				}
 				//useless field we had to copy
-				//set it to nullptr to avoid invalid memory access errors (very unlikely to happen in first place)
+				//set it to nullptr to avoid invalid memory access errors 
+				//(very unlikely to happen in first place though)
 				mem_data[r][num_fields] = nullptr;
 			}
 
 			mysql_free_result(raw_result);
 		}
-	} while (mysql_next_result(connection) == 0);
+	}
+	while (mysql_next_result(connection) == 0);
 
 	if (error)
 	{

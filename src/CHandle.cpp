@@ -19,7 +19,7 @@ const string CHandle::ModuleName{ "handle" };
 CHandle::~CHandle()
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::~CHandle(this={})",
-		static_cast<const void *>(this));
+					 static_cast<const void *>(this));
 
 	if (m_MainConnection != nullptr)
 		delete m_MainConnection;
@@ -34,38 +34,39 @@ CHandle::~CHandle()
 bool CHandle::Execute(ExecutionType type, Query_t query)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::Execute(this={}, type={}, query={})",
-		static_cast<const void *>(this), 
-		static_cast<std::underlying_type<ExecutionType>::type>(type),
-		static_cast<const void *>(query.get()));
+					 static_cast<const void *>(this),
+					 static_cast<std::underlying_type<ExecutionType>::type>(type),
+					 static_cast<const void *>(query.get()));
 
 	bool return_val = false;
 	if (query)
 	{
 		switch (type)
 		{
-		case ExecutionType::THREADED:
-			if (m_ThreadedConnection != nullptr)
-				return_val = m_ThreadedConnection->Queue(query);
-			break;
-		case ExecutionType::PARALLEL:
-			if (m_ConnectionPool != nullptr)
-				return_val = m_ConnectionPool->Queue(query);
-			break;
-		case ExecutionType::UNTHREADED:
-			if (m_MainConnection != nullptr)
-				return_val = m_MainConnection->Execute(query);
-			break;
+			case ExecutionType::THREADED:
+				if (m_ThreadedConnection != nullptr)
+					return_val = m_ThreadedConnection->Queue(query);
+				break;
+			case ExecutionType::PARALLEL:
+				if (m_ConnectionPool != nullptr)
+					return_val = m_ConnectionPool->Queue(query);
+				break;
+			case ExecutionType::UNTHREADED:
+				if (m_MainConnection != nullptr)
+					return_val = m_MainConnection->Execute(query);
+				break;
 		}
 	}
-	
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::Execute - return value: {}", return_val);
+
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandle::Execute - return value: {}", return_val);
 	return return_val;
 }
 
 bool CHandle::GetErrorId(unsigned int &errorid)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetErrorId(this={})",
-		static_cast<const void *>(this));
+					 static_cast<const void *>(this));
 
 	if (m_MainConnection == nullptr)
 		return false;
@@ -73,8 +74,9 @@ bool CHandle::GetErrorId(unsigned int &errorid)
 	string unused_errormsg;
 	bool return_val = m_MainConnection->GetError(errorid, unused_errormsg);
 
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetErrorId - return value: {}, error id: '{}', error msg: '{}'", 
-		return_val, errorid, unused_errormsg);
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandle::GetErrorId - return value: {}, error id: '{}', error msg: '{}'",
+					 return_val, errorid, unused_errormsg);
 
 	return return_val;
 }
@@ -82,23 +84,25 @@ bool CHandle::GetErrorId(unsigned int &errorid)
 bool CHandle::EscapeString(const char *src, string &dest)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString(this={}, src='{}')",
-		static_cast<const void *>(this), src ? src : "(nullptr)");
+					 static_cast<const void *>(this), src ? src : "(nullptr)");
 
 	if (m_MainConnection == nullptr)
 		return false;
 
 	bool return_val = m_MainConnection->EscapeString(src, dest);
 
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::EscapeString - return value: {}, escaped string: '{}'",
-		return_val, dest);
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandle::EscapeString - return value: {}, escaped string: '{}'",
+					 return_val, dest);
 
 	return return_val;
 }
 
 bool CHandle::SetCharacterSet(string charset)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::SetCharacterSet(this={}, charset='{}')",
-		static_cast<const void *>(this), charset);
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandle::SetCharacterSet(this={}, charset='{}')",
+					 static_cast<const void *>(this), charset);
 
 	if (m_MainConnection == nullptr)
 		return false;
@@ -106,13 +110,13 @@ bool CHandle::SetCharacterSet(string charset)
 	return
 		m_MainConnection->SetCharset(charset)
 		&& m_ThreadedConnection->SetCharset(charset)
-		&& ( (m_ConnectionPool != nullptr) ? m_ConnectionPool->SetCharset(charset) : true);
+		&& ((m_ConnectionPool != nullptr) ? m_ConnectionPool->SetCharset(charset) : true);
 }
 
 bool CHandle::GetCharacterSet(string &charset)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetCharacterSet(this={})",
-		static_cast<const void *>(this));
+					 static_cast<const void *>(this));
 
 	if (m_MainConnection == nullptr)
 		return false;
@@ -123,7 +127,7 @@ bool CHandle::GetCharacterSet(string &charset)
 bool CHandle::GetStatus(string &stat)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetStatus(this={})",
-		static_cast<const void *>(this));
+					 static_cast<const void *>(this));
 
 	if (m_MainConnection == nullptr)
 		return false;
@@ -134,7 +138,7 @@ bool CHandle::GetStatus(string &stat)
 unsigned int CHandle::GetUnprocessedQueryCount()
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetUnprocessedQueryCount(this={})",
-		static_cast<const void *>(this));
+					 static_cast<const void *>(this));
 
 	unsigned int count = m_ThreadedConnection->GetUnprocessedQueryCount();
 	if (m_ConnectionPool != nullptr)
@@ -145,15 +149,17 @@ unsigned int CHandle::GetUnprocessedQueryCount()
 
 
 
-Handle_t CHandleManager::Create(const char *host, const char *user, 
-	const char *pass, const char *db, const COptions *options, CError<CHandle> &error)
+Handle_t CHandleManager::Create(const char *host, const char *user,
+								const char *pass, const char *db, 
+								const COptions *options, CError<CHandle> &error)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Create(this={}, host='{}', user='{}', pass='****', db='{}', options={})",
-		static_cast<const void *>(this), 
-		host ? host : "(nullptr)", 
-		user ? user : "(nullptr)", 
-		db ? db : "(nullptr)", 
-		static_cast<const void *>(options));
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandleManager::Create(this={}, host='{}', user='{}', pass='****', db='{}', options={})",
+					 static_cast<const void *>(this),
+					 host ? host : "(nullptr)",
+					 user ? user : "(nullptr)",
+					 db ? db : "(nullptr)",
+					 static_cast<const void *>(options));
 	CLog::Get()->Log(LogLevel::INFO, "Creating new connection handle...");
 
 	if (host == nullptr || strlen(host) == 0)
@@ -203,9 +209,10 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 					COptionManager::GlobalOption::DUPLICATE_CONNECTION_WARNING))
 				{
 					CLog::Get()->Log(LogLevel::WARNING,
-						"duplicate connection detected: handle id {} already exists "
-						"with host = '{}', username = '{}' and database = '{}'",
-						h.first, host, user, db);
+									 "duplicate connection detected: " \
+									 "handle id {} already exists with " \
+									 "host = '{}', username = '{}' and database = '{}'",
+									 h.first, host, user, db);
 				}
 				return h.second;
 			}
@@ -219,31 +226,36 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 	Handle_t handle = new CHandle(id, full_hash);
 
 	handle->m_MainConnection = new CConnection(host, user, pass, db, options);
-	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, db, options);
+	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, 
+														   db, options);
 
 	auto pool_size = options->GetOption<unsigned int>(COptions::Type::POOL_SIZE);
 	if (pool_size != 0)
-		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, pass, db, options);
+		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, 
+													   pass, db, options);
 
 	m_Handles.emplace(id, handle);
 
-	CLog::Get()->Log(LogLevel::INFO, "Connection handle with id '{}' successfully created.", id);
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Create - new handle = {}",
-		static_cast<const void *>(handle));
+	CLog::Get()->Log(LogLevel::INFO, 
+					 "Connection handle with id '{}' successfully created.", id);
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandleManager::Create - new handle = {}",
+					 static_cast<const void *>(handle));
 
 	return handle;
 }
 
 Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::CreateFromFile(this={}, file_path='{}')",
-		static_cast<const void *>(this), file_path);
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandleManager::CreateFromFile(this={}, file_path='{}')",
+					 static_cast<const void *>(this), file_path);
 
 	std::ifstream file(file_path);
 	if (file.fail())
 	{
 		error.set(CHandle::Error::INVALID_FILE,
-			"invalid connection file specified (file: \"{}\")", file_path);
+				  "invalid connection file specified (file: \"{}\")", file_path);
 		return nullptr;
 	}
 
@@ -252,60 +264,82 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 	COptions *options = COptionManager::Get()->GetOptionHandle(options_id);
 
 	const std::unordered_map<string, function<void(string &)>> assign_map{
-		{ "hostname", [&](string &val_str) { hostname = val_str; } },
-		{ "username", [&](string &val_str) { username = val_str; } },
-		{ "password", [&](string &val_str) { password = val_str; } },
-		{ "database", [&](string &val_str) { database = val_str; } },
-		{ "auto_reconnect", [&](string &val_str) 
-			{
-				bool val;
-				if (ConvertStrToData(val_str, val))
-					options->SetOption(COptions::Type::AUTO_RECONNECT, val);
-			} 
-		},
-		{ "multi_statements", [&](string &val_str) 
-			{
-				bool val;
-				if (ConvertStrToData(val_str, val))
-					options->SetOption(COptions::Type::MULTI_STATEMENTS, val);
-			} 
-		},
-		{ "pool_size", [&](string &val_str) 
-			{
-				unsigned int val = 0;
-				if (ConvertStrToData(val_str, val))
-					options->SetOption(COptions::Type::POOL_SIZE, val);
-			} 
-		},
-		{ "server_port", [&](string &val_str) 
-			{
-				unsigned int val = 0;
-				if (ConvertStrToData(val_str, val))
-					options->SetOption(COptions::Type::SERVER_PORT, val);
-			} 
-		},
-		{ "ssl_enable", [&](string &val_str) 
-			{
-				bool val;
-				if (ConvertStrToData(val_str, val))
-					options->SetOption(COptions::Type::SSL_ENABLE, val);
-			} 
-		},
-		{ "ssl_key_file", [&](string &val_str) 
-			{ options->SetOption(COptions::Type::SSL_KEY_FILE, val_str); } 
-		},
-		{ "ssl_cert_file", [&](string &val_str) 
-			{ options->SetOption(COptions::Type::SSL_CERT_FILE, val_str); } 
-		},
-		{ "ssl_ca_file", [&](string &val_str)
-			{ options->SetOption(COptions::Type::SSL_CA_FILE, val_str); }
-		},
-		{ "ssl_ca_path", [&](string &val_str)
-			{ options->SetOption(COptions::Type::SSL_CA_PATH, val_str); }
-		},
-		{ "ssl_cipher", [&](string &val_str)
-			{ options->SetOption(COptions::Type::SSL_CIPHER, val_str); }
-		},
+		{ "hostname", [&](string &val_str)
+ {
+hostname = val_str;
+} },
+{ "username", [&](string &val_str)
+{
+username = val_str;
+} },
+{ "password", [&](string &val_str)
+{
+password = val_str;
+} },
+{ "database", [&](string &val_str)
+{
+database = val_str;
+} },
+{ "auto_reconnect", [&](string &val_str)
+	{
+		bool val;
+		if (ConvertStrToData(val_str, val))
+			options->SetOption(COptions::Type::AUTO_RECONNECT, val);
+	}
+},
+{ "multi_statements", [&](string &val_str)
+	{
+		bool val;
+		if (ConvertStrToData(val_str, val))
+			options->SetOption(COptions::Type::MULTI_STATEMENTS, val);
+	}
+},
+{ "pool_size", [&](string &val_str)
+	{
+		unsigned int val = 0;
+		if (ConvertStrToData(val_str, val))
+			options->SetOption(COptions::Type::POOL_SIZE, val);
+	}
+},
+{ "server_port", [&](string &val_str)
+	{
+		unsigned int val = 0;
+		if (ConvertStrToData(val_str, val))
+			options->SetOption(COptions::Type::SERVER_PORT, val);
+	}
+},
+{ "ssl_enable", [&](string &val_str)
+	{
+		bool val;
+		if (ConvertStrToData(val_str, val))
+			options->SetOption(COptions::Type::SSL_ENABLE, val);
+	}
+},
+{ "ssl_key_file", [&](string &val_str)
+	{
+options->SetOption(COptions::Type::SSL_KEY_FILE, val_str);
+}
+},
+{ "ssl_cert_file", [&](string &val_str)
+	{
+options->SetOption(COptions::Type::SSL_CERT_FILE, val_str);
+}
+},
+{ "ssl_ca_file", [&](string &val_str)
+	{
+options->SetOption(COptions::Type::SSL_CA_FILE, val_str);
+}
+},
+{ "ssl_ca_path", [&](string &val_str)
+	{
+options->SetOption(COptions::Type::SSL_CA_PATH, val_str);
+}
+},
+{ "ssl_cipher", [&](string &val_str)
+	{
+options->SetOption(COptions::Type::SSL_CIPHER, val_str);
+}
+},
 	};
 
 	while (file.good())
@@ -322,16 +356,17 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 		size_t comment_pos = line.find_first_of("#;");
 		if (comment_pos != string::npos)
 			line.erase(comment_pos);
-		
+
 		if (line.empty())
 			continue;
 
 		std::string field, data;
 		if (qi::parse(line.begin(), line.end(),
-			qi::skip(qi::space)[
-				qi::as_string[+qi::char_("a-z_")] >> qi::lit('=') >> qi::as_string[+qi::graph]
-			],
-			field, data))
+					  qi::skip(qi::space)[
+						  qi::as_string[+qi::char_("a-z_")] >> qi::lit('=') 
+							  >> qi::as_string[+qi::graph]
+					  ],
+					  field, data))
 		{
 			auto field_it = assign_map.find(field);
 			if (field_it != assign_map.end() && data.empty() == false)
@@ -340,29 +375,33 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 			}
 			else
 			{
-				error.set(CHandle::Error::UNKNOWN_FIELD, 
-					"unknown field in connection file (field: \"{}\")", field);
+				error.set(CHandle::Error::UNKNOWN_FIELD,
+						  "unknown field in connection file (field: \"{}\")", 
+						  field);
 				return nullptr;
 			}
 		}
 		else
 		{
 			error.set(CHandle::Error::SYNTAX_ERROR,
-				"syntax error in connection file (line: \"{}\")", line);
+					  "syntax error in connection file (line: \"{}\")", line);
 			return nullptr;
 		}
 	}
 
-	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::CreateFromFile - new options = {} (id '{}')",
-		static_cast<const void *>(options), options_id);
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CHandleManager::CreateFromFile - new options = {} (id '{}')",
+					 static_cast<const void *>(options), options_id);
 
-	return Create(hostname.c_str(), username.c_str(), password.c_str(), database.c_str(), options, error);
+	return Create(hostname.c_str(), username.c_str(), password.c_str(), 
+				  database.c_str(), options, error);
 }
 
 bool CHandleManager::Destroy(Handle_t &handle)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Destroy(this={}, handle={})",
-		static_cast<const void *>(this), static_cast<const void *>(handle));
+					 static_cast<const void *>(this), 
+					 static_cast<const void *>(handle));
 
 	if (handle == nullptr)
 		return false;

@@ -83,18 +83,20 @@ public:
 		if (!IsLogLevel(level))
 			return;
 
-		m_Logger.Log(level, fmt::format(format, std::forward<Args>(args)...).c_str());
+		m_Logger.Log(level,
+					 fmt::format(format, std::forward<Args>(args)...).c_str());
 	}
 
 	template<typename... Args>
-	inline void Log(LogLevel level, const DebugInfo &dbginfo, 
-		const char *format, Args &&...args)
+	inline void Log(LogLevel level, const DebugInfo &dbginfo,
+					const char *format, Args &&...args)
 	{
 		if (!IsLogLevel(level))
 			return;
 
-		m_Logger.CLogger::Log(level, fmt::format(format, std::forward<Args>(args)...).c_str(), 
-			dbginfo.line, dbginfo.file, dbginfo.function);
+		m_Logger.CLogger::Log(level,
+							  fmt::format(format, std::forward<Args>(args)...).c_str(),
+							  dbginfo.line, dbginfo.file, dbginfo.function);
 	}
 
 	// should only be called in native functions
@@ -107,16 +109,18 @@ public:
 		if (CDebugInfoManager::Get()->GetCurrentAmx() == nullptr)
 			return; //do nothing, since we're not called from within a native func
 
-		Log(level, CDebugInfoManager::Get()->GetCurrentInfo(), fmt::format("{}: {}",
-			CDebugInfoManager::Get()->GetCurrentNativeName(), 
-			fmt::format(fmt, std::forward<Args>(args)...)).c_str());
+		Log(level,
+			CDebugInfoManager::Get()->GetCurrentInfo(),
+			fmt::format("{}: {}",
+						CDebugInfoManager::Get()->GetCurrentNativeName(),
+						fmt::format(fmt, std::forward<Args>(args)...)).c_str());
 	}
 
 	template<typename T>
 	inline void LogNative(const CError<T> &error)
 	{
-		LogNative(LogLevel::ERROR, "{} error: {}", 
-			error.module(), error.msg());
+		LogNative(LogLevel::ERROR, "{} error: {}",
+				  error.module(), error.msg());
 	}
 
 private:
@@ -130,7 +134,8 @@ class CScopedDebugInfo
 private:
 	bool m_HasAmxDebugSymbols = false;
 public:
-	CScopedDebugInfo(AMX * const amx, const char *func, const char *params_format = "");
+	CScopedDebugInfo(AMX * const amx, const char *func, 
+					 const char *params_format = "");
 	~CScopedDebugInfo()
 	{
 		if (m_HasAmxDebugSymbols)

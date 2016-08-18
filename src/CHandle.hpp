@@ -41,7 +41,7 @@ public: //type definitions
 		UNKNOWN_FIELD,
 	};
 	static const string ModuleName;
-	
+
 
 private: //constructor / deconstructor
 	CHandle(HandleId_t id, size_t myhash) :
@@ -84,8 +84,9 @@ private: //variables
 	unordered_map<HandleId_t, Handle_t> m_Handles;
 
 public: //functions
-	Handle_t Create(const char *host, const char *user, const char *pass, const char *db,
-		const COptions *options, CError<CHandle> &error);
+	Handle_t Create(const char *host, const char *user, const char *pass,
+					const char *db, const COptions *options, 
+					CError<CHandle> &error);
 	Handle_t CreateFromFile(string file_path, CError<CHandle> &error);
 	bool Destroy(Handle_t &handle);
 

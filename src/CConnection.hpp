@@ -85,7 +85,8 @@ class CConnectionPool
 {
 public:
 	CConnectionPool(
-		const size_t size, const char *host, const char *user, const char *passw, const char *db,
+		const size_t size, const char *host, const char *user,
+		const char *passw, const char *db,
 		const COptions *options);
 	~CConnectionPool();
 	CConnectionPool(const CConnectionPool &rhs) = delete;

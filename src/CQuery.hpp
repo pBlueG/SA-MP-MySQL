@@ -34,7 +34,7 @@ public: //functions
 		return m_Result;
 	}
 
-	inline void OnExecutionFinished(decltype(m_Callback) &&cb)
+	inline void OnExecutionFinished(decltype(m_Callback) && cb)
 	{
 		m_Callback = std::move(cb);
 	}
@@ -44,7 +44,7 @@ public: //functions
 			m_Callback(m_Result);
 	}
 
-	inline void OnError(decltype(m_ErrorCallback) &&cb)
+	inline void OnError(decltype(m_ErrorCallback) && cb)
 	{
 		m_ErrorCallback = std::move(cb);
 	}

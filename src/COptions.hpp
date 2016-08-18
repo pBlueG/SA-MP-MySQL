@@ -35,7 +35,7 @@ public:
 private:
 	COptions();
 	~COptions() = default;
-	
+
 private:
 	map<Type, boost::variant<bool, unsigned int, string>> m_Options;
 
@@ -76,7 +76,7 @@ public:
 	{
 		return boost::get<T>(m_Options.at(option));
 	}
-	
+
 };
 
 class COptionManager : public CSingleton<COptionManager>
@@ -85,8 +85,8 @@ class COptionManager : public CSingleton<COptionManager>
 public:
 	enum class GlobalOption
 	{
-		DUPLICATE_CONNECTIONS, //false
-		DUPLICATE_CONNECTION_WARNING, //true
+		DUPLICATE_CONNECTIONS, //false [bool]
+		DUPLICATE_CONNECTION_WARNING, //true [bool]
 	};
 
 private:

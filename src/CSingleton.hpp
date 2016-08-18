@@ -8,8 +8,10 @@ protected:
 	static T *m_Instance;
 
 public:
-	CSingleton() { }
-	virtual ~CSingleton() { }
+	CSingleton()
+	{ }
+	virtual ~CSingleton()
+	{ }
 
 	inline static T *Get()
 	{

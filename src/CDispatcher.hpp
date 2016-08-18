@@ -10,7 +10,7 @@
 
 class CDispatcher : public CSingleton < CDispatcher >
 {
-	friend class CSingleton < CDispatcher > ;
+	friend class CSingleton < CDispatcher >;
 public: //type definitions
 
 private: //constructor / destructor

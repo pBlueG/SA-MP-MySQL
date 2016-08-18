@@ -56,16 +56,17 @@ private: //variables
 	int m_AmxCallbackIndex = -1;
 
 	ParamList_t m_Params;
-	
+
 public: //functions
 	bool Execute();
 
 public: //factory functions
 	static Callback_t Create(AMX *amx, const char *name, const char *format,
-		cell *params, cell param_offset, CError<CCallback> &error);
+							 cell *params, cell param_offset, 
+							 CError<CCallback> &error);
 
-	static Callback_t Create(CError<CCallback> &error, 
-		AMX *amx, const char *name, const char *format, ...);
+	static Callback_t Create(CError<CCallback> &error,
+							 AMX *amx, const char *name, const char *format, ...);
 };
 
 

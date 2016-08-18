@@ -24,7 +24,8 @@ void CDebugInfoManager::Clear()
 	m_Info.file = nullptr;
 }
 
-CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func, const char *params_format /* = ""*/)
+CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func,
+								   const char *params_format /* = ""*/)
 {
 	uint16_t amx_flags = 0;
 	amx_Flags(amx, &amx_flags);

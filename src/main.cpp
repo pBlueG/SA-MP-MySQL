@@ -20,27 +20,27 @@ logprintf_t logprintf;
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 {
-	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK; 
+	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK;
 }
 
-PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) 
+PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 {
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
-	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
-	
+	logprintf = (logprintf_t) ppData[PLUGIN_DATA_LOGPRINTF];
+
 	samplog::Init();
 
-	if (mysql_library_init(0, NULL, NULL)) 
+	if (mysql_library_init(0, NULL, NULL))
 	{
 		logprintf(" >> plugin.mysql: can't initialize MySQL library.");
 		return false;
 	}
-	
+
 	logprintf(" >> plugin.mysql: " MYSQL_VERSION " successfully loaded.");
 	return true;
 }
 
-PLUGIN_EXPORT void PLUGIN_CALL Unload() 
+PLUGIN_EXPORT void PLUGIN_CALL Unload()
 {
 	logprintf("plugin.mysql: Unloading plugin...");
 
@@ -56,29 +56,29 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 
 	samplog::Exit();
 
-	logprintf("plugin.mysql: Plugin unloaded."); 
+	logprintf("plugin.mysql: Plugin unloaded.");
 }
 
-PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() 
+PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 {
 	CDispatcher::Get()->Process();
 }
 
 
-extern "C" const AMX_NATIVE_INFO native_list[] = 
+extern "C" const AMX_NATIVE_INFO native_list[] =
 {
 	AMX_DEFINE_NATIVE(orm_create)
 	AMX_DEFINE_NATIVE(orm_destroy)
 
 	AMX_DEFINE_NATIVE(orm_errno)
-	
+
 	AMX_DEFINE_NATIVE(orm_select)
 	AMX_DEFINE_NATIVE(orm_update)
 	AMX_DEFINE_NATIVE(orm_insert)
 	AMX_DEFINE_NATIVE(orm_delete)
-	
+
 	AMX_DEFINE_NATIVE(orm_save)
-	
+
 	AMX_DEFINE_NATIVE(orm_apply_cache)
 
 	AMX_DEFINE_NATIVE(orm_addvar_int)
@@ -93,13 +93,13 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(mysql_connect)
 	AMX_DEFINE_NATIVE(mysql_connect_file)
 	AMX_DEFINE_NATIVE(mysql_close)
-	
+
 	AMX_DEFINE_NATIVE(mysql_unprocessed_queries)
 	AMX_DEFINE_NATIVE(mysql_global_options)
 
 	AMX_DEFINE_NATIVE(mysql_init_options)
 	AMX_DEFINE_NATIVE(mysql_set_option)
-	
+
 	AMX_DEFINE_NATIVE(mysql_errno)
 	AMX_DEFINE_NATIVE(mysql_escape_string)
 	AMX_DEFINE_NATIVE(mysql_format)
@@ -107,7 +107,7 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(mysql_tquery)
 	AMX_DEFINE_NATIVE(mysql_query)
 	AMX_DEFINE_NATIVE(mysql_query_file)
-	 
+
 	AMX_DEFINE_NATIVE(mysql_stat)
 	AMX_DEFINE_NATIVE(mysql_get_charset)
 	AMX_DEFINE_NATIVE(mysql_set_charset)
@@ -142,17 +142,19 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 	AMX_DEFINE_NATIVE(cache_get_query_exec_time)
 	AMX_DEFINE_NATIVE(cache_get_query_string)
-	{NULL, NULL}
+	{
+NULL, NULL
+}
 };
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) 
+PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 {
 	samplog::RegisterAmx(amx);
 	CCallbackManager::Get()->AddAmx(amx);
 	return amx_Register(amx, native_list, -1);
 }
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) 
+PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)
 {
 	samplog::EraseAmx(amx);
 	CCallbackManager::Get()->RemoveAmx(amx);
