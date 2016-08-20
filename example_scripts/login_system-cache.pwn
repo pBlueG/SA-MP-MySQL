@@ -117,6 +117,9 @@ public OnPlayerDisconnect(playerid, reason)
 		Player[playerid][Cache_ID] = MYSQL_INVALID_CACHE;
 	}
 	
+    KillTimer(Player[playerid][LoginTimer]);
+    Player[playerid][LoginTimer] = 0;
+                
 	Player[playerid][IsLoggedIn] = false;
 	// sets "IsLoggedIn" to false when the player disconnects, it prevents from saving the player data twice when "gmx" is used
 	return 1;
@@ -176,6 +179,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 Player[playerid][Cache_ID] = MYSQL_INVALID_CACHE;
                 
                 KillTimer(Player[playerid][LoginTimer]);
+                Player[playerid][LoginTimer] = 0;
                 Player[playerid][IsLoggedIn] = true;
 
                 SetSpawnInfo(playerid, NO_TEAM, 0, 1958.3783, 1343.1572, 15.3746, 270.1425, 0, 0, 0, 0, 0, 0);
