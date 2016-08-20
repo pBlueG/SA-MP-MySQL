@@ -884,6 +884,7 @@ Test:CacheSave()
 	ASSERT_FALSE(cache_set_active(MYSQL_INVALID_CACHE));
 	ASSERT_FALSE(cache_is_valid(MYSQL_INVALID_CACHE));
 	ASSERT_FALSE(cache_delete(MYSQL_INVALID_CACHE));
+	ASSERT_TRUE(cache_unset_active());
 	
 	ASSERT((cache[0] = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_any_active());
@@ -906,6 +907,8 @@ Test:CacheSave()
 	ASSERT(cache_num_fields() != num_fields);
 	ASSERT((cache[0] = cache_save()) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache[0]));
+	ASSERT_TRUE(cache_unset_active());
+	ASSERT_FALSE(cache_is_any_active());
 	ASSERT_TRUE(cache_delete(cache[1]));
 	ASSERT_FALSE(cache_is_valid(cache[1]));
 	ASSERT_FALSE(cache_is_any_active());
