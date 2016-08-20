@@ -1630,6 +1630,15 @@ AMX_DECLARE_NATIVE(Native::cache_set_active)
 	return 1;
 }
 
+// native cache_unset_active();
+AMX_DECLARE_NATIVE(Native::cache_unset_active)
+{
+	CScopedDebugInfo dbg_info(amx, "cache_unset_active", "");
+	CResultSetManager::Get()->SetActiveResultSet(nullptr);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
+}
+
 // native bool:cache_is_any_active();
 AMX_DECLARE_NATIVE(Native::cache_is_any_active)
 {

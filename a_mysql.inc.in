@@ -231,6 +231,7 @@ native cache_is_value_name_null(row_idx, const column_name[], &bool:destination)
 native Cache:cache_save();
 native cache_delete(Cache:cache_id);
 native cache_set_active(Cache:cache_id);
+native cache_unset_active();
 native bool:cache_is_any_active();
 native bool:cache_is_valid(Cache:cache_id);
 
