@@ -855,7 +855,7 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_pquery", connection_id);
 
 	if (cb_format != NULL && strlen(cb_format) != ((params[0] / 4) - ConstParamCount))
-		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_pquery", "callback parameter count does not match format specifier length");
+		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_pquery", "callback parameter count does not match format specifier length (Query: \"%s\")", query_str ? query_str : "");
 
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
@@ -898,7 +898,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 		return ERROR_INVALID_CONNECTION_HANDLE("mysql_tquery", connection_id);
 
 	if (cb_format != NULL && strlen(cb_format) != ((params[0] / 4) - ConstParamCount))
-		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_tquery", "callback parameter count does not match format specifier length (Query: \"%s\")", query_str);
+		return CLog::Get()->LogFunction(LOG_ERROR, "mysql_tquery", "callback parameter count does not match format specifier length (Query: \"%s\")", query_str ? query_str : "");
 
 
 	CMySQLHandle *Handle = CMySQLHandle::GetHandle(connection_id);
@@ -1338,8 +1338,6 @@ AMX_DECLARE_NATIVE(Native::mysql_errno)
 		ERROR_INVALID_CONNECTION_HANDLE("mysql_errno", connection_id);
 		return -1; //don't return 0 since it means that there are no errors
 	}
-
-
 	return static_cast<cell>(mysql_errno(CMySQLHandle::GetHandle(connection_id)->GetMainConnection()->GetMysqlPtr()));
 }
 
