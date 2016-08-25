@@ -14,7 +14,7 @@ const char *CMySQLResult::GetFieldName(unsigned int idx)
 	}
 	else
 	{
-		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetFieldName", "invalid field index ('%d')", idx);
+		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetFieldName", "invalid field index ('%d') (Query: \"%s\")", idx, m_Query.c_str());
 		return NULL;
 	}
 }
@@ -36,7 +36,7 @@ const char *CMySQLResult::GetRowData(unsigned int row, unsigned int fieldidx)
 	}
 	else
 	{
-		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowData", "invalid row ('%d') or field index ('%d')", row, fieldidx);
+		CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowData", "invalid row ('%d') or field index ('%d') (Query: \"%s\")", row, fieldidx, m_Query.c_str());
 		return NULL;
 	}
 }
@@ -45,13 +45,13 @@ const char *CMySQLResult::GetRowDataByName(unsigned int row, const char *field)
 {
 	if(row >= m_Rows || m_Fields == 0)
 	{
-		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d')", row);
+		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "invalid row index ('%d') (Query: \"%s\")", row, m_Query.c_str());
 		return NULL;
 	}
 	
 	if(field == NULL)
 	{
-		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "empty field name specified");
+		CLog::Get()->LogFunction(LOG_ERROR, "CMySQLResult::GetRowDataByName()", "empty field name specified (Query: \"%s\")", m_Query.c_str());
 		return NULL;
 	}
 
@@ -70,7 +70,7 @@ const char *CMySQLResult::GetRowDataByName(unsigned int row, const char *field)
 			return m_Data[row][i];
 		}
 	}
-	CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowDataByName", "field not found (\"%s\")", field);
+	CLog::Get()->LogFunction(LOG_WARNING, "CMySQLResult::GetRowDataByName", "field not found (\"%s\") (Query: \"%s\")", field, m_Query.c_str());
 	return NULL;
 }
 
