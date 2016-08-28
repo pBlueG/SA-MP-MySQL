@@ -18,29 +18,34 @@
 
 const string COrm::ModuleName{ "orm" };
 
-string COrm::Variable::GetValueAsString()
+bool COrm::Variable::GetValueAsString(string &dest, Handle_t handle_escape)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, "COrm::Variable::GetValueAsString(this={})",
-					 static_cast<const void *>(this));
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "COrm::Variable::GetValueAsString(this={}, handle={})",
+					 static_cast<const void *>(this),
+					 static_cast<const void *>(handle_escape));
 
-	string res;
-	int res_len = 0;
 	switch (m_Type)
 	{
 		case COrm::Variable::Type::INVALID:
-			return "INVALID";
+			dest = "INVALID";
 		case COrm::Variable::Type::INT:
-			return fmt::FormatInt(*(m_VariableAddr)).str();
+			dest = fmt::FormatInt(*(m_VariableAddr)).str();
 		case COrm::Variable::Type::FLOAT:
-			ConvertDataToStr(amx_ctof(*m_VariableAddr), res);
+			if (!ConvertDataToStr(amx_ctof(*m_VariableAddr), dest))
+				return false;
 			break;
 		case COrm::Variable::Type::STRING:
-			amx_StrLen(m_VariableAddr, &res_len);
-			res.resize(res_len);
-			amx_GetString(&res[0], m_VariableAddr, 0, m_VarMaxLen);
-			break;
+		{
+			int var_len = 0;
+			amx_StrLen(m_VariableAddr, &var_len);
+			string var(var_len, ' ');
+			amx_GetString(&var[0], m_VariableAddr, 0, m_VarMaxLen);
+			if (var_len > 0 && !handle_escape->EscapeString(var.c_str(), dest))
+				return false;
+		}	break;
 	}
-	return res;
+	return true;
 }
 
 void COrm::Variable::SetValue(const char *value)
@@ -217,8 +222,23 @@ CError<COrm> COrm::GenerateSelectQuery(string &dest)
 	fmt::MemoryWriter writer;
 	writer << "SELECT ";
 	WriteVariableNamesAsList(writer);
+
+	auto handle = CHandleManager::Get()->GetHandle(GetHandleId());
+	if (handle == nullptr)
+	{
+		return{ Error::INVALID_CONNECTION_HANDLE, 
+			"invalid connection handle" };
+	}
+
+	string key_var_value;
+	if (!m_KeyVariable.GetValueAsString(key_var_value, handle))
+	{
+		return{ Error::INVALID_STRING_REPRESENTATION, 
+			"can't represent variable value as string" };
+	}
+
 	writer << " FROM `" << m_Table << "` WHERE `" << m_KeyVariable.GetName()
-		<< "`='" << m_KeyVariable.GetValueAsString() << "' LIMIT 1";
+		<< "`='" << key_var_value << "' LIMIT 1";
 
 	dest.assign(writer.str());
 	return{ };
@@ -235,6 +255,13 @@ CError<COrm> COrm::GenerateUpdateQuery(string &dest)
 	if (!m_KeyVariable)
 		return{ COrm::Error::NO_KEY_VARIABLE, "no key variable set" };
 
+	auto handle = CHandleManager::Get()->GetHandle(GetHandleId());
+	if (handle == nullptr)
+	{
+		return{ Error::INVALID_CONNECTION_HANDLE,
+			"invalid connection handle" };
+	}
+
 	fmt::MemoryWriter writer;
 	writer << "UPDATE `" << m_Table << "` SET `";
 	for (size_t i = 0; i != m_Variables.size(); ++i)
@@ -242,10 +269,26 @@ CError<COrm> COrm::GenerateUpdateQuery(string &dest)
 		if (i != 0)
 			writer << "',`";
 		Variable &var = m_Variables.at(i);
-		writer << var.GetName() << "`='" << var.GetValueAsString();
+
+		string var_value;
+		if (!var.GetValueAsString(var_value, handle))
+		{
+			return{ Error::INVALID_STRING_REPRESENTATION,
+				"can't represent variable value as string" };
+		}
+
+		writer << var.GetName() << "`='" << var_value;
 	}
+
+	string key_var_value;
+	if (!m_KeyVariable.GetValueAsString(key_var_value, handle))
+	{
+		return{ Error::INVALID_STRING_REPRESENTATION,
+			"can't represent variable value as string" };
+	}
+
 	writer << "' WHERE `" 
-		<< m_KeyVariable.GetName() << "`='" << m_KeyVariable.GetValueAsString() 
+		<< m_KeyVariable.GetName() << "`='" << key_var_value
 		<< "' LIMIT 1";
 
 	dest.assign(writer.str());
@@ -263,6 +306,13 @@ CError<COrm> COrm::GenerateInsertQuery(string &dest)
 	if (!m_KeyVariable)
 		return{ COrm::Error::NO_KEY_VARIABLE, "no key variable set" };
 
+	auto handle = CHandleManager::Get()->GetHandle(GetHandleId());
+	if (handle == nullptr)
+	{
+		return{ Error::INVALID_CONNECTION_HANDLE,
+			"invalid connection handle" };
+	}
+
 	fmt::MemoryWriter writer;
 	writer << "INSERT INTO `" << m_Table << "` (";
 	WriteVariableNamesAsList(writer);
@@ -271,7 +321,14 @@ CError<COrm> COrm::GenerateInsertQuery(string &dest)
 	{
 		if (i != 0)
 			writer << "','";
-		writer << m_Variables.at(i).GetValueAsString();
+		
+		string var_value;
+		if (!m_Variables.at(i).GetValueAsString(var_value, handle))
+		{
+			return{ Error::INVALID_STRING_REPRESENTATION,
+				"can't represent variable value as string" };
+		}
+		writer << var_value;
 	}
 	writer << "')";
 
@@ -287,9 +344,22 @@ CError<COrm> COrm::GenerateDeleteQuery(string &dest)
 	if (!m_KeyVariable)
 		return{ COrm::Error::NO_KEY_VARIABLE, "no key variable set" };
 
+	Handle_t handle = CHandleManager::Get()->GetHandle(GetHandleId());
+	if (handle == nullptr)
+	{
+		return{ Error::INVALID_CONNECTION_HANDLE,
+			"invalid connection handle" };
+	}
+
+	string key_var_value;
+	if (!m_KeyVariable.GetValueAsString(key_var_value, handle))
+	{
+		return{ Error::INVALID_STRING_REPRESENTATION,
+			"can't represent variable value as string" };
+	}
+
 	dest = fmt::format("DELETE FROM `{}` WHERE `{}`='{}' LIMIT 1",
-					   m_Table, m_KeyVariable.GetName(), 
-					   m_KeyVariable.GetValueAsString());
+					   m_Table, m_KeyVariable.GetName(), key_var_value);
 	return{ };
 }
 

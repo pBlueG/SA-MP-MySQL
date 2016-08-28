@@ -59,7 +59,7 @@ public:
 			return m_Name;
 		}
 
-		string GetValueAsString();
+		bool GetValueAsString(string &dest, Handle_t handle_escape);
 		inline cell GetValueAsCell() const
 		{
 			return *m_VariableAddr;
@@ -100,6 +100,7 @@ public:
 		INVALID_MAX_LEN,
 		DUPLICATE_VARIABLE,
 		UNKNOWN_VARIABLE,
+		INVALID_STRING_REPRESENTATION,
 	};
 
 	enum class PawnError //errors for Pawn
