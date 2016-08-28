@@ -1,6 +1,6 @@
 #include     <a_samp>
 
-// Change MAX_PLAYERS to the amount of players (slots) you want
+// change MAX_PLAYERS to the amount of players (slots) you want
 // It is by default 1000 (as of 0.3.7 version)
 #undef      MAX_PLAYERS
 #define     MAX_PLAYERS          50
@@ -13,8 +13,14 @@
 #define     MYSQL_PASSWORD      "password"
 #define     MYSQL_DATABASE      "database"
 
-// How many seconds until it kicks the player for taking too long to login
+// how many seconds until it kicks the player for taking too long to login
 #define     SECONDS_TO_LOGIN     30
+
+// default spawn point: Las Venturas (The High Roller)
+#define 	DEFAULT_POS_X 		1958.3783
+#define 	DEFAULT_POS_Y 		1343.1572
+#define 	DEFAULT_POS_Z 		15.3746
+#define 	DEFAULT_POS_A 		270.1425
 
 // MySQL connection handle
 new MySQL: g_SQL;
@@ -24,11 +30,16 @@ enum E_PLAYERS
 {
 	ID,
 	Name[MAX_PLAYER_NAME],
-	Password[65], // The output of SHA256_PassHash function (which was added in 0.3.7 R1 version) is always 256 bytes in length, or the equivalent of 64 Pawn cells
+	Password[65], // the output of SHA256_PassHash function (which was added in 0.3.7 R1 version) is always 256 bytes in length, or the equivalent of 64 Pawn cells
 	Salt[17],
 	Kills,
 	Deaths,
-	
+	Float: X_Pos,
+	Float: Y_Pos,
+	Float: Z_Pos,
+	Float: A_Pos,
+	Interior,
+
 	Cache: Cache_ID,
 	bool: IsLoggedIn,
 	LoginAttempts,
@@ -38,7 +49,7 @@ new Player[MAX_PLAYERS][E_PLAYERS];
 
 new g_MysqlRaceCheck[MAX_PLAYERS];
 
-//dialog data
+// dialog data
 enum
 {
 	DIALOG_UNUSED,
@@ -49,24 +60,25 @@ enum
 
 main() {}
 
+
 public OnGameModeInit()
 {
 	new MySQLOpt: option_id = mysql_init_options();
 
-	mysql_set_option(option_id, AUTO_RECONNECT, true); // It automatically reconnects when loosing connection to mysql server
-	mysql_set_option(option_id, MULTI_STATEMENTS, true); // Allows to execute multiple queries at once
+	mysql_set_option(option_id, AUTO_RECONNECT, true); // it automatically reconnects when loosing connection to mysql server
 
-	g_SQL = mysql_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, option_id); // AUTO_RECONNECT and MULTI_STATEMENTS are enabled for this connection handle only
+	g_SQL = mysql_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, option_id); // AUTO_RECONNECT is enabled for this connection handle only
 	if (g_SQL == MYSQL_INVALID_HANDLE || mysql_errno(g_SQL) != 0)
 	{
 		print("MySQL connection failed. Server is shutting down.");
-		SendRconCommand("exit"); // Close the server if there is no connection
+		SendRconCommand("exit"); // close the server if there is no connection
 		return 1;
 	}
-	
+
 	print("MySQL connection is successful.");
+	
+	// if the table has been created, the "SetupPlayerTable" function does not have any purpose so you may remove it completely
 	SetupPlayerTable();
-	// If the table has been created, the "SetupPlayerTable" function does not have any purpose so you may remove it completely
 	return 1;
 }
 
@@ -77,10 +89,11 @@ public OnGameModeExit()
 	{
 		if (IsPlayerConnected(i))
 		{
-			UpdatePlayerData(i);
+		    // reason is set to 1 for normal 'Quit'
+			OnPlayerDisconnect(i, 1);
 		}
 	}
-    
+
 	mysql_close(g_SQL);
 	return 1;
 }
@@ -88,17 +101,15 @@ public OnGameModeExit()
 public OnPlayerConnect(playerid)
 {
 	g_MysqlRaceCheck[playerid]++;
-	
+
 	// reset player data
-	for (new E_PLAYERS: e; e < E_PLAYERS; ++e)
-	{
-	    Player[playerid][e] = 0;
-	}
+	static const empty_player[E_PLAYERS];
+	Player[playerid] = empty_player;
 
 	GetPlayerName(playerid, Player[playerid][Name], MAX_PLAYER_NAME);
 
 	// send a query to recieve all the stored player data from the table
-	new query[80];
+	new query[103];
 	mysql_format(g_SQL, query, sizeof query, "SELECT * FROM `players` WHERE `username` = '%e' LIMIT 1", Player[playerid][Name]);
 	mysql_tquery(g_SQL, query, "OnPlayerDataLoaded", "dd", playerid, g_MysqlRaceCheck[playerid]);
 	return 1;
@@ -107,45 +118,43 @@ public OnPlayerConnect(playerid)
 public OnPlayerDisconnect(playerid, reason)
 {
 	g_MysqlRaceCheck[playerid]++;
-    
-	UpdatePlayerData(playerid);
-	
+
+	UpdatePlayerData(playerid, reason);
+
 	// if the player was kicked (either wrong password or taking too long) during the login part, remove the data from the memory
 	if (cache_is_valid(Player[playerid][Cache_ID]))
 	{
 		cache_delete(Player[playerid][Cache_ID]);
 		Player[playerid][Cache_ID] = MYSQL_INVALID_CACHE;
 	}
-	
-    KillTimer(Player[playerid][LoginTimer]);
-    Player[playerid][LoginTimer] = 0;
-                
+
+	// if the player was kicked before the time expires (30 seconds), kill the timer
+    if (Player[playerid][LoginTimer])
+	{
+		KillTimer(Player[playerid][LoginTimer]);
+    	Player[playerid][LoginTimer] = 0;
+	}
+
+    // sets "IsLoggedIn" to false when the player disconnects, it prevents from saving the player data twice when "gmx" is used
 	Player[playerid][IsLoggedIn] = false;
-	// sets "IsLoggedIn" to false when the player disconnects, it prevents from saving the player data twice when "gmx" is used
 	return 1;
 }
 
 public OnPlayerSpawn(playerid)
 {
-	// Spawn them in Las Venturas (The High Roller)
-	SetPlayerInterior(playerid, 0);
-	SetPlayerVirtualWorld(playerid, 0);
+	// spawn the player to their last saved position
+    SetPlayerInterior(playerid, Player[playerid][Interior]);
+    SetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
+	SetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
 	
-	SetPlayerPos(playerid, 1958.3783, 1343.1572, 15.3746);
-	SetPlayerFacingAngle(playerid, 270.1425);
+	SetCameraBehindPlayer(playerid);
 	return 1;
 }
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
-	// increase the deaths by 1 of the player who died
-	Player[playerid][Deaths]++;
-	
-	// if the killer is a valid (connected) player, increase their kills by 1
-	if (killerid != INVALID_PLAYER_ID)
-	{
-		Player[killerid][Kills]++;
-	}
+    UpdatePlayerDeaths(playerid);
+    UpdatePlayerKills(killerid);
 	return 1;
 }
 
@@ -154,7 +163,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
     switch (dialogid)
     {
         case DIALOG_UNUSED: return 1; // Useful for dialogs that contain only information and we do nothing depending on whether they responded or not
-	    
+
         case DIALOG_LOGIN:
         {
             if (!response) return Kick(playerid);
@@ -169,26 +178,25 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
                 // sets the specified cache as the active cache so we can retrieve the rest player data
                 cache_set_active(Player[playerid][Cache_ID]);
-                
+
                 AssignPlayerData(playerid);
 
-                // remove the active cache from memory
+                // remove the active cache from memory and unsets the active cache as well
                 cache_delete(Player[playerid][Cache_ID]);
-                // the active cache will be unset
-                cache_set_active(MYSQL_INVALID_CACHE);
                 Player[playerid][Cache_ID] = MYSQL_INVALID_CACHE;
-                
+
                 KillTimer(Player[playerid][LoginTimer]);
                 Player[playerid][LoginTimer] = 0;
                 Player[playerid][IsLoggedIn] = true;
 
-                SetSpawnInfo(playerid, NO_TEAM, 0, 1958.3783, 1343.1572, 15.3746, 270.1425, 0, 0, 0, 0, 0, 0);
+				// spawn the player to their last saved position after login
+                SetSpawnInfo(playerid, NO_TEAM, 0, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], 0, 0, 0, 0, 0, 0);
                 SpawnPlayer(playerid);
             }
             else
             {
                 Player[playerid][LoginAttempts]++;
-			    
+
                 if (Player[playerid][LoginAttempts] >= 3)
                 {
                     ShowPlayerDialog(playerid, DIALOG_UNUSED, DIALOG_STYLE_MSGBOX, "Login", "You have mistyped your password too often (3 times).", "Okay", "");
@@ -200,18 +208,18 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
         case DIALOG_REGISTER:
         {
             if (!response) return Kick(playerid);
-     		
+
             if (strlen(inputtext) <= 5) return ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD, "Registration", "Your password must be longer than 5 characters!\nPlease enter your password in the field below:", "Register", "Abort");
 
             // 16 random characters from 33 to 126 (in ASCII) for the salt
             for (new i = 0; i < 16; i++) Player[playerid][Salt][i] = random(94) + 33;
             SHA256_PassHash(inputtext, Player[playerid][Salt], Player[playerid][Password], 65);
 
-            new query[185];
-            mysql_format(g_SQL, query, sizeof query, "INSERT INTO `players` (`username`, `password`, `salt`) VALUES ('%e', '%e', '%e')", Player[playerid][Name], Player[playerid][Password], Player[playerid][Salt]);
+            new query[221];
+            mysql_format(g_SQL, query, sizeof query, "INSERT INTO `players` (`username`, `password`, `salt`) VALUES ('%e', '%s', '%e')", Player[playerid][Name], Player[playerid][Password], Player[playerid][Salt]);
             mysql_tquery(g_SQL, query, "OnPlayerRegister", "d", playerid);
         }
-	    
+
         default: return 0; // dialog ID was not found, search in other scripts
     }
     return 1;
@@ -248,7 +256,7 @@ public OnPlayerDataLoaded(playerid, race_check)
 
         format(string, sizeof string, "This account (%s) is registered. Please login by entering your password in the field below:", Player[playerid][Name]);
         ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, "Login", string, "Login", "Abort");
-		
+
         // from now on, the player has 30 seconds to login
         Player[playerid][LoginTimer] = SetTimerEx("OnLoginTimeout", SECONDS_TO_LOGIN * 1000, false, "d", playerid);
     }
@@ -263,6 +271,9 @@ public OnPlayerDataLoaded(playerid, race_check)
 forward OnLoginTimeout(playerid);
 public OnLoginTimeout(playerid)
 {
+	// reset the variable that stores the timerid
+    Player[playerid][LoginTimer] = 0;
+    
     ShowPlayerDialog(playerid, DIALOG_UNUSED, DIALOG_STYLE_MSGBOX, "Login", "You have been kicked for taking too long to login successfully to your account.", "Okay", "");
     DelayedKick(playerid);
     return 1;
@@ -278,7 +289,12 @@ public OnPlayerRegister(playerid)
 
     Player[playerid][IsLoggedIn] = true;
 
-    SetSpawnInfo(playerid, NO_TEAM, 0, 1958.3783, 1343.1572, 15.3746, 270.1425, 0, 0, 0, 0, 0, 0);
+	Player[playerid][X_Pos] = DEFAULT_POS_X;
+	Player[playerid][Y_Pos] = DEFAULT_POS_Y;
+	Player[playerid][Z_Pos] = DEFAULT_POS_Z;
+	Player[playerid][A_Pos] = DEFAULT_POS_A;
+	
+    SetSpawnInfo(playerid, NO_TEAM, 0, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], 0, 0, 0, 0, 0, 0);
     SpawnPlayer(playerid);
     return 1;
 }
@@ -296,8 +312,15 @@ public _KickPlayerDelayed(playerid)
 AssignPlayerData(playerid)
 {
     cache_get_value_int(0, "id", Player[playerid][ID]);
+    
     cache_get_value_int(0, "kills", Player[playerid][Kills]);
     cache_get_value_int(0, "deaths", Player[playerid][Deaths]);
+    
+    cache_get_value_float(0, "x", Player[playerid][X_Pos]);
+    cache_get_value_float(0, "y", Player[playerid][Y_Pos]);
+    cache_get_value_float(0, "z", Player[playerid][Z_Pos]);
+    cache_get_value_float(0, "angle", Player[playerid][A_Pos]);
+    cache_get_value_int(0, "interior", Player[playerid][Interior]);
     return 1;
 }
 
@@ -309,16 +332,50 @@ DelayedKick(playerid, time = 500)
 
 SetupPlayerTable()
 {
-    mysql_tquery(g_SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL AUTO_INCREMENT, `username` varchar(24) NOT NULL, `password` char(64) NOT NULL, `salt` char(16) NOT NULL, `kills` int(11) NOT NULL DEFAULT '0', `deaths` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), UNIQUE KEY `username` (`username`))");
-    return 1;
+    mysql_tquery(g_SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL AUTO_INCREMENT,`username` varchar(24) NOT NULL,`password` char(64) NOT NULL,`salt` char(16) NOT NULL,`kills` mediumint(8) NOT NULL DEFAULT '0',`deaths` mediumint(8) NOT NULL DEFAULT '0',`x` float NOT NULL DEFAULT '0',`y` float NOT NULL DEFAULT '0',`z` float NOT NULL DEFAULT '0',`angle` float NOT NULL DEFAULT '0',`interior` tinyint(3) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), UNIQUE KEY `username` (`username`))");
+	return 1;
 }
 
-UpdatePlayerData(playerid)
+UpdatePlayerData(playerid, reason)
 {
     if (Player[playerid][IsLoggedIn] == false) return 0;
 
-    new query[90];
-    mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `kills` = %d, `deaths` = %d WHERE `id` = %d LIMIT 1", Player[playerid][Kills], Player[playerid][Deaths], Player[playerid][ID]);
+	// if the client crashed, it's not possible to get the player's position in OnPlayerDisconnect callback
+	// so we will use the last saved position (in case of a player who registered and crashed/kicked, the position will be the default spawn point)
+	if (reason == 1)
+	{
+		GetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
+		GetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
+	}
+	
+    new query[145];
+    mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `x` = %f, `y` = %f, `z` = %f, `angle` = %f, `interior` = %d WHERE `id` = %d LIMIT 1", Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], GetPlayerInterior(playerid), Player[playerid][ID]);
     mysql_tquery(g_SQL, query);
     return 1;
+}
+
+UpdatePlayerDeaths(playerid)
+{
+    if (Player[playerid][IsLoggedIn] == false) return 0;
+    
+    Player[playerid][Deaths]++;
+    
+    new query[70];
+    mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `deaths` = %d WHERE `id` = %d LIMIT 1", Player[playerid][Deaths], Player[playerid][ID]);
+    mysql_tquery(g_SQL, query);
+    return 1;
+}
+
+UpdatePlayerKills(killerid)
+{
+	// we must check before if the killer wasn't valid (connected) player to avoid run time error 4
+    if (killerid == INVALID_PLAYER_ID) return 0;
+    if (Player[killerid][IsLoggedIn] == false) return 0;
+    
+	Player[killerid][Kills]++;
+	
+	new query[70];
+    mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `kills` = %d WHERE `id` = %d LIMIT 1", Player[killerid][Deaths], Player[killerid][ID]);
+    mysql_tquery(g_SQL, query);
+	return 1;
 }
