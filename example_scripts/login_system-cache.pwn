@@ -128,34 +128,34 @@ public OnPlayerDisconnect(playerid, reason)
 		Player[playerid][Cache_ID] = MYSQL_INVALID_CACHE;
 	}
 
-	// if the player was kicked before the time expires (30 seconds), kill the timer
+    // if the player was kicked before the time expires (30 seconds), kill the timer
     if (Player[playerid][LoginTimer])
-	{
-		KillTimer(Player[playerid][LoginTimer]);
-    	Player[playerid][LoginTimer] = 0;
-	}
+    {
+        KillTimer(Player[playerid][LoginTimer]);
+        Player[playerid][LoginTimer] = 0;
+    }
 
     // sets "IsLoggedIn" to false when the player disconnects, it prevents from saving the player data twice when "gmx" is used
-	Player[playerid][IsLoggedIn] = false;
-	return 1;
+    Player[playerid][IsLoggedIn] = false;
+    return 1;
 }
 
 public OnPlayerSpawn(playerid)
 {
-	// spawn the player to their last saved position
+    // spawn the player to their last saved position
     SetPlayerInterior(playerid, Player[playerid][Interior]);
     SetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
-	SetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
+    SetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
 	
-	SetCameraBehindPlayer(playerid);
-	return 1;
+    SetCameraBehindPlayer(playerid);
+    return 1;
 }
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
     UpdatePlayerDeaths(playerid);
     UpdatePlayerKills(killerid);
-	return 1;
+    return 1;
 }
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
@@ -189,7 +189,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 Player[playerid][LoginTimer] = 0;
                 Player[playerid][IsLoggedIn] = true;
 
-				// spawn the player to their last saved position after login
+                // spawn the player to their last saved position after login
                 SetSpawnInfo(playerid, NO_TEAM, 0, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], 0, 0, 0, 0, 0, 0);
                 SpawnPlayer(playerid);
             }
@@ -271,7 +271,7 @@ public OnPlayerDataLoaded(playerid, race_check)
 forward OnLoginTimeout(playerid);
 public OnLoginTimeout(playerid)
 {
-	// reset the variable that stores the timerid
+    // reset the variable that stores the timerid
     Player[playerid][LoginTimer] = 0;
     
     ShowPlayerDialog(playerid, DIALOG_UNUSED, DIALOG_STYLE_MSGBOX, "Login", "You have been kicked for taking too long to login successfully to your account.", "Okay", "");
@@ -289,10 +289,10 @@ public OnPlayerRegister(playerid)
 
     Player[playerid][IsLoggedIn] = true;
 
-	Player[playerid][X_Pos] = DEFAULT_POS_X;
-	Player[playerid][Y_Pos] = DEFAULT_POS_Y;
-	Player[playerid][Z_Pos] = DEFAULT_POS_Z;
-	Player[playerid][A_Pos] = DEFAULT_POS_A;
+    Player[playerid][X_Pos] = DEFAULT_POS_X;
+    Player[playerid][Y_Pos] = DEFAULT_POS_Y;
+    Player[playerid][Z_Pos] = DEFAULT_POS_Z;
+    Player[playerid][A_Pos] = DEFAULT_POS_A;
 	
     SetSpawnInfo(playerid, NO_TEAM, 0, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], 0, 0, 0, 0, 0, 0);
     SpawnPlayer(playerid);
@@ -333,20 +333,20 @@ DelayedKick(playerid, time = 500)
 SetupPlayerTable()
 {
     mysql_tquery(g_SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL AUTO_INCREMENT,`username` varchar(24) NOT NULL,`password` char(64) NOT NULL,`salt` char(16) NOT NULL,`kills` mediumint(8) NOT NULL DEFAULT '0',`deaths` mediumint(8) NOT NULL DEFAULT '0',`x` float NOT NULL DEFAULT '0',`y` float NOT NULL DEFAULT '0',`z` float NOT NULL DEFAULT '0',`angle` float NOT NULL DEFAULT '0',`interior` tinyint(3) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), UNIQUE KEY `username` (`username`))");
-	return 1;
+    return 1;
 }
 
 UpdatePlayerData(playerid, reason)
 {
     if (Player[playerid][IsLoggedIn] == false) return 0;
 
-	// if the client crashed, it's not possible to get the player's position in OnPlayerDisconnect callback
-	// so we will use the last saved position (in case of a player who registered and crashed/kicked, the position will be the default spawn point)
-	if (reason == 1)
-	{
-		GetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
-		GetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
-	}
+    // if the client crashed, it's not possible to get the player's position in OnPlayerDisconnect callback
+    // so we will use the last saved position (in case of a player who registered and crashed/kicked, the position will be the default spawn point)
+    if (reason == 1)
+    {
+        GetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
+        GetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
+    }
 	
     new query[145];
     mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `x` = %f, `y` = %f, `z` = %f, `angle` = %f, `interior` = %d WHERE `id` = %d LIMIT 1", Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], GetPlayerInterior(playerid), Player[playerid][ID]);
@@ -368,14 +368,14 @@ UpdatePlayerDeaths(playerid)
 
 UpdatePlayerKills(killerid)
 {
-	// we must check before if the killer wasn't valid (connected) player to avoid run time error 4
+    // we must check before if the killer wasn't valid (connected) player to avoid run time error 4
     if (killerid == INVALID_PLAYER_ID) return 0;
     if (Player[killerid][IsLoggedIn] == false) return 0;
     
-	Player[killerid][Kills]++;
+    Player[killerid][Kills]++;
 	
-	new query[70];
+    new query[70];
     mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `kills` = %d WHERE `id` = %d LIMIT 1", Player[killerid][Deaths], Player[killerid][ID]);
     mysql_tquery(g_SQL, query);
-	return 1;
+    return 1;
 }
