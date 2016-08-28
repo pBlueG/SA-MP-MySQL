@@ -29,8 +29,10 @@ bool COrm::Variable::GetValueAsString(string &dest, Handle_t handle_escape)
 	{
 		case COrm::Variable::Type::INVALID:
 			dest = "INVALID";
+			break;
 		case COrm::Variable::Type::INT:
 			dest = fmt::FormatInt(*(m_VariableAddr)).str();
+			break;
 		case COrm::Variable::Type::FLOAT:
 			if (!ConvertDataToStr(amx_ctof(*m_VariableAddr), dest))
 				return false;
