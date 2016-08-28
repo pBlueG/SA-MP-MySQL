@@ -30,21 +30,21 @@ enum E_PLAYERS
 {
     ORM: ORM_ID,
 
-	ID,
-	Name[MAX_PLAYER_NAME],
-	Password[65], // the output of SHA256_PassHash function (which was added in 0.3.7 R1 version) is always 256 bytes in length, or the equivalent of 64 Pawn cells
-	Salt[17],
-	Kills,
-	Deaths,
-	Float: X_Pos,
-	Float: Y_Pos,
-	Float: Z_Pos,
-	Float: A_Pos,
-	Interior,
+    ID,
+    Name[MAX_PLAYER_NAME],
+    Password[65], // the output of SHA256_PassHash function (which was added in 0.3.7 R1 version) is always 256 bytes in length, or the equivalent of 64 Pawn cells
+    Salt[17],
+    Kills,
+    Deaths,
+    Float: X_Pos,
+    Float: Y_Pos,
+    Float: Z_Pos,
+    Float: A_Pos,
+    Interior,
 
-	bool: IsLoggedIn,
-	LoginAttempts,
-	LoginTimer
+    bool: IsLoggedIn,
+    LoginAttempts,
+    LoginTimer
 };
 new Player[MAX_PLAYERS][E_PLAYERS];
 
@@ -89,8 +89,8 @@ public OnGameModeExit()
 	{
 		if (IsPlayerConnected(i))
 		{
-		    // reason is set to 1 for normal 'Quit'
-			OnPlayerDisconnect(i, 1);
+            // reason is set to 1 for normal 'Quit'
+            OnPlayerDisconnect(i, 1);
 		}
 	}
 
@@ -131,38 +131,38 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason)
 {
-	g_MysqlRaceCheck[playerid]++;
+    g_MysqlRaceCheck[playerid]++;
 
-	UpdatePlayerData(playerid, reason);
+    UpdatePlayerData(playerid, reason);
 
-	// if the player was kicked before the time expires (30 seconds), kill the timer
+    // if the player was kicked before the time expires (30 seconds), kill the timer
     if (Player[playerid][LoginTimer])
-	{
-		KillTimer(Player[playerid][LoginTimer]);
-    	Player[playerid][LoginTimer] = 0;
-	}
+    {
+        KillTimer(Player[playerid][LoginTimer]);
+        Player[playerid][LoginTimer] = 0;
+    }
 
     // sets "IsLoggedIn" to false when the player disconnects, it prevents from saving the player data twice when "gmx" is used
-	Player[playerid][IsLoggedIn] = false;
-	return 1;
+    Player[playerid][IsLoggedIn] = false;
+    return 1;
 }
 
 public OnPlayerSpawn(playerid)
 {
-	// spawn the player to their last saved position
+    // spawn the player to their last saved position
     SetPlayerInterior(playerid, Player[playerid][Interior]);
     SetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
-	SetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
+    SetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
 
-	SetCameraBehindPlayer(playerid);
-	return 1;
+    SetCameraBehindPlayer(playerid);
+    return 1;
 }
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
     UpdatePlayerDeaths(playerid);
     UpdatePlayerKills(killerid);
-	return 1;
+    return 1;
 }
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
@@ -187,7 +187,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 Player[playerid][LoginTimer] = 0;
                 Player[playerid][IsLoggedIn] = true;
 
-				// spawn the player to their last saved position after login
+                // spawn the player to their last saved position after login
                 SetSpawnInfo(playerid, NO_TEAM, 0, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], 0, 0, 0, 0, 0, 0);
                 SpawnPlayer(playerid);
             }
@@ -213,7 +213,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
             for (new i = 0; i < 16; i++) Player[playerid][Salt][i] = random(94) + 33;
             SHA256_PassHash(inputtext, Player[playerid][Salt], Player[playerid][Password], 65);
 
-			// sends an INSERT query
+            // sends an INSERT query
             orm_save(Player[playerid][ORM_ID], "OnPlayerRegister", "d", playerid);
         }
 
@@ -243,29 +243,29 @@ public OnPlayerDataLoaded(playerid, race_check)
 	orm_setkey(Player[playerid][ORM_ID], "id");
 
     new string[115];
-	switch (orm_errno(Player[playerid][ORM_ID]))
-	{
-		case ERROR_OK:
-		{
-			format(string, sizeof string, "This account (%s) is registered. Please login by entering your password in the field below:", Player[playerid][Name]);
-			ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, "Login", string, "Login", "Abort");
+    switch (orm_errno(Player[playerid][ORM_ID]))
+    {
+    case ERROR_OK:
+    {
+            format(string, sizeof string, "This account (%s) is registered. Please login by entering your password in the field below:", Player[playerid][Name]);
+            ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, "Login", string, "Login", "Abort");
 			
-			// from now on, the player has 30 seconds to login
-        	Player[playerid][LoginTimer] = SetTimerEx("OnLoginTimeout", SECONDS_TO_LOGIN * 1000, false, "d", playerid);
-		}
-		case ERROR_NO_DATA:
-		{
-			format(string, sizeof string, "Welcome %s, you can register by entering your password in the field below:", Player[playerid][Name]);
-			ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD, "Registration", string, "Register", "Abort");
-		}
-	}
+            // from now on, the player has 30 seconds to login
+            Player[playerid][LoginTimer] = SetTimerEx("OnLoginTimeout", SECONDS_TO_LOGIN * 1000, false, "d", playerid);
+        }
+        case ERROR_NO_DATA:
+        {
+            format(string, sizeof string, "Welcome %s, you can register by entering your password in the field below:", Player[playerid][Name]);
+            ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD, "Registration", string, "Register", "Abort");
+        }
+    }
     return 1;
 }
 
 forward OnLoginTimeout(playerid);
 public OnLoginTimeout(playerid)
 {
-	// reset the variable that stores the timerid
+    // reset the variable that stores the timerid
     Player[playerid][LoginTimer] = 0;
 
     ShowPlayerDialog(playerid, DIALOG_UNUSED, DIALOG_STYLE_MSGBOX, "Login", "You have been kicked for taking too long to login successfully to your account.", "Okay", "");
@@ -280,10 +280,10 @@ public OnPlayerRegister(playerid)
 
     Player[playerid][IsLoggedIn] = true;
 
-	Player[playerid][X_Pos] = DEFAULT_POS_X;
-	Player[playerid][Y_Pos] = DEFAULT_POS_Y;
-	Player[playerid][Z_Pos] = DEFAULT_POS_Z;
-	Player[playerid][A_Pos] = DEFAULT_POS_A;
+    Player[playerid][X_Pos] = DEFAULT_POS_X;
+    Player[playerid][Y_Pos] = DEFAULT_POS_Y;
+    Player[playerid][Z_Pos] = DEFAULT_POS_Z;
+    Player[playerid][A_Pos] = DEFAULT_POS_A;
 
     SetSpawnInfo(playerid, NO_TEAM, 0, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], 0, 0, 0, 0, 0, 0);
     SpawnPlayer(playerid);
@@ -309,28 +309,28 @@ DelayedKick(playerid, time = 500)
 SetupPlayerTable()
 {
     mysql_tquery(g_SQL, "CREATE TABLE IF NOT EXISTS `players` (`id` int(11) NOT NULL AUTO_INCREMENT,`username` varchar(24) NOT NULL,`password` char(64) NOT NULL,`salt` char(16) NOT NULL,`kills` mediumint(8) NOT NULL DEFAULT '0',`deaths` mediumint(8) NOT NULL DEFAULT '0',`x` float NOT NULL DEFAULT '0',`y` float NOT NULL DEFAULT '0',`z` float NOT NULL DEFAULT '0',`angle` float NOT NULL DEFAULT '0',`interior` tinyint(3) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), UNIQUE KEY `username` (`username`))");
-	return 1;
+    return 1;
 }
 
 UpdatePlayerData(playerid, reason)
 {
     if (Player[playerid][IsLoggedIn] == false) return 0;
 
-	// if the client crashed, it's not possible to get the player's position in OnPlayerDisconnect callback
-	// so we will use the last saved position (in case of a player who registered and crashed/kicked, the position will be the default spawn point)
-	if (reason == 1)
-	{
-		GetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
-		GetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
-	}
+    // if the client crashed, it's not possible to get the player's position in OnPlayerDisconnect callback
+    // so we will use the last saved position (in case of a player who registered and crashed/kicked, the position will be the default spawn point)
+    if (reason == 1)
+    {
+        GetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
+        GetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
+    }
 	
-	// it is important to store everything in the variables registered in ORM instance
-	Player[playerid][Interior] = GetPlayerInterior(playerid);
+    // it is important to store everything in the variables registered in ORM instance
+    Player[playerid][Interior] = GetPlayerInterior(playerid);
 	
-	// orm_save sends an UPDATE query
+    // orm_save sends an UPDATE query
     orm_save(Player[playerid][ORM_ID]);
-	orm_destroy(Player[playerid][ORM_ID]);
-	return 1;
+    orm_destroy(Player[playerid][ORM_ID]);
+    return 1;
 }
 
 UpdatePlayerDeaths(playerid)
@@ -345,12 +345,12 @@ UpdatePlayerDeaths(playerid)
 
 UpdatePlayerKills(killerid)
 {
-	// we must check before if the killer wasn't valid (connected) player to avoid run time error 4
+    // we must check before if the killer wasn't valid (connected) player to avoid run time error 4
     if (killerid == INVALID_PLAYER_ID) return 0;
     if (Player[killerid][IsLoggedIn] == false) return 0;
 
-	Player[killerid][Kills]++;
+    Player[killerid][Kills]++;
 
-	orm_update(Player[killerid][ORM_ID]);
-	return 1;
+    orm_update(Player[killerid][ORM_ID]);
+    return 1;
 }
