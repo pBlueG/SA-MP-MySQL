@@ -8,8 +8,6 @@ option (BUILD_TESTS "Build tests" OFF)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libs/cmake")
 
-set(CMAKE_CXX_STANDARD 11)
-
 if(UNIX)
 	#force 32bit compilation and hide non-exported symbols
 	set(CMAKE_CXX_FLAGS "-m32 -fvisibility=hidden")
