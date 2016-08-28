@@ -53,80 +53,80 @@ new g_MysqlRaceCheck[MAX_PLAYERS];
 //dialog data
 enum
 {
-	DIALOG_UNUSED,
+    DIALOG_UNUSED,
 
-	DIALOG_LOGIN,
-	DIALOG_REGISTER
+    DIALOG_LOGIN,
+    DIALOG_REGISTER
 };
 
 main() {}
 
 public OnGameModeInit()
 {
-	new MySQLOpt: option_id = mysql_init_options();
+    new MySQLOpt: option_id = mysql_init_options();
 
-	mysql_set_option(option_id, AUTO_RECONNECT, true); // it automatically reconnects when loosing connection to mysql server
+    mysql_set_option(option_id, AUTO_RECONNECT, true); // it automatically reconnects when loosing connection to mysql server
 
-	g_SQL = mysql_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, option_id); // AUTO_RECONNECT is enabled for this connection handle only
-	if (g_SQL == MYSQL_INVALID_HANDLE || mysql_errno(g_SQL) != 0)
-	{
-		print("MySQL connection failed. Server is shutting down.");
-		SendRconCommand("exit"); // close the server if there is no connection
-		return 1;
-	}
+    g_SQL = mysql_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, option_id); // AUTO_RECONNECT is enabled for this connection handle only
+    if (g_SQL == MYSQL_INVALID_HANDLE || mysql_errno(g_SQL) != 0)
+    {
+        print("MySQL connection failed. Server is shutting down.");
+        SendRconCommand("exit"); // close the server if there is no connection
+        return 1;
+    }
 
-	print("MySQL connection is successful.");
+    print("MySQL connection is successful.");
 
-	// if the table has been created, the "SetupPlayerTable" function does not have any purpose so you may remove it completely
-	SetupPlayerTable();
-	return 1;
+    // if the table has been created, the "SetupPlayerTable" function does not have any purpose so you may remove it completely
+    SetupPlayerTable();
+    return 1;
 }
 
 public OnGameModeExit()
 {
-	// save all player data before closing connection
-	for (new i = 0, j = GetPlayerPoolSize(); i <= j; i++) // GetPlayerPoolSize function was added in 0.3.7 version and gets the highest playerid currently in use on the server
-	{
-		if (IsPlayerConnected(i))
-		{
+    // save all player data before closing connection
+    for (new i = 0, j = GetPlayerPoolSize(); i <= j; i++) // GetPlayerPoolSize function was added in 0.3.7 version and gets the highest playerid currently in use on the server
+    {
+        if (IsPlayerConnected(i))
+        {
             // reason is set to 1 for normal 'Quit'
             OnPlayerDisconnect(i, 1);
-		}
-	}
+        }
+    }
 
-	mysql_close(g_SQL);
-	return 1;
+    mysql_close(g_SQL);
+    return 1;
 }
 
 public OnPlayerConnect(playerid)
 {
-	g_MysqlRaceCheck[playerid]++;
+    g_MysqlRaceCheck[playerid]++;
 
-	// reset player data
-	static const empty_player[E_PLAYERS];
-	Player[playerid] = empty_player;
+    // reset player data
+    static const empty_player[E_PLAYERS];
+    Player[playerid] = empty_player;
 
-	GetPlayerName(playerid, Player[playerid][Name], MAX_PLAYER_NAME);
+    GetPlayerName(playerid, Player[playerid][Name], MAX_PLAYER_NAME);
 
-	// create orm instance and register all needed variables
-	new ORM: ormid = Player[playerid][ORM_ID] = orm_create("players", g_SQL);
+    // create orm instance and register all needed variables
+    new ORM: ormid = Player[playerid][ORM_ID] = orm_create("players", g_SQL);
 
-	orm_addvar_int(ormid, Player[playerid][ID], "id");
-	orm_addvar_string(ormid, Player[playerid][Name], MAX_PLAYER_NAME, "username");
-	orm_addvar_string(ormid, Player[playerid][Password], 65, "password");
-	orm_addvar_string(ormid, Player[playerid][Salt], 17, "salt");
-	orm_addvar_int(ormid, Player[playerid][Kills], "kills");
-	orm_addvar_int(ormid, Player[playerid][Deaths], "deaths");
-	orm_addvar_float(ormid, Player[playerid][X_Pos], "x");
-	orm_addvar_float(ormid, Player[playerid][Y_Pos], "y");
-	orm_addvar_float(ormid, Player[playerid][Z_Pos], "z");
-	orm_addvar_float(ormid, Player[playerid][A_Pos], "angle");
-	orm_addvar_int(ormid, Player[playerid][Interior], "interior");
-	orm_setkey(ormid, "username");
+    orm_addvar_int(ormid, Player[playerid][ID], "id");
+    orm_addvar_string(ormid, Player[playerid][Name], MAX_PLAYER_NAME, "username");
+    orm_addvar_string(ormid, Player[playerid][Password], 65, "password");
+    orm_addvar_string(ormid, Player[playerid][Salt], 17, "salt");
+    orm_addvar_int(ormid, Player[playerid][Kills], "kills");
+    orm_addvar_int(ormid, Player[playerid][Deaths], "deaths");
+    orm_addvar_float(ormid, Player[playerid][X_Pos], "x");
+    orm_addvar_float(ormid, Player[playerid][Y_Pos], "y");
+    orm_addvar_float(ormid, Player[playerid][Z_Pos], "z");
+    orm_addvar_float(ormid, Player[playerid][A_Pos], "angle");
+    orm_addvar_int(ormid, Player[playerid][Interior], "interior");
+    orm_setkey(ormid, "username");
 
-	// tell the orm system to load all data, assign it to our variables and call our callback when ready
-	orm_load(ormid, "OnPlayerDataLoaded", "dd", playerid, g_MysqlRaceCheck[playerid]);
-	return 1;
+    // tell the orm system to load all data, assign it to our variables and call our callback when ready
+    orm_load(ormid, "OnPlayerDataLoaded", "dd", playerid, g_MysqlRaceCheck[playerid]);
+    return 1;
 }
 
 public OnPlayerDisconnect(playerid, reason)
@@ -240,13 +240,13 @@ public OnPlayerDataLoaded(playerid, race_check)
     */
     if (race_check != g_MysqlRaceCheck[playerid]) return Kick(playerid);
 
-	orm_setkey(Player[playerid][ORM_ID], "id");
+    orm_setkey(Player[playerid][ORM_ID], "id");
 
     new string[115];
     switch (orm_errno(Player[playerid][ORM_ID]))
     {
-    case ERROR_OK:
-    {
+        case ERROR_OK:
+        {
             format(string, sizeof string, "This account (%s) is registered. Please login by entering your password in the field below:", Player[playerid][Name]);
             ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, "Login", string, "Login", "Abort");
 			
