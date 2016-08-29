@@ -265,81 +265,85 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 
 	const std::unordered_map<string, function<void(string &)>> assign_map{
 		{ "hostname", [&](string &val_str)
- {
-hostname = val_str;
-} },
-{ "username", [&](string &val_str)
-{
-username = val_str;
-} },
-{ "password", [&](string &val_str)
-{
-password = val_str;
-} },
-{ "database", [&](string &val_str)
-{
-database = val_str;
-} },
-{ "auto_reconnect", [&](string &val_str)
-	{
-		bool val;
-		if (ConvertStrToData(val_str, val))
-			options->SetOption(COptions::Type::AUTO_RECONNECT, val);
-	}
-},
-{ "multi_statements", [&](string &val_str)
-	{
-		bool val;
-		if (ConvertStrToData(val_str, val))
-			options->SetOption(COptions::Type::MULTI_STATEMENTS, val);
-	}
-},
-{ "pool_size", [&](string &val_str)
-	{
-		unsigned int val = 0;
-		if (ConvertStrToData(val_str, val))
-			options->SetOption(COptions::Type::POOL_SIZE, val);
-	}
-},
-{ "server_port", [&](string &val_str)
-	{
-		unsigned int val = 0;
-		if (ConvertStrToData(val_str, val))
-			options->SetOption(COptions::Type::SERVER_PORT, val);
-	}
-},
-{ "ssl_enable", [&](string &val_str)
-	{
-		bool val;
-		if (ConvertStrToData(val_str, val))
-			options->SetOption(COptions::Type::SSL_ENABLE, val);
-	}
-},
-{ "ssl_key_file", [&](string &val_str)
-	{
-options->SetOption(COptions::Type::SSL_KEY_FILE, val_str);
-}
-},
-{ "ssl_cert_file", [&](string &val_str)
-	{
-options->SetOption(COptions::Type::SSL_CERT_FILE, val_str);
-}
-},
-{ "ssl_ca_file", [&](string &val_str)
-	{
-options->SetOption(COptions::Type::SSL_CA_FILE, val_str);
-}
-},
-{ "ssl_ca_path", [&](string &val_str)
-	{
-options->SetOption(COptions::Type::SSL_CA_PATH, val_str);
-}
-},
-{ "ssl_cipher", [&](string &val_str)
-	{
-options->SetOption(COptions::Type::SSL_CIPHER, val_str);
-}
-},
+			{
+				hostname = val_str;
+			}
+		},
+		{ "username", [&](string &val_str)
+			{
+				username = val_str;
+			}
+		},
+		{ "password", [&](string &val_str)
+			{
+				password = val_str;
+			} 
+		},
+		{ "database", [&](string &val_str)
+			{
+				database = val_str;
+			} 
+		},
+		{ "auto_reconnect", [&](string &val_str)
+			{
+				bool val;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::AUTO_RECONNECT, val);
+			}
+		},
+		{ "multi_statements", [&](string &val_str)
+			{
+				bool val;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::MULTI_STATEMENTS, val);
+			}
+		},
+		{ "pool_size", [&](string &val_str)
+			{
+				unsigned int val = 0;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::POOL_SIZE, val);
+			}
+		},
+		{ "server_port", [&](string &val_str)
+			{
+				unsigned int val = 0;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::SERVER_PORT, val);
+			}
+		},
+		{ "ssl_enable", [&](string &val_str)
+			{
+				bool val;
+				if (ConvertStrToData(val_str, val))
+					options->SetOption(COptions::Type::SSL_ENABLE, val);
+			}
+		},
+		{ "ssl_key_file", [&](string &val_str)
+			{
+				options->SetOption(COptions::Type::SSL_KEY_FILE, val_str);
+			}
+		},
+		{ "ssl_cert_file", [&](string &val_str)
+			{
+				options->SetOption(COptions::Type::SSL_CERT_FILE, val_str);
+			}
+		},
+		{ "ssl_ca_file", [&](string &val_str)
+			{
+				options->SetOption(COptions::Type::SSL_CA_FILE, val_str);
+			}
+		},
+		{ "ssl_ca_path", [&](string &val_str)
+			{
+				options->SetOption(COptions::Type::SSL_CA_PATH, val_str);
+			}
+		},
+		{ "ssl_cipher", [&](string &val_str)
+			{
+				options->SetOption(COptions::Type::SSL_CIPHER, val_str);
+			}
+		},
 	};
 
 	while (file.good())
