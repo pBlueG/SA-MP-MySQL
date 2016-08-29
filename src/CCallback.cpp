@@ -93,16 +93,21 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 									  "invalid array size '{}'", value);
 							return nullptr;
 						}
-						cell *copied_array = static_cast<cell *>(malloc(value * sizeof(cell)));
+						cell *copied_array = 
+							static_cast<cell *>(malloc(value * sizeof(cell)));
 						memcpy(copied_array, array_addr_ptr, value * sizeof(cell));
 
-						param_list.push_front(std::make_tuple('a', std::make_tuple(copied_array, value)));
+						param_list.push_front(
+							std::make_tuple(
+								'a', std::make_tuple(
+									copied_array, value)));
 						CLog::Get()->Log(LogLevel::DEBUG, "pushed array");
 						array_addr_ptr = nullptr;
 					}
 
 					param_list.push_front(std::make_tuple('c', *address_ptr));
-					CLog::Get()->Log(LogLevel::DEBUG, "retrieved and pushed value '{}'", value);
+					CLog::Get()->Log(LogLevel::DEBUG, 
+									 "retrieved and pushed value '{}'", value);
 				}
 				break;
 				case 'f': //float

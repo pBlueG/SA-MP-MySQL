@@ -121,6 +121,7 @@ native orm_destroy(ORM:id);
 native E_ORM_ERROR:orm_errno(ORM:id);
 
 native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
+
 native orm_select(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 native orm_update(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 native orm_insert(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
@@ -133,8 +134,8 @@ native orm_addvar_int(ORM:id, &var, const columnname[]);
 native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
 native orm_addvar_string(ORM:id, var[], var_maxlen, const columnname[]);
 
-native orm_delvar(ORM:id, const columnname[]);
 native orm_clear_vars(ORM:id);
+native orm_delvar(ORM:id, const columnname[]);
 native orm_setkey(ORM:id, const columnname[]);
 
 

@@ -246,8 +246,7 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 	amx_StrParam(amx, params[3], column_name);
 
 	CError<COrm> error;
-	if ((error = orm->AddVariable(
-		COrm::Variable::Type::INT, column_name, var)))
+	if ((error = orm->AddVariable(COrm::Variable::Type::INT, column_name, var)))
 	{
 		CLog::Get()->LogNative(error);
 		return 0;
@@ -277,8 +276,7 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_float)
 	amx_StrParam(amx, params[3], column_name);
 
 	CError<COrm> error;
-	if ((error = orm->AddVariable(
-		COrm::Variable::Type::FLOAT, column_name, var)))
+	if ((error = orm->AddVariable(COrm::Variable::Type::FLOAT, column_name, var)))
 	{
 		CLog::Get()->LogNative(error);
 		return 0;
@@ -308,8 +306,8 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 	amx_StrParam(amx, params[4], column_name);
 
 	CError<COrm> error;
-	if ((error = orm->AddVariable(
-		COrm::Variable::Type::STRING, column_name, var, params[3])))
+	if ((error = orm->AddVariable(COrm::Variable::Type::STRING, 
+								  column_name, var, params[3])))
 	{
 		CLog::Get()->LogNative(error);
 		return 0;

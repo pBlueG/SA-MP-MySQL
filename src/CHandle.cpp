@@ -176,6 +176,7 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 
 	if (pass == nullptr)
 		pass = "";
+
 	if (strlen(pass) == 0)
 		CLog::Get()->LogNative(LogLevel::WARNING, "no password specified");
 

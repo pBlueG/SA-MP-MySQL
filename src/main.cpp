@@ -144,9 +144,7 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 	AMX_DEFINE_NATIVE(cache_get_query_exec_time)
 	AMX_DEFINE_NATIVE(cache_get_query_string)
-	{
-NULL, NULL
-}
+	{ NULL, NULL }
 };
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
