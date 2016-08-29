@@ -1469,7 +1469,7 @@ Test:ConnectionCloseFail()
 
 Test:ConnectionUnprocQueries()
 {
-	ASSERT_FALSE(mysql_unprocessed_queries(MYSQL_INVALID_HANDLE));
+	ASSERT(mysql_unprocessed_queries(MYSQL_INVALID_HANDLE) == -1);
 	
 	new MySQL:sql = mysql_connect_file();
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
