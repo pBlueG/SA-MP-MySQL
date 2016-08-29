@@ -181,7 +181,7 @@ static bool FireOrmQueryWithCallback(AMX *amx, cell *params, COrm::QueryType typ
 	return handle->Execute(CHandle::ExecutionType::THREADED, query);
 }
 
-// native orm_select(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+// native orm_select(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_select)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_select", "dss");
@@ -191,7 +191,7 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 	return ret_val;
 }
 
-// native orm_update(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+// native orm_update(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_update)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_update", "dss");
@@ -201,7 +201,7 @@ AMX_DECLARE_NATIVE(Native::orm_update)
 	return ret_val;
 }
 
-// native orm_insert(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+// native orm_insert(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_insert)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_insert", "dss");
@@ -211,7 +211,7 @@ AMX_DECLARE_NATIVE(Native::orm_insert)
 	return ret_val;
 }
 
-// native orm_delete(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+// native orm_delete(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_delete)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_delete", "dss");
@@ -221,7 +221,7 @@ AMX_DECLARE_NATIVE(Native::orm_delete)
 	return ret_val;
 }
 
-// native orm_save(ORM:id, callback[] = "", format[] = "", {Float, _}:...);
+// native orm_save(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_save)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_save", "dss");
