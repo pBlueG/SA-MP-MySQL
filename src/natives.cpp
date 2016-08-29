@@ -1117,10 +1117,10 @@ AMX_DECLARE_NATIVE(Native::mysql_stat)
 
 
 
-// native cache_get_row_count();
+// native cache_get_row_count(&destination);
 AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_row_count", "");
+	CScopedDebugInfo dbg_info(amx, "cache_get_row_count", "r");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1128,15 +1128,24 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 		return 0;
 	}
 
-	cell ret_val = static_cast<cell>(resultset->GetActiveResult()->GetRowCount());
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[1], &dest_addr) != AMX_ERR_NONE
+		|| dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
+	*dest_addr = static_cast<cell>(resultset->GetActiveResult()->GetRowCount());
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
-// native cache_get_field_count();
+// native cache_get_field_count(&destination);
 AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_field_count", "");
+	CScopedDebugInfo dbg_info(amx, "cache_get_field_count", "r");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1144,15 +1153,24 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 		return 0;
 	}
 
-	cell ret_val = resultset->GetActiveResult()->GetFieldCount();
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[1], &dest_addr) != AMX_ERR_NONE
+		|| dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
+	*dest_addr = resultset->GetActiveResult()->GetFieldCount();
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
-// native cache_get_result_count();
+// native cache_get_result_count(&destination);
 AMX_DECLARE_NATIVE(Native::cache_get_result_count)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_result_count", "");
+	CScopedDebugInfo dbg_info(amx, "cache_get_result_count", "r");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1160,9 +1178,18 @@ AMX_DECLARE_NATIVE(Native::cache_get_result_count)
 		return 0;
 	}
 
-	cell ret_val = resultset->GetResultCount();
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	cell *dest_addr = nullptr;
+	if (amx_GetAddr(amx, params[1], &dest_addr) != AMX_ERR_NONE
+		|| dest_addr == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+		return 0;
+	}
+
+	*dest_addr = resultset->GetResultCount();
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native cache_get_field_name(field_index, destination[], 
