@@ -121,7 +121,7 @@ native orm_destroy(ORM:id);
 
 native E_ORM_ERROR:orm_errno(ORM:id);
 
-native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
+native orm_apply_cache(ORM:id, row_idx, result_idx = 0);
 
 native orm_select(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 native orm_update(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);

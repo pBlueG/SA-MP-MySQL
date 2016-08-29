@@ -69,7 +69,7 @@ AMX_DECLARE_NATIVE(Native::orm_errno)
 	return ret_val;
 }
 
-// native orm_apply_cache(ORM:id, row_idx, resultset_idx = 0);
+// native orm_apply_cache(ORM:id, row_idx, result_idx = 0);
 AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_apply_cache", "ddd");
