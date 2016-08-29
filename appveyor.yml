@@ -51,7 +51,7 @@ before_test:
 
 test_script:
   - pawncc tests\unit_test.pwn -d3 -Z+ -; -( -i%SAMP_SERVER_ROOT%\pawno\include -itests\include
-  - robocopy tests\test_data %SAMP_SERVER_ROOT% /E
+  - xcopy tests\test_data %SAMP_SERVER_ROOT% /E
   - copy *.amx %SAMP_SERVER_ROOT%\gamemodes
   - samp-server-cli -o -g unit_test -d mysql -T 60
 
