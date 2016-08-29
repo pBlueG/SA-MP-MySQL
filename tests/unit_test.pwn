@@ -1729,12 +1729,12 @@ Test:StringEscape()
 {
 	new dest[128];
 	
-	ASSERT_FALSE(mysql_escape_string("test", dest, .handle = MYSQL_INVALID_HANDLE));
+	ASSERT(mysql_escape_string("test", dest, .handle = MYSQL_INVALID_HANDLE) == -1);
 	
 	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) != 0);
-	ASSERT_FALSE(mysql_escape_string("test", dest, .handle = sql));
+	ASSERT(mysql_escape_string("test", dest, .handle = sql) == -1);
 	ASSERT_TRUE(mysql_close(sql));
 	
 	sql = mysql_connect_file();
@@ -1742,11 +1742,11 @@ Test:StringEscape()
 	ASSERT(mysql_errno(sql) == 0);
 	
 	new short_dest[5];
-	ASSERT_FALSE(mysql_escape_string("-----longstring-----", short_dest, .handle = sql));
+	ASSERT(mysql_escape_string("-----longstring-----", short_dest, .handle = sql) == -1);
 	
 	new src[128] = "\"Some ol' \\stri\ng";
-	ASSERT_TRUE(mysql_escape_string(src, dest, .handle = sql));
 	new desired_dest[128] = "\\\"Some ol\\' \\\\stri\\ng";
+	ASSERT(mysql_escape_string(src, dest, .handle = sql) == strlen(desired_dest));
 	ASSERT(strcmp(dest, desired_dest) == 0);
 	
 	ASSERT_TRUE(mysql_close(sql));
