@@ -1050,7 +1050,8 @@ AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 		return 0;
 	}
 
-	cell ret_val = handle->SetCharacterSet(amx_GetCppString(amx, params[1]));
+	cell ret_val = 
+		handle->SetCharacterSet(amx_GetCppString(amx, params[1])) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -1262,7 +1263,7 @@ AMX_DECLARE_NATIVE(Native::cache_set_result)
 		return 0;
 	}
 
-	cell ret_val = resultset->SetActiveResult(params[1]);
+	cell ret_val = resultset->SetActiveResult(params[1]) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
