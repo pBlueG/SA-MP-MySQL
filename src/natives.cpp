@@ -759,11 +759,18 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 		return 0;
 	}
 
-	string filename = amx_GetCppString(amx, params[2]);
-	std::ifstream file(filename);
+	string filepath = amx_GetCppString(amx, params[2]);
+	if (filepath.find("..") != string::npos)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "invalid file path '{}'", filepath);
+		return 0;
+	}
+
+	std::ifstream file("scriptfiles/" + filepath);
 	if (file.fail())
 	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "can't open file '{}'", filename);
+		CLog::Get()->LogNative(LogLevel::ERROR, "can't open file '{}'", filepath);
 		return 0;
 	}
 
