@@ -105,6 +105,7 @@ public:
 
 	enum class PawnError //errors for Pawn
 	{
+		INVALID,
 		OK,
 		NO_DATA,
 	};

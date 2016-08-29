@@ -46,7 +46,7 @@ AMX_DECLARE_NATIVE(Native::orm_destroy)
 	}
 
 
-	cell ret_val = COrmManager::Get()->Delete(ormid);
+	cell ret_val = COrmManager::Get()->Delete(ormid) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -61,7 +61,7 @@ AMX_DECLARE_NATIVE(Native::orm_errno)
 	if (!orm)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
-		return 0;
+		return static_cast<cell>(COrm::PawnError::INVALID);
 	}
 
 	cell ret_val = static_cast<cell>(orm->GetError());
@@ -185,7 +185,8 @@ static bool FireOrmQueryWithCallback(AMX *amx, cell *params, COrm::QueryType typ
 AMX_DECLARE_NATIVE(Native::orm_select)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_select", "dss");
-	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::SELECT);
+	cell ret_val = 
+		FireOrmQueryWithCallback(amx, params, COrm::QueryType::SELECT) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -194,7 +195,8 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 AMX_DECLARE_NATIVE(Native::orm_update)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_update", "dss");
-	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::UPDATE);
+	cell ret_val = 
+		FireOrmQueryWithCallback(amx, params, COrm::QueryType::UPDATE) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -203,7 +205,8 @@ AMX_DECLARE_NATIVE(Native::orm_update)
 AMX_DECLARE_NATIVE(Native::orm_insert)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_insert", "dss");
-	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::INSERT);
+	cell ret_val = 
+		FireOrmQueryWithCallback(amx, params, COrm::QueryType::INSERT) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -212,7 +215,8 @@ AMX_DECLARE_NATIVE(Native::orm_insert)
 AMX_DECLARE_NATIVE(Native::orm_delete)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_delete", "dss");
-	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::DELETE);
+	cell ret_val = 
+		FireOrmQueryWithCallback(amx, params, COrm::QueryType::DELETE) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -221,7 +225,8 @@ AMX_DECLARE_NATIVE(Native::orm_delete)
 AMX_DECLARE_NATIVE(Native::orm_save)
 {
 	CScopedDebugInfo dbg_info(amx, "orm_save", "dss");
-	cell ret_val = FireOrmQueryWithCallback(amx, params, COrm::QueryType::SAVE);
+	cell ret_val = 
+		FireOrmQueryWithCallback(amx, params, COrm::QueryType::SAVE) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -497,7 +502,7 @@ AMX_DECLARE_NATIVE(Native::mysql_close)
 		return 0;
 	}
 
-	cell ret_val = CHandleManager::Get()->Destroy(handle);
+	cell ret_val = CHandleManager::Get()->Destroy(handle) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -512,7 +517,7 @@ AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, 
 							   "invalid connection handle '{}'", handle_id);
-		return 0;
+		return -1;
 	}
 
 	cell ret_val = handle->GetUnprocessedQueryCount();
@@ -616,8 +621,8 @@ AMX_DECLARE_NATIVE(Native::mysql_set_option)
 			break;
 	}
 
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
-	return ret_val;
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val ? 1 : 0);
+	return ret_val ? 1 : 0;
 }
 
 static bool SendQueryWithCallback(AMX *amx, cell *params, 
@@ -692,8 +697,8 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 {
 	CScopedDebugInfo dbg_info(amx, "mysql_pquery", "dsss");
 
-	cell ret_val = SendQueryWithCallback(amx, params, 
-										 CHandle::ExecutionType::PARALLEL);
+	cell ret_val = SendQueryWithCallback(
+		amx, params, CHandle::ExecutionType::PARALLEL) ? 1 : 0;
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
@@ -705,8 +710,8 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
 	CScopedDebugInfo dbg_info(amx, "mysql_tquery", "dsss");
 
-	cell ret_val = SendQueryWithCallback(amx, params, 
-										 CHandle::ExecutionType::THREADED);
+	cell ret_val = SendQueryWithCallback(
+		amx, params, CHandle::ExecutionType::THREADED) ? 1 : 0;
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
@@ -837,7 +842,7 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 							   "invalid connection handle '{}'", handle_id);
-		return 0;
+		return -1;
 	}
 
 	char *unescaped_str = nullptr;
@@ -849,7 +854,7 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 							   "can't escape string '{}'", escaped_str);
-		return 0;
+		return -1;
 	}
 
 	size_t max_str_len = params[3] - 1;
@@ -859,12 +864,14 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 							   "destination array too small " \
 							   "(needs at least '{}' cells; has only '{}')",
 							   escaped_str.length() + 1, max_str_len + 1);
-		return 0;
+		return -1;
 	}
 
 	amx_SetCString(amx, params[2], escaped_str.c_str(), max_str_len + 1);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
-	return 1;
+
+	cell ret_val = escaped_str.length();
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native mysql_format(MySQL:handle, output[], len, 
