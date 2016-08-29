@@ -17,6 +17,8 @@ namespace Native
 
 	AMX_DECLARE_NATIVE(orm_errno);
 
+	AMX_DECLARE_NATIVE(orm_apply_cache);
+
 	AMX_DECLARE_NATIVE(orm_select);
 	AMX_DECLARE_NATIVE(orm_update);
 	AMX_DECLARE_NATIVE(orm_insert);
@@ -24,13 +26,12 @@ namespace Native
 
 	AMX_DECLARE_NATIVE(orm_save);
 
-	AMX_DECLARE_NATIVE(orm_apply_cache);
-
 	AMX_DECLARE_NATIVE(orm_addvar_int);
 	AMX_DECLARE_NATIVE(orm_addvar_float);
 	AMX_DECLARE_NATIVE(orm_addvar_string);
-	AMX_DECLARE_NATIVE(orm_delvar);
+
 	AMX_DECLARE_NATIVE(orm_clear_vars);
+	AMX_DECLARE_NATIVE(orm_delvar);
 	AMX_DECLARE_NATIVE(orm_setkey);
 
 
@@ -46,17 +47,17 @@ namespace Native
 	AMX_DECLARE_NATIVE(mysql_init_options);
 	AMX_DECLARE_NATIVE(mysql_set_option);
 
-	AMX_DECLARE_NATIVE(mysql_errno);
-	AMX_DECLARE_NATIVE(mysql_escape_string);
-	AMX_DECLARE_NATIVE(mysql_format);
 	AMX_DECLARE_NATIVE(mysql_pquery);
 	AMX_DECLARE_NATIVE(mysql_tquery);
 	AMX_DECLARE_NATIVE(mysql_query);
 	AMX_DECLARE_NATIVE(mysql_query_file);
 
-	AMX_DECLARE_NATIVE(mysql_stat);
+	AMX_DECLARE_NATIVE(mysql_errno);
+	AMX_DECLARE_NATIVE(mysql_escape_string);
+	AMX_DECLARE_NATIVE(mysql_format);
 	AMX_DECLARE_NATIVE(mysql_set_charset);
 	AMX_DECLARE_NATIVE(mysql_get_charset);
+	AMX_DECLARE_NATIVE(mysql_stat);
 
 
 	//Cache natives

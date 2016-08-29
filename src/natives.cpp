@@ -319,6 +319,25 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 	return 1;
 }
 
+// native orm_clear_vars(ORM:id);
+AMX_DECLARE_NATIVE(Native::orm_clear_vars)
+{
+	CScopedDebugInfo dbg_info(amx, "orm_clear_vars", "d");
+	const OrmId_t ormid = params[1];
+	Orm_t orm = COrmManager::Get()->Find(ormid);
+
+	if (!orm)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
+		return 0;
+	}
+
+
+	orm->ClearAllVariables();
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
+}
+
 // native orm_delvar(ORM:id, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_delvar)
 {
@@ -348,25 +367,6 @@ AMX_DECLARE_NATIVE(Native::orm_delvar)
 		return 0;
 	}
 
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
-	return 1;
-}
-
-// native orm_clear_vars(ORM:id);
-AMX_DECLARE_NATIVE(Native::orm_clear_vars)
-{
-	CScopedDebugInfo dbg_info(amx, "orm_clear_vars", "d");
-	const OrmId_t ormid = params[1];
-	Orm_t orm = COrmManager::Get()->Find(ormid);
-
-	if (!orm)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "invalid orm id '{}'", ormid);
-		return 0;
-	}
-
-
-	orm->ClearAllVariables();
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
 }
@@ -827,6 +827,48 @@ AMX_DECLARE_NATIVE(Native::mysql_errno)
 	return ret_val;
 }
 
+// native mysql_escape_string(const source[], destination[], 
+//							  max_len = sizeof(destination), 
+//							  MySQL:handle = MYSQL_DEFAULT_HANDLE);
+AMX_DECLARE_NATIVE(Native::mysql_escape_string)
+{
+	CScopedDebugInfo dbg_info(amx, "mysql_escape_string", "srdd");
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[4]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
+	if (handle == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "invalid connection handle '{}'", handle_id);
+		return 0;
+	}
+
+	char *unescaped_str = nullptr;
+	amx_StrParam(amx, params[1], unescaped_str);
+
+	string escaped_str;
+	if (unescaped_str != nullptr
+		&& handle->EscapeString(unescaped_str, escaped_str) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "can't escape string '{}'", escaped_str);
+		return 0;
+	}
+
+	size_t max_str_len = params[3] - 1;
+	if (escaped_str.length() > max_str_len)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "destination array too small " \
+							   "(needs at least '{}' cells; has only '{}')",
+							   escaped_str.length() + 1, max_str_len + 1);
+		return 0;
+	}
+
+	amx_SetCString(amx, params[2], escaped_str.c_str(), max_str_len + 1);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
+}
+
 // native mysql_format(MySQL:handle, output[], len, 
 //					   const format[], {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_format)
@@ -981,48 +1023,6 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
-}
-
-// native mysql_escape_string(const source[], destination[], 
-//							  max_len = sizeof(destination), 
-//							  MySQL:handle = MYSQL_DEFAULT_HANDLE);
-AMX_DECLARE_NATIVE(Native::mysql_escape_string)
-{
-	CScopedDebugInfo dbg_info(amx, "mysql_escape_string", "srdd");
-	const HandleId_t handle_id = static_cast<HandleId_t>(params[4]);
-	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
-	if (handle == nullptr)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, 
-							   "invalid connection handle '{}'", handle_id);
-		return 0;
-	}
-
-	char *unescaped_str = nullptr;
-	amx_StrParam(amx, params[1], unescaped_str);
-
-	string escaped_str;
-	if (unescaped_str != nullptr 
-		&& handle->EscapeString(unescaped_str, escaped_str) == false)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, 
-							   "can't escape string '{}'", escaped_str);
-		return 0;
-	}
-
-	size_t max_str_len = params[3] - 1;
-	if (escaped_str.length() > max_str_len)
-	{
-		CLog::Get()->LogNative(LogLevel::ERROR, 
-							   "destination array too small " \
-							   "(needs at least '{}' cells; has only '{}')",
-							   escaped_str.length() + 1, max_str_len + 1);
-		return 0;
-	}
-
-	amx_SetCString(amx, params[2], escaped_str.c_str(), max_str_len + 1);
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
-	return 1;
 }
 
 // native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);

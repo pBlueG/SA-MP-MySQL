@@ -72,6 +72,8 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 	AMX_DEFINE_NATIVE(orm_errno)
 
+	AMX_DEFINE_NATIVE(orm_apply_cache)
+
 	AMX_DEFINE_NATIVE(orm_select)
 	AMX_DEFINE_NATIVE(orm_update)
 	AMX_DEFINE_NATIVE(orm_insert)
@@ -79,13 +81,12 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 	AMX_DEFINE_NATIVE(orm_save)
 
-	AMX_DEFINE_NATIVE(orm_apply_cache)
-
 	AMX_DEFINE_NATIVE(orm_addvar_int)
 	AMX_DEFINE_NATIVE(orm_addvar_float)
 	AMX_DEFINE_NATIVE(orm_addvar_string)
-	AMX_DEFINE_NATIVE(orm_delvar)
+
 	AMX_DEFINE_NATIVE(orm_clear_vars)
+	AMX_DEFINE_NATIVE(orm_delvar)
 	AMX_DEFINE_NATIVE(orm_setkey)
 
 
@@ -100,17 +101,17 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(mysql_init_options)
 	AMX_DEFINE_NATIVE(mysql_set_option)
 
-	AMX_DEFINE_NATIVE(mysql_errno)
-	AMX_DEFINE_NATIVE(mysql_escape_string)
-	AMX_DEFINE_NATIVE(mysql_format)
 	AMX_DEFINE_NATIVE(mysql_pquery)
 	AMX_DEFINE_NATIVE(mysql_tquery)
 	AMX_DEFINE_NATIVE(mysql_query)
 	AMX_DEFINE_NATIVE(mysql_query_file)
 
-	AMX_DEFINE_NATIVE(mysql_stat)
+	AMX_DEFINE_NATIVE(mysql_errno)
+	AMX_DEFINE_NATIVE(mysql_escape_string)
+	AMX_DEFINE_NATIVE(mysql_format)
 	AMX_DEFINE_NATIVE(mysql_get_charset)
 	AMX_DEFINE_NATIVE(mysql_set_charset)
+	AMX_DEFINE_NATIVE(mysql_stat)
 
 
 	AMX_DEFINE_NATIVE(cache_get_row_count)

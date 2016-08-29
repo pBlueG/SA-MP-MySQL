@@ -248,8 +248,8 @@ native bool:cache_is_any_active();
 native bool:cache_is_valid(Cache:cache_id);
 
 native cache_affected_rows();
-native cache_warning_count();
 native cache_insert_id();
+native cache_warning_count();
 
 native cache_get_query_exec_time(E_MYSQL_EXECTIME_UNIT:unit = MICROSECONDS);
 native cache_get_query_string(destination[], max_len = sizeof(destination));
