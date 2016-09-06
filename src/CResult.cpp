@@ -85,9 +85,10 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 
 	ResultSet_t resultset = ResultSet_t(new CResultSet);
 	bool error = false;
+	MYSQL_RES *raw_result = nullptr;
 	do
 	{
-		MYSQL_RES *raw_result = mysql_store_result(connection);
+		raw_result = mysql_store_result(connection);
 
 		if (raw_result == nullptr) //result empty: non-SELECT-type query or error
 		{
@@ -176,12 +177,15 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 			}
 
 			mysql_free_result(raw_result);
+			raw_result = nullptr;
 		}
 	}
 	while (mysql_next_result(connection) == 0);
 
 	if (error)
 	{
+		mysql_free_result(raw_result);
+
 		// go through all results to avoid "out of sync" error
 		while (mysql_next_result(connection) == 0)
 			mysql_free_result(mysql_store_result(connection));
