@@ -156,8 +156,11 @@ public:
 
 public: //factory function
 	static ResultSet_t Create(MYSQL *connection,
-							  default_clock::duration &exec_time, 
+							  default_clock::duration &exec_time,
 							  string query_str);
+
+public: //helper functions
+	static ResultSet_t Merge(std::vector<ResultSet_t> results);
 
 };
 

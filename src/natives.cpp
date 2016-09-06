@@ -745,10 +745,11 @@ AMX_DECLARE_NATIVE(Native::mysql_query)
 	return ret_val;
 }
 
-// native mysql_query_file(MySQL:handle, const file_path[]);
+// native Cache:mysql_query_file(MySQL:handle, 
+//								 const file_path[], bool:use_cache = false);
 AMX_DECLARE_NATIVE(Native::mysql_query_file)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_query_file", "ds");
+	CScopedDebugInfo dbg_info(amx, "mysql_query_file", "dsd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 
@@ -774,7 +775,9 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 		return 0;
 	}
 
+	bool store_result = (params[3] != 0);
 	string query_str;
+	vector<ResultSet_t> results;
 	while (file.good())
 	{
 		string tmp_query_str;
@@ -803,16 +806,27 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 			query_str.append(tmp_query_str.substr(0U, sem_pos + 1));
 			tmp_query_str.erase(0, sem_pos + 1);
 
-			handle->Execute(CHandle::ExecutionType::UNTHREADED, 
-							CQuery::Create(query_str));
+			Query_t query = CQuery::Create(query_str);
 			query_str.clear();
+
+			handle->Execute(CHandle::ExecutionType::UNTHREADED, query);
+
+			if (store_result)
+				results.push_back(query->GetResult());
 		}
 
 		query_str.append(tmp_query_str);
 	}
 
-	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
-	return 1;
+	cell ret_val = 0;
+	if (store_result)
+	{
+		CResultSetManager::Get()->SetActiveResultSet(CResultSet::Merge(results));
+		ret_val = CResultSetManager::Get()->StoreActiveResultSet();
+	}
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
+	return ret_val;
 }
 
 // native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
