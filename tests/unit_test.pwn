@@ -1622,6 +1622,37 @@ Test:ConnectionErrno()
 }
 
 
+Test:ConnectionErrorStr()
+{
+	new error_msg[256];
+	ASSERT_FALSE(mysql_error(error_msg, sizeof error_msg, MYSQL_INVALID_HANDLE));
+	
+	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
+	ASSERT(sql != MYSQL_INVALID_HANDLE);
+	ASSERT(mysql_errno(sql) == ER_ACCESS_DENIED_ERROR);
+	error_msg[0] = '\0';
+	ASSERT_TRUE(mysql_error(error_msg, sizeof error_msg, sql));
+	ASSERT(strlen(error_msg) > 0);
+	ASSERT_TRUE(mysql_close(sql));
+	
+	sql = mysql_connect_file();
+	
+	mysql_query(sql, "SELECT 1", false);
+	ASSERT(mysql_errno(sql) == 0);
+	error_msg[0] = '\0';
+	ASSERT_TRUE(mysql_error(error_msg, sizeof error_msg, sql));
+	ASSERT(strlen(error_msg) == 0);
+	
+	mysql_query(sql, "INVALIDSTATEMENT", false);
+	ASSERT(mysql_errno(sql) == 1064);
+	error_msg[0] = '\0';
+	ASSERT_TRUE(mysql_error(error_msg, sizeof error_msg, sql));
+	ASSERT(strlen(error_msg) > 0);
+	
+	ASSERT_TRUE(mysql_close(sql));
+	ASSERT_FALSE(mysql_error(error_msg, sizeof error_msg, sql));
+	return 1;
+}
 
 
 

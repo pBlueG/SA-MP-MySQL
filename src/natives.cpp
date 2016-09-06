@@ -837,6 +837,30 @@ AMX_DECLARE_NATIVE(Native::mysql_errno)
 	return ret_val;
 }
 
+//native mysql_error(destination[], max_len = sizeof(destination), 
+//					 MySQL:handle = MYSQL_DEFAULT_HANDLE);
+AMX_DECLARE_NATIVE(Native::mysql_error)
+{
+	CScopedDebugInfo dbg_info(amx, "mysql_error", "rdd");
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[3]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
+	if (handle == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "invalid connection handle '{}'", handle_id);
+		return 0;
+	}
+
+	string errormsg;
+	if (handle->GetErrorMessage(errormsg) == false)
+		return 0;
+
+	amx_SetCppString(amx, params[1], errormsg, params[2]);
+	
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
+}
+
 // native mysql_escape_string(const source[], destination[], 
 //							  max_len = sizeof(destination), 
 //							  MySQL:handle = MYSQL_DEFAULT_HANDLE);

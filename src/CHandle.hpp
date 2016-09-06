@@ -66,6 +66,7 @@ public: //functions
 
 	bool Execute(ExecutionType type, Query_t query);
 	bool GetErrorId(unsigned int &errorid);
+	bool GetErrorMessage(string &error);
 	bool EscapeString(const char *src, string &dest);
 	bool SetCharacterSet(string charset);
 	bool GetCharacterSet(string &charset);

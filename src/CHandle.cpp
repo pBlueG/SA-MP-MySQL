@@ -75,8 +75,28 @@ bool CHandle::GetErrorId(unsigned int &errorid)
 	bool return_val = m_MainConnection->GetError(errorid, unused_errormsg);
 
 	CLog::Get()->Log(LogLevel::DEBUG, 
-					 "CHandle::GetErrorId - return value: {}, error id: '{}', error msg: '{}'",
+					 "CHandle::GetErrorId - " \
+					 "return value: {}, error id: '{}', error msg: '{}'",
 					 return_val, errorid, unused_errormsg);
+
+	return return_val;
+}
+
+bool CHandle::GetErrorMessage(string &error)
+{
+	CLog::Get()->Log(LogLevel::DEBUG, "CHandle::GetErrorMessage(this={})",
+					 static_cast<const void *>(this));
+
+	if (m_MainConnection == nullptr)
+		return false;
+
+	unsigned int unused_errorid;
+	bool return_val = m_MainConnection->GetError(unused_errorid, error);
+
+	CLog::Get()->Log(LogLevel::DEBUG,
+					 "CHandle::GetErrorMessage - " \
+					 "return value: {}, error id: '{}', error msg: '{}'",
+					 return_val, unused_errorid, error);
 
 	return return_val;
 }

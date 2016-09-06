@@ -107,6 +107,7 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(mysql_query_file)
 
 	AMX_DEFINE_NATIVE(mysql_errno)
+	AMX_DEFINE_NATIVE(mysql_error)
 	AMX_DEFINE_NATIVE(mysql_escape_string)
 	AMX_DEFINE_NATIVE(mysql_format)
 	AMX_DEFINE_NATIVE(mysql_get_charset)
