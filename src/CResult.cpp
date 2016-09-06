@@ -1,4 +1,5 @@
 #include "CResult.hpp"
+#include "CLog.hpp"
 
 #include <cstring>
 
@@ -74,6 +75,10 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 							   default_clock::duration &exec_time, 
 							   string query_str)
 {
+	CLog::Get()->Log(LogLevel::DEBUG, 
+					 "CResultSet::Create(connection={}, query_str='{}')",
+					 static_cast<const void *>(connection), query_str);
+
 	if (connection == nullptr)
 		return nullptr;
 
