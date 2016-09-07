@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(mysql)
 
-set(MYSQL_PLUGIN_VERSION "R40")
+set(MYSQL_PLUGIN_VERSION "R41")
 
 option (BUILD_TESTS "Build tests" OFF)
 
