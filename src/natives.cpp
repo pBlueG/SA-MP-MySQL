@@ -898,62 +898,36 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 		return 0;
 	}
 
-	string filepath = amx_GetCppString(amx, params[2]);
-	if (filepath.find("..") != string::npos)
+	string filename = amx_GetCppString(amx, params[2]);
+	if (filename.find("..") != string::npos)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
-							   "invalid file path '{}'", filepath);
+							   "invalid file path '{}'", filename);
 		return 0;
 	}
 
-	std::ifstream file("scriptfiles/" + filepath);
-	if (file.fail())
+	vector<string> queries;
+	const string filepath = "scriptfiles/" + filename;
+	if (!ParseQueriesFromFile(filepath, queries))
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "can't open file '{}'", filepath);
 		return 0;
 	}
 
+	CLog::Get()->LogNative(LogLevel::DEBUG, "parsed {} queries for file '{}'", 
+						   queries.size(), filepath);
+
+
 	bool store_result = (params[3] != 0);
-	string query_str;
 	vector<ResultSet_t> results;
-	while (file.good())
+	for (auto query_str : queries)
 	{
-		string tmp_query_str;
-		std::getline(file, tmp_query_str);
+		Query_t query = CQuery::Create(query_str);
 
-		if (tmp_query_str.empty())
-			continue;
+		handle->Execute(CHandle::ExecutionType::UNTHREADED, query);
 
-		/*
-		 * check for comments (start with "-- " or "#")
-		 * a query could look like this: 
-		 *   "SELECT stuff FROM table; -- selects # records"
-		 * that's why we search for both comment specifiers 
-		 * and check for which comes first
-		 * NOTE: we don't process C-style multiple-line comments, 
-		 *		 because the MySQL server handles them in a special way
-		 */
-		size_t comment_pos = std::min(tmp_query_str.find("-- "), 
-									  tmp_query_str.find('#'));
-		if (comment_pos != string::npos)
-			tmp_query_str.erase(comment_pos);
-
-		size_t sem_pos;
-		while ((sem_pos = tmp_query_str.find(';')) != string::npos)
-		{
-			query_str.append(tmp_query_str.substr(0U, sem_pos + 1));
-			tmp_query_str.erase(0, sem_pos + 1);
-
-			Query_t query = CQuery::Create(query_str);
-			query_str.clear();
-
-			handle->Execute(CHandle::ExecutionType::UNTHREADED, query);
-
-			if (store_result)
-				results.push_back(query->GetResult());
-		}
-
-		query_str.append(tmp_query_str);
+		if (store_result)
+			results.push_back(query->GetResult());
 	}
 
 	cell ret_val = 0;
