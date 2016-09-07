@@ -160,7 +160,7 @@ public: //factory function
 							  string query_str);
 
 public: //helper functions
-	static ResultSet_t Merge(std::vector<ResultSet_t> results);
+	static ResultSet_t Merge(const std::vector<ResultSet_t> &results);
 
 };
 

@@ -9,6 +9,7 @@
 #include "misc.hpp"
 
 #include <fstream>
+#include <future>
 #include <fmt/printf.h>
 
 
@@ -743,6 +744,143 @@ AMX_DECLARE_NATIVE(Native::mysql_query)
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
+}
+
+bool ParseQueriesFromFile(const string &filepath, vector<string> &queries)
+{
+	std::ifstream file(filepath);
+	if (file.fail())
+		return false;
+
+	string query_str;
+	while (file.good())
+	{
+		string tmp_query_str;
+		std::getline(file, tmp_query_str);
+
+		if (tmp_query_str.empty())
+			continue;
+
+		/*
+		* check for comments (start with "-- " or "#")
+		* a query could look like this:
+		*   "SELECT stuff FROM table; -- selects # records"
+		* that's why we search for both comment specifiers
+		* and check for which comes first
+		* NOTE: we don't process C-style multiple-line comments,
+		*		 because the MySQL server handles them in a special way
+		*/
+		size_t comment_pos = std::min(tmp_query_str.find("-- "),
+									  tmp_query_str.find('#'));
+		if (comment_pos != string::npos)
+			tmp_query_str.erase(comment_pos);
+
+		size_t sem_pos;
+		while ((sem_pos = tmp_query_str.find(';')) != string::npos)
+		{
+			query_str.append(tmp_query_str.substr(0U, sem_pos + 1));
+			tmp_query_str.erase(0, sem_pos + 1);
+
+			queries.push_back(query_str);
+			query_str.clear();
+		}
+
+		query_str.append(tmp_query_str);
+	}
+	return true;
+}
+
+// native mysql_tquery_file(MySQL:handle, 
+//							const file_path[], const callback[] = "",
+//							const format[] = "", {Float,_}:...);
+AMX_DECLARE_NATIVE(Native::mysql_tquery_file)
+{
+	CScopedDebugInfo dbg_info(amx, "mysql_tquery_file", "dsss");
+	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
+	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
+
+	if (handle == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "invalid connection handle '{}'", handle_id);
+		return 0;
+	}
+
+	string filename = amx_GetCppString(amx, params[2]);
+	if (filename.find("..") != string::npos)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "invalid file path '{}'", filename);
+		return 0;
+	}
+
+	string filepath = "scriptfiles/" + filename;
+	std::ifstream file(filepath);
+	if (file.fail())
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "can't open file '{}'", filepath);
+		return 0;
+	}
+
+	string
+		callback_str = amx_GetCppString(amx, params[3]),
+		format_str = amx_GetCppString(amx, params[4]);
+
+	CError<CCallback> callback_error;
+	Callback_t callback = CCallback::Create(
+		amx,
+		callback_str.c_str(),
+		format_str.c_str(),
+		params, 5,
+		callback_error);
+
+	if (callback_error && callback_error.type() != CCallback::Error::EMPTY_NAME)
+	{
+		CLog::Get()->LogNative(callback_error);
+		return 0;
+	}
+
+	auto func = [](Handle_t handle, string file_path, Callback_t callback)
+	{
+		vector<string> queries;
+		if (ParseQueriesFromFile(file_path, queries) && !queries.empty())
+		{
+			CLog::Get()->Log(LogLevel::DEBUG, "parsed {} queries for file '{}'",
+							 queries.size(), file_path);
+
+			auto results = std::make_shared<vector<ResultSet_t>>();
+			for (auto i = queries.begin(); i != queries.end(); i++)
+			{
+				Query_t query = CQuery::Create(*i);
+
+				if (callback != nullptr)
+				{
+					bool is_last_query = ((i + 1) == queries.end());
+					query->OnExecutionFinished([=](ResultSet_t result)
+					{
+						results->push_back(result);
+
+						if (is_last_query)
+						{
+							CResultSetManager::Get()->SetActiveResultSet(
+								CResultSet::Merge(*results));
+
+							callback->Execute();
+
+							CResultSetManager::Get()->SetActiveResultSet(nullptr);
+						}
+					});
+				}
+
+				handle->Execute(CHandle::ExecutionType::THREADED, query);
+			}
+		}
+	};
+	std::async(std::launch::async, std::move(func), handle, filepath, callback);
+	
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+	return 1;
 }
 
 // native Cache:mysql_query_file(MySQL:handle, 

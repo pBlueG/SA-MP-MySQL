@@ -155,6 +155,7 @@ native mysql_set_option(MySQLOpt:option_id, E_MYSQL_OPTION:type, ...);
 native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
 native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
+native mysql_tquery_file(MySQL:handle, const file_path[], const callback[] = "", const format[] = "", {Float,_}:...);
 native Cache:mysql_query_file(MySQL:handle, const file_path[], bool:use_cache = false);
 
 native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);

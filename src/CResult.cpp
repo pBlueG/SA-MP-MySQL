@@ -207,7 +207,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 	return resultset;
 }
 
-ResultSet_t CResultSet::Merge(std::vector<ResultSet_t> results)
+ResultSet_t CResultSet::Merge(const std::vector<ResultSet_t> &results)
 {
 	ResultSet_t resultset = ResultSet_t(new CResultSet);
 	for (ResultSet_t rset : results)

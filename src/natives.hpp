@@ -50,6 +50,7 @@ namespace Native
 	AMX_DECLARE_NATIVE(mysql_pquery);
 	AMX_DECLARE_NATIVE(mysql_tquery);
 	AMX_DECLARE_NATIVE(mysql_query);
+	AMX_DECLARE_NATIVE(mysql_tquery_file);
 	AMX_DECLARE_NATIVE(mysql_query_file);
 
 	AMX_DECLARE_NATIVE(mysql_errno);
