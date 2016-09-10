@@ -1207,6 +1207,7 @@ Test:TQueryFail()
 	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1));
 	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1, 3.452, "asdf", 2322));
  	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1, 3.452, "asdf"));
+ 	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1, 3.452, ""));
  	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfy", 1, 3.452, "asdf"));
  	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "daf", 1, {3,4,5}, 3.14));
  	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1", "ValidCallback", "dad", 1, {3,4,5}, 3));

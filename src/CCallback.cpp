@@ -121,8 +121,8 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 				{
 					const char *str = nullptr;
 					amx_StrParam(amx, params[param_offset + param_idx], str);
-					param_list.push_front(std::make_tuple('s', string(str)));
-					CLog::Get()->Log(LogLevel::DEBUG, "retrieved and pushed value '{}'", str);
+					param_list.push_front(std::make_tuple('s', string(str ? str : "")));
+					CLog::Get()->Log(LogLevel::DEBUG, "retrieved and pushed value '{}'", str ? str : "");
 				}
 				break;
 				case 'a': //array
