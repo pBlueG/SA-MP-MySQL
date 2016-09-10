@@ -68,10 +68,7 @@ private:
 	~CLog() = default;
 
 public:
-	inline void SetLogLevel(LogLevel level)
-	{
-		m_Logger.SetLogLevel(level);
-	}
+	void SetLogLevel(LogLevel level);
 	inline bool IsLogLevel(LogLevel level)
 	{
 		return m_Logger.IsLogLevel(level);
