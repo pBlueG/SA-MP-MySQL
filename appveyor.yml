@@ -13,7 +13,7 @@ platform: x86
 clone_depth: 1
 
 environment:
-  SAMP_SERVER_ROOT: C:/Projects/sa-mp-mysql/samp03
+  SAMP_SERVER_ROOT: C:\Projects\sa-mp-mysql\samp03
   BOOST_ROOT: C:\Libraries\boost_1_59_0
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
 
