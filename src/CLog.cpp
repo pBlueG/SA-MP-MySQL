@@ -27,12 +27,7 @@ void CDebugInfoManager::Clear()
 CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func,
 								   const char *params_format /* = ""*/)
 {
-	uint16_t amx_flags = 0;
-	amx_Flags(amx, &amx_flags);
-	m_HasAmxDebugSymbols = (amx_flags & AMX_FLAG_DEBUG) == AMX_FLAG_DEBUG;
-
-	if (m_HasAmxDebugSymbols)
-		CDebugInfoManager::Get()->Update(amx, func);
+	CDebugInfoManager::Get()->Update(amx, func);
 
 	auto &logger = CLog::Get()->m_Logger;
 	if (logger.IsLogLevel(LogLevel::DEBUG))
