@@ -94,9 +94,12 @@ public:
 		if (!IsLogLevel(level))
 			return;
 
-		m_Logger.CLogger::Log(level,
-							  fmt::format(format, std::forward<Args>(args)...).c_str(),
-							  dbginfo.line, dbginfo.file, dbginfo.function);
+		const char *str = format;
+		if (sizeof...(args) != 0)
+			str = fmt::format(format, std::forward<Args>(args)...).c_str();
+
+		m_Logger.CLogger::Log(level, str, 
+			dbginfo.line, dbginfo.file, dbginfo.function);
 	}
 
 	// should only be called in native functions
