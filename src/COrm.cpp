@@ -451,10 +451,15 @@ bool COrm::UpdateKeyValue(const Result_t result)
 	CLog::Get()->Log(LogLevel::DEBUG, "COrm::UpdateKeyValue(this={}, result={})",
 					 static_cast<const void *>(this), static_cast<const void *>(result));
 
-	if (result == nullptr || result->InsertId() == 0)
+	if (result == nullptr)
 	{
-		CLog::Get()->Log(LogLevel::ERROR, 
-						 "COrm::UpdateKeyValue - no result or inserted id is zero");
+		CLog::Get()->Log(LogLevel::ERROR, "COrm::UpdateKeyValue - no result");
+		return false;
+	}
+
+	if (result->InsertId() == 0)
+	{
+		CLog::Get()->Log(LogLevel::ERROR, "COrm::UpdateKeyValue - inserted id is zero");
 		return false;
 	}
 
