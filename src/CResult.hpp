@@ -121,7 +121,7 @@ private:
 public:
 	inline const Result_t GetActiveResult()
 	{
-		if (m_ActiveResult == nullptr)
+		if (m_ActiveResult == nullptr && !m_Results.empty())
 			m_ActiveResult = m_Results.front();
 		return m_ActiveResult;
 	}

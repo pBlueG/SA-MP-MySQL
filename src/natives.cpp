@@ -1306,7 +1306,14 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 		return 0;
 	}
 
-	*dest_addr = static_cast<cell>(resultset->GetActiveResult()->GetRowCount());
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
+	*dest_addr = static_cast<cell>(result->GetRowCount());
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
@@ -1331,7 +1338,14 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 		return 0;
 	}
 
-	*dest_addr = resultset->GetActiveResult()->GetFieldCount();
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
+	*dest_addr = result->GetFieldCount();
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
@@ -1374,8 +1388,15 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 		return 0;
 	}
 
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	string field_name;
-	if (resultset->GetActiveResult()->GetFieldName(params[1], field_name) == false)
+	if (result->GetFieldName(params[1], field_name) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "invalid index '{}'", params[1]);
 		return 0;
@@ -1397,8 +1418,15 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_type)
 		return -1;
 	}
 
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return -1;
+	}
+
 	enum_field_types type;
-	if (resultset->GetActiveResult()->GetFieldType(params[1], type) == false)
+	if (result->GetFieldType(params[1], type) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "invalid index '{}'", params[1]);
 		return -1;
@@ -1438,8 +1466,15 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index)
 		return 0;
 	}
 
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const char *data = nullptr;
-	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
+	if (result->GetRowData(params[1], params[2], &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 							   "invalid row ('{}') or field ('{}') index", 
@@ -1476,8 +1511,15 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 		return 0;
 	}
 
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const char *data = nullptr;
-	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
+	if (result->GetRowData(params[1], params[2], &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 							   "invalid row ('{}') or field ('{}') index", 
@@ -1517,8 +1559,15 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 		return 0;
 	}
 
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const char *data = nullptr;
-	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
+	if (result->GetRowData(params[1], params[2], &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 							   "invalid row ('{}') or field ('{}') index", 
@@ -1558,8 +1607,15 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 		return 0;
 	}
 
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const char *data = nullptr;
-	if (resultset->GetActiveResult()->GetRowData(params[1], params[2], &data) == false)
+	if (result->GetRowData(params[1], params[2], &data) == false)
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR,
 							   "invalid row ('{}') or field ('{}') index", 
@@ -1593,7 +1649,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 		return 0;
 	}
 
-	auto result = resultset->GetActiveResult();
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const cell &row_idx = params[1];
 	if (row_idx >= result->GetRowCount())
 	{
@@ -1646,7 +1708,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 		return 0;
 	}
 
-	auto result = resultset->GetActiveResult();
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const cell &row_idx = params[1];
 	if (row_idx >= result->GetRowCount())
 	{
@@ -1702,7 +1770,13 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 		return 0;
 	}
 
-	auto result = resultset->GetActiveResult();
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const cell &row_idx = params[1];
 	if (row_idx >= result->GetRowCount())
 	{
@@ -1759,7 +1833,13 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 		return 0;
 	}
 
-	auto result = resultset->GetActiveResult();
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
 	const cell &row_idx = params[1];
 	if (row_idx >= result->GetRowCount())
 	{
@@ -1865,7 +1945,14 @@ AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 		return -1;
 	}
 
-	cell ret_val = static_cast<cell>(resultset->GetActiveResult()->AffectedRows());
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return -1;
+	}
+
+	cell ret_val = static_cast<cell>(result->AffectedRows());
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -1881,7 +1968,14 @@ AMX_DECLARE_NATIVE(Native::cache_warning_count)
 		return -1;
 	}
 
-	cell ret_val = resultset->GetActiveResult()->WarningCount();
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return -1;
+	}
+
+	cell ret_val = result->WarningCount();
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
@@ -1897,7 +1991,14 @@ AMX_DECLARE_NATIVE(Native::cache_insert_id)
 		return -1;
 	}
 
-	cell ret_val = static_cast<cell>(resultset->GetActiveResult()->InsertId());
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return -1;
+	}
+
+	cell ret_val = static_cast<cell>(result->InsertId());
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
 }
