@@ -924,7 +924,12 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 	{
 		Query_t query = CQuery::Create(query_str);
 
-		handle->Execute(CHandle::ExecutionType::UNTHREADED, query);
+		CLog::Get()->LogNative(LogLevel::DEBUG, "executing query '{}'", query_str);
+		if (!handle->Execute(CHandle::ExecutionType::UNTHREADED, query))
+		{
+			CLog::Get()->LogNative(LogLevel::ERROR, "failed to execute query '{}'", query_str);
+			return 0;
+		}
 
 		if (store_result)
 			results.push_back(query->GetResult());
