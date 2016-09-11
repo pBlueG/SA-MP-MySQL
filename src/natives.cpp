@@ -1135,28 +1135,30 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 					amx_StrParam(amx, params[first_param_idx + param_counter], 
 								 source_str);
 
-					string escaped_str;
-					if (source_str != nullptr 
-						&& handle->EscapeString(source_str, escaped_str))
+					if (source_str != nullptr)
 					{
-						dest_writer << escaped_str;
+						string escaped_str;
+						if (handle->EscapeString(source_str, escaped_str))
+						{
+							dest_writer << escaped_str;
+						}
+						else
+						{
+							CLog::Get()->LogNative(LogLevel::ERROR,
+								"can't escape string '{}'",
+								source_str ? source_str : "(nullptr)");
+							break_loop = true;
+						}
 					}
-					else
-					{
-						CLog::Get()->LogNative(LogLevel::ERROR, 
-										"can't escape string '{}'",
-										source_str ? source_str : "(nullptr)");
-						break_loop = true;
-					}
-					break;
 				}
+				break;
 				case 'b':
 				{
 					string bin_str;
 					ConvertDataToStr<int, 2>(*amx_address, bin_str);
 					dest_writer << bin_str;
-					break;
 				}
+				break;
 				default:
 					CLog::Get()->LogNative(LogLevel::ERROR, 
 										   "invalid format specifier '%{}'", 
