@@ -840,7 +840,25 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery_file)
 		return 0;
 	}
 
-	auto func = [](Handle_t handle, string file_path, Callback_t callback)
+
+	std::function<void(std::string, unsigned int, std::string)> query_error_func 
+		= [amx, handle_id, callback_str]
+		(string query_str, unsigned int errorid, string error)
+		{
+			CError<CCallback> error_cb_error;
+			//forward OnQueryError(errorid, const error[], const callback[], const query[], MySQL:handle);
+			Callback_t error_cb = CCallback::Create(error_cb_error, amx,
+				"OnQueryError", "dsssd",
+				errorid, error.c_str(),
+				callback_str.c_str(),
+				query_str.c_str(), handle_id);
+
+			if (!error_cb_error)
+				error_cb->Execute();
+		};
+
+	auto func = [](Handle_t handle, string file_path, Callback_t callback, 
+		 decltype(query_error_func) query_error_func)
 	{
 		vector<string> queries;
 		if (ParseQueriesFromFile(file_path, queries) && !queries.empty())
@@ -851,7 +869,8 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery_file)
 			auto results = std::make_shared<vector<ResultSet_t>>();
 			for (auto i = queries.begin(); i != queries.end(); i++)
 			{
-				Query_t query = CQuery::Create(*i);
+				string query_str = *i;
+				Query_t query = CQuery::Create(query_str);
 
 				if (callback != nullptr)
 				{
@@ -871,12 +890,15 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery_file)
 						}
 					});
 				}
+				query->OnError(std::bind(query_error_func, 
+					query_str, std::placeholders::_1, std::placeholders::_2));
 
 				handle->Execute(CHandle::ExecutionType::THREADED, query);
 			}
 		}
 	};
-	std::async(std::launch::async, std::move(func), handle, filepath, callback);
+	std::async(std::launch::async, std::move(func), 
+		handle, filepath, callback, query_error_func);
 	
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
