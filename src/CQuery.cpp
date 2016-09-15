@@ -24,7 +24,15 @@ bool CQuery::Execute(MYSQL *connection)
 						 error_str ? error_str : "(nullptr)");
 		return false;
 	}
-	CLog::Get()->Log(LogLevel::INFO, "query \"{}\" successfully executed", m_Query);
+	
+	auto
+		query_exec_time_milli = std::chrono::duration_cast<std::chrono::milliseconds>(exec_time).count(),
+		query_exec_time_micro = std::chrono::duration_cast<std::chrono::microseconds>(exec_time).count();
+
+	CLog::Get()->Log(LogLevel::INFO, 
+		"query \"{}\" successfully executed within {}.{} milliseconds", 
+		m_Query, query_exec_time_milli, 
+		query_exec_time_micro - (query_exec_time_milli * 1000));
 
 	m_Result = CResultSet::Create(connection, exec_time, m_Query);
 	return m_Result != nullptr;
