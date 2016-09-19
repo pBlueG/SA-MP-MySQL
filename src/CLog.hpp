@@ -91,11 +91,11 @@ public:
 		if (!IsLogLevel(level))
 			return;
 
-		const char *str = format;
+		string str = format;
 		if (sizeof...(args) != 0)
-			str = fmt::format(format, std::forward<Args>(args)...).c_str();
+			str = fmt::format(format, std::forward<Args>(args)...);
 
-		m_Logger.CLogger::Log(level, str, 
+		m_Logger.CLogger::Log(level, str.c_str(), 
 			dbginfo.line, dbginfo.file, dbginfo.function);
 	}
 
