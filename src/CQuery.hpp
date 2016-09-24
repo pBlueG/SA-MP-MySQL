@@ -15,9 +15,13 @@ class CQuery
 {
 public: //constructor / deconstructor
 	explicit CQuery(string &&query) :
-		m_Query(query),
-		m_DbgInfo(CDebugInfoManager::Get()->GetCurrentInfo())
-	{ }
+		m_Query(query)
+	{ 
+		if (CDebugInfoManager::Get()->IsInfoAvailable())
+			m_DbgInfo = CDebugInfoManager::Get()->GetCurrentInfo();
+		else
+			m_DbgInfo.line = 0;
+	}
 	~CQuery() = default;
 
 private: //variables
@@ -25,7 +29,7 @@ private: //variables
 	function<void(ResultSet_t result)> m_Callback;
 	function<void(unsigned int, string)> m_ErrorCallback;
 	ResultSet_t m_Result = nullptr;
-	const DebugInfo m_DbgInfo;
+	AmxFuncCallInfo m_DbgInfo;
 
 public: //functions
 	bool Execute(MYSQL *connection);

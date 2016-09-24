@@ -8,15 +8,8 @@
 
 using samplog::PluginLogger_t;
 using samplog::LogLevel;
+using samplog::AmxFuncCallInfo;
 
-
-struct DebugInfo
-{
-	int line = 0;
-	const char
-		*function = nullptr,
-		*file = nullptr;
-};
 
 class CDebugInfoManager : public CSingleton<CDebugInfoManager>
 {
@@ -31,7 +24,7 @@ public:
 	{
 		return m_Amx;
 	}
-	inline const DebugInfo &GetCurrentInfo()
+	inline const AmxFuncCallInfo &GetCurrentInfo()
 	{
 		return m_Info;
 	}
@@ -52,7 +45,7 @@ private:
 	bool m_Available = false;
 
 	AMX *m_Amx = nullptr;
-	DebugInfo m_Info;
+	AmxFuncCallInfo m_Info;
 	const char *m_NativeName = nullptr;
 };
 
@@ -85,7 +78,7 @@ public:
 	}
 
 	template<typename... Args>
-	inline void Log(LogLevel level, const DebugInfo &dbginfo,
+	inline void Log(LogLevel level, const AmxFuncCallInfo &callinfo,
 					const char *format, Args &&...args)
 	{
 		if (!IsLogLevel(level))
@@ -95,8 +88,7 @@ public:
 		if (sizeof...(args) != 0)
 			str = fmt::format(format, std::forward<Args>(args)...);
 
-		m_Logger.CLogger::Log(level, str.c_str(), 
-			dbginfo.line, dbginfo.file, dbginfo.function);
+		m_Logger.CLogger::Log(level, str.c_str(), callinfo);
 	}
 
 	// should only be called in native functions
@@ -109,11 +101,14 @@ public:
 		if (CDebugInfoManager::Get()->GetCurrentAmx() == nullptr)
 			return; //do nothing, since we're not called from within a native func
 
-		Log(level,
-			CDebugInfoManager::Get()->GetCurrentInfo(),
-			fmt::format("{}: {}",
-						CDebugInfoManager::Get()->GetCurrentNativeName(),
-						fmt::format(fmt, std::forward<Args>(args)...)).c_str());
+		string msg = fmt::format("{}: {}",
+			CDebugInfoManager::Get()->GetCurrentNativeName(),
+			fmt::format(fmt, std::forward<Args>(args)...));
+
+		if (CDebugInfoManager::Get()->IsInfoAvailable())
+			Log(level, CDebugInfoManager::Get()->GetCurrentInfo(), msg.c_str());
+		else
+			Log(level, msg.c_str());
 	}
 
 	template<typename T>

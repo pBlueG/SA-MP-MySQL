@@ -18,10 +18,14 @@ bool CQuery::Execute(MYSQL *connection)
 	if (error != 0)
 	{
 		const char *error_str = mysql_error(connection);
-		CLog::Get()->Log(LogLevel::ERROR, m_DbgInfo,
-						 "error #{} while executing query \"{}\": {}",
-						 mysql_errno(connection), m_Query, 
-						 error_str ? error_str : "(nullptr)");
+		string msg = fmt::format("error #{} while executing query \"{}\": {}",
+			mysql_errno(connection), m_Query,
+			error_str ? error_str : "(nullptr)");
+
+		if (m_DbgInfo.line != 0)
+			CLog::Get()->Log(LogLevel::ERROR, m_DbgInfo, msg.c_str());
+		else
+			CLog::Get()->Log(LogLevel::ERROR, msg.c_str());
 		return false;
 	}
 	

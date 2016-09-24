@@ -7,11 +7,7 @@ void CDebugInfoManager::Update(AMX * const amx, const char *func)
 {
 	m_Amx = amx;
 	m_NativeName = func;
-
-	m_Available =
-		samplog::GetLastAmxLine(amx, m_Info.line) &&
-		samplog::GetLastAmxFile(amx, m_Info.file) &&
-		samplog::GetLastAmxFunction(amx, m_Info.function);
+	m_Available = samplog::GetLastAmxFunctionCall(amx, m_Info);
 }
 
 void CDebugInfoManager::Clear()
@@ -19,9 +15,6 @@ void CDebugInfoManager::Clear()
 	m_Amx = nullptr;
 	m_NativeName = nullptr;
 	m_Available = false;
-	m_Info.line = 0;
-	m_Info.function = nullptr;
-	m_Info.file = nullptr;
 }
 
 CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func,
