@@ -73,8 +73,11 @@ public:
 		if (!IsLogLevel(level))
 			return;
 
-		m_Logger.Log(level,
-					 fmt::format(format, std::forward<Args>(args)...).c_str());
+		string str = format;
+		if (sizeof...(args) != 0)
+			str = fmt::format(format, std::forward<Args>(args)...);
+
+		m_Logger.Log(level, str.c_str());
 	}
 
 	template<typename... Args>
@@ -126,15 +129,12 @@ private:
 
 class CScopedDebugInfo
 {
-private:
-	bool m_HasAmxDebugSymbols = false;
 public:
 	CScopedDebugInfo(AMX * const amx, const char *func, 
 					 const char *params_format = "");
 	~CScopedDebugInfo()
 	{
-		if (m_HasAmxDebugSymbols)
-			CDebugInfoManager::Get()->Clear();
+		CDebugInfoManager::Get()->Clear();
 	}
 	CScopedDebugInfo(const CScopedDebugInfo &rhs) = delete;
 };
