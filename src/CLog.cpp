@@ -7,7 +7,8 @@ void CDebugInfoManager::Update(AMX * const amx, const char *func)
 {
 	m_Amx = amx;
 	m_NativeName = func;
-	m_Available = samplog::GetLastAmxFunctionCall(amx, m_Info);
+	m_Info.clear();
+	m_Available = samplog::GetAmxFunctionCallTrace(amx, m_Info);
 }
 
 void CDebugInfoManager::Clear()

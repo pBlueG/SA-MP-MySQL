@@ -19,12 +19,23 @@ private:
 	CDebugInfoManager() = default;
 	~CDebugInfoManager() = default;
 
+private:
+	bool m_Available = false;
+
+	AMX *m_Amx = nullptr;
+	std::vector<AmxFuncCallInfo> m_Info;
+	const char *m_NativeName = nullptr;
+
+private:
+	void Update(AMX * const amx, const char *func);
+	void Clear();
+
 public:
 	inline AMX * const GetCurrentAmx()
 	{
 		return m_Amx;
 	}
-	inline const AmxFuncCallInfo &GetCurrentInfo()
+	inline const decltype(m_Info) &GetCurrentInfo()
 	{
 		return m_Info;
 	}
@@ -36,17 +47,6 @@ public:
 	{
 		return m_NativeName;
 	}
-
-private:
-	void Update(AMX * const amx, const char *func);
-	void Clear();
-
-private:
-	bool m_Available = false;
-
-	AMX *m_Amx = nullptr;
-	AmxFuncCallInfo m_Info;
-	const char *m_NativeName = nullptr;
 };
 
 
@@ -81,7 +81,7 @@ public:
 	}
 
 	template<typename... Args>
-	inline void Log(LogLevel level, const AmxFuncCallInfo &callinfo,
+	inline void Log(LogLevel level, std::vector<AmxFuncCallInfo> const &callinfo,
 					const char *format, Args &&...args)
 	{
 		if (!IsLogLevel(level))
