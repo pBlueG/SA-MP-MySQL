@@ -31,6 +31,7 @@ if(WIN32)
     find_library(
 		MYSQLCAPI_LIBRARY
 		NAMES
+		"libmariadb.lib"
 		"libmysql.lib"
 		HINTS
 		${MYSQLCAPI_ROOT_DIR}
@@ -41,6 +42,7 @@ if(WIN32)
 	find_file(
 		MYSQLCAPI_LIBRARY_SHARED
 		NAMES
+		"libmariadb.dll"
 		"libmysql.dll"
 		HINTS
 		${MYSQLCAPI_ROOT_DIR}
