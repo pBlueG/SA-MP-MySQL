@@ -20,11 +20,11 @@ environment:
 install:
   - git submodule update --init --recursive
   
-  - curl -kLO https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-win32.zip
+  - appveyor DownloadFile https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-win32.zip
   - 7z x mysql-connector-c-6.1.6-win32.zip
   - del mysql-connector-c-6.1.6-win32.zip
   
-  - curl -kLO http://files.sa-mp.com/samp037_svr_R2-1-1_win32.zip
+  - appveyor DownloadFile http://files.sa-mp.com/samp037_svr_R2-1-1_win32.zip
   - 7z x samp037_svr_R2-1-1_win32.zip -osamp03
   
   - appveyor DownloadFile https://github.com/Zeex/pawn/releases/download/20160702/pawnc-3.10.20160702-windows.zip
