@@ -375,7 +375,7 @@ UpdatePlayerKills(killerid)
 	Player[killerid][Kills]++;
 	
 	new query[70];
-	mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `kills` = %d WHERE `id` = %d LIMIT 1", Player[killerid][Deaths], Player[killerid][ID]);
+	mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `kills` = %d WHERE `id` = %d LIMIT 1", Player[killerid][Kills], Player[killerid][ID]);
 	mysql_tquery(g_SQL, query);
 	return 1;
 }
