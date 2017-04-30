@@ -1252,7 +1252,7 @@ AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 	string charset;
 	if (handle->GetCharacterSet(charset) == false)
 	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "can't retreive character set");
+		CLog::Get()->LogNative(LogLevel::ERROR, "can't retrieve character set");
 		return 0;
 	}
 
@@ -1288,7 +1288,7 @@ AMX_DECLARE_NATIVE(Native::mysql_stat)
 	string status;
 	if (handle->GetStatus(status) == false)
 	{
-		CLog::Get()->LogNative(LogLevel::ERROR, "can't retreive status");
+		CLog::Get()->LogNative(LogLevel::ERROR, "can't retrieve status");
 		return 0;
 	}
 
