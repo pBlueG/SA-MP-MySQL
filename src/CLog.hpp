@@ -131,7 +131,7 @@ class CScopedDebugInfo
 {
 public:
 	CScopedDebugInfo(AMX * const amx, const char *func, 
-					 const char *params_format = "");
+		cell * const params, const char *params_format = "");
 	~CScopedDebugInfo()
 	{
 		CDebugInfoManager::Get()->Clear();

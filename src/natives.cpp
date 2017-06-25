@@ -16,7 +16,7 @@
 // native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::orm_create)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_create", "sd");
+	CScopedDebugInfo dbg_info(amx, "orm_create", params, "sd");
 	const char *tablename = nullptr;
 	amx_StrParam(amx, params[1], tablename);
 	const HandleId_t handleid = params[2];
@@ -37,7 +37,7 @@ AMX_DECLARE_NATIVE(Native::orm_create)
 // native orm_destroy(ORM:id);
 AMX_DECLARE_NATIVE(Native::orm_destroy)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_destroy", "d");
+	CScopedDebugInfo dbg_info(amx, "orm_destroy", params, "d");
 	const OrmId_t ormid = params[1];
 
 	if (COrmManager::Get()->IsValid(ormid) == false)
@@ -55,7 +55,7 @@ AMX_DECLARE_NATIVE(Native::orm_destroy)
 // native E_ORM_ERROR:orm_errno(ORM:id);
 AMX_DECLARE_NATIVE(Native::orm_errno)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_errno", "d");
+	CScopedDebugInfo dbg_info(amx, "orm_errno", params, "d");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -73,7 +73,7 @@ AMX_DECLARE_NATIVE(Native::orm_errno)
 // native orm_apply_cache(ORM:id, row_idx, result_idx = 0);
 AMX_DECLARE_NATIVE(Native::orm_apply_cache)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_apply_cache", "ddd");
+	CScopedDebugInfo dbg_info(amx, "orm_apply_cache", params, "ddd");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -185,7 +185,7 @@ static bool FireOrmQueryWithCallback(AMX *amx, cell *params, COrm::QueryType typ
 // native orm_select(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_select)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_select", "dss");
+	CScopedDebugInfo dbg_info(amx, "orm_select", params, "dss");
 	cell ret_val = 
 		FireOrmQueryWithCallback(amx, params, COrm::QueryType::SELECT) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
@@ -195,7 +195,7 @@ AMX_DECLARE_NATIVE(Native::orm_select)
 // native orm_update(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_update)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_update", "dss");
+	CScopedDebugInfo dbg_info(amx, "orm_update", params, "dss");
 	cell ret_val = 
 		FireOrmQueryWithCallback(amx, params, COrm::QueryType::UPDATE) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
@@ -205,7 +205,7 @@ AMX_DECLARE_NATIVE(Native::orm_update)
 // native orm_insert(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_insert)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_insert", "dss");
+	CScopedDebugInfo dbg_info(amx, "orm_insert", params, "dss");
 	cell ret_val = 
 		FireOrmQueryWithCallback(amx, params, COrm::QueryType::INSERT) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
@@ -215,7 +215,7 @@ AMX_DECLARE_NATIVE(Native::orm_insert)
 // native orm_delete(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_delete)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_delete", "dss");
+	CScopedDebugInfo dbg_info(amx, "orm_delete", params, "dss");
 	cell ret_val = 
 		FireOrmQueryWithCallback(amx, params, COrm::QueryType::DELETE) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
@@ -225,7 +225,7 @@ AMX_DECLARE_NATIVE(Native::orm_delete)
 // native orm_save(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
 AMX_DECLARE_NATIVE(Native::orm_save)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_save", "dss");
+	CScopedDebugInfo dbg_info(amx, "orm_save", params, "dss");
 	cell ret_val = 
 		FireOrmQueryWithCallback(amx, params, COrm::QueryType::SAVE) ? 1 : 0;
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
@@ -235,7 +235,7 @@ AMX_DECLARE_NATIVE(Native::orm_save)
 // native orm_addvar_int(ORM:id, &var, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_addvar_int", "drs");
+	CScopedDebugInfo dbg_info(amx, "orm_addvar_int", params, "drs");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -265,7 +265,7 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_int)
 // native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_float)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_addvar_float", "drs");
+	CScopedDebugInfo dbg_info(amx, "orm_addvar_float", params, "drs");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -295,7 +295,7 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_float)
 // native orm_addvar_string(ORM:id, var[], var_maxlen, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_addvar_string", "drds");
+	CScopedDebugInfo dbg_info(amx, "orm_addvar_string", params, "drds");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -326,7 +326,7 @@ AMX_DECLARE_NATIVE(Native::orm_addvar_string)
 // native orm_clear_vars(ORM:id);
 AMX_DECLARE_NATIVE(Native::orm_clear_vars)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_clear_vars", "d");
+	CScopedDebugInfo dbg_info(amx, "orm_clear_vars", params, "d");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -345,7 +345,7 @@ AMX_DECLARE_NATIVE(Native::orm_clear_vars)
 // native orm_delvar(ORM:id, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_delvar)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_delvar", "ds");
+	CScopedDebugInfo dbg_info(amx, "orm_delvar", params, "ds");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -378,7 +378,7 @@ AMX_DECLARE_NATIVE(Native::orm_delvar)
 // native orm_setkey(ORM:id, const columnname[]);
 AMX_DECLARE_NATIVE(Native::orm_setkey)
 {
-	CScopedDebugInfo dbg_info(amx, "orm_setkey", "ds");
+	CScopedDebugInfo dbg_info(amx, "orm_setkey", params, "ds");
 	const OrmId_t ormid = params[1];
 	Orm_t orm = COrmManager::Get()->Find(ormid);
 
@@ -421,7 +421,7 @@ AMX_DECLARE_NATIVE(Native::mysql_log)
 //							  const database[], MySQLOpt:option_id = MySQLOpt:0);
 AMX_DECLARE_NATIVE(Native::mysql_connect)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_connect", "ss*sd");
+	CScopedDebugInfo dbg_info(amx, "mysql_connect", params, "ss*sd");
 	OptionsId_t options_id = static_cast<OptionsId_t>(params[5]);
 	auto *options = COptionManager::Get()->GetOptionHandle(options_id);
 	if (options == nullptr)
@@ -463,7 +463,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect)
 // native MySQL:mysql_connect_file(const file_name[] = "mysql.ini");
 AMX_DECLARE_NATIVE(Native::mysql_connect_file)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_connect_file", "s");
+	CScopedDebugInfo dbg_info(amx, "mysql_connect_file", params, "s");
 	string file_name = amx_GetCppString(amx, params[1]);
 	//no directory seperators allowed
 	if (file_name.find_first_of("/\\") != string::npos)
@@ -493,7 +493,7 @@ AMX_DECLARE_NATIVE(Native::mysql_connect_file)
 // native mysql_close(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_close)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_close", "d");
+	CScopedDebugInfo dbg_info(amx, "mysql_close", params, "d");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -511,7 +511,7 @@ AMX_DECLARE_NATIVE(Native::mysql_close)
 // native mysql_unprocessed_queries(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_unprocessed_queries", "d");
+	CScopedDebugInfo dbg_info(amx, "mysql_unprocessed_queries", params, "d");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -529,7 +529,7 @@ AMX_DECLARE_NATIVE(Native::mysql_unprocessed_queries)
 // native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
 AMX_DECLARE_NATIVE(Native::mysql_global_options)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_global_options", "dd");
+	CScopedDebugInfo dbg_info(amx, "mysql_global_options", params, "dd");
 	using OptEnum = COptionManager::GlobalOption;
 	OptEnum option = static_cast<OptEnum>(params[1]);
 	switch (option)
@@ -553,7 +553,7 @@ AMX_DECLARE_NATIVE(Native::mysql_global_options)
 // native MySQLOpt:mysql_init_options();
 AMX_DECLARE_NATIVE(Native::mysql_init_options)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_init_options");
+	CScopedDebugInfo dbg_info(amx, "mysql_init_options", params);
 	cell ret_val = COptionManager::Get()->Create();
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val;
@@ -562,7 +562,7 @@ AMX_DECLARE_NATIVE(Native::mysql_init_options)
 // native mysql_set_option(MySQLOpt:option_id, E_MYSQL_OPTION:type, ...);
 AMX_DECLARE_NATIVE(Native::mysql_set_option)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_set_option", "dd");
+	CScopedDebugInfo dbg_info(amx, "mysql_set_option", params, "dd");
 	OptionsId_t options_id = static_cast<OptionsId_t>(params[1]);
 	auto *options = COptionManager::Get()->GetOptionHandle(options_id);
 	if (options == nullptr)
@@ -696,7 +696,7 @@ static bool SendQueryWithCallback(AMX *amx, cell *params,
 //					   const format[] = "", {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_pquery)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_pquery", "dsss");
+	CScopedDebugInfo dbg_info(amx, "mysql_pquery", params, "dsss");
 
 	cell ret_val = SendQueryWithCallback(
 		amx, params, CHandle::ExecutionType::PARALLEL) ? 1 : 0;
@@ -709,7 +709,7 @@ AMX_DECLARE_NATIVE(Native::mysql_pquery)
 //					   const format[] = "", {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_tquery)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_tquery", "dsss");
+	CScopedDebugInfo dbg_info(amx, "mysql_tquery", params, "dsss");
 
 	cell ret_val = SendQueryWithCallback(
 		amx, params, CHandle::ExecutionType::THREADED) ? 1 : 0;
@@ -721,7 +721,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery)
 // native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
 AMX_DECLARE_NATIVE(Native::mysql_query)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_query", "dsd");
+	CScopedDebugInfo dbg_info(amx, "mysql_query", params, "dsd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 
@@ -795,7 +795,7 @@ bool ParseQueriesFromFile(const string &filepath, vector<string> &queries)
 //							const format[] = "", {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_tquery_file)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_tquery_file", "dsss");
+	CScopedDebugInfo dbg_info(amx, "mysql_tquery_file", params, "dsss");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 
@@ -909,7 +909,7 @@ AMX_DECLARE_NATIVE(Native::mysql_tquery_file)
 //								 const file_path[], bool:use_cache = false);
 AMX_DECLARE_NATIVE(Native::mysql_query_file)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_query_file", "dsd");
+	CScopedDebugInfo dbg_info(amx, "mysql_query_file", params, "dsd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 
@@ -971,7 +971,7 @@ AMX_DECLARE_NATIVE(Native::mysql_query_file)
 // native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_errno)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_errno", "d");
+	CScopedDebugInfo dbg_info(amx, "mysql_errno", params, "d");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -994,7 +994,7 @@ AMX_DECLARE_NATIVE(Native::mysql_errno)
 //					 MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_error)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_error", "rdd");
+	CScopedDebugInfo dbg_info(amx, "mysql_error", params, "rdd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[3]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -1019,7 +1019,7 @@ AMX_DECLARE_NATIVE(Native::mysql_error)
 //							  MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_escape_string", "srdd");
+	CScopedDebugInfo dbg_info(amx, "mysql_escape_string", params, "srdd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[4]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -1062,7 +1062,7 @@ AMX_DECLARE_NATIVE(Native::mysql_escape_string)
 //					   const format[], {Float,_}:...);
 AMX_DECLARE_NATIVE(Native::mysql_format)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_format", "drds");
+	CScopedDebugInfo dbg_info(amx, "mysql_format", params, "drds");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[1]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -1219,7 +1219,7 @@ AMX_DECLARE_NATIVE(Native::mysql_format)
 // native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_set_charset", "sd");
+	CScopedDebugInfo dbg_info(amx, "mysql_set_charset", params, "sd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[2]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -1239,7 +1239,7 @@ AMX_DECLARE_NATIVE(Native::mysql_set_charset)
 //							MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_get_charset", "rdd");
+	CScopedDebugInfo dbg_info(amx, "mysql_get_charset", params, "rdd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[3]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -1275,7 +1275,7 @@ AMX_DECLARE_NATIVE(Native::mysql_get_charset)
 //					 MySQL:handle = MYSQL_DEFAULT_HANDLE);
 AMX_DECLARE_NATIVE(Native::mysql_stat)
 {
-	CScopedDebugInfo dbg_info(amx, "mysql_stat", "rdd");
+	CScopedDebugInfo dbg_info(amx, "mysql_stat", params, "rdd");
 	const HandleId_t handle_id = static_cast<HandleId_t>(params[3]);
 	Handle_t handle = CHandleManager::Get()->GetHandle(handle_id);
 	if (handle == nullptr)
@@ -1312,7 +1312,7 @@ AMX_DECLARE_NATIVE(Native::mysql_stat)
 // native cache_get_row_count(&destination);
 AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_row_count", "r");
+	CScopedDebugInfo dbg_info(amx, "cache_get_row_count", params, "r");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1344,7 +1344,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_row_count)
 // native cache_get_field_count(&destination);
 AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_field_count", "r");
+	CScopedDebugInfo dbg_info(amx, "cache_get_field_count", params, "r");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1376,7 +1376,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_count)
 // native cache_get_result_count(&destination);
 AMX_DECLARE_NATIVE(Native::cache_get_result_count)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_result_count", "r");
+	CScopedDebugInfo dbg_info(amx, "cache_get_result_count", params, "r");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1402,7 +1402,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_result_count)
 //							   max_len = sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_field_name", "drd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_field_name", params, "drd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1432,7 +1432,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_name)
 // native E_MYSQL_FIELD_TYPE:cache_get_field_type(field_index);
 AMX_DECLARE_NATIVE(Native::cache_get_field_type)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_field_type", "d");
+	CScopedDebugInfo dbg_info(amx, "cache_get_field_type", params, "d");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1462,7 +1462,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_field_type)
 // native cache_set_result(result_index);
 AMX_DECLARE_NATIVE(Native::cache_set_result)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_set_result", "d");
+	CScopedDebugInfo dbg_info(amx, "cache_set_result", params, "d");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1480,7 +1480,7 @@ AMX_DECLARE_NATIVE(Native::cache_set_result)
 //								max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_value_index)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_index", "ddrd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index", params, "ddrd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1517,7 +1517,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index)
 // native cache_get_value_index_int(row_idx, column_idx, &destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_int", "ddr");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_int", params, "ddr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1565,7 +1565,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_int)
 // native cache_get_value_index_float(row_idx, column_idx, &Float:destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_float", "ddr");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_index_float", params, "ddr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1614,7 +1614,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_index_float)
 // native cache_is_value_index_null(row_idx, column_idx, &bool:destination);
 AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_is_value_index_null", "ddr");
+	CScopedDebugInfo dbg_info(amx, "cache_is_value_index_null", params, "ddr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1656,7 +1656,7 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 //							   max_len=sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_name", "dsrd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name", params, "dsrd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1707,7 +1707,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 // native cache_get_value_name_int(row_idx, const column_name[], &destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_int", "dsr");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_int", params, "dsr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1769,7 +1769,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_int)
 // native cache_get_value_name_float(row_idx, const column_name[], &Float:destination);
 AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_float", "dsr");
+	CScopedDebugInfo dbg_info(amx, "cache_get_value_name_float", params, "dsr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1832,7 +1832,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name_float)
 // native cache_is_value_name_null(row_idx, const column_name[], &bool:destination);
 AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_is_value_name_null", "dsr");
+	CScopedDebugInfo dbg_info(amx, "cache_is_value_name_null", params, "dsr");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1888,7 +1888,7 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_name_null)
 // native Cache:cache_save();
 AMX_DECLARE_NATIVE(Native::cache_save)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_save", "");
+	CScopedDebugInfo dbg_info(amx, "cache_save", params, "");
 
 	cell ret_val = CResultSetManager::Get()->StoreActiveResultSet();
 	if (ret_val == 0)
@@ -1901,7 +1901,7 @@ AMX_DECLARE_NATIVE(Native::cache_save)
 // native cache_delete(Cache:cache_id);
 AMX_DECLARE_NATIVE(Native::cache_delete)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_delete", "d");
+	CScopedDebugInfo dbg_info(amx, "cache_delete", params, "d");
 	if (!CResultSetManager::Get()->DeleteResultSet(params[1]))
 	{
 		CLog::Get()->LogNative(LogLevel::ERROR, "invalid cache id '{}'", params[1]);
@@ -1915,7 +1915,7 @@ AMX_DECLARE_NATIVE(Native::cache_delete)
 // native cache_set_active(Cache:cache_id);
 AMX_DECLARE_NATIVE(Native::cache_set_active)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_set_active", "d");
+	CScopedDebugInfo dbg_info(amx, "cache_set_active", params, "d");
 	auto resultset = CResultSetManager::Get()->GetResultSet(params[1]);
 	if (!resultset)
 	{
@@ -1932,7 +1932,7 @@ AMX_DECLARE_NATIVE(Native::cache_set_active)
 // native cache_unset_active();
 AMX_DECLARE_NATIVE(Native::cache_unset_active)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_unset_active", "");
+	CScopedDebugInfo dbg_info(amx, "cache_unset_active", params, "");
 	CResultSetManager::Get()->SetActiveResultSet(nullptr);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
@@ -1941,7 +1941,7 @@ AMX_DECLARE_NATIVE(Native::cache_unset_active)
 // native bool:cache_is_any_active();
 AMX_DECLARE_NATIVE(Native::cache_is_any_active)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_is_any_active", "");
+	CScopedDebugInfo dbg_info(amx, "cache_is_any_active", params, "");
 	bool ret_val = (CResultSetManager::Get()->GetActiveResultSet() != nullptr);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val ? 1 : 0;
@@ -1950,7 +1950,7 @@ AMX_DECLARE_NATIVE(Native::cache_is_any_active)
 // native bool:cache_is_valid(Cache:cache_id);
 AMX_DECLARE_NATIVE(Native::cache_is_valid)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_is_valid", "d");
+	CScopedDebugInfo dbg_info(amx, "cache_is_valid", params, "d");
 	bool ret_val = CResultSetManager::Get()->IsValidResultSet(params[1]);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret_val);
 	return ret_val ? 1 : 0;
@@ -1959,7 +1959,7 @@ AMX_DECLARE_NATIVE(Native::cache_is_valid)
 // native cache_affected_rows();
 AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_affected_rows", "");
+	CScopedDebugInfo dbg_info(amx, "cache_affected_rows", params, "");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -1982,7 +1982,7 @@ AMX_DECLARE_NATIVE(Native::cache_affected_rows)
 // native cache_warning_count();
 AMX_DECLARE_NATIVE(Native::cache_warning_count)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_warning_count", "");
+	CScopedDebugInfo dbg_info(amx, "cache_warning_count", params, "");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -2005,7 +2005,7 @@ AMX_DECLARE_NATIVE(Native::cache_warning_count)
 // native cache_insert_id();
 AMX_DECLARE_NATIVE(Native::cache_insert_id)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_insert_id", "");
+	CScopedDebugInfo dbg_info(amx, "cache_insert_id", params, "");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -2028,7 +2028,7 @@ AMX_DECLARE_NATIVE(Native::cache_insert_id)
 // native cache_get_query_exec_time(E_EXECTIME_UNIT:unit = MICROSECONDS);
 AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_query_exec_time", "d");
+	CScopedDebugInfo dbg_info(amx, "cache_get_query_exec_time", params, "d");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{
@@ -2045,7 +2045,7 @@ AMX_DECLARE_NATIVE(Native::cache_get_query_exec_time)
 // native cache_get_query_string(destination[], max_len = sizeof(destination));
 AMX_DECLARE_NATIVE(Native::cache_get_query_string)
 {
-	CScopedDebugInfo dbg_info(amx, "cache_get_query_string", "rd");
+	CScopedDebugInfo dbg_info(amx, "cache_get_query_string", params, "rd");
 	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
 	if (resultset == nullptr)
 	{

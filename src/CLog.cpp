@@ -19,13 +19,13 @@ void CDebugInfoManager::Clear()
 }
 
 CScopedDebugInfo::CScopedDebugInfo(AMX * const amx, const char *func,
-								   const char *params_format /* = ""*/)
+	cell * const params, const char *params_format /* = ""*/)
 {
 	CDebugInfoManager::Get()->Update(amx, func);
 
 	auto &logger = CLog::Get()->m_Logger;
 	if (logger.IsLogLevel(LogLevel::DEBUG))
-		logger.LogNativeCall(amx, func, params_format);
+		logger.LogNativeCall(amx, params, func, params_format);
 }
 
 void CLog::SetLogLevel(LogLevel level)
