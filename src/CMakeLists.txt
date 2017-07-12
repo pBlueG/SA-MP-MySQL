@@ -13,7 +13,6 @@ include_directories(
 	${SAMPSDK_INCLUDE_DIR}
 	${MYSQL_PLUGIN_CONFIG_INCLUDE_DIR}
 	${PROJECT_SOURCE_DIR}/libs/samp-log-core/include
-	${PROJECT_SOURCE_DIR}/libs/samp-log-core/libs/cppformat
 )
 
 configure_file(
