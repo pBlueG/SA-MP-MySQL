@@ -775,6 +775,9 @@ bool ParseQueriesFromFile(const string &filepath, vector<string> &queries)
 		if (comment_pos != string::npos)
 			tmp_query_str.erase(comment_pos);
 
+		// append space to make multi-line SQL queries work
+		tmp_query_str.push_back(' ');
+
 		size_t sem_pos;
 		while ((sem_pos = tmp_query_str.find(';')) != string::npos)
 		{
