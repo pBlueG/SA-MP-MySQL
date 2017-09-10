@@ -20,9 +20,9 @@ environment:
 install:
   - git submodule update --init --recursive
   
-  - appveyor DownloadFile https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-win32.zip
-  - 7z x mysql-connector-c-6.1.6-win32.zip
-  - del mysql-connector-c-6.1.6-win32.zip
+  - appveyor DownloadFile https://downloads.mariadb.com/Connectors/c/connector-c-3.0.2/mariadb-connector-c-3.0.2-win32.msi
+  - msiexec /i mariadb-connector-c-3.0.2-win32.msi /quiet /qn
+  - del mariadb-connector-c-3.0.2-win32.msi
   
   - appveyor DownloadFile http://files.sa-mp.com/samp037_svr_R2-2-1_win32.zip
   - 7z x samp037_svr_R2-1-1_win32.zip -osamp03
@@ -37,7 +37,7 @@ install:
   - set PATH=%PATH%;C:\Program Files\MySql\MySQL Server 5.7\bin
 
 before_build:
-  - cmake . -G "Visual Studio 14 2015" -DCMAKE_INSTALL_PREFIX="%SAMP_SERVER_ROOT%" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DMYSQLCAPI_ROOT_DIR="mysql-connector-c-6.1.6-win32"
+  - cmake . -G "Visual Studio 14 2015" -DCMAKE_INSTALL_PREFIX="%SAMP_SERVER_ROOT%" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DMYSQLCAPI_ROOT_DIR="C:/Program Files (x86)/MariaDB/MariaDB Connector C"
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
