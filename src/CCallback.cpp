@@ -105,7 +105,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 						array_addr_ptr = nullptr;
 					}
 
-					param_list.push_front(std::make_tuple('c', *address_ptr));
+					param_list.push_front(std::make_tuple('c', value));
 					CLog::Get()->Log(LogLevel::DEBUG, 
 									 "retrieved and pushed value '{}'", value);
 				}
