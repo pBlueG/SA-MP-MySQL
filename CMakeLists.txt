@@ -16,7 +16,7 @@ if(UNIX)
 endif()
 
 
-find_package(MySQLCAPI 5.5 REQUIRED)
+find_package(MySQLCAPI REQUIRED)
 
 
 set(Boost_USE_STATIC_LIBS ON)
