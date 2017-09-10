@@ -21,6 +21,7 @@ if(WIN32)
     find_path(
 		MYSQLCAPI_INCLUDE_DIR
 		NAMES
+		"mariadb_version.h"
 		"mysql_version.h"
 		HINTS
 		${MYSQLCAPI_ROOT_DIR}
