@@ -24,8 +24,8 @@ install:
   - msiexec /i mariadb-connector-c-3.0.2-win32.msi /quiet /qn
   - del mariadb-connector-c-3.0.2-win32.msi
   
-  - appveyor DownloadFile http://files.sa-mp.com/samp037_svr_R2-2-1_win32.zip
-  - 7z x samp037_svr_R2-1-1_win32.zip -osamp03
+  - ps: Start-FileDownload http://files.sa-mp.com/samp037_svr_R2-2-1_win32.zip
+  - 7z x samp037_svr_R2-2-1_win32.zip -osamp03
   
   - appveyor DownloadFile https://github.com/Zeex/pawn/releases/download/20160702/pawnc-3.10.20160702-windows.zip
   - 7z x pawnc-3.10.20160702-windows.zip
