@@ -29,8 +29,8 @@ before_install:
   - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then wget "http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz"; fi
   - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then tar xzf mysql-connector-c-6.1.6-src.tar.gz; fi
   
-  - wget "http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz"
-  - tar xzf boost_1_57_0.tar.gz
+  - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
+  - tar xzf boost_1_64_0.tar.gz
   
   - wget http://files.sa-mp.com/samp037svr_R2-1.tar.gz
   - tar xzf samp037svr_R2-1.tar.gz
@@ -57,7 +57,7 @@ before_script:
   - mysql -u root -e "CREATE USER 'tester'@'127.0.0.1' IDENTIFIED BY '1234';"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'tester'@'127.0.0.1' WITH GRANT OPTION;"
   
-  - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBOOST_ROOT=boost_1_57_0 -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
+  - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBOOST_ROOT=boost_1_64_0 -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
 
 script:
   - make -j2
