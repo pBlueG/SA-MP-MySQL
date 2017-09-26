@@ -66,11 +66,13 @@ else()
     find_library(
 		MYSQLCAPI_LIBRARY
 		NAME
+		mariadbclient
 		mysqlclient_r
 		mysqlclient
 		HINTS
 		${MYSQLCAPI_ROOT_DIR}
 		PATH_SUFFIXES
+		mariadb
 		mysql
 		i386-linux-gnu
 		x86_64-linux-gnu
@@ -80,10 +82,12 @@ else()
     find_library(
 		MYSQLCAPI_LIBRARY_STATIC
 		NAME
+		"libmariadbclient.a"
 		"libmysqlclient.a"
 		HINTS
 		${MYSQLCAPI_ROOT_DIR}
 		PATH_SUFFIXES
+		mariadb
 		mysql
 		i386-linux-gnu
 		x86_64-linux-gnu
