@@ -21,13 +21,11 @@ addons:
     - cmake
     - g++-multilib
 
-cache:
-  directories:
-    - mysql-connector-c-6.1.6-src
 
 before_install:
-  - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then wget "http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz"; fi
-  - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then tar xzf mysql-connector-c-6.1.6-src.tar.gz; fi
+  - sudo dpkg --add-architecture i386
+  - sudo apt-get update
+  - sudo apt-get -yq --no-install-suggests --no-install-recommends --force-yes install libmariadbclient-dev:i386
   
   - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
   - tar xzf boost_1_64_0.tar.gz
@@ -43,14 +41,6 @@ before_install:
   - wget https://github.com/Zeex/pawn/releases/download/20150531/pawnc-3.10.20150531-linux.tar.gz
   - sudo tar xvf pawnc-3.10.20150531-linux.tar.gz --strip-components=1 -C /usr/local
   - sudo ldconfig
-
-install:
-  - cd mysql-connector-c-6.1.6-src/
-  - cmake . -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32 -DCMAKE_INSTALL_PREFIX=/usr -DINSTALL_LAYOUT=DEB > /dev/null
-  - make -j2 > /dev/null
-  - sudo make install > /dev/null
-  - sudo ldconfig
-  - cd ..
 
 before_script:
   - mysql -u root -e "CREATE DATABASE IF NOT EXISTS test;"
