@@ -123,13 +123,13 @@ native E_ORM_ERROR:orm_errno(ORM:id);
 
 native orm_apply_cache(ORM:id, row_idx, result_idx = 0);
 
-native orm_select(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
-native orm_update(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
-native orm_insert(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
-native orm_delete(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
+native orm_select(ORM:id, const callback[] = "", const format[] = "", {ORM, Float, _}:...);
+native orm_update(ORM:id, const callback[] = "", const format[] = "", {ORM, Float, _}:...);
+native orm_insert(ORM:id, const callback[] = "", const format[] = "", {ORM, Float, _}:...);
+native orm_delete(ORM:id, const callback[] = "", const format[] = "", {ORM, Float, _}:...);
 
-native orm_load(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...) = orm_select;
-native orm_save(ORM:id, const callback[] = "", const format[] = "", {Float, _}:...);
+native orm_load(ORM:id, const callback[] = "", const format[] = "", {ORM, Float, _}:...) = orm_select;
+native orm_save(ORM:id, const callback[] = "", const format[] = "", {ORM, Float, _}:...);
 
 native orm_addvar_int(ORM:id, &var, const columnname[]);
 native orm_addvar_float(ORM:id, &Float:var, const columnname[]);
@@ -152,16 +152,16 @@ native mysql_global_options(E_MYSQL_GLOBAL_OPTION:type, value);
 native MySQLOpt:mysql_init_options();
 native mysql_set_option(MySQLOpt:option_id, E_MYSQL_OPTION:type, ...);
 
-native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
-native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {Float,_}:...);
+native mysql_pquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {MySQL, Float,_}:...);
+native mysql_tquery(MySQL:handle, const query[], const callback[] = "", const format[] = "", {MySQL, Float,_}:...);
 native Cache:mysql_query(MySQL:handle, const query[], bool:use_cache = true);
-native mysql_tquery_file(MySQL:handle, const file_path[], const callback[] = "", const format[] = "", {Float,_}:...);
+native mysql_tquery_file(MySQL:handle, const file_path[], const callback[] = "", const format[] = "", {MySQL, Float,_}:...);
 native Cache:mysql_query_file(MySQL:handle, const file_path[], bool:use_cache = false);
 
 native mysql_errno(MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_error(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_escape_string(const source[], destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
-native mysql_format(MySQL:handle, output[], max_len, const format[], {Float,_}:...);
+native mysql_format(MySQL:handle, output[], max_len, const format[], {MySQL, Float,_}:...);
 native mysql_set_charset(const charset[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_get_charset(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
 native mysql_stat(destination[], max_len = sizeof(destination), MySQL:handle = MYSQL_DEFAULT_HANDLE);
