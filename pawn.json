@@ -3,7 +3,7 @@
     "repo": "SA-MP-MySQL",
     "resources": [
         {
-            "name": "^mysql-.*-[Debian|CentOS].*$",
+            "name": "^mysql-.*-(Debian|CentOS).*$",
             "platform": "linux",
             "archive": true,
             "includes": ["pawno/include"],
