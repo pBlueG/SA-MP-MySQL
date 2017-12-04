@@ -1,0 +1,42 @@
+{
+    "user": "pBlueG",
+    "repo": "SA-MP-MySQL",
+    "resources": [
+        {
+            "name": "^mysql-.*-[Debian|CentOS].*$",
+            "platform": "linux",
+            "archive": true,
+            "includes": ["pawno/include"],
+            "plugins": ["plugins/mysql.so"],
+            "files": {
+                "log-core.so": "log-core.so"
+            }
+        }
+        {
+            "name": "mysql-R41-4-win32.zip",
+            "platform": "windows",
+            "archive": true,
+            "includes": ["pawno/include"],
+            "plugins": ["plugins/mysql.dll"],
+            "files": {
+                "log-core.dll": "log-core.dll",
+                "libmariadb.dll": "libmariadb.dll"
+            }
+        }
+    ],
+    "contributors": [
+        "AndreT",
+        "DamianC",
+        "IstuntmanI",
+        "JernejL",
+        "Konstantinos",
+        "krisk",
+        "kurta999",
+        "Kye",
+        "maddinat0r",
+        "Mow",
+        "nemesis",
+        "Sergei",
+        "xxmitsu"
+    ]
+}
