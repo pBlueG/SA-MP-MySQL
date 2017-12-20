@@ -3,7 +3,7 @@
     "repo": "SA-MP-MySQL",
     "resources": [
         {
-            "name": "^mysql-.+-([Dd]ebian[0-9]|[Ll]inux)-static.*$",
+            "name": "^mysql-.+-([Dd]ebian[0-9]?|[Ll]inux)-static\\.tar\\.gz$",
             "platform": "linux",
             "archive": true,
             "includes": ["pawno/include"],
@@ -11,9 +11,9 @@
             "files": {
                 "log-core.so": "log-core.so"
             }
-        }
+        },
         {
-            "name": "mysql-R41-4-win32.zip",
+            "name": "^mysql-.+-win(32)?.zip$",
             "platform": "windows",
             "archive": true,
             "includes": ["pawno/include"],
