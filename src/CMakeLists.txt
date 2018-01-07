@@ -108,6 +108,8 @@ else()
 endif()
 
 install(TARGETS mysql DESTINATION "plugins/")
+get_target_property(LOGCORE_LOCATION log-core LOCATION)
+install(FILES "${LOGCORE_LOCATION}" DESTINATION "./")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/a_mysql.inc" DESTINATION "pawno/include/")
 install(FILES "${PROJECT_SOURCE_DIR}/LICENSE" DESTINATION "./")
 if(WIN32 AND MYSQLCAPI_LIBRARY_SHARED)

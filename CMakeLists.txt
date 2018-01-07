@@ -18,10 +18,8 @@ endif()
 
 find_package(MySQLCAPI REQUIRED)
 
-
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.57 QUIET)
-
 if(NOT Boost_FOUND)
 	set(BOOST_ROOT "${BOOST_ROOT}" CACHE PATH "Set the Boost root folder.")
 	mark_as_advanced(CLEAR BOOST_ROOT)
@@ -31,12 +29,10 @@ mark_as_advanced(BOOST_ROOT Boost_DIR)
 
 include_directories("${Boost_INCLUDE_DIR}" "${MYSQLCAPI_INCLUDE_DIR}")
 
+add_subdirectory(libs/fmt)
+mark_as_advanced(FMT_DOC FMT_INSTALL FMT_PEDANTIC FMT_TEST FMT_USE_CPP11)
 
-option(LOGCORE_INSTALL_DEV OFF)
-mark_as_advanced(LOGCORE_INSTALL_DEV)
-add_subdirectory(libs/samp-log-core)
+find_package(log-core REQUIRED CONFIG)
 
 
 add_subdirectory(src)
-
-
