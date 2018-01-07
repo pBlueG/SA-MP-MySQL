@@ -27,8 +27,6 @@ if(NOT Boost_FOUND)
 endif()
 mark_as_advanced(BOOST_ROOT Boost_DIR)
 
-include_directories("${Boost_INCLUDE_DIR}" "${MYSQLCAPI_INCLUDE_DIR}")
-
 add_subdirectory(libs/fmt)
 mark_as_advanced(FMT_DOC FMT_INSTALL FMT_PEDANTIC FMT_TEST FMT_USE_CPP11)
 

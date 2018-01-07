@@ -61,6 +61,12 @@ add_samp_plugin(mysql
 	plugin.def
 )
 
+target_include_directories(mysql PRIVATE 
+	${Boost_INCLUDE_DIR}
+	${MYSQLCAPI_INCLUDE_DIR}
+	${LOGCORE_INCLUDE_DIR}
+)
+
 target_compile_features(mysql PUBLIC 
 	cxx_auto_type 
 	cxx_decltype 
