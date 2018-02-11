@@ -37,7 +37,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 	}
 
 	int cb_idx = -1;
-	if (amx_FindPublic(amx, name, &cb_idx) != AMX_ERR_NONE)
+	if (amx_FindPublic(amx, name, &cb_idx) != AMX_ERR_NONE || cb_idx < 0)
 	{
 		error.set(Error::NOT_FOUND, "callback \"{}\" does not exist", name);
 		return nullptr;
@@ -183,7 +183,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 	}
 
 	int cb_idx = -1;
-	if (amx_FindPublic(amx, name, &cb_idx) != AMX_ERR_NONE)
+	if (amx_FindPublic(amx, name, &cb_idx) != AMX_ERR_NONE || cb_idx < 0)
 	{
 		error.set(Error::NOT_FOUND, "callback \"{}\" does not exist", name);
 		return nullptr;
