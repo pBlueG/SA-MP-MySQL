@@ -6,21 +6,21 @@
             "name": "^mysql-.+-([Dd]ebian[0-9]?|[Ll]inux)-static\\.tar\\.gz$",
             "platform": "linux",
             "archive": true,
-            "includes": ["pawno/include"],
-            "plugins": ["plugins/mysql.so"],
+            "includes": ["mysql-.+\\/pawno\\/include"],
+            "plugins": ["mysql-.+\\/plugins\\/mysql.so"],
             "files": {
-                "log-core.so": "log-core.so"
+                "mysql-.+\\/log-core.so": "log-core.so"
             }
         },
         {
             "name": "^mysql-.+-win(32)?.zip$",
             "platform": "windows",
             "archive": true,
-            "includes": ["pawno/include"],
-            "plugins": ["plugins/mysql.dll"],
+            "includes": ["mysql-.+\\/pawno\\/include"],
+            "plugins": ["mysql-.+\\/plugins\\/mysql.dll"],
             "files": {
-                "log-core.dll": "log-core.dll",
-                "libmariadb.dll": "libmariadb.dll"
+                "mysql-.+\\/log-core.dll": "log-core.dll",
+                "mysql-.+\\/libmariadb.dll": "libmariadb.dll"
             }
         }
     ],
