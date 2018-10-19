@@ -223,25 +223,13 @@ stock cache_num_results()
 native cache_get_value_index(row_idx, column_idx, destination[], max_len = sizeof(destination));
 native cache_get_value_index_int(row_idx, column_idx, &destination);
 native cache_get_value_index_float(row_idx, column_idx, &Float:destination);
-/*
-native cache_get_value_index_bool(row_idx, column_idx, &bool:destination);
-*/
-stock cache_get_value_index_bool(row_idx, column_idx, &bool:destination)
-{
-    return cache_get_value_index_int(row_idx, column_idx, _:destination);
-}
+native cache_get_value_index_bool(row_idx, column_idx, &bool:destination) = cache_get_value_index_int;
 native cache_is_value_index_null(row_idx, column_idx, &bool:destination);
 
 native cache_get_value_name(row_idx, const column_name[], destination[], max_len = sizeof(destination));
 native cache_get_value_name_int(row_idx, const column_name[], &destination);
 native cache_get_value_name_float(row_idx, const column_name[], &Float:destination);
-/*
-native cache_get_value_name_bool(row_idx, const column_name[], &bool:destination);
-*/
-stock cache_get_value_name_bool(row_idx, const column_name[], &bool:destination)
-{
-    return cache_get_value_name_int(row_idx, column_name, _:destination);
-}
+native cache_get_value_name_bool(row_idx, const column_name[], &bool:destination) = cache_get_value_name_int;
 native cache_is_value_name_null(row_idx, const column_name[], &bool:destination);
 
 native Cache:cache_save();
