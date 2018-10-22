@@ -70,7 +70,7 @@ CConnection::CConnection(const char *host, const char *user, const char *passw,
 	m_IsConnected = true;
 
 	//set additional connection options
-	my_bool reconnect = options->GetOption<bool>(COptions::Type::AUTO_RECONNECT);
+	bool reconnect = options->GetOption<bool>(COptions::Type::AUTO_RECONNECT);
 	mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
 
 	CLog::Get()->Log(LogLevel::DEBUG, 
