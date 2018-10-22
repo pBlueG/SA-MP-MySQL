@@ -10,7 +10,6 @@
 #include "version.hpp"
 
 #include "mysql.hpp"
-#include <samplog/DebugInfo.h>
 
 
 
@@ -27,8 +26,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 {
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 	logprintf = (logprintf_t) ppData[PLUGIN_DATA_LOGPRINTF];
-
-	samplog::Init();
 
 	if (mysql_library_init(0, NULL, NULL))
 	{
@@ -51,10 +48,9 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 	CDispatcher::CSingleton::Destroy();
 	COptionManager::CSingleton::Destroy();
 	CLog::CSingleton::Destroy();
+	samplog::Api::Destroy();
 
 	mysql_library_end();
-
-	samplog::Exit();
 
 	logprintf("plugin.mysql: Plugin unloaded.");
 }
@@ -90,7 +86,6 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 	AMX_DEFINE_NATIVE(orm_setkey)
 
 
-	AMX_DEFINE_NATIVE(mysql_log)
 	AMX_DEFINE_NATIVE(mysql_connect)
 	AMX_DEFINE_NATIVE(mysql_connect_file)
 	AMX_DEFINE_NATIVE(mysql_close)
@@ -151,14 +146,14 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 {
-	samplog::RegisterAmx(amx);
+	samplog::Api::Get()->RegisterAmx(amx);
 	CCallbackManager::Get()->AddAmx(amx);
 	return amx_Register(amx, native_list, -1);
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)
 {
-	samplog::EraseAmx(amx);
+	samplog::Api::Get()->EraseAmx(amx);
 	CCallbackManager::Get()->RemoveAmx(amx);
 	return AMX_ERR_NONE;
 }

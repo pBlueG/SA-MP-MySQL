@@ -1,6 +1,6 @@
 #pragma once
 
-#include <samplog/PluginLogger.h>
+#include <samplog/samplog.hpp>
 #include "CSingleton.hpp"
 #include "CError.hpp"
 
@@ -61,7 +61,6 @@ private:
 	~CLog() = default;
 
 public:
-	void SetLogLevel(LogLevel level);
 	inline bool IsLogLevel(LogLevel level)
 	{
 		return m_Logger.IsLogLevel(level);
@@ -91,7 +90,7 @@ public:
 		if (sizeof...(args) != 0)
 			str = fmt::format(format, std::forward<Args>(args)...);
 
-		m_Logger.CLogger::Log(level, str.c_str(), callinfo);
+		m_Logger.Log(level, str.c_str(), callinfo);
 	}
 
 	// should only be called in native functions
