@@ -47,6 +47,10 @@ bool COrm::Variable::GetValueAsString(string &dest, Handle_t handle_escape)
 				return false;
 		}	break;
 	}
+
+	if(dest == "null" || dest == "NULL" || dest == "0") dest = "NULL";
+	else dest = fmt::format("'{}'", dest);
+
 	return true;
 }
 
@@ -240,7 +244,7 @@ CError<COrm> COrm::GenerateSelectQuery(string &dest)
 	}
 
 	writer << " FROM `" << m_Table << "` WHERE `" << m_KeyVariable.GetName()
-		<< "`='" << key_var_value << "' LIMIT 1";
+		<< "`=" << key_var_value << " LIMIT 1";
 
 	dest.assign(writer.str());
 	return{ };
@@ -279,7 +283,7 @@ CError<COrm> COrm::GenerateUpdateQuery(string &dest)
 				"can't represent variable value as string" };
 		}
 
-		writer << var.GetName() << "`='" << var_value;
+		writer << var.GetName() << "`=" << var_value;
 	}
 
 	string key_var_value;
@@ -289,9 +293,8 @@ CError<COrm> COrm::GenerateUpdateQuery(string &dest)
 			"can't represent variable value as string" };
 	}
 
-	writer << "' WHERE `" 
-		<< m_KeyVariable.GetName() << "`='" << key_var_value
-		<< "' LIMIT 1";
+	writer << " WHERE `" 
+		<< m_KeyVariable.GetName() << "`=" << key_var_value << " LIMIT 1";
 
 	dest.assign(writer.str());
 	return{ };
@@ -318,11 +321,11 @@ CError<COrm> COrm::GenerateInsertQuery(string &dest)
 	fmt::MemoryWriter writer;
 	writer << "INSERT INTO `" << m_Table << "` (";
 	WriteVariableNamesAsList(writer);
-	writer << ") VALUES ('";
+	writer << ") VALUES (";
 	for (size_t i = 0; i != m_Variables.size(); ++i)
 	{
 		if (i != 0)
-			writer << "','";
+			writer << ",";
 		
 		string var_value;
 		if (!m_Variables.at(i).GetValueAsString(var_value, handle))
@@ -332,7 +335,7 @@ CError<COrm> COrm::GenerateInsertQuery(string &dest)
 		}
 		writer << var_value;
 	}
-	writer << "')";
+	writer << ")";
 
 	dest.assign(writer.str());
 	return{ };
@@ -360,7 +363,7 @@ CError<COrm> COrm::GenerateDeleteQuery(string &dest)
 			"can't represent variable value as string" };
 	}
 
-	dest = fmt::format("DELETE FROM `{}` WHERE `{}`='{}' LIMIT 1",
+	dest = fmt::format("DELETE FROM `{}` WHERE `{}`={} LIMIT 1",
 					   m_Table, m_KeyVariable.GetName(), key_var_value);
 	return{ };
 }
