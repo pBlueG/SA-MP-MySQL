@@ -56,9 +56,9 @@ public: //functions
 
 	bool GetFieldName(unsigned int idx, string &dest) const;
 	bool GetFieldType(unsigned int idx, enum_field_types &dest) const;
-	bool GetRowData(unsigned int row, unsigned int fieldidx, 
+	bool GetRowData(unsigned int row, unsigned int fieldidx,
 					const char **dest) const;
-	inline bool GetRowData(unsigned int row, unsigned int fieldidx, 
+	inline bool GetRowData(unsigned int row, unsigned int fieldidx,
 						   string &dest) const
 	{
 		const char *cdest = nullptr;
@@ -67,9 +67,9 @@ public: //functions
 			dest = cdest;
 		return result;
 	}
-	bool GetRowDataByName(unsigned int row, const string &field, 
+	bool GetRowDataByName(unsigned int row, const string &field,
 						  const char **dest) const;
-	bool GetRowDataByName(unsigned int row, const string &field, 
+	bool GetRowDataByName(unsigned int row, const string &field,
 						  string &dest) const
 	{
 		const char *cdest = nullptr;

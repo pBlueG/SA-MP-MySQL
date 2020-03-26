@@ -57,9 +57,9 @@ public OnGameModeInit()
 	    return print("Failed to connect!");
 	else
 	    printf("Connection established, starting benchmark...");
-	    
+
 	SetTimer("Deferred_MainStart", 1000, false); //to avoid that "Number of vehicles" message
-	
+
 	return 1;
 }
 
@@ -110,7 +110,7 @@ public OnTableFetch(iteration)
 	#if defined BENCH_RESULT_BY_INDEX || defined BENCH_RESULT_BY_NAME
 	if(iteration == 1)
     	TimeData[CurrentRun][START] = GetTickCount();
-	
+
 	new dest[32];
 	new rows, fields;
 	cache_get_data(rows, fields);
@@ -130,11 +130,11 @@ public OnTableFetch(iteration)
 	if (iteration == ITERATIONS)
 	{
 	    TimeData[CurrentRun][END] = GetTickCount();
-	    
+
 	    new time = TimeData[CurrentRun][END] - TimeData[CurrentRun][START];
 	    printf("\t[%d]: %d (%.4f/iteration)", CurrentRun+1, time, float(time)/float(ITERATIONS));
 	    AverageTime += time;
-	    
+
 	    if(++CurrentRun != NUM_RUNS)
 	    {
 	        StartRun();

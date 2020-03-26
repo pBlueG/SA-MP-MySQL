@@ -86,7 +86,7 @@ private: //variables
 
 public: //functions
 	Handle_t Create(const char *host, const char *user, const char *pass,
-					const char *db, const COptions *options, 
+					const char *db, const COptions *options,
 					CError<CHandle> &error);
 	Handle_t CreateFromFile(string file_path, CError<CHandle> &error);
 	bool Destroy(Handle_t &handle);

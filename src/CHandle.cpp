@@ -58,7 +58,7 @@ bool CHandle::Execute(ExecutionType type, Query_t query)
 		}
 	}
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandle::Execute - return value: {}", return_val);
 	return return_val;
 }
@@ -74,7 +74,7 @@ bool CHandle::GetErrorId(unsigned int &errorid)
 	string unused_errormsg;
 	bool return_val = m_MainConnection->GetError(errorid, unused_errormsg);
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandle::GetErrorId - " \
 					 "return value: {}, error id: '{}', error msg: '{}'",
 					 return_val, errorid, unused_errormsg);
@@ -111,7 +111,7 @@ bool CHandle::EscapeString(const char *src, string &dest)
 
 	bool return_val = m_MainConnection->EscapeString(src, dest);
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandle::EscapeString - return value: {}, escaped string: '{}'",
 					 return_val, dest);
 
@@ -120,7 +120,7 @@ bool CHandle::EscapeString(const char *src, string &dest)
 
 bool CHandle::SetCharacterSet(string charset)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandle::SetCharacterSet(this={}, charset='{}')",
 					 static_cast<const void *>(this), charset);
 
@@ -170,10 +170,10 @@ unsigned int CHandle::GetUnprocessedQueryCount()
 
 
 Handle_t CHandleManager::Create(const char *host, const char *user,
-								const char *pass, const char *db, 
+								const char *pass, const char *db,
 								const COptions *options, CError<CHandle> &error)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandleManager::Create(this={}, host='{}', user='{}', pass='****', db='{}', options={})",
 					 static_cast<const void *>(this),
 					 host ? host : "(nullptr)",
@@ -247,19 +247,19 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 	Handle_t handle = new CHandle(id, full_hash);
 
 	handle->m_MainConnection = new CConnection(host, user, pass, db, options);
-	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass, 
+	handle->m_ThreadedConnection = new CThreadedConnection(host, user, pass,
 														   db, options);
 
 	auto pool_size = options->GetOption<unsigned int>(COptions::Type::POOL_SIZE);
 	if (pool_size != 0)
-		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user, 
+		handle->m_ConnectionPool = new CConnectionPool(pool_size, host, user,
 													   pass, db, options);
 
 	m_Handles.emplace(id, handle);
 
-	CLog::Get()->Log(LogLevel::INFO, 
+	CLog::Get()->Log(LogLevel::INFO,
 					 "Connection handle with id '{}' successfully created.", id);
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandleManager::Create - new handle = {}",
 					 static_cast<const void *>(handle));
 
@@ -268,7 +268,7 @@ Handle_t CHandleManager::Create(const char *host, const char *user,
 
 Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandleManager::CreateFromFile(this={}, file_path='{}')",
 					 static_cast<const void *>(this), file_path);
 
@@ -298,12 +298,12 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 		{ "password", [&](string &val_str)
 			{
 				password = val_str;
-			} 
+			}
 		},
 		{ "database", [&](string &val_str)
 			{
 				database = val_str;
-			} 
+			}
 		},
 		{ "auto_reconnect", [&](string &val_str)
 			{
@@ -388,7 +388,7 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 		std::string field, data;
 		if (qi::parse(line.begin(), line.end(),
 					  qi::skip(qi::space)[
-						  qi::as_string[+qi::char_("a-z_")] >> qi::lit('=') 
+						  qi::as_string[+qi::char_("a-z_")] >> qi::lit('=')
 							  >> qi::as_string[+qi::graph]
 					  ],
 					  field, data))
@@ -401,7 +401,7 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 			else
 			{
 				error.set(CHandle::Error::UNKNOWN_FIELD,
-						  "unknown field in connection file (field: \"{}\")", 
+						  "unknown field in connection file (field: \"{}\")",
 						  field);
 				return nullptr;
 			}
@@ -414,18 +414,18 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 		}
 	}
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CHandleManager::CreateFromFile - new options = {} (id '{}')",
 					 static_cast<const void *>(options), options_id);
 
-	return Create(hostname.c_str(), username.c_str(), password.c_str(), 
+	return Create(hostname.c_str(), username.c_str(), password.c_str(),
 				  database.c_str(), options, error);
 }
 
 bool CHandleManager::Destroy(Handle_t &handle)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CHandleManager::Destroy(this={}, handle={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(handle));
 
 	if (handle == nullptr)

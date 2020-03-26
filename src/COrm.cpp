@@ -20,7 +20,7 @@ const string COrm::ModuleName{ "orm" };
 
 bool COrm::Variable::GetValueAsString(string &dest, Handle_t handle_escape)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "COrm::Variable::GetValueAsString(this={}, handle={})",
 					 static_cast<const void *>(this),
 					 static_cast<const void *>(handle_escape));
@@ -52,7 +52,7 @@ bool COrm::Variable::GetValueAsString(string &dest, Handle_t handle_escape)
 
 void COrm::Variable::SetValue(const char *value)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "COrm::Variable::SetValue(this={}, value='{}')",
 					 static_cast<const void *>(this), value ? value : "(nullptr)");
 
@@ -77,11 +77,11 @@ void COrm::Variable::SetValue(const char *value)
 CError<COrm> COrm::AddVariable(Variable::Type type,
 							   const char *name, cell *var_addr, size_t var_maxlen)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 		"COrm::AddVariable(this={}, type={}, name='{}', var_addr={}, var_maxlen={})",
-		static_cast<const void *>(this), 
+		static_cast<const void *>(this),
 		static_cast<std::underlying_type<decltype(type)>::type>(type),
-		name ? name : "(nullptr)", 
+		name ? name : "(nullptr)",
 		static_cast<const void *>(var_addr), var_maxlen);
 
 	if (type == Variable::Type::INVALID)
@@ -94,7 +94,7 @@ CError<COrm> COrm::AddVariable(Variable::Type type,
 		return{ Error::INVALID_PAWN_ADDRESS, "invalid variable PAWN address" };
 
 	if (type == Variable::Type::STRING && var_maxlen <= 0)
-		return{ Error::INVALID_MAX_LEN, 
+		return{ Error::INVALID_MAX_LEN,
 				"invalid maximal length for string type variable" };
 
 	bool duplicate = false;
@@ -183,7 +183,7 @@ CError<COrm> COrm::SetKeyVariable(const char *name)
 CError<COrm> COrm::GenerateQuery(COrm::QueryType type, string &dest)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "COrm::GenerateQuery(this={}, type={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<std::underlying_type<decltype(type)>::type>(type));
 
 	switch (type)
@@ -228,14 +228,14 @@ CError<COrm> COrm::GenerateSelectQuery(string &dest)
 	auto handle = CHandleManager::Get()->GetHandle(GetHandleId());
 	if (handle == nullptr)
 	{
-		return{ Error::INVALID_CONNECTION_HANDLE, 
+		return{ Error::INVALID_CONNECTION_HANDLE,
 			"invalid connection handle" };
 	}
 
 	string key_var_value;
 	if (!m_KeyVariable.GetValueAsString(key_var_value, handle))
 	{
-		return{ Error::INVALID_STRING_REPRESENTATION, 
+		return{ Error::INVALID_STRING_REPRESENTATION,
 			"can't represent variable value as string" };
 	}
 
@@ -289,7 +289,7 @@ CError<COrm> COrm::GenerateUpdateQuery(string &dest)
 			"can't represent variable value as string" };
 	}
 
-	writer << "' WHERE `" 
+	writer << "' WHERE `"
 		<< m_KeyVariable.GetName() << "`='" << key_var_value
 		<< "' LIMIT 1";
 
@@ -323,7 +323,7 @@ CError<COrm> COrm::GenerateInsertQuery(string &dest)
 	{
 		if (i != 0)
 			writer << "','";
-		
+
 		string var_value;
 		if (!m_Variables.at(i).GetValueAsString(var_value, handle))
 		{
@@ -367,9 +367,9 @@ CError<COrm> COrm::GenerateDeleteQuery(string &dest)
 
 void COrm::ApplyResult(const Result_t result, unsigned int rowidx /*= 0*/)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "COrm::ApplyResult(this={}, result={}, rowidx={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(result), rowidx);
 
 	if (result == nullptr || rowidx >= result->GetRowCount())
@@ -407,7 +407,7 @@ void COrm::ApplyResult(const Result_t result, unsigned int rowidx /*= 0*/)
 bool COrm::ApplyResultByName(const Result_t result, unsigned int rowidx /*= 0*/)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "COrm::ApplyResultByName(this={}, result={}, rowidx={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(result), rowidx);
 
 	if (result == nullptr || rowidx >= result->GetRowCount())
@@ -465,7 +465,7 @@ bool COrm::UpdateKeyValue(const Result_t result)
 
 	if (!m_KeyVariable)
 	{
-		CLog::Get()->Log(LogLevel::ERROR, 
+		CLog::Get()->Log(LogLevel::ERROR,
 						 "COrm::UpdateKeyValue - no key variable registered");
 		return false;
 	}
@@ -493,13 +493,13 @@ void COrm::WriteVariableNamesAsList(fmt::MemoryWriter &writer)
 OrmId_t COrmManager::Create(HandleId_t handleid, const char *table,
 							CError<COrm> &error)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "COrmManager::Create(handleid={}, table='{}')",
 					 handleid, table ? table : "(nullptr)");
 
 	if (CHandleManager::Get()->IsValidHandle(handleid) == false)
 	{
-		error.set(COrm::Error::INVALID_CONNECTION_HANDLE, 
+		error.set(COrm::Error::INVALID_CONNECTION_HANDLE,
 				  "invalid connection handle");
 		return 0;
 	}

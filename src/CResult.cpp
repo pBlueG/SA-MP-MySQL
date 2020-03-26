@@ -32,7 +32,7 @@ bool CResult::GetFieldType(unsigned int idx, enum_field_types &dest) const
 	return false;
 }
 
-bool CResult::GetRowData(unsigned int row, 
+bool CResult::GetRowData(unsigned int row,
 						 unsigned int fieldidx, const char **dest) const
 {
 	if (row < m_NumRows && fieldidx < m_NumFields)
@@ -43,7 +43,7 @@ bool CResult::GetRowData(unsigned int row,
 	return false;
 }
 
-bool CResult::GetRowDataByName(unsigned int row, 
+bool CResult::GetRowDataByName(unsigned int row,
 							   const string &field, const char **dest) const
 {
 	if (row >= m_NumRows)
@@ -72,10 +72,10 @@ CResultSet::~CResultSet()
 }
 
 ResultSet_t CResultSet::Create(MYSQL *connection,
-							   default_clock::duration &exec_time, 
+							   default_clock::duration &exec_time,
 							   string query_str)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CResultSet::Create(connection={}, query_str='{}')",
 					 static_cast<const void *>(connection), query_str);
 
@@ -123,9 +123,9 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 			MYSQL_FIELD *mysql_field;
 			MYSQL_ROW mysql_row;
 
-			const my_ulonglong num_rows 
+			const my_ulonglong num_rows
 				= result->m_NumRows = mysql_num_rows(raw_result);
-			const unsigned int num_fields 
+			const unsigned int num_fields
 				= result->m_NumFields = mysql_num_fields(raw_result);
 
 			result->m_Fields.reserve(num_fields + 1);
@@ -155,7 +155,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 				break;
 			}
 
-			CLog::Get()->Log(LogLevel::DEBUG, 
+			CLog::Get()->Log(LogLevel::DEBUG,
 							 "allocated {} bytes for PAWN result", mem_size);
 
 			char **mem_offset = reinterpret_cast<char **>(&mem_data[num_rows]);
@@ -178,7 +178,7 @@ ResultSet_t CResultSet::Create(MYSQL *connection,
 					mem_data[r][f] = reinterpret_cast<char *>(mem_data[r]) + dist;
 				}
 				//useless field we had to copy
-				//set it to nullptr to avoid invalid memory access errors 
+				//set it to nullptr to avoid invalid memory access errors
 				//(very unlikely to happen in first place though)
 				mem_data[r][num_fields] = nullptr;
 			}

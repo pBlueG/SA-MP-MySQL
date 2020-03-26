@@ -249,7 +249,7 @@ public OnPlayerDataLoaded(playerid, race_check)
 		{
 			format(string, sizeof string, "This account (%s) is registered. Please login by entering your password in the field below:", Player[playerid][Name]);
 			ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, "Login", string, "Login", "Abort");
-			
+
 			// from now on, the player has 30 seconds to login
 			Player[playerid][LoginTimer] = SetTimerEx("OnLoginTimeout", SECONDS_TO_LOGIN * 1000, false, "d", playerid);
 		}
@@ -323,10 +323,10 @@ UpdatePlayerData(playerid, reason)
 		GetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
 		GetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
 	}
-	
+
 	// it is important to store everything in the variables registered in ORM instance
 	Player[playerid][Interior] = GetPlayerInterior(playerid);
-	
+
 	// orm_save sends an UPDATE query
 	orm_save(Player[playerid][ORM_ID]);
 	orm_destroy(Player[playerid][ORM_ID]);

@@ -27,7 +27,7 @@ configure_file(
 	@ONLY
 )
 
-add_samp_plugin(mysql 
+add_samp_plugin(mysql
 	${SAMPSDK_DIR}/amxplugin.cpp
 	${SAMPSDK_DIR}/amxplugin2.cpp
 	${SAMPSDK_DIR}/amx/getch.c
@@ -61,16 +61,16 @@ add_samp_plugin(mysql
 	plugin.def
 )
 
-target_include_directories(mysql PRIVATE 
+target_include_directories(mysql PRIVATE
 	${Boost_INCLUDE_DIR}
 	${MYSQLCAPI_INCLUDE_DIR}
 	${LOGCORE_INCLUDE_DIR}
 )
 
-target_compile_features(mysql PUBLIC 
-	cxx_auto_type 
-	cxx_decltype 
-	cxx_defaulted_functions 
+target_compile_features(mysql PUBLIC
+	cxx_auto_type
+	cxx_decltype
+	cxx_defaulted_functions
 	cxx_default_function_template_args
 	cxx_delegating_constructors
 	cxx_deleted_functions
@@ -102,7 +102,7 @@ if(UNIX)
 	if(NOT APPLE)
 		target_link_libraries(mysql rt)
 	endif()
-	
+
 	set_target_properties(mysql PROPERTIES
 		INSTALL_RPATH "$ORIGIN/..:$ORIGIN/")
 endif()
