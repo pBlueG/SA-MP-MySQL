@@ -81,12 +81,12 @@ Test:OrmCreate()
 {
 	new MySQL:sql = SetupConnection();
 	new ORM:orm;
-	
+
 	ASSERT(orm_create("", MYSQL_INVALID_HANDLE) == MYSQL_INVALID_ORM);
 	ASSERT(orm_create("", sql) == MYSQL_INVALID_ORM);
 	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
 	ASSERT_TRUE(orm_destroy(orm));
-	
+
 	TeardownConnection(sql);
 }
 
@@ -113,7 +113,7 @@ Test:OrmApplyCache()
 	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
 	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
 	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
-	
+
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test WHERE `number` = 5")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT(cache_num_rows() == 1);
@@ -128,7 +128,7 @@ Test:OrmApplyCache()
 
 	ASSERT_TRUE(orm_destroy(orm));
 	ASSERT_FALSE(orm_destroy(orm));
-	
+
 	TeardownConnection(sql);
 }
 
@@ -149,11 +149,11 @@ Test:OrmSelect()
 
 	ASSERT_TRUE(orm_destroy(orm));
 	ASSERT_FALSE(orm_destroy(orm));
-	
+
 	sql = SetupConnection();
-	
+
 	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
-	
+
 	ASSERT_FALSE(orm_select(orm));
 	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
 	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
@@ -161,10 +161,10 @@ Test:OrmSelect()
 	ASSERT_FALSE(orm_select(orm));
 	ASSERT_TRUE(orm_setkey(orm, "number"));
 	ASSERT_TRUE(orm_select(orm));
-	
+
 	ASSERT_TRUE(orm_destroy(orm));
 	ASSERT_FALSE(orm_destroy(orm));
-	
+
 	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
 
 	ASSERT_FALSE(orm_select(orm));
@@ -180,7 +180,7 @@ Test:OrmSelect()
 
 	ASSERT_TRUE(orm_destroy(orm));
 	ASSERT_FALSE(orm_destroy(orm));
-	
+
 	TeardownConnection(sql);
 }
 
@@ -393,7 +393,7 @@ Test:OrmSave()
 
 	ASSERT_TRUE(orm_destroy(orm));
 	ASSERT_FALSE(orm_destroy(orm));
-	
+
 	TeardownConnection(sql);
 }
 
@@ -405,15 +405,15 @@ Test:OrmAddVar()
 	ASSERT_FALSE(orm_addvar_int(MYSQL_INVALID_ORM, g_Int, "number"));
 	ASSERT_FALSE(orm_addvar_float(MYSQL_INVALID_ORM, g_Float, "float"));
 	ASSERT_FALSE(orm_addvar_string(MYSQL_INVALID_ORM, g_String, sizeof g_String, "text"));
-	
+
 	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
-	
+
 	ASSERT_FALSE(orm_addvar_int(orm, g_Int, ""));
 	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
-	
+
 	ASSERT_FALSE(orm_addvar_float(orm, g_Float, ""));
 	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
-	
+
 	ASSERT_FALSE(orm_addvar_string(orm, g_String, sizeof g_String, ""));
 	ASSERT_FALSE(orm_addvar_string(orm, g_String, 0, ""));
 	ASSERT_FALSE(orm_addvar_string(orm, g_String, -500, ""));
@@ -421,7 +421,7 @@ Test:OrmAddVar()
 
 	ASSERT_TRUE(orm_destroy(orm));
 	ASSERT_FALSE(orm_destroy(orm));
-	
+
 	TeardownConnection(sql);
 }
 
@@ -429,9 +429,9 @@ Test:OrmDelVar()
 {
 	new MySQL:sql = SetupConnection();
 	new ORM:orm;
-	
+
 	ASSERT_FALSE(orm_delvar(MYSQL_INVALID_ORM, "asdf"));
-	
+
 	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
 
 	ASSERT_FALSE(orm_delvar(orm, ""));
@@ -486,7 +486,7 @@ Test:OrmSetKey()
 	ASSERT_FALSE(orm_setkey(MYSQL_INVALID_ORM, "number"));
 
 	ASSERT((orm = orm_create("test", sql)) != MYSQL_INVALID_ORM);
-	
+
 	ASSERT_TRUE(orm_addvar_int(orm, g_Int, "number"));
 	ASSERT_TRUE(orm_addvar_string(orm, g_String, sizeof g_String, "text"));
 	ASSERT_TRUE(orm_addvar_float(orm, g_Float, "float"));
@@ -545,7 +545,7 @@ Test:CacheCount()
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
 	ASSERT_FALSE(cache_is_any_active());
-	
+
 	ASSERT_FALSE(cache_get_row_count(rows));
 	ASSERT_FALSE(cache_get_field_count(fields));
 	ASSERT_FALSE(cache_get_result_count(results));
@@ -561,7 +561,7 @@ Test:CacheGetFieldName()
 	new fields;
 
 	ASSERT_FALSE(cache_get_field_name(0, dest));
-	
+
 	ASSERT((cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
@@ -577,7 +577,7 @@ Test:CacheGetFieldName()
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
 	ASSERT_FALSE(cache_is_any_active());
-	
+
 	ASSERT_FALSE(cache_get_field_name(0, dest));
 
 	TeardownConnection(sql);
@@ -919,7 +919,7 @@ Test:CacheSave()
 	ASSERT_FALSE(cache_is_valid(MYSQL_INVALID_CACHE));
 	ASSERT_FALSE(cache_delete(MYSQL_INVALID_CACHE));
 	ASSERT_TRUE(cache_unset_active());
-	
+
 	ASSERT((cache[0] = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache[0]));
@@ -963,7 +963,7 @@ Test:CacheSave()
 	ASSERT_FALSE(cache_set_active(Cache:-999999999));
 	ASSERT_FALSE(cache_is_valid(Cache:-999999999));
 	ASSERT_FALSE(cache_delete(Cache:-999999999));
-	
+
 	TeardownConnection(sql);
 }
 
@@ -981,7 +981,7 @@ Test:CacheAffectedRows()
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
 	ASSERT_FALSE(cache_is_any_active());
-	
+
 	ASSERT((cache = mysql_query(sql, "DELETE FROM test WHERE `number` % 2 = 1")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
@@ -991,7 +991,7 @@ Test:CacheAffectedRows()
 	ASSERT_FALSE(cache_is_any_active());
 
 	ASSERT(cache_affected_rows() == -1);
-	
+
 	TeardownConnection(sql);
 }
 
@@ -999,7 +999,7 @@ Test:CacheWarningCount()
 {
 	new MySQL:sql = SetupConnection();
 	new Cache:cache;
-	
+
 	ASSERT(cache_warning_count() == -1);
 
 	ASSERT((cache = mysql_query(sql, "DROP TABLE IF EXISTS `nope`")) != MYSQL_INVALID_CACHE);
@@ -1009,7 +1009,7 @@ Test:CacheWarningCount()
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
 	ASSERT_FALSE(cache_is_any_active());
-	
+
 	ASSERT((cache = mysql_query(sql, "SELECT 'banana'")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_any_active());
 	ASSERT_TRUE(cache_is_valid(cache));
@@ -1096,17 +1096,17 @@ Test:CacheGetQueryString()
 /*
 ########################################################
 ########################################################
-                                                         
-                                                     88  
-                                                     88  
-                                                     88  
-88,dPYba,,adPYba,  8b       d8 ,adPPYba,  ,adPPYb,d8 88  
-88P'   "88"    "8a `8b     d8' I8[    "" a8"    `Y88 88  
-88      88      88  `8b   d8'   `"Y8ba,  8b       88 88  
-88      88      88   `8b,d8'   aa    ]8I "8a    ,d88 88  
-88      88      88     Y88'    `"YbbdP"'  `"YbbdP'88 88  
-                       d8'                        88     
-                      d8'                         88     
+
+                                                     88
+                                                     88
+                                                     88
+88,dPYba,,adPYba,  8b       d8 ,adPPYba,  ,adPPYb,d8 88
+88P'   "88"    "8a `8b     d8' I8[    "" a8"    `Y88 88
+88      88      88  `8b   d8'   `"Y8ba,  8b       88 88
+88      88      88   `8b,d8'   aa    ]8I "8a    ,d88 88
+88      88      88     Y88'    `"YbbdP"'  `"YbbdP'88 88
+                       d8'                        88
+                      d8'                         88
 
 ########################################################
 ########################################################
@@ -1132,20 +1132,20 @@ Test:UnthreadedQuery()
 	new dest_int;
 	new Float:dest_float;
 	new rows, fields, results;
-	
+
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 
 	ASSERT(mysql_query(MYSQL_INVALID_HANDLE, "SELECT 1") == MYSQL_INVALID_CACHE);
-	
+
 	ASSERT(mysql_query(sql, "SELECT 1", false) == MYSQL_INVALID_CACHE);
-	
+
 	ASSERT( (cache = mysql_query(sql, "SELECT 1")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT_TRUE(cache_get_value_index_int(0, 0, dest_int));
 	ASSERT(dest_int == 1);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
-	
+
 	ASSERT( (cache = mysql_query(sql, "SELECT * FROM test")) != MYSQL_INVALID_CACHE);
 	ASSERT_TRUE(cache_is_valid(cache));
 	ASSERT_TRUE(cache_get_row_count(rows));
@@ -1170,7 +1170,7 @@ Test:UnthreadedQuery()
 	ASSERT(strcmp(dest_str, "asdf") == 0);
 	ASSERT_TRUE(cache_delete(cache));
 	ASSERT_FALSE(cache_is_valid(cache));
-	
+
 	TeardownConnection(sql);
 }
 
@@ -1198,10 +1198,10 @@ Test:TQueryFail()
 
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == 0);
-	
+
 	ASSERT_FALSE(mysql_tquery(MYSQL_INVALID_HANDLE, "SELECT 1"));
 	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1"));
-	
+
 	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "NonExistingCallback"));
 	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "NonExistingCallback", "dfs", 1));
 	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfs", 1));
@@ -1211,7 +1211,7 @@ Test:TQueryFail()
  	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "dfy", 1, 3.452, "asdf"));
  	ASSERT_FALSE(mysql_tquery(sql, "SELECT 1", "ValidCallback", "daf", 1, {3,4,5}, 3.14));
  	ASSERT_TRUE (mysql_tquery(sql, "SELECT 1", "ValidCallback", "dad", 1, {3,4,5}, 3));
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 }
 
@@ -1253,7 +1253,7 @@ Test:PQueryFail()
  	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "dfy", 1, 3.452, "asdf"));
  	ASSERT_FALSE(mysql_pquery(sql, "SELECT 1", "ValidCallback", "daf", 1, {3,4,5}, 3.14));
  	ASSERT_TRUE (mysql_pquery(sql, "SELECT 1", "ValidCallback", "dad", 1, {3,4,5}, 3));
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 }
 
@@ -1262,17 +1262,17 @@ Test:PQueryFail()
 
 
 /*
-                                                                                         
-                                                                                         
-                                                                                  ,d     
-                                                                                  88     
-            ,adPPYba,  ,adPPYba,  8b,dPPYba,  8b,dPPYba,   ,adPPYba,  ,adPPYba, MM88MMM  
-           a8"     "" a8"     "8a 88P'   `"8a 88P'   `"8a a8P_____88 a8"     ""   88     
-           8b         8b       d8 88       88 88       88 8PP""""""" 8b           88     
-           "8a,   ,aa "8a,   ,a8" 88       88 88       88 "8b,   ,aa "8a,   ,aa   88,    
-            `"Ybbd8"'  `"YbbdP"'  88       88 88       88  `"Ybbd8"'  `"Ybbd8"'   "Y888  
-                                                                                         
-888888888888                                                                             
+
+
+                                                                                  ,d
+                                                                                  88
+            ,adPPYba,  ,adPPYba,  8b,dPPYba,  8b,dPPYba,   ,adPPYba,  ,adPPYba, MM88MMM
+           a8"     "" a8"     "8a 88P'   `"8a 88P'   `"8a a8P_____88 a8"     ""   88
+           8b         8b       d8 88       88 88       88 8PP""""""" 8b           88
+           "8a,   ,aa "8a,   ,a8" 88       88 88       88 "8b,   ,aa "8a,   ,aa   88,
+            `"Ybbd8"'  `"YbbdP"'  88       88 88       88  `"Ybbd8"'  `"Ybbd8"'   "Y888
+
+888888888888
 
 */
 
@@ -1283,7 +1283,7 @@ Test:ConnectionFailHost()
 	sql = mysql_connect(
 		"", MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_DATABASE);
 	ASSERT(sql == MYSQL_INVALID_HANDLE);
-	
+
 	sql = mysql_connect(
 		"wronghost", MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_DATABASE);
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
@@ -1299,7 +1299,7 @@ Test:ConnectionFailUser()
 	sql = mysql_connect(
 		MYSQL_HOSTNAME, "", MYSQL_PASSWORD, MYSQL_DATABASE);
 	ASSERT(sql == MYSQL_INVALID_HANDLE);
-	
+
 	sql = mysql_connect(
 		MYSQL_HOSTNAME, "wronguser", MYSQL_PASSWORD, MYSQL_DATABASE);
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
@@ -1346,7 +1346,7 @@ Test:ConnectionSuccess()
 {
 	new MySQL:sql = mysql_connect(
 	    MYSQL_HOSTNAME, MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_DATABASE);
-	    
+
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == 0);
 	ASSERT_TRUE(mysql_close(sql));
@@ -1358,35 +1358,35 @@ Test:ConnectionSuccess()
 
 
 /*
-                                                                                         
-                                                                                         
-                                                                                  ,d     
-                                                                                  88     
-            ,adPPYba,  ,adPPYba,  8b,dPPYba,  8b,dPPYba,   ,adPPYba,  ,adPPYba, MM88MMM  
-           a8"     "" a8"     "8a 88P'   `"8a 88P'   `"8a a8P_____88 a8"     ""   88     
-           8b         8b       d8 88       88 88       88 8PP""""""" 8b           88     
-           "8a,   ,aa "8a,   ,a8" 88       88 88       88 "8b,   ,aa "8a,   ,aa   88,    
-            `"Ybbd8"'  `"YbbdP"'  88       88 88       88  `"Ybbd8"'  `"Ybbd8"'   "Y888  
-                                                                                         
-888888888888                                                                             
-                                     
-              ad88 88 88             
-             d8"   "" 88             
-             88       88             
-           MM88MMM 88 88  ,adPPYba,  
-             88    88 88 a8P_____88  
-             88    88 88 8PP"""""""  
-             88    88 88 "8b,   ,aa  
-             88    88 88  `"Ybbd8"'  
-                                     
-888888888888                         
+
+
+                                                                                  ,d
+                                                                                  88
+            ,adPPYba,  ,adPPYba,  8b,dPPYba,  8b,dPPYba,   ,adPPYba,  ,adPPYba, MM88MMM
+           a8"     "" a8"     "8a 88P'   `"8a 88P'   `"8a a8P_____88 a8"     ""   88
+           8b         8b       d8 88       88 88       88 8PP""""""" 8b           88
+           "8a,   ,aa "8a,   ,a8" 88       88 88       88 "8b,   ,aa "8a,   ,aa   88,
+            `"Ybbd8"'  `"YbbdP"'  88       88 88       88  `"Ybbd8"'  `"Ybbd8"'   "Y888
+
+888888888888
+
+              ad88 88 88
+             d8"   "" 88
+             88       88
+           MM88MMM 88 88  ,adPPYba,
+             88    88 88 a8P_____88
+             88    88 88 8PP"""""""
+             88    88 88 "8b,   ,aa
+             88    88 88  `"Ybbd8"'
+
+888888888888
 
 */
 
 Test:ConnectionFileFail()
 {
 	new MySQL:sql;
-	
+
 	sql = mysql_connect_file("notexistent.ini");
 	ASSERT(sql == MYSQL_INVALID_HANDLE);
 
@@ -1394,7 +1394,7 @@ Test:ConnectionFileFail()
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == ER_ACCESS_DENIED_ERROR);
 	ASSERT_TRUE(mysql_close(sql));
-	
+
 	for(new i; i < 5; i++)
 	{
 	    new file[32];
@@ -1408,7 +1408,7 @@ Test:ConnectionFileFail()
 Test:ConnectionFileSuccess()
 {
 	new MySQL:sql = mysql_connect_file();
-	
+
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == 0);
 	ASSERT_TRUE(mysql_close(sql));
@@ -1420,17 +1420,17 @@ Test:ConnectionFileSuccess()
 
 
 /*
-                                                           
-                      88                                   
-                      88                                   
-                      88                                   
-            ,adPPYba, 88  ,adPPYba,  ,adPPYba,  ,adPPYba,  
-           a8"     "" 88 a8"     "8a I8[    "" a8P_____88  
-           8b         88 8b       d8  `"Y8ba,  8PP"""""""  
-           "8a,   ,aa 88 "8a,   ,a8" aa    ]8I "8b,   ,aa  
-            `"Ybbd8"' 88  `"YbbdP"'  `"YbbdP"'  `"Ybbd8"'  
-                                                           
-888888888888                                               
+
+                      88
+                      88
+                      88
+            ,adPPYba, 88  ,adPPYba,  ,adPPYba,  ,adPPYba,
+           a8"     "" 88 a8"     "8a I8[    "" a8P_____88
+           8b         88 8b       d8  `"Y8ba,  8PP"""""""
+           "8a,   ,aa 88 "8a,   ,a8" aa    ]8I "8b,   ,aa
+            `"Ybbd8"' 88  `"YbbdP"'  `"YbbdP"'  `"Ybbd8"'
+
+888888888888
 */
 
 Test:ConnectionCloseFail()
@@ -1444,59 +1444,59 @@ Test:ConnectionCloseFail()
 
 
 /*
-                                                                                                                                        
-                                                                                                                                    88  
-                                                                                                                                    88  
-                                                                                                                                    88  
-           88       88 8b,dPPYba,  8b,dPPYba,  8b,dPPYba,  ,adPPYba,   ,adPPYba,  ,adPPYba, ,adPPYba, ,adPPYba,  ,adPPYba,  ,adPPYb,88  
-           88       88 88P'   `"8a 88P'    "8a 88P'   "Y8 a8"     "8a a8"     "" a8P_____88 I8[    "" I8[    "" a8P_____88 a8"    `Y88  
-           88       88 88       88 88       d8 88         8b       d8 8b         8PP"""""""  `"Y8ba,   `"Y8ba,  8PP""""""" 8b       88  
-           "8a,   ,a88 88       88 88b,   ,a8" 88         "8a,   ,a8" "8a,   ,aa "8b,   ,aa aa    ]8I aa    ]8I "8b,   ,aa "8a,   ,d88  
-            `"YbbdP'Y8 88       88 88`YbbdP"'  88          `"YbbdP"'   `"Ybbd8"'  `"Ybbd8"' `"YbbdP"' `"YbbdP"'  `"Ybbd8"'  `"8bbdP"Y8  
-                                   88                                                                                                   
-888888888888                       88                                                                                                   
-                                                                                  
-                                                         88                       
-                                                         ""                       
-                                                                                  
-            ,adPPYb,d8 88       88  ,adPPYba, 8b,dPPYba, 88  ,adPPYba, ,adPPYba,  
-           a8"    `Y88 88       88 a8P_____88 88P'   "Y8 88 a8P_____88 I8[    ""  
-           8b       88 88       88 8PP""""""" 88         88 8PP"""""""  `"Y8ba,   
-           "8a    ,d88 "8a,   ,a88 "8b,   ,aa 88         88 "8b,   ,aa aa    ]8I  
-            `"YbbdP'88  `"YbbdP'Y8  `"Ybbd8"' 88         88  `"Ybbd8"' `"YbbdP"'  
-                    88                                                            
-888888888888        88                                                            
+
+                                                                                                                                    88
+                                                                                                                                    88
+                                                                                                                                    88
+           88       88 8b,dPPYba,  8b,dPPYba,  8b,dPPYba,  ,adPPYba,   ,adPPYba,  ,adPPYba, ,adPPYba, ,adPPYba,  ,adPPYba,  ,adPPYb,88
+           88       88 88P'   `"8a 88P'    "8a 88P'   "Y8 a8"     "8a a8"     "" a8P_____88 I8[    "" I8[    "" a8P_____88 a8"    `Y88
+           88       88 88       88 88       d8 88         8b       d8 8b         8PP"""""""  `"Y8ba,   `"Y8ba,  8PP""""""" 8b       88
+           "8a,   ,a88 88       88 88b,   ,a8" 88         "8a,   ,a8" "8a,   ,aa "8b,   ,aa aa    ]8I aa    ]8I "8b,   ,aa "8a,   ,d88
+            `"YbbdP'Y8 88       88 88`YbbdP"'  88          `"YbbdP"'   `"Ybbd8"'  `"Ybbd8"' `"YbbdP"' `"YbbdP"'  `"Ybbd8"'  `"8bbdP"Y8
+                                   88
+888888888888                       88
+
+                                                         88
+                                                         ""
+
+            ,adPPYb,d8 88       88  ,adPPYba, 8b,dPPYba, 88  ,adPPYba, ,adPPYba,
+           a8"    `Y88 88       88 a8P_____88 88P'   "Y8 88 a8P_____88 I8[    ""
+           8b       88 88       88 8PP""""""" 88         88 8PP"""""""  `"Y8ba,
+           "8a    ,d88 "8a,   ,a88 "8b,   ,aa 88         88 "8b,   ,aa aa    ]8I
+            `"YbbdP'88  `"YbbdP'Y8  `"Ybbd8"' 88         88  `"Ybbd8"' `"YbbdP"'
+                    88
+888888888888        88
 */
 
 Test:ConnectionUnprocQueries()
 {
 	ASSERT(mysql_unprocessed_queries(MYSQL_INVALID_HANDLE) == -1);
-	
+
 	new MySQL:sql = mysql_connect_file();
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == 0);
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
 	ASSERT_TRUE(mysql_tquery(sql, "SELECT SLEEP(1)"));
 	ASSERT(mysql_unprocessed_queries(sql) == 1);
-	
+
 	new tc = GetTickCount();
 	while((GetTickCount() - tc) < 1100)
 	{ }
-	
+
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
-	
+
 	mysql_tquery(sql, "SELECT SLEEP(3)");
 	mysql_pquery(sql, "SELECT SLEEP(3)");
 	mysql_pquery(sql, "SELECT SLEEP(3)");
-	
+
 	ASSERT(mysql_unprocessed_queries(sql) == 3);
-	
+
 	tc = GetTickCount();
 	while((GetTickCount() - tc) < 3300)
 	{ }
-	
+
 	ASSERT(mysql_unprocessed_queries(sql) == 0);
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
@@ -1506,28 +1506,28 @@ Test:ConnectionUnprocQueries()
 
 
 /*
-                                                                 
-                       88             88                     88  
-                       88             88                     88  
-                       88             88                     88  
-            ,adPPYb,d8 88  ,adPPYba,  88,dPPYba,  ,adPPYYba, 88  
-           a8"    `Y88 88 a8"     "8a 88P'    "8a ""     `Y8 88  
-           8b       88 88 8b       d8 88       d8 ,adPPPPP88 88  
-           "8a,   ,d88 88 "8a,   ,a8" 88b,   ,a8" 88,    ,88 88  
-            `"YbbdP"Y8 88  `"YbbdP"'  8Y"Ybbd8"'  `"8bbdP"Y8 88  
-            aa,    ,88                                           
-888888888888 "Y8bbdP"                                            
-                                                                                
-                                          88                                    
-                                    ,d    ""                                    
-                                    88                                          
-            ,adPPYba,  8b,dPPYba, MM88MMM 88  ,adPPYba,  8b,dPPYba,  ,adPPYba,  
-           a8"     "8a 88P'    "8a  88    88 a8"     "8a 88P'   `"8a I8[    ""  
-           8b       d8 88       d8  88    88 8b       d8 88       88  `"Y8ba,   
-           "8a,   ,a8" 88b,   ,a8"  88,   88 "8a,   ,a8" 88       88 aa    ]8I  
-            `"YbbdP"'  88`YbbdP"'   "Y888 88  `"YbbdP"'  88       88 `"YbbdP"'  
-                       88                                                       
-888888888888           88                                                       
+
+                       88             88                     88
+                       88             88                     88
+                       88             88                     88
+            ,adPPYb,d8 88  ,adPPYba,  88,dPPYba,  ,adPPYYba, 88
+           a8"    `Y88 88 a8"     "8a 88P'    "8a ""     `Y8 88
+           8b       88 88 8b       d8 88       d8 ,adPPPPP88 88
+           "8a,   ,d88 88 "8a,   ,a8" 88b,   ,a8" 88,    ,88 88
+            `"YbbdP"Y8 88  `"YbbdP"'  8Y"Ybbd8"'  `"8bbdP"Y8 88
+            aa,    ,88
+888888888888 "Y8bbdP"
+
+                                          88
+                                    ,d    ""
+                                    88
+            ,adPPYba,  8b,dPPYba, MM88MMM 88  ,adPPYba,  8b,dPPYba,  ,adPPYba,
+           a8"     "8a 88P'    "8a  88    88 a8"     "8a 88P'   `"8a I8[    ""
+           8b       d8 88       d8  88    88 8b       d8 88       88  `"Y8ba,
+           "8a,   ,a8" 88b,   ,a8"  88,   88 "8a,   ,a8" 88       88 aa    ]8I
+            `"YbbdP"'  88`YbbdP"'   "Y888 88  `"YbbdP"'  88       88 `"YbbdP"'
+                       88
+888888888888           88
 */
 
 Test:GlobalOptions()
@@ -1542,41 +1542,41 @@ Test:GlobalOptions()
 
 
 /*
-                                         
-                                         
-                                  ,d     
-                                  88     
-           ,adPPYba,  ,adPPYba, MM88MMM  
-           I8[    "" a8P_____88   88     
-            `"Y8ba,  8PP"""""""   88     
-           aa    ]8I "8b,   ,aa   88,    
-           `"YbbdP"'  `"Ybbd8"'   "Y888  
-                                         
-888888888888                             
-                                                                      
-                                          88                          
-                                    ,d    ""                          
-                                    88                                
-            ,adPPYba,  8b,dPPYba, MM88MMM 88  ,adPPYba,  8b,dPPYba,   
-           a8"     "8a 88P'    "8a  88    88 a8"     "8a 88P'   `"8a  
-           8b       d8 88       d8  88    88 8b       d8 88       88  
-           "8a,   ,a8" 88b,   ,a8"  88,   88 "8a,   ,a8" 88       88  
-            `"YbbdP"'  88`YbbdP"'   "Y888 88  `"YbbdP"'  88       88  
-                       88                                             
-888888888888           88                                             
+
+
+                                  ,d
+                                  88
+           ,adPPYba,  ,adPPYba, MM88MMM
+           I8[    "" a8P_____88   88
+            `"Y8ba,  8PP"""""""   88
+           aa    ]8I "8b,   ,aa   88,
+           `"YbbdP"'  `"Ybbd8"'   "Y888
+
+888888888888
+
+                                          88
+                                    ,d    ""
+                                    88
+            ,adPPYba,  8b,dPPYba, MM88MMM 88  ,adPPYba,  8b,dPPYba,
+           a8"     "8a 88P'    "8a  88    88 a8"     "8a 88P'   `"8a
+           8b       d8 88       d8  88    88 8b       d8 88       88
+           "8a,   ,a8" 88b,   ,a8"  88,   88 "8a,   ,a8" 88       88
+            `"YbbdP"'  88`YbbdP"'   "Y888 88  `"YbbdP"'  88       88
+                       88
+888888888888           88
 */
 
 Test:ConnectionOption()
 {
 	ASSERT_FALSE(mysql_set_option(MySQLOpt:54321, AUTO_RECONNECT, true));
-	
+
 	new MySQLOpt:option = mysql_init_options();
-	
+
 	ASSERT(_:option != 0);
 	ASSERT_TRUE(mysql_set_option(option, AUTO_RECONNECT, true));
 	ASSERT_TRUE(mysql_set_option(option, POOL_SIZE, 4));
 	ASSERT_TRUE(mysql_set_option(option, SSL_KEY_FILE, "banana"));
-	
+
 	ASSERT_FALSE(mysql_set_option(option, E_MYSQL_OPTION:54321, true));
 	ASSERT_FALSE(mysql_set_option(option, AUTO_RECONNECT));
 	return 1;
@@ -1587,36 +1587,36 @@ Test:ConnectionOption()
 
 
 /*
-                                                                     
-                                                                     
-                                                                     
-                                                                     
-            ,adPPYba, 8b,dPPYba, 8b,dPPYba, 8b,dPPYba,   ,adPPYba,   
-           a8P_____88 88P'   "Y8 88P'   "Y8 88P'   `"8a a8"     "8a  
-           8PP""""""" 88         88         88       88 8b       d8  
-           "8b,   ,aa 88         88         88       88 "8a,   ,a8"  
-            `"Ybbd8"' 88         88         88       88  `"YbbdP"'   
-                                                                     
-888888888888                                                         
+
+
+
+
+            ,adPPYba, 8b,dPPYba, 8b,dPPYba, 8b,dPPYba,   ,adPPYba,
+           a8P_____88 88P'   "Y8 88P'   "Y8 88P'   `"8a a8"     "8a
+           8PP""""""" 88         88         88       88 8b       d8
+           "8b,   ,aa 88         88         88       88 "8a,   ,a8"
+            `"Ybbd8"' 88         88         88       88  `"YbbdP"'
+
+888888888888
 */
 
 Test:ConnectionErrno()
 {
 	ASSERT(mysql_errno(MYSQL_INVALID_HANDLE) == -1);
-	
+
 	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == ER_ACCESS_DENIED_ERROR);
 	ASSERT_TRUE(mysql_close(sql));
-	
+
 	sql = mysql_connect_file();
-	
+
 	mysql_query(sql, "SELECT 1", false);
 	ASSERT(mysql_errno(sql) == 0);
-	
+
 	mysql_query(sql, "INVALIDSTATEMENT", false);
 	ASSERT(mysql_errno(sql) == 1064);
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	ASSERT(mysql_errno(sql) == -1);
 	return 1;
@@ -1627,7 +1627,7 @@ Test:ConnectionErrorStr()
 {
 	new error_msg[256];
 	ASSERT_FALSE(mysql_error(error_msg, sizeof error_msg, MYSQL_INVALID_HANDLE));
-	
+
 	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == ER_ACCESS_DENIED_ERROR);
@@ -1635,21 +1635,21 @@ Test:ConnectionErrorStr()
 	ASSERT_TRUE(mysql_error(error_msg, sizeof error_msg, sql));
 	ASSERT(strlen(error_msg) > 0);
 	ASSERT_TRUE(mysql_close(sql));
-	
+
 	sql = mysql_connect_file();
-	
+
 	mysql_query(sql, "SELECT 1", false);
 	ASSERT(mysql_errno(sql) == 0);
 	error_msg[0] = '\0';
 	ASSERT_TRUE(mysql_error(error_msg, sizeof error_msg, sql));
 	ASSERT(strlen(error_msg) == 0);
-	
+
 	mysql_query(sql, "INVALIDSTATEMENT", false);
 	ASSERT(mysql_errno(sql) == 1064);
 	error_msg[0] = '\0';
 	ASSERT_TRUE(mysql_error(error_msg, sizeof error_msg, sql));
 	ASSERT(strlen(error_msg) > 0);
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	ASSERT_FALSE(mysql_error(error_msg, sizeof error_msg, sql));
 	return 1;
@@ -1658,73 +1658,73 @@ Test:ConnectionErrorStr()
 
 
 /*
-                                                                                
-              ad88                                                              
-             d8"                                                         ,d     
-             88                                                          88     
-           MM88MMM ,adPPYba,  8b,dPPYba, 88,dPYba,,adPYba,  ,adPPYYba, MM88MMM  
-             88   a8"     "8a 88P'   "Y8 88P'   "88"    "8a ""     `Y8   88     
-             88   8b       d8 88         88      88      88 ,adPPPPP88   88     
-             88   "8a,   ,a8" 88         88      88      88 88,    ,88   88,    
-             88    `"YbbdP"'  88         88      88      88 `"8bbdP"Y8   "Y888  
-                                                                                
-888888888888                                                                    
+
+              ad88
+             d8"                                                         ,d
+             88                                                          88
+           MM88MMM ,adPPYba,  8b,dPPYba, 88,dPYba,,adPYba,  ,adPPYYba, MM88MMM
+             88   a8"     "8a 88P'   "Y8 88P'   "88"    "8a ""     `Y8   88
+             88   8b       d8 88         88      88      88 ,adPPPPP88   88
+             88   "8a,   ,a8" 88         88      88      88 88,    ,88   88,
+             88    `"YbbdP"'  88         88      88      88 `"8bbdP"Y8   "Y888
+
+888888888888
 */
 
 Test:ConnectionFormat()
 {
 	new dest[512];
 	ASSERT_FALSE(mysql_format(MYSQL_INVALID_HANDLE, dest, sizeof dest, "asdf"));
-	
+
 	new MySQL:sql = mysql_connect_file();
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == 0);
-	
+
 	ASSERT_FALSE(mysql_format(sql, dest, 0, "asdf"));
 	ASSERT_FALSE(mysql_format(sql, dest, sizeof dest, "%d %d", 3));
 	ASSERT_FALSE(mysql_format(sql, dest, sizeof dest, "%j %k", 3, 2));
-	
+
 	new format_str[512], req_res[512];
-	
+
 	dest[0] = '\0';
 	format_str = "%%d %d %i %4d %06d";
 	req_res = "%d 1234 -4321   12 000999";
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 1234, -4321, 12, 999) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
-	
+
 	//can't check floats since they're not precise
-	
+
 	dest[0] = '\0';
 	format_str = "%%s %s %s";
 	req_res = "%s MyString 123456789";
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, "MyString", "123456789") == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
-	
+
 	dest[0] = '\0';
 	format_str = "%%e %e %e";
 	req_res = "%e 123 \\\"Some ol\\' \\\\stri\\ng";
 	new escape_param[] = "\"Some ol' \\stri\ng";
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, "123", escape_param) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
-	
+
 	dest[0] = '\0';
 	format_str = "%%x %x %x";
 	req_res = "%x beaff ffde4d";
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
-	
+
 	dest[0] = '\0';
 	format_str = "%%X %X %X";
 	req_res = "%X BEAFF FFDE4D";
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
-	
+
 	dest[0] = '\0';
 	format_str = "%%b %b %b";
 	req_res = "%b 10111110101011111111 111111111101111001001101";
 	ASSERT(mysql_format(sql, dest, sizeof dest, format_str, 781055, 16768589) == strlen(req_res));
 	ASSERT(strcmp(dest, req_res) == 0);
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
@@ -1733,54 +1733,54 @@ Test:ConnectionFormat()
 
 
 
-/*                                                                              
-                                                                              
-                                                                              
-                                                                              
-            ,adPPYba, ,adPPYba,  ,adPPYba, ,adPPYYba, 8b,dPPYba,   ,adPPYba,  
-           a8P_____88 I8[    "" a8"     "" ""     `Y8 88P'    "8a a8P_____88  
-           8PP"""""""  `"Y8ba,  8b         ,adPPPPP88 88       d8 8PP"""""""  
-           "8b,   ,aa aa    ]8I "8a,   ,aa 88,    ,88 88b,   ,a8" "8b,   ,aa  
-            `"Ybbd8"' `"YbbdP"'  `"Ybbd8"' `"8bbdP"Y8 88`YbbdP"'   `"Ybbd8"'  
-                                                      88                      
-888888888888                                          88                      
-                                                                    
-                                        88                          
-                       ,d               ""                          
-                       88                                           
-           ,adPPYba, MM88MMM 8b,dPPYba, 88 8b,dPPYba,   ,adPPYb,d8  
-           I8[    ""   88    88P'   "Y8 88 88P'   `"8a a8"    `Y88  
-            `"Y8ba,    88    88         88 88       88 8b       88  
-           aa    ]8I   88,   88         88 88       88 "8a,   ,d88  
-           `"YbbdP"'   "Y888 88         88 88       88  `"YbbdP"Y8  
-                                                        aa,    ,88  
-888888888888                                             "Y8bbdP"   
+/*
+
+
+
+            ,adPPYba, ,adPPYba,  ,adPPYba, ,adPPYYba, 8b,dPPYba,   ,adPPYba,
+           a8P_____88 I8[    "" a8"     "" ""     `Y8 88P'    "8a a8P_____88
+           8PP"""""""  `"Y8ba,  8b         ,adPPPPP88 88       d8 8PP"""""""
+           "8b,   ,aa aa    ]8I "8a,   ,aa 88,    ,88 88b,   ,a8" "8b,   ,aa
+            `"Ybbd8"' `"YbbdP"'  `"Ybbd8"' `"8bbdP"Y8 88`YbbdP"'   `"Ybbd8"'
+                                                      88
+888888888888                                          88
+
+                                        88
+                       ,d               ""
+                       88
+           ,adPPYba, MM88MMM 8b,dPPYba, 88 8b,dPPYba,   ,adPPYb,d8
+           I8[    ""   88    88P'   "Y8 88 88P'   `"8a a8"    `Y88
+            `"Y8ba,    88    88         88 88       88 8b       88
+           aa    ]8I   88,   88         88 88       88 "8a,   ,d88
+           `"YbbdP"'   "Y888 88         88 88       88  `"YbbdP"Y8
+                                                        aa,    ,88
+888888888888                                             "Y8bbdP"
 */
 
 Test:StringEscape()
 {
 	new dest[128];
-	
+
 	ASSERT(mysql_escape_string("test", dest, .handle = MYSQL_INVALID_HANDLE) == -1);
-	
+
 	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) != 0);
 	ASSERT(mysql_escape_string("test", dest, .handle = sql) == -1);
 	ASSERT_TRUE(mysql_close(sql));
-	
+
 	sql = mysql_connect_file();
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) == 0);
-	
+
 	new short_dest[5];
 	ASSERT(mysql_escape_string("-----longstring-----", short_dest, .handle = sql) == -1);
-	
+
 	new src[128] = "\"Some ol' \\stri\ng";
 	new desired_dest[128] = "\\\"Some ol\\' \\\\stri\\ng";
 	ASSERT(mysql_escape_string(src, dest, .handle = sql) == strlen(desired_dest));
 	ASSERT(strcmp(dest, desired_dest) == 0);
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
@@ -1790,46 +1790,46 @@ Test:StringEscape()
 
 
 /*
-                                         
-                                         
-                                  ,d     
-                                  88     
-           ,adPPYba,  ,adPPYba, MM88MMM  
-           I8[    "" a8P_____88   88     
-            `"Y8ba,  8PP"""""""   88     
-           aa    ]8I "8b,   ,aa   88,    
-           `"YbbdP"'  `"Ybbd8"'   "Y888  
-                                         
-888888888888                             
-                                                                                      
-                      88                                                              
-                      88                                                       ,d     
-                      88                                                       88     
-            ,adPPYba, 88,dPPYba,  ,adPPYYba, 8b,dPPYba, ,adPPYba,  ,adPPYba, MM88MMM  
-           a8"     "" 88P'    "8a ""     `Y8 88P'   "Y8 I8[    "" a8P_____88   88     
-           8b         88       88 ,adPPPPP88 88          `"Y8ba,  8PP"""""""   88     
-           "8a,   ,aa 88       88 88,    ,88 88         aa    ]8I "8b,   ,aa   88,    
-            `"Ybbd8"' 88       88 `"8bbdP"Y8 88         `"YbbdP"'  `"Ybbd8"'   "Y888  
-                                                                                      
-888888888888                                                                          
+
+
+                                  ,d
+                                  88
+           ,adPPYba,  ,adPPYba, MM88MMM
+           I8[    "" a8P_____88   88
+            `"Y8ba,  8PP"""""""   88
+           aa    ]8I "8b,   ,aa   88,
+           `"YbbdP"'  `"Ybbd8"'   "Y888
+
+888888888888
+
+                      88
+                      88                                                       ,d
+                      88                                                       88
+            ,adPPYba, 88,dPPYba,  ,adPPYYba, 8b,dPPYba, ,adPPYba,  ,adPPYba, MM88MMM
+           a8"     "" 88P'    "8a ""     `Y8 88P'   "Y8 I8[    "" a8P_____88   88
+           8b         88       88 ,adPPPPP88 88          `"Y8ba,  8PP"""""""   88
+           "8a,   ,aa 88       88 88,    ,88 88         aa    ]8I "8b,   ,aa   88,
+            `"Ybbd8"' 88       88 `"8bbdP"Y8 88         `"YbbdP"'  `"Ybbd8"'   "Y888
+
+888888888888
 */
 
 Test:ConnectionCharsetSet()
 {
 	ASSERT_FALSE(mysql_set_charset("asdf", MYSQL_INVALID_HANDLE));
-	
+
 	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) != 0);
 	ASSERT_FALSE(mysql_set_charset("utf8", sql));
 	ASSERT_TRUE(mysql_close(sql));
-	
+
 	sql = mysql_connect_file();
-	
+
 	ASSERT_TRUE(mysql_set_charset("utf8", sql));
 	ASSERT_FALSE(mysql_set_charset("", sql));
 	ASSERT_FALSE(mysql_set_charset("invalid-charset", sql));
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
@@ -1839,53 +1839,53 @@ Test:ConnectionCharsetSet()
 
 
 /*
-                                           
-                                           
-                                    ,d     
-                                    88     
-            ,adPPYb,d8  ,adPPYba, MM88MMM  
-           a8"    `Y88 a8P_____88   88     
-           8b       88 8PP"""""""   88     
-           "8a,   ,d88 "8b,   ,aa   88,    
-            `"YbbdP"Y8  `"Ybbd8"'   "Y888  
-            aa,    ,88                     
-888888888888 "Y8bbdP"                      
-                                                                                      
-                      88                                                              
-                      88                                                       ,d     
-                      88                                                       88     
-            ,adPPYba, 88,dPPYba,  ,adPPYYba, 8b,dPPYba, ,adPPYba,  ,adPPYba, MM88MMM  
-           a8"     "" 88P'    "8a ""     `Y8 88P'   "Y8 I8[    "" a8P_____88   88     
-           8b         88       88 ,adPPPPP88 88          `"Y8ba,  8PP"""""""   88     
-           "8a,   ,aa 88       88 88,    ,88 88         aa    ]8I "8b,   ,aa   88,    
-            `"Ybbd8"' 88       88 `"8bbdP"Y8 88         `"YbbdP"'  `"Ybbd8"'   "Y888  
-                                                                                      
-888888888888                                                                          
+
+
+                                    ,d
+                                    88
+            ,adPPYb,d8  ,adPPYba, MM88MMM
+           a8"    `Y88 a8P_____88   88
+           8b       88 8PP"""""""   88
+           "8a,   ,d88 "8b,   ,aa   88,
+            `"YbbdP"Y8  `"Ybbd8"'   "Y888
+            aa,    ,88
+888888888888 "Y8bbdP"
+
+                      88
+                      88                                                       ,d
+                      88                                                       88
+            ,adPPYba, 88,dPPYba,  ,adPPYYba, 8b,dPPYba, ,adPPYba,  ,adPPYba, MM88MMM
+           a8"     "" 88P'    "8a ""     `Y8 88P'   "Y8 I8[    "" a8P_____88   88
+           8b         88       88 ,adPPPPP88 88          `"Y8ba,  8PP"""""""   88
+           "8a,   ,aa 88       88 88,    ,88 88         aa    ]8I "8b,   ,aa   88,
+            `"Ybbd8"' 88       88 `"8bbdP"Y8 88         `"YbbdP"'  `"Ybbd8"'   "Y888
+
+888888888888
 */
 
 Test:ConnectionCharsetGet()
 {
 	new dest[64];
-	
+
 	ASSERT_FALSE(mysql_get_charset(dest, .handle = MYSQL_INVALID_HANDLE));
-	
+
 	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) != 0);
 	ASSERT_FALSE(mysql_get_charset(dest, .handle = sql));
 	ASSERT_TRUE(mysql_close(sql));
-	
+
 	sql = mysql_connect_file();
-	
+
 	ASSERT_TRUE(mysql_get_charset(dest, .handle = sql));
-	
+
 	new short_dest[2];
 	ASSERT_FALSE(mysql_get_charset(short_dest, .handle = sql));
-	
+
 	ASSERT_TRUE(mysql_set_charset("utf8", sql));
 	ASSERT_TRUE(mysql_get_charset(dest, .handle = sql));
 	ASSERT(strcmp(dest, "utf8") == 0);
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
@@ -1895,38 +1895,38 @@ Test:ConnectionCharsetGet()
 
 
 /*
-													
-                                                 
-                       ,d                 ,d     
-                       88                 88     
-           ,adPPYba, MM88MMM ,adPPYYba, MM88MMM  
-           I8[    ""   88    ""     `Y8   88     
-            `"Y8ba,    88    ,adPPPPP88   88     
-           aa    ]8I   88,   88,    ,88   88,    
-           `"YbbdP"'   "Y888 `"8bbdP"Y8   "Y888  
-                                                 
-888888888888                                     
+
+
+                       ,d                 ,d
+                       88                 88
+           ,adPPYba, MM88MMM ,adPPYYba, MM88MMM
+           I8[    ""   88    ""     `Y8   88
+            `"Y8ba,    88    ,adPPPPP88   88
+           aa    ]8I   88,   88,    ,88   88,
+           `"YbbdP"'   "Y888 `"8bbdP"Y8   "Y888
+
+888888888888
 */
 
 Test:ConnectionStat()
 {
 	new dest[256];
-	
+
 	ASSERT_FALSE(mysql_stat(dest, .handle = MYSQL_INVALID_HANDLE));
-	
+
 	new MySQL:sql = mysql_connect_file("mysql-invalid.ini");
 	ASSERT(sql != MYSQL_INVALID_HANDLE);
 	ASSERT(mysql_errno(sql) != 0);
 	ASSERT_FALSE(mysql_stat(dest, .handle = sql));
 	ASSERT_TRUE(mysql_close(sql));
-	
+
 	sql = mysql_connect_file();
-	
+
 	ASSERT_TRUE(mysql_stat(dest, .handle = sql));
-	
+
 	new short_dest[5];
 	ASSERT_FALSE(mysql_stat(short_dest, .handle = sql));
-	
+
 	ASSERT_TRUE(mysql_close(sql));
 	return 1;
 }
@@ -1938,7 +1938,7 @@ Test:ConnectionStat()
 public OnGameModeInit()
 {
 	mysql_log(ALL);
-	
+
 	new
 	    test_counter = 0,
 		fail_counter = 0;
@@ -1956,7 +1956,7 @@ public OnGameModeInit()
 	        g_Int = 999;
 			g_Float = 999.999;
 			g_String = "xxxxxx";
-			
+
 	        test_counter++;
 	        printf("executing test \"%s\"...", pname);
 	        CallLocalFunction(pname, "");

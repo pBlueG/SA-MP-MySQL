@@ -8,7 +8,7 @@ const string CCallback::ModuleName{ "callback" };
 
 
 Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
-							 cell *params, cell param_offset, 
+							 cell *params, cell param_offset,
 							 CError<CCallback> &error)
 {
 	CLog::Get()->Log(LogLevel::DEBUG,
@@ -43,7 +43,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 		return nullptr;
 	}
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CCallback::Create - callback index for '{}': {}",
 					 name, cb_idx);
 
@@ -68,7 +68,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 			if (array_addr_ptr != nullptr && (*format) != 'd' && (*format) != 'i')
 			{
 				error.set(Error::EXPECTED_ARRAY_SIZE,
-						  "expected 'd'/'i' specifier for array size (got '{}' instead)", 
+						  "expected 'd'/'i' specifier for array size (got '{}' instead)",
 						  *format);
 				return nullptr;
 			}
@@ -89,11 +89,11 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 						CLog::Get()->Log(LogLevel::DEBUG, "expecting array size");
 						if (value <= 0)
 						{
-							error.set(Error::INVALID_ARRAY_SIZE, 
+							error.set(Error::INVALID_ARRAY_SIZE,
 									  "invalid array size '{}'", value);
 							return nullptr;
 						}
-						cell *copied_array = 
+						cell *copied_array =
 							static_cast<cell *>(malloc(value * sizeof(cell)));
 						memcpy(copied_array, array_addr_ptr, value * sizeof(cell));
 
@@ -106,7 +106,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 					}
 
 					param_list.push_front(std::make_tuple('c', value));
-					CLog::Get()->Log(LogLevel::DEBUG, 
+					CLog::Get()->Log(LogLevel::DEBUG,
 									 "retrieved and pushed value '{}'", value);
 				}
 				break;
@@ -114,7 +114,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 				case 'b': //bool
 					amx_GetAddr(amx, params[param_offset + param_idx], &address_ptr);
 					param_list.push_front(std::make_tuple('c', *address_ptr));
-					CLog::Get()->Log(LogLevel::DEBUG, 
+					CLog::Get()->Log(LogLevel::DEBUG,
 									 "retrieved and pushed value '{}'", *address_ptr);
 					break;
 				case 's': //string
@@ -137,7 +137,7 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 									 static_cast<const void*>(array_addr_ptr));
 					break;
 				default:
-					error.set(Error::INVALID_FORMAT_SPECIFIER, 
+					error.set(Error::INVALID_FORMAT_SPECIFIER,
 							  "invalid format specifier '{}'", *format);
 					return nullptr;
 			}
@@ -147,21 +147,21 @@ Callback_t CCallback::Create(AMX *amx, const char *name, const char *format,
 
 		if (array_addr_ptr != nullptr)
 		{
-			error.set(Error::NO_ARRAY_SIZE, 
+			error.set(Error::NO_ARRAY_SIZE,
 					  "no array size specified after 'a' specifier");
 			return nullptr;
 		}
 	}
 
-	CLog::Get()->Log(LogLevel::INFO, 
+	CLog::Get()->Log(LogLevel::INFO,
 					 "Callback '{}' set up for delayed execution.", name);
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "created delayed callback with {} parameter{}",
 					 param_list.size(), param_list.size() > 1 ? "s" : "");
 	return std::make_shared<CCallback>(amx, cb_idx, std::move(param_list));
 }
 
-Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx, 
+Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 							 const char *name, const char *format, ...)
 {
 	CLog::Get()->Log(LogLevel::DEBUG,
@@ -189,7 +189,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 		return nullptr;
 	}
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CCallback::Create - callback index for '{}': {}",
 					 name, cb_idx);
 
@@ -203,7 +203,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 
 		for (; *format != '\0'; ++format)
 		{
-			CLog::Get()->Log(LogLevel::DEBUG, 
+			CLog::Get()->Log(LogLevel::DEBUG,
 							 "processing specifier '{}'", *format);
 
 			switch (*format)
@@ -214,7 +214,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 				{
 					cell value = va_arg(args, cell);
 					param_list.push_front(std::make_tuple('c', value));
-					CLog::Get()->Log(LogLevel::DEBUG, 
+					CLog::Get()->Log(LogLevel::DEBUG,
 									 "retrieved and pushed value '{}'", value);
 				}
 				break;
@@ -222,7 +222,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 				{
 					float float_value = static_cast<float>(va_arg(args, double));
 					param_list.push_front(std::make_tuple('c', amx_ftoc(float_value)));
-					CLog::Get()->Log(LogLevel::DEBUG, 
+					CLog::Get()->Log(LogLevel::DEBUG,
 									 "retrieved and pushed value '{}'", float_value);
 				}
 				break;
@@ -230,12 +230,12 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 				{
 					const char *value = va_arg(args, const char*);
 					param_list.push_front(std::make_tuple('s', string(value)));
-					CLog::Get()->Log(LogLevel::DEBUG, 
+					CLog::Get()->Log(LogLevel::DEBUG,
 									 "retrieved and pushed value '{}'", value);
 				}
 				break;
 				default:
-					error.set(Error::INVALID_FORMAT_SPECIFIER, 
+					error.set(Error::INVALID_FORMAT_SPECIFIER,
 							  "invalid format specifier '{}'", *format);
 					return nullptr;
 			}
@@ -251,9 +251,9 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 		return nullptr;
 	}
 
-	CLog::Get()->Log(LogLevel::INFO, 
+	CLog::Get()->Log(LogLevel::INFO,
 					 "Callback '{}' set up for delayed execution.", name);
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "created delayed callback with {} parameter{}",
 					 param_list.size(), param_list.size() > 1 ? "s" : "");
 
@@ -263,7 +263,7 @@ Callback_t CCallback::Create(CError<CCallback> &error, AMX *amx,
 
 bool CCallback::Execute()
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CCallback::Execute(amx={}, index={}, num_params={})",
 					 static_cast<const void *>(m_AmxInstance),
 					 m_AmxCallbackIndex, m_Params.size());
@@ -272,7 +272,7 @@ bool CCallback::Execute()
 	//execution, so we better check if the AMX instance is still valid
 	if (CCallbackManager::Get()->IsValidAmx(m_AmxInstance) == false)
 	{
-		CLog::Get()->Log(LogLevel::ERROR, 
+		CLog::Get()->Log(LogLevel::ERROR,
 						 "CCallback::Execute - invalid AMX instance");
 		return false;
 	}
@@ -282,7 +282,7 @@ bool CCallback::Execute()
 		char callback_name[sNAMEMAX + 1];
 		if (amx_GetPublic(m_AmxInstance, m_AmxCallbackIndex, callback_name) == AMX_ERR_NONE)
 		{
-			CLog::Get()->Log(LogLevel::INFO, 
+			CLog::Get()->Log(LogLevel::INFO,
 							 "Executing callback '{}' with {} parameter{}...",
 							 callback_name, m_Params.size(), m_Params.size() > 1 ? "s" : "");
 		}
@@ -295,7 +295,7 @@ bool CCallback::Execute()
 		boost::any &param_val = std::get<1>(i);
 		char specifier = std::get<0>(i);
 
-		CLog::Get()->Log(LogLevel::DEBUG, 
+		CLog::Get()->Log(LogLevel::DEBUG,
 						 "processing internal specifier '{}'", specifier);
 		switch (specifier)
 		{
@@ -304,7 +304,7 @@ bool CCallback::Execute()
 				const cell value = boost::any_cast<cell>(param_val);
 				amx_Push(m_AmxInstance, value);
 
-				CLog::Get()->Log(LogLevel::DEBUG, 
+				CLog::Get()->Log(LogLevel::DEBUG,
 								 "pushed value '{}' onto AMX stack", value);
 			}
 			break;
@@ -314,7 +314,7 @@ bool CCallback::Execute()
 				amx_PushString(m_AmxInstance, &tmp_addr, nullptr,
 							   value.c_str(), 0, 0);
 
-				CLog::Get()->Log(LogLevel::DEBUG, 
+				CLog::Get()->Log(LogLevel::DEBUG,
 								 "pushed value '{}' onto AMX stack", value);
 
 				if (amx_address < 0)
@@ -329,7 +329,7 @@ bool CCallback::Execute()
 				amx_PushArray(m_AmxInstance, &tmp_addr, nullptr, array_addr, array_size);
 				free(array_addr);
 
-				CLog::Get()->Log(LogLevel::DEBUG, 
+				CLog::Get()->Log(LogLevel::DEBUG,
 								 "pushed array '{}' with size '{}' onto AMX stack",
 								 static_cast<const void*>(array_addr), array_size);
 
@@ -342,7 +342,7 @@ bool CCallback::Execute()
 				cell * const value = boost::any_cast<cell *>(param_val);
 				amx_PushAddress(m_AmxInstance, value);
 
-				CLog::Get()->Log(LogLevel::DEBUG, 
+				CLog::Get()->Log(LogLevel::DEBUG,
 								 "pushed reference '{}' onto AMX stack",
 								 static_cast<const void*>(value));
 			}
@@ -350,14 +350,14 @@ bool CCallback::Execute()
 		}
 	}
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
-					 "executing AMX callback with index '{}'", 
+	CLog::Get()->Log(LogLevel::DEBUG,
+					 "executing AMX callback with index '{}'",
 					 m_AmxCallbackIndex);
 
 	int error = amx_Exec(m_AmxInstance, nullptr, m_AmxCallbackIndex);
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
-					 "AMX callback executed with error '{}'", 
+	CLog::Get()->Log(LogLevel::DEBUG,
+					 "AMX callback executed with error '{}'",
 					 error);
 
 	if (amx_address >= 0)

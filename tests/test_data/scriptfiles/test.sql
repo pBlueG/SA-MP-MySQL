@@ -5,7 +5,7 @@ CREATE TABLE `test` (
   PRIMARY KEY (`number`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;
 
-INSERT INTO `test` VALUES 
+INSERT INTO `test` VALUES
   (1, 'asdf', 3.142341),
   (2, 'asdf', 3.142341),
   (3, 'asdf', 3.142341),

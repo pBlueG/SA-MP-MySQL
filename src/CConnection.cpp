@@ -7,7 +7,7 @@
 #include "CLog.hpp"
 
 
-CConnection::CConnection(const char *host, const char *user, const char *passw, 
+CConnection::CConnection(const char *host, const char *user, const char *passw,
 						 const char *db, const COptions *options)
 {
 	CLog::Get()->Log(LogLevel::DEBUG,
@@ -73,16 +73,16 @@ CConnection::CConnection(const char *host, const char *user, const char *passw,
 	bool reconnect = options->GetOption<bool>(COptions::Type::AUTO_RECONNECT);
 	mysql_options(m_Connection, MYSQL_OPT_RECONNECT, &reconnect);
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnection::CConnection - new connection = {}",
 					 static_cast<const void *>(m_Connection));
 }
 
 CConnection::~CConnection()
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnection::~CConnection(this={}, connection={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(m_Connection));
 
 	std::lock_guard<std::mutex> lock_guard(m_Mutex);
@@ -93,7 +93,7 @@ CConnection::~CConnection()
 
 bool CConnection::EscapeString(const char *src, string &dest)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnection::EscapeString(src='{}', this={}, connection={})",
 					 src ? src : "(nullptr)",
 					 static_cast<const void *>(this),
@@ -114,9 +114,9 @@ bool CConnection::EscapeString(const char *src, string &dest)
 
 bool CConnection::SetCharset(string charset)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnection::SetCharset(charset='{}', this={}, connection={})",
-					 charset, static_cast<const void *>(this), 
+					 charset, static_cast<const void *>(this),
 					 static_cast<const void *>(m_Connection));
 
 	if (IsConnected() == false || charset.empty())
@@ -133,7 +133,7 @@ bool CConnection::SetCharset(string charset)
 bool CConnection::GetCharset(string &charset)
 {
 	CLog::Get()->Log(LogLevel::DEBUG, "CConnection::GetCharset(this={}, connection={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(m_Connection));
 
 	if (IsConnected() == false)
@@ -147,9 +147,9 @@ bool CConnection::GetCharset(string &charset)
 
 bool CConnection::Execute(Query_t query)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnection::Execute(query={}, this={}, connection={})",
-					 static_cast<const void *>(query.get()), 
+					 static_cast<const void *>(query.get()),
 					 static_cast<const void *>(this),
 					 static_cast<const void *>(m_Connection));
 
@@ -159,9 +159,9 @@ bool CConnection::Execute(Query_t query)
 
 bool CConnection::GetError(unsigned int &id, string &msg)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnection::GetError(this={}, connection={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(m_Connection));
 
 	if (m_Connection == nullptr)
@@ -176,9 +176,9 @@ bool CConnection::GetError(unsigned int &id, string &msg)
 
 bool CConnection::GetStatus(string &stat)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnection::GetStatus(this={}, connection={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(m_Connection));
 
 	if (IsConnected() == false)
@@ -205,17 +205,17 @@ CThreadedConnection::CThreadedConnection(
 	m_WorkerThreadActive(true),
 	m_WorkerThread(std::bind(&CThreadedConnection::WorkerFunc, this))
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CThreadedConnection::CThreadedConnection(this={}, connection={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(&m_Connection));
 }
 
 void CThreadedConnection::WorkerFunc()
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CThreadedConnection::WorkerFunc(this={}, connection={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(&m_Connection));
 
 	std::unique_lock<std::mutex> lock(m_QueueNotifierMutex);
@@ -246,9 +246,9 @@ void CThreadedConnection::WorkerFunc()
 		}
 	}
 
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CThreadedConnection::WorkerFunc(this={}, connection={}) - shutting down",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(&m_Connection));
 
 	mysql_thread_end();
@@ -266,9 +266,9 @@ bool CThreadedConnection::Queue(Query_t query)
 
 CThreadedConnection::~CThreadedConnection()
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CThreadedConnection::~CThreadedConnection(this={}, connection={})",
-					 static_cast<const void *>(this), 
+					 static_cast<const void *>(this),
 					 static_cast<const void *>(&m_Connection));
 
 	{
@@ -282,10 +282,10 @@ CThreadedConnection::~CThreadedConnection()
 
 
 CConnectionPool::CConnectionPool(
-	const size_t size, const char *host, const char *user, const char *passw, 
+	const size_t size, const char *host, const char *user, const char *passw,
 	const char *db, const COptions *options)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnectionPool::CConnectionPool(size={}, this={})",
 					 size, static_cast<const void *>(this));
 
@@ -298,7 +298,7 @@ CConnectionPool::CConnectionPool(
 	for (size_t i = 0; i != size; ++i)
 	{
 		SConnectionNode *old_node = node;
-		old_node->Connection = new CThreadedConnection(host, user, passw, 
+		old_node->Connection = new CThreadedConnection(host, user, passw,
 													   db, options);
 		old_node->Next = ((i + 1) == size) ? m_CurrentNode : (node = new SConnectionNode);
 	}
@@ -306,9 +306,9 @@ CConnectionPool::CConnectionPool(
 
 bool CConnectionPool::Queue(Query_t query)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnectionPool::Queue(query={}, this={})",
-					 static_cast<const void *>(query.get()), 
+					 static_cast<const void *>(query.get()),
 					 static_cast<const void *>(this));
 
 	std::lock_guard<std::mutex> lock_guard(m_PoolMutex);
@@ -322,7 +322,7 @@ bool CConnectionPool::Queue(Query_t query)
 
 bool CConnectionPool::SetCharset(string charset)
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnectionPool::SetCharset(charset='{}', this={})",
 					 charset, static_cast<const void *>(this));
 
@@ -342,7 +342,7 @@ bool CConnectionPool::SetCharset(string charset)
 
 unsigned int CConnectionPool::GetUnprocessedQueryCount()
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnectionPool::GetUnprocessedQueryCount(this={})",
 					 static_cast<const void *>(this));
 
@@ -361,7 +361,7 @@ unsigned int CConnectionPool::GetUnprocessedQueryCount()
 
 CConnectionPool::~CConnectionPool()
 {
-	CLog::Get()->Log(LogLevel::DEBUG, 
+	CLog::Get()->Log(LogLevel::DEBUG,
 					 "CConnectionPool::~CConnectionPool(this={})",
 					 static_cast<const void *>(this));
 

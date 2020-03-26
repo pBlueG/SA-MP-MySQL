@@ -76,7 +76,7 @@ public OnGameModeInit()
 	}
 
 	print("MySQL connection is successful.");
-	
+
 	// if the table has been created, the "SetupPlayerTable" function does not have any purpose so you may remove it completely
 	SetupPlayerTable();
 	return 1;
@@ -146,7 +146,7 @@ public OnPlayerSpawn(playerid)
 	SetPlayerInterior(playerid, Player[playerid][Interior]);
 	SetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
 	SetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
-	
+
 	SetCameraBehindPlayer(playerid);
 	return 1;
 }
@@ -273,7 +273,7 @@ public OnLoginTimeout(playerid)
 {
 	// reset the variable that stores the timerid
 	Player[playerid][LoginTimer] = 0;
-	
+
 	ShowPlayerDialog(playerid, DIALOG_UNUSED, DIALOG_STYLE_MSGBOX, "Login", "You have been kicked for taking too long to login successfully to your account.", "Okay", "");
 	DelayedKick(playerid);
 	return 1;
@@ -293,7 +293,7 @@ public OnPlayerRegister(playerid)
 	Player[playerid][Y_Pos] = DEFAULT_POS_Y;
 	Player[playerid][Z_Pos] = DEFAULT_POS_Z;
 	Player[playerid][A_Pos] = DEFAULT_POS_A;
-	
+
 	SetSpawnInfo(playerid, NO_TEAM, 0, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], 0, 0, 0, 0, 0, 0);
 	SpawnPlayer(playerid);
 	return 1;
@@ -312,10 +312,10 @@ public _KickPlayerDelayed(playerid)
 AssignPlayerData(playerid)
 {
 	cache_get_value_int(0, "id", Player[playerid][ID]);
-	
+
 	cache_get_value_int(0, "kills", Player[playerid][Kills]);
 	cache_get_value_int(0, "deaths", Player[playerid][Deaths]);
-	
+
 	cache_get_value_float(0, "x", Player[playerid][X_Pos]);
 	cache_get_value_float(0, "y", Player[playerid][Y_Pos]);
 	cache_get_value_float(0, "z", Player[playerid][Z_Pos]);
@@ -347,7 +347,7 @@ UpdatePlayerData(playerid, reason)
 		GetPlayerPos(playerid, Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos]);
 		GetPlayerFacingAngle(playerid, Player[playerid][A_Pos]);
 	}
-	
+
 	new query[145];
 	mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `x` = %f, `y` = %f, `z` = %f, `angle` = %f, `interior` = %d WHERE `id` = %d LIMIT 1", Player[playerid][X_Pos], Player[playerid][Y_Pos], Player[playerid][Z_Pos], Player[playerid][A_Pos], GetPlayerInterior(playerid), Player[playerid][ID]);
 	mysql_tquery(g_SQL, query);
@@ -357,9 +357,9 @@ UpdatePlayerData(playerid, reason)
 UpdatePlayerDeaths(playerid)
 {
 	if (Player[playerid][IsLoggedIn] == false) return 0;
-	
+
 	Player[playerid][Deaths]++;
-	
+
 	new query[70];
 	mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `deaths` = %d WHERE `id` = %d LIMIT 1", Player[playerid][Deaths], Player[playerid][ID]);
 	mysql_tquery(g_SQL, query);
@@ -371,9 +371,9 @@ UpdatePlayerKills(killerid)
 	// we must check before if the killer wasn't valid (connected) player to avoid run time error 4
 	if (killerid == INVALID_PLAYER_ID) return 0;
 	if (Player[killerid][IsLoggedIn] == false) return 0;
-	
+
 	Player[killerid][Kills]++;
-	
+
 	new query[70];
 	mysql_format(g_SQL, query, sizeof query, "UPDATE `players` SET `kills` = %d WHERE `id` = %d LIMIT 1", Player[killerid][Kills], Player[killerid][ID]);
 	mysql_tquery(g_SQL, query);

@@ -39,7 +39,7 @@ if(WIN32)
 		PATH_SUFFIXES
 		lib
 	)
-	
+
 	find_file(
 		MYSQLCAPI_LIBRARY_SHARED
 		NAMES
@@ -76,7 +76,7 @@ else()
 		x86_64-linux-gnu
 	)
 	set(MYSQLCAPI_LIBRARY_SHARED ${MYSQLCAPI_LIBRARY})
-	
+
     find_library(
 		MYSQLCAPI_LIBRARY_STATIC
 		NAME
@@ -107,4 +107,4 @@ find_package_handle_standard_args(
 
 if(MYSQLCAPI_FOUND)
     mark_as_advanced(MYSQLCAPI_ROOT_DIR)
-endif() 
+endif()

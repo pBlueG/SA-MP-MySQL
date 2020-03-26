@@ -28,18 +28,18 @@ cache:
 before_install:
   - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then wget "http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz"; fi
   - if [ ! -f "mysql-connector-c-6.1.6-src/CMakeLists.txt" ]; then tar xzf mysql-connector-c-6.1.6-src.tar.gz; fi
-  
+
   - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
   - tar xzf boost_1_64_0.tar.gz
-  
+
   - wget http://files.sa-mp.com/samp037svr_R2-1.tar.gz
   - tar xzf samp037svr_R2-1.tar.gz
-  
+
   - wget http://files.sa-mp.com/samp037_svr_R2-1-1_win32.zip
   - unzip samp037_svr_R2-1-1_win32.zip -d $SAMP_SERVER_ROOT pawno/include/*
-  
+
   - git clone https://github.com/Zeex/samp-server-cli.git
-  
+
   - wget https://github.com/Zeex/pawn/releases/download/20150531/pawnc-3.10.20150531-linux.tar.gz
   - sudo tar xvf pawnc-3.10.20150531-linux.tar.gz --strip-components=1 -C /usr/local
   - sudo ldconfig
@@ -56,7 +56,7 @@ before_script:
   - mysql -u root -e "CREATE DATABASE IF NOT EXISTS test;"
   - mysql -u root -e "CREATE USER 'tester'@'127.0.0.1' IDENTIFIED BY '1234';"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'tester'@'127.0.0.1' WITH GRANT OPTION;"
-  
+
   - cmake . -DCMAKE_INSTALL_PREFIX=${SAMP_SERVER_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBOOST_ROOT=boost_1_64_0 -DBUILD_TESTS=ON -DBUILD_STATIC=${STATIC_BUILD}
 
 script:

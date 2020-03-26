@@ -129,7 +129,7 @@ private:
 class CScopedDebugInfo
 {
 public:
-	CScopedDebugInfo(AMX * const amx, const char *func, 
+	CScopedDebugInfo(AMX * const amx, const char *func,
 		cell * const params, const char *params_format = "");
 	~CScopedDebugInfo()
 	{

@@ -19,21 +19,21 @@ environment:
 
 install:
   - git submodule update --init --recursive
-  
+
   - appveyor DownloadFile https://downloads.mariadb.com/Connectors/c/connector-c-3.0.2/mariadb-connector-c-3.0.2-win32.msi
   - msiexec /i mariadb-connector-c-3.0.2-win32.msi /quiet /qn
   - del mariadb-connector-c-3.0.2-win32.msi
-  
+
   - ps: Start-FileDownload http://files.sa-mp.com/samp037_svr_R2-2-1_win32.zip
   - 7z x samp037_svr_R2-2-1_win32.zip -osamp03
-  
+
   - appveyor DownloadFile https://github.com/Zeex/pawn/releases/download/20160702/pawnc-3.10.20160702-windows.zip
   - 7z x pawnc-3.10.20160702-windows.zip
   - set PATH=%PATH%;%CD%\pawnc-3.10.20160702-windows\bin
-  
+
   - set PATH=%PATH%;C:\Python27\Scripts
   - pip install samp-server-cli
-  
+
   - set PATH=%PATH%;C:\Program Files\MySql\MySQL Server 5.7\bin
 
 before_build:
@@ -61,6 +61,6 @@ on_failure:
 artifacts:
   - path: mysql-*-win32.zip
     name: MySQL plugin
-  
+
   - path: samp03\logs
     name: MySQL unit test logs

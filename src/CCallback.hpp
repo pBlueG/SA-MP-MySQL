@@ -62,7 +62,7 @@ public: //functions
 
 public: //factory functions
 	static Callback_t Create(AMX *amx, const char *name, const char *format,
-							 cell *params, cell param_offset, 
+							 cell *params, cell param_offset,
 							 CError<CCallback> &error);
 
 	static Callback_t Create(CError<CCallback> &error,

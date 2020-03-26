@@ -19,10 +19,10 @@ bool ConvertStrToData(const string &src, T &dest)
 {
 	return qi::parse(src.begin(), src.end(),
 		typename std::conditional<
-			std::is_floating_point<T>::value, 
-				qi::real_parser<T>, 
+			std::is_floating_point<T>::value,
+				qi::real_parser<T>,
 				qi::int_parser<T>
-		>::type(), 
+		>::type(),
 		dest);
 }
 
@@ -42,13 +42,13 @@ bool ConvertStrToData(const char *src, T &dest)
 template<typename T, unsigned int B = 10U>
 bool ConvertDataToStr(T src, string &dest)
 {
-	return karma::generate(std::back_inserter(dest), 
+	return karma::generate(std::back_inserter(dest),
 		typename std::conditional<
 			std::is_floating_point<T>::value,
 				karma::real_generator<T>,
 				typename std::conditional<
 					std::is_signed<T>::value,
-						karma::int_generator<T, B>, 
+						karma::int_generator<T, B>,
 						karma::uint_generator<T, B>
 				>::type
 		>::type(),

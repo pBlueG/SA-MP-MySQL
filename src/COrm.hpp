@@ -144,7 +144,7 @@ public:
 		return m_HandleId;
 	}
 
-	CError<COrm> AddVariable(Variable::Type type, const char *name, 
+	CError<COrm> AddVariable(Variable::Type type, const char *name,
 							 cell *var_addr, size_t var_maxlen = 0);
 	CError<COrm> RemoveVariable(const char *name);
 	void ClearAllVariables();
