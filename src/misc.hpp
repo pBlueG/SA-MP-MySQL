@@ -13,6 +13,8 @@ using std::string;
 namespace qi = boost::spirit::qi;
 namespace karma = boost::spirit::karma;
 
+typedef cell (PAWN_NATIVE_API *sscanf_t)(AMX * amx, char * string, char * format, cell * params, int paramCount, char * file, int line);
+extern sscanf_t PawnSScanf;
 
 template<typename T>
 bool ConvertStrToData(const string &src, T &dest)

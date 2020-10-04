@@ -92,4 +92,7 @@ namespace Native
 
 	AMX_DECLARE_NATIVE(cache_get_query_exec_time);
 	AMX_DECLARE_NATIVE(cache_get_query_string);
+	
+	// sscanf natives
+	AMX_DECLARE_NATIVE(cache_get_sscanf);
 };

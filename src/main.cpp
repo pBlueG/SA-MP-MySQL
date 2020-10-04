@@ -10,6 +10,7 @@
 #include "version.hpp"
 
 #include "mysql.hpp"
+#include "sscanf.hpp"
 
 
 
@@ -34,6 +35,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	}
 
 	logprintf(" >> plugin.mysql: " MYSQL_VERSION " successfully loaded.");
+	FindSscanf();
 	return true;
 }
 
@@ -63,6 +65,7 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 
 extern "C" const AMX_NATIVE_INFO native_list[] =
 {
+	AMX_DEFINE_NATIVE(cache_get_sscanf) // MUST come first.
 	AMX_DEFINE_NATIVE(orm_create)
 	AMX_DEFINE_NATIVE(orm_destroy)
 
@@ -148,7 +151,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 {
 	samplog::Api::Get()->RegisterAmx(amx);
 	CCallbackManager::Get()->AddAmx(amx);
-	return amx_Register(amx, native_list, -1);
+	// Skip the first native table entry if `sscanf` isn't loaded.
+	return amx_Register(amx, native_list + (PawnSScanf ? 0 : 1), -1);
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)

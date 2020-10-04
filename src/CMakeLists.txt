@@ -58,6 +58,8 @@ add_samp_plugin(mysql
 	mysql.hpp
 	sdk.hpp
 	types.hpp
+	sscanf.cpp
+	sscanf.hpp
 	plugin.def
 )
 
