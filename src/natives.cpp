@@ -7,6 +7,7 @@
 #include "COrm.hpp"
 #include "CLog.hpp"
 #include "misc.hpp"
+#include "sscanf.hpp"
 
 #include <fstream>
 #include <future>
@@ -1646,6 +1647,65 @@ AMX_DECLARE_NATIVE(Native::cache_is_value_index_null)
 
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
+}
+
+// native cache_get_sscanf(row_idx, const format[], {Float, _}:...);
+AMX_DECLARE_NATIVE(Native::cache_get_sscanf)
+{
+	CScopedDebugInfo dbg_info(amx, "cache_get_sscanf", params, "ds");
+	auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+	if (resultset == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+		return 0;
+	}
+	
+	if (!PawnSScanf)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "sscanf native not loaded");
+		return 0;
+	}
+	
+	const string format = amx_GetCppString(amx, params[2]);
+	if (format.empty())
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "empty sscanf format");
+		return 0;
+	}
+
+	Result_t result = resultset->GetActiveResult();
+	if (result == nullptr)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+		return 0;
+	}
+
+	const cell &row_idx = params[1];
+	if (row_idx >= result->GetRowCount())
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "invalid row index '{}' (number of rows: '{}')",
+							   row_idx, result->GetRowCount());
+		return 0;
+	}
+
+	const char *data = nullptr;
+	if (result->GetRowData(row_idx, 0, &data) == false)
+	{
+		CLog::Get()->LogNative(LogLevel::ERROR,
+							   "invalid row ('{}') index",
+							   params[1]);
+		return 0;
+	}
+
+	if (data == nullptr) //NULL value
+		data = "NULL";
+
+	CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", data);
+
+	int ret = PawnSScanf(amx, const_cast<char *>(data), const_cast<char *>(format.c_str()), params + 3, params[0] / 4 - 2, "MySQL", -1);
+	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '{}'", ret);
+	return ret;
 }
 
 // native cache_get_value_name(row_idx, const column_name[], destination[],
