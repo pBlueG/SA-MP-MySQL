@@ -379,7 +379,7 @@ Handle_t CHandleManager::CreateFromFile(string file_path, CError<CHandle> &error
 
 		//erase comment from line
 		size_t comment_pos = line.find_first_of("#;");
-		if (comment_pos != string::npos)
+		if (comment_pos != string::npos && comment_pos == 0)
 			line.erase(comment_pos);
 
 		if (line.empty())
