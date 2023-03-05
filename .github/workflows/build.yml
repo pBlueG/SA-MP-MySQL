@@ -1,0 +1,110 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "R*"
+    branches:
+      - "master"
+      - "gh-actions"
+    paths:
+      - "**.hpp"
+      - "**.cpp"
+      - "**.h"
+      - "**.c"
+      - "**CMakeLists.txt"
+      - ".github/workflows/build.yml"
+  pull_request:
+    branches:
+      - "master"
+    paths:
+      - "**.hpp"
+      - "**.cpp"
+      - "**.h"
+      - "**.c"
+      - "**CMakeLists.txt"
+      - ".github/workflows/build.yml"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2019, ubuntu-20.04]
+        build-type: [Debug, Release]
+        static-build: [ON, OFF]
+        include:
+          - os: windows-2019
+            cmake-args: "-AWin32 -Thost=x86 -DGH_ACBUILD=TRUE"
+          - os: ubuntu-20.04
+            cmake-args: "-DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32 -DGH_ACBUILD=TRUE"
+
+    runs-on: ${{ matrix.os }}
+    env:
+      BUILD_TYPE: ${{ matrix.build-type }}
+      LOGCORE_VERSION: "0.5.2"
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Set env
+        run: echo "REPO_TAG=$(git describe --tags --always)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: get-cmake
+        uses: lukka/get-cmake@v3.23.0
+
+      - if: runner.os == 'Linux'
+        name: Install gcc/g++-multilib
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt install gcc-9-multilib g++-9-multilib libstdc++-10-dev:i386
+
+      - if: runner.os == 'Windows'
+        name: Install boost
+        run: |
+          $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.64.0/boost_1_64_0-msvc-14.0-32.exe"
+          (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
+          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\\hostedtoolcache\\windows\\Boost"
+
+      - if: runner.os == 'Windows'
+        name: Set boost env
+        run: echo "BOOST_ROOT=C:\\hostedtoolcache\windows\\Boost" >> $GITHUB_ENV
+        shell: bash
+
+      - if: runner.os == 'Linux'
+        name: Install MySQL C Connector (Linux)
+        run: |
+          wget -O connector.tar.gz "https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.tar.gz"
+          tar xzf connector.tar.gz
+          cmake -S mysql-connector-c-* -B connector-build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32 -DCMAKE_INSTALL_PREFIX=/usr -DINSTALL_LAYOUT=DEB
+          make -C connector-build -j2
+          sudo make -C connector-build install
+          sudo ldconfig
+
+      - if: runner.os == 'Windows'
+        name: Setup log-core (Windows)
+        run: |
+            $Url = "https://github.com/maddinat0r/samp-log-core/releases/download/v${env:LOGCORE_VERSION}/samp-log-core-v${env:LOGCORE_VERSION}-win32.zip"
+            (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\samp-log-core.zip")
+            7z x samp-log-core.zip -y
+            move samp-log-core-* "C:\hostedtoolcache\windows\samp-log-core"
+            Add-Content -Path $Env:GITHUB_ENV -Value 'LOGCORE_DIR="C:\hostedtoolcache\windows\samp-log-core\cmake"'
+
+      - if: runner.os == 'Linux'
+        name: Setup log-core (Linux)
+        run: |
+          wget -q "https://github.com/maddinat0r/samp-log-core/releases/download/v${LOGCORE_VERSION}/samp-log-core-v${LOGCORE_VERSION}-Linux.tar.gz" -O samp-log-core.tar.gz
+          mkdir -p samp-log-core && tar zfx samp-log-core.tar.gz -C samp-log-core --strip-components=1
+          echo "LOGCORE_DIR="$PWD/samp-log-core/cmake"" >> $GITHUB_ENV
+
+      - name: Generate build files
+        run: cmake -S . -B build ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DBOOST_ROOT=${{ env.BOOST_ROOT }} -Dlog-core_DIR=${{ env.LOGCORE_DIR }} -DBUILD_STATIC=${{ matrix.static-build }}
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build-type }}
