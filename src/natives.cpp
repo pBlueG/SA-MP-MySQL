@@ -11,6 +11,7 @@
 #include <fstream>
 #include <future>
 #include <fmt/printf.h>
+#include <boost/multiprecision/cpp_int.hpp>
 
 
 // native ORM:orm_create(const table[], MySQL:handle = MYSQL_DEFAULT_HANDLE);
@@ -1698,6 +1699,69 @@ AMX_DECLARE_NATIVE(Native::cache_get_value_name)
 	amx_SetCString(amx, params[3], data, params[4]);
 	CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
 	return 1;
+}
+// native cache_get_value_name_bigint(row_idx, const column_name[], &destination);
+AMX_DECLARE_NATIVE(Native::cache_get_value_name_bigint)
+{
+    CScopedDebugInfo dbg_info(amx, "cache_get_value_name_bigint", params, "dsr");
+    auto resultset = CResultSetManager::Get()->GetActiveResultSet();
+    if (resultset == nullptr)
+    {
+        CLog::Get()->LogNative(LogLevel::ERROR, "no active cache");
+        return 0;
+    }
+
+    cell *dest_addr = nullptr;
+    if (amx_GetAddr(amx, params[3], &dest_addr) != AMX_ERR_NONE
+        || dest_addr == nullptr)
+    {
+        CLog::Get()->LogNative(LogLevel::ERROR, "invalid reference passed");
+        return 0;
+    }
+
+    const string field_name = amx_GetCppString(amx, params[2]);
+    if (field_name.empty())
+    {
+        CLog::Get()->LogNative(LogLevel::ERROR, "empty field name");
+        return 0;
+    }
+
+    Result_t result = resultset->GetActiveResult();
+    if (result == nullptr)
+    {
+        CLog::Get()->LogNative(LogLevel::ERROR, "active cache has no results");
+        return 0;
+    }
+
+    const cell &row_idx = params[1];
+    if (row_idx >= result->GetRowCount())
+    {
+        CLog::Get()->LogNative(LogLevel::ERROR,
+                               "invalid row index '{}' (number of rows: '{}')",
+                               row_idx, result->GetRowCount());
+        return 0;
+    }
+
+    const char *data = nullptr;
+    if (result->GetRowDataByName(row_idx, field_name, &data) == false)
+    {
+        CLog::Get()->LogNative(LogLevel::ERROR, "field '{}' not found", field_name);
+        return 0;
+    }
+
+    boost::multiprecision::cpp_int dest_bigint;
+    if (ConvertStrToData<boost::multiprecision::cpp_int>(data, dest_bigint) == false)
+    {
+        CLog::Get()->LogNative(LogLevel::ERROR, "value '{}' is not a number",
+                               data ? data : "NULL");
+        return 0;
+    }
+
+    *dest_addr = dest_bigint.convert_to<cell>();
+    CLog::Get()->LogNative(LogLevel::DEBUG, "assigned value: '{}'", *dest_addr);
+
+    CLog::Get()->LogNative(LogLevel::DEBUG, "return value: '1'");
+    return 1;
 }
 
 // native cache_get_value_name_int(row_idx, const column_name[], &destination);

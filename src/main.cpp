@@ -125,6 +125,7 @@ extern "C" const AMX_NATIVE_INFO native_list[] =
 
 	AMX_DEFINE_NATIVE(cache_get_value_name)
 	AMX_DEFINE_NATIVE(cache_get_value_name_int)
+	AMX_DEFINE_NATIVE(cache_get_value_name_bigint)
 	AMX_DEFINE_NATIVE(cache_get_value_name_float)
 	AMX_DEFINE_NATIVE(cache_is_value_name_null)
 
