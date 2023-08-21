@@ -193,6 +193,11 @@ stock cache_num_results()
 #define MSCGVI1:MSCGVI2:cache_get_value_int_ovrld(%1,%8string%9:%2,%3) cache_get_value_name_int(%1,%2,%3)
 #define MSCGVI2:cache_get_value_int_ovrld(%1,%2,%3) cache_get_value_index_int(%1,%2,%3)
 
+#define cache_get_value_bigint(%1) (_:MSCGVI0:MSCGVI1:MSCGVI2:cache_get_value_bigint_ovrld(%1))
+#define MSCGVI0:MSCGVI1:MSCGVI2:cache_get_value_bigint_ovrld(%1,"%2",%3) cache_get_value_name_bigint(%1,#%2,%3)
+#define MSCGVI1:MSCGVI2:cache_get_value_bigint_ovrld(%1,%8string%9:%2,%3) cache_get_value_name_bigint(%1,%2,%3)
+#define MSCGVI2:cache_get_value_bigint_ovrld(%1,%2,%3) cache_get_value_index_bigint(%1,%2,%3)
+
 #define cache_get_value_float(%1) (_:MSCGVF0:MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1))
 #define MSCGVF0:MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1,"%2",%3) cache_get_value_name_float(%1,#%2,%3)
 #define MSCGVF1:MSCGVF2:cache_get_value_float_ovrld(%1,%8string%9:%2,%3) cache_get_value_name_float(%1,%2,%3)
@@ -214,6 +219,7 @@ native cache_is_value_index_null(row_idx, column_idx, &bool:destination);
 
 native cache_get_value_name(row_idx, const column_name[], destination[], max_len = sizeof(destination));
 native cache_get_value_name_int(row_idx, const column_name[], &destination);
+native cache_get_value_name_bigint(row_idx, const column_name[], &destination);
 native cache_get_value_name_float(row_idx, const column_name[], &Float:destination);
 native cache_get_value_name_bool(row_idx, const column_name[], &bool:destination) = cache_get_value_name_int;
 native cache_is_value_name_null(row_idx, const column_name[], &bool:destination);
