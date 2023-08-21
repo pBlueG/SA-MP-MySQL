@@ -76,6 +76,7 @@ namespace Native
 
 	AMX_DECLARE_NATIVE(cache_get_value_name);
 	AMX_DECLARE_NATIVE(cache_get_value_name_int);
+	AMX_DECLARE_NATIVE(cache_get_value_name_bigint);
 	AMX_DECLARE_NATIVE(cache_get_value_name_float);
 	AMX_DECLARE_NATIVE(cache_is_value_name_null);
 
